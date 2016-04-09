@@ -30,13 +30,11 @@
 ###
 # conversion script for the Crypt Of The Necrodancer installer sold on GOG.com
 # build a .deb package from the .sh MojoSetup installer
-# tested on Debian, should work on any .deb-based distribution
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160209.1
+script_version=20160409.1
 
 # Set game-specific variables
 
@@ -48,11 +46,11 @@ GAME_NAME='Crypt Of The Necrodancer'
 
 GAME_ARCHIVE1='gog_crypt_of_the_necrodancer_2.1.0.3.sh'
 GAME_ARCHIVE1_MD5='6621ca4a1950b26349dd5f209b351b3e'
-GAME_ARCHIVE_FULLSIZE='3000000'
-PKG_REVISION='2.1.0.3'
+GAME_ARCHIVE_FULLSIZE='1500000'
+PKG_REVISION='gog2.1.0.3'
 
 INSTALLER_DOC='data/noarch/docs/* data/noarch/game/license.txt'
-INSTALLER_GAME='data/noarch/support/icon.png data/noarch/game/*'
+INSTALLER_GAME='data/noarch/game/*'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -68,7 +66,7 @@ APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./NecroDancer'
-APP1_ICON='icon.png'
+APP1_ICON='data/noarch/support/icon.png'
 APP1_ICON_RES='256x256'
 APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
@@ -77,7 +75,7 @@ APP1_CAT='Game'
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH='i386'
 PKG1_VERSION='1.19'
-PKG1_DEPS='libglu1-mesa | libglu1, libopenal1, libglfw2'
+PKG1_DEPS='libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
@@ -131,12 +129,10 @@ PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON="/usr/local/share/icons/hicolor/${APP1_ICON_RES}/apps"
+PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
 printf '\n'
-
 set_target '1' 'gog.com'
-
 printf '\n'
 
 # Check target files integrity
@@ -147,6 +143,7 @@ fi
 
 # Extract game data
 
+PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON}"
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
@@ -159,48 +156,27 @@ for file in ${INSTALLER_GAME}; do
 	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
 done
 
+mv "${PKG_TMPDIR}/${APP1_ICON}" "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png"
+
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
 
 rm -rf "${PKG_TMPDIR}"
-
 print done
 
 # Write launchers
 
-write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
-
+write_bin_native_prefix_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
+write_bin_native_prefix "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
-
 printf '\n'
 
 # Build packages
-
-file="${PKG1_DIR}/DEBIAN/postinst"
-
-cat > "${file}" <<- EOF
-#!/bin/sh -e
-ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
-exit 0
-EOF
-
-chmod 755 "${file}"
-
-file="${PKG1_DIR}/DEBIAN/prerm"
-
-cat > "${file}" <<- EOF
-#!/bin/sh -e
-rm "${PATH_ICON}/${GAME_ID}.png"
-exit 0
-EOF
-
-chmod 755 "${file}"
 
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" ''
 
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
-
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
