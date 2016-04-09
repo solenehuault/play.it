@@ -30,13 +30,11 @@
 ###
 # conversion script for the Beatbuddy archive sold on HumbleBundle.com
 # build a .deb package from the .zip archive
-# tested on Debian, should work on any .deb-based distribution
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160212.1
+script_version=20160409.1
 
 # Set game-specific variables
 
@@ -51,8 +49,8 @@ GAME_ARCHIVE1_MD5='156d19b327a02ac4a277f6f6ad4e188e'
 GAME_ARCHIVE_FULLSIZE='1100000'
 PKG_REVISION='humble150815'
 
-INSTALLER_GAME_PKG1='Beatbuddy/Beatbuddy_Data/*.assets'
-INSTALLER_GAME_PKG2='Beatbuddy/*'
+INSTALLER_GAME_PKG1='Beatbuddy/*'
+INSTALLER_GAME_PKG2='Beatbuddy/Beatbuddy_Data/*.assets'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -76,25 +74,27 @@ APP1_CAT='Game'
 
 PKG_VERSION='1.0'
 
-PKG1_ID="${GAME_ID}-assets"
+PKG1_ID="${GAME_ID}"
 PKG1_VERSION="${PKG_VERSION}"
-PKG1_ARCH='all'
+PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
-PKG1_DEPS=''
+PKG1_DEPS="libglu1-mesa | libglu1"
 PKG1_RECS=''
-PKG1_DESC="${GAME_NAME} - assets
+PKG1_DESC="${GAME_NAME}
  package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
 
-PKG2_ID="${GAME_ID}"
+PKG2_ID="${GAME_ID}-assets"
 PKG2_VERSION="${PKG_VERSION}"
-PKG2_ARCH='i386'
+PKG2_ARCH='all'
 PKG2_CONFLICTS=''
-PKG2_DEPS="${PKG1_ID}:${PKG1_ARCH} (= ${PKG2_VERSION}-${PKG_REVISION}), libglu1-mesa | libglu1"
+PKG2_DEPS=''
 PKG2_RECS=''
-PKG2_DESC="${GAME_NAME}
+PKG2_DESC="${GAME_NAME} - assets
  package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
+
+PKG1_DEPS="${PKG1_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
 
 # Load common functions
 
@@ -144,12 +144,10 @@ game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON="/usr/local/share/icons/hicolor/${APP1_ICON_RES}/apps"
+PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
 printf '\n'
-
 set_target '1' 'humblebundle.com'
-
 printf '\n'
 
 # Check target files integrity
@@ -160,74 +158,64 @@ fi
 
 # Extract game data
 
-printf '%s…\n' "$(l10n 'build_pkg_dirs')"
-rm -rf "${PKG1_DIR}" "${PKG2_DIR}"
-mkdir -p "${PKG1_DIR}/DEBIAN" "${PKG1_DIR}${PATH_GAME}/Beatbuddy_Data"
-mkdir -p "${PKG2_DIR}/DEBIAN" "${PKG2_DIR}${PATH_BIN}" "${PKG2_DIR}${PATH_GAME}" "${PKG2_DIR}${PATH_DESK}" "${PKG2_DIR}${PATH_ICON}"
-
+PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
+build_pkg_dirs '1' "${PATH_BIN}" "${PATH_GAME}" "${PATH_DESK}" "${PATH_ICON}"
+rm -rf "${PKG2_DIR}"
+mkdir -p "${PKG2_DIR}/DEBIAN" "${PKG2_DIR}${PATH_GAME}/Beatbuddy_Data"
 print wait
 
 extract_data 'zip' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
-for file in ${INSTALLER_GAME_PKG1}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}/Beatbuddy_Data"
-done
-
 for file in ${INSTALLER_GAME_PKG2}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}"
+	mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}/Beatbuddy_Data"
 done
 
-chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE}"
+for file in ${INSTALLER_GAME_PKG1}; do
+	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+done
+
+chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
 
 rm -rf "${PKG_TMPDIR}"
-
 print done
 
 # Write launchers
 
-write_bin_native_prefix_common "${PKG2_DIR}${PATH_BIN}/${APP_COMMON_ID}"
-write_bin_native_prefix "${PKG2_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '-logFile ./logs/${GAME_EXE}_$(date +%F-%R).log' '' '' "${APP1_NAME}"
+write_bin_native_prefix_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
+write_bin_native_prefix "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '-logFile ./logs/${GAME_EXE}_$(date +%F-%R).log' '' '' "${APP1_NAME}"
 
-write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG2_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
-
+write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
 printf '\n'
 
 # Build package
 
 printf '%s…\n' "$(l10n 'build_pkgs')"
-
 print wait
 
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}"
 
 file="${PKG2_DIR}/DEBIAN/postinst"
-
 cat > "${file}" << EOF
 #!/bin/sh -e
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
-
 chmod 755 "${file}"
 
 file="${PKG2_DIR}/DEBIAN/prerm"
-
 cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
-
 chmod 755 "${file}"
 
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet'
 build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet'
-
 print done
 
-print_instructions "${PKG2_DESC}" "${PKG1_DIR}" "${PKG2_DIR}"
-
+print_instructions "${PKG1_DESC}" "${PKG2_DIR}" "${PKG1_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
