@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.13.16
+# library version 1.13.17
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -184,6 +184,13 @@ case $# in
 	;;
 esac
 if [ "${opts_quiet}" = '0' ]; then print done; fi
+}
+
+checksum_error() {
+local file="$1"
+print error
+printf '%s\n%s %s\n' "$(l10n 'checksum_error_1')" "${file}" "$(l10n 'checksum_error_2')"
+exit 1
 }
 
 extract_data() {
