@@ -30,13 +30,11 @@
 ###
 # conversion script for the Heroes of Might and Magic 4 Complete installer sold on GOG.com
 # build a .deb package from the Windows installer
-# tested on Debian, should work on any .deb-based distribution
-#
-# script version 20160128.1
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
+
+script_version=20160331.1
 
 # Set game-specific variables
 
@@ -77,15 +75,15 @@ APP1_ID="${GAME_ID}"
 APP1_EXE='./heroes4.exe'
 APP1_ICON='./heroes4.exe'
 APP1_ICON_RES='16x16 32x32'
-APP1_NAME="${GAME_NAME_SHORT}: Winds of War"
+APP1_NAME="${GAME_NAME_SHORT} - Winds of War"
 APP1_NAME_FR="${APP1_NAME}"
 
 APP2_ID="${GAME_ID}_edit"
 APP2_EXE='./campaign_editor.exe'
 APP2_ICON='./campaign_editor.exe'
 APP2_ICON_RES='16x16 32x32 48x48 64x64'
-APP2_NAME="${GAME_NAME_SHORT}: campaign editor"
-APP2_NAME_FR="${GAME_NAME_SHORT}: éditeur de campagnes"
+APP2_NAME="${GAME_NAME_SHORT} - campaign editor"
+APP2_NAME_FR="${GAME_NAME_SHORT} - éditeur de campagnes"
 
 PKG1_ID="${GAME_ID}"
 PKG1_VERSION='3.0'
@@ -95,21 +93,25 @@ PKG1_DEPS='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | 
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com Windows installer
- ./play.it script version 20160128.1"
+ ./play.it script version ${script_version}"
 
 # Load common functions
 
 TARGET_LIB_VERSION='1.13'
+
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
 fi
+
 if ! [ -e "${PLAYIT_LIB}" ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'play-anything.sh not found.\n'
 	printf 'It must be placed in the same directory than this script.\n\n'
 	exit 1
 fi
+
 LIB_VERSION="$(grep '^# library version' "${PLAYIT_LIB}" | cut -d' ' -f4 | cut -d'.' -f1,2)"
+
 if [ ${LIB_VERSION%.*} -ne ${TARGET_LIB_VERSION%.*} ] || [ ${LIB_VERSION#*.} -lt ${TARGET_LIB_VERSION#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'Wrong version of play-anything.\n'
@@ -117,25 +119,28 @@ if [ ${LIB_VERSION%.*} -ne ${TARGET_LIB_VERSION%.*} ] || [ ${LIB_VERSION#*.} -lt
 	printf 'but lower than %s.\n\n' "$((${TARGET_LIB_VERSION%.*}+1)).0"
 	exit 1
 fi
+
 . "${PLAYIT_LIB}"
 
 # Set extra variables
 
-PKG_PREFIX_DEFAULT='/usr/local'
-PKG_COMPRESSION_DEFAULT='none'
-GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
-GAME_LANG_DEFAULT=''
-WITH_MOVIES_DEFAULT=''
+NO_ICON=0
 
-printf '\n'
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_ORIGIN}${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
+PKG_COMPRESSION_DEFAULT='none'
+PKG_PREFIX_DEFAULT='/usr/local'
+
 fetch_args "$@"
-check_deps "${SCRIPT_DEPS_HARD}" "${SCRIPT_DEPS_SOFT}"
-printf '\n'
+
 set_checksum
 set_compression
 set_prefix
+
+check_deps_hard ${SCRIPT_DEPS_HARD}
+check_deps_soft ${SCRIPT_DEPS_SOFT}
+
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -159,20 +164,26 @@ fi
 
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_DESK_DIR}" "${PATH_DESK_MERGED}" "${PATH_GAME}"
 print wait
+
 extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+
 for file in ${INSTALLER_JUNK}; do
 	rm -rf "${PKG_TMPDIR}"/${file}
 done
+
 for file in ${INSTALLER_DOC}; do
 	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
 done
+
 for file in ${INSTALLER_GAME}; do
 	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
 done
+
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
 	extract_icons "${APP2_ID}" "${APP2_ICON}" "${APP2_ICON_RES}" "${PKG_TMPDIR}"
 fi
+
 rm -rf "${PKG_TMPDIR}"
 print done
 
@@ -183,6 +194,7 @@ sed -i 's|\trm "${WINEPREFIX}/dosdevices/z:"|&\n\twinetricks ddr=gdi|' "${PKG1_D
 write_bin_wine_cfg "${PKG1_DIR}${PATH_BIN}/${GAME_ID_SHORT}-winecfg"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' "${APP1_NAME}"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP2_ID}" "${APP2_EXE}" '' '' "${APP2_NAME}"
+
 write_menu "${GAME_ID}" "${MENU_NAME}" "${MENU_NAME_FR}" "${MENU_CAT}" "${PKG1_DIR}${PATH_DESK_DIR}/${GAME_ID}.directory" "${PKG1_DIR}${PATH_DESK_MERGED}/${GAME_ID}.menu" 'wine' "${APP1_ID}" "${APP2_ID}"
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" '' 'wine'
 write_desktop "${APP2_ID}" "${APP2_NAME}" "${APP2_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP2_ID}.desktop" '' 'wine'
@@ -190,8 +202,10 @@ printf '\n'
 
 # Build package
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_ORIGIN}${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'defaults'
+
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
