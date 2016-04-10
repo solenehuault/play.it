@@ -29,11 +29,9 @@
 
 ###
 # common functions for ./play.it scripts
-#
-# library version 1.13.15
+# library version 1.13.16
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
 build_pkg() {
@@ -561,21 +559,6 @@ for archive in "$@"; do
 		export ${varname}=''
 	fi
 done
-}
-
-set_workdirs() {
-local pkg_nb="$1"
-if [ -z "${GAME_ID_SHORT}" ]; then
-	export GAME_ID_SHORT="${GAME_ID}"
-fi
-if [ -z "${GAME_ARCHIVE_FULLSIZE}" ]; then
-	export GAME_ARCHIVE_FULLSIZE="${GAME_FULL_SIZE}"
-fi
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_ORIGIN}${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-if [ ${pkg_nb} -ge 2 ]; then
-	game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_ORIGIN}${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-fi
 }
 
 tolower() {
@@ -1383,6 +1366,11 @@ cat > "${target}" << EOF
 Package: ${id}
 Version: ${version}
 Architecture: ${arch}
+EOF
+if [ "${arch}" = 'all' ]; then
+	printf 'Multi-Arch: foreign\n' >> "${target}"
+fi
+cat >> "${target}" << EOF
 Maintainer: ${maint}
 Installed-Size: ${size}
 EOF
