@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160331.1
+script_version=20160411.1
 
 # Set game-specific variables
 
@@ -54,7 +54,7 @@ INSTALLER_JUNK='app/gameuxinstallhelper.dll app/gfw_high.ico app/gog.ico app/gog
 INSTALLER_DOC='app/manual.pdf app/*.txt tmp/gog_eula.txt'
 INSTALLER_GAME='app/*'
 
-TRADFR_URL='http://www.dotslashplay.it/ressources/icewind-dale/'
+TRADFR_URL='http://wiki.dotslashplay.it/fr/traductions/icewind-dale'
 TRADFR_ARCHIVE1='iwd1fr-full.7z'
 TRADFR_ARCHIVE1_MD5='26db385def6b4a3a5bd207d0610c4fd5'
 TRADFR_ARCHIVE2='iwd1fr-light.7z'
