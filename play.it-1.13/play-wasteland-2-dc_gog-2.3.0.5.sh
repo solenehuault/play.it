@@ -32,7 +32,7 @@
 # build a .deb package from the MojoSetup installer
 # tested on Debian, should work on any .deb-based distribution
 #
-# script version 20151127.1
+# script version 20160414.1
 #
 # send your bug reports to vv221@dotslashplay.it
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
@@ -44,11 +44,11 @@ GAME_ID='wasteland-2-dc'
 GAME_ID_SHORT='wl2dc'
 GAME_NAME='Wasteland 2 Director’s Cut'
 
-GAME_ARCHIVE1='gog_wasteland_2_director_s_cut_2.2.0.4.sh'
-GAME_ARCHIVE1_MD5='a42631fc52be280884c08b297413164b'
+GAME_ARCHIVE1='gog_wasteland_2_director_s_cut_2.3.0.5.sh'
+GAME_ARCHIVE1_MD5='dc697b13e1f08de606add7684b5b3f78'
 GAME_ARCHIVE_FULLSIZE='16000000'
 PKG_ORIGIN='gog'
-PKG_REVISION='2.2.0.4'
+PKG_REVISION='2.3.0.5'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./WL2'
