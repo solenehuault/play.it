@@ -28,13 +28,13 @@
 ###
 
 ###
-# conversion script for the Icewind Dale - Enhanced Edition installer sold on HumbleBundle.com
+# conversion script for the Icewind Dale - Enhanced Edition installer sold on GOG.com
 # build a .deb package from the MojoSetup (.sh) installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160412.1
+script_version=20160413.1
 
 # Set game-specific variables
 
@@ -67,7 +67,7 @@ PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx, libjson0, libopenal1, libssl1.0.0'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
- package built from HumbleBundle.com archive
+ package built from GOG.com archive
  ./play.it script version ${script_version}"
 
 # Load common functions
