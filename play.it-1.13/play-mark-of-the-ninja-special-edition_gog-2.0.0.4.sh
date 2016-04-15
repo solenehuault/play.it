@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160415.2
+script_version=20160415.3
 
 # Set game-specific variables
 
@@ -190,7 +190,7 @@ for file in ${INSTALLER_GAME_PKG2}; do
 done
 
 mv "${PKG1_DIR}${PATH_GAME}/bin/ninja-bin32" "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
-mv "${PKG1_DIR}${PATH_GAME}/bin/ninja-bin64" "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
+mv "${PKG2_DIR}${PATH_GAME}/bin/ninja-bin64" "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
