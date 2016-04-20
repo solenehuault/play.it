@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160419.1
+script_version=20160420.1
 
 # Set game-specific variables
 
@@ -42,7 +42,7 @@ SCRIPT_DEPS_HARD='fakeroot realpath unzip'
 
 GAME_ID='baldurs-gate-2-ee'
 GAME_ID_SHORT='bg2ee'
-GAME_NAME='Baldurs Gate 2 - Enhanced Edition'
+GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
 
 GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.2.0.6.sh'
 GAME_ARCHIVE1_MD5='b719ae3b7f4d2b8dd64f0b1fbb526084'
