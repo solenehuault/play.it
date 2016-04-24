@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160424.1
+script_version=20160424.2
 
 # Set game-specific variables
 
@@ -141,7 +141,7 @@ printf '\n'
 set_target '1' 'gog.com'
 set_target_extra 'CLIENT_ARCHIVE' '' "${GAME_ARCHIVE2}"
 set_target_optional 'MOVIES_ARCHIVE' "${GAME_ARCHIVE3}"
-if [ -n "$MOVIES_ARCHIVE" ]; then
+if [ -n "${MOVIES_ARCHIVE}" ]; then
 	SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} 7z"
 fi
 printf '\n'
@@ -164,7 +164,7 @@ if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
 	print wait
 	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE1_MD5}"
 	checksum "${CLIENT_ARCHIVE}" 'quiet' "${GAME_ARCHIVE2_MD5}"
-	[ -n "$MOVIES_ARCHIVE" ] && checksum "${MOVIES_ARCHIVE}" 'quiet' "${GAME_ARCHIVE3_MD5}"
+	[ -n "${MOVIES_ARCHIVE}" ] && checksum "${MOVIES_ARCHIVE}" 'quiet' "${GAME_ARCHIVE3_MD5}"
 	print done
 fi
 
@@ -194,8 +194,8 @@ mv "${PKG1_DIR}${PATH_GAME}/data"/*.ttf "${PKG1_DIR}${PATH_GAME}/data/fonts"
 
 extract_data 'tar' "${CLIENT_ARCHIVE}" "${PKG1_DIR}${PATH_GAME}" 'quiet'
 
-if [ -n "$MOVIES_ARCHIVE" ]; then
-	extract_data '7z' "${MOVIES_ARCHIVE}" "${PKG1_DIR}${PATH_GAME}" 'quiet'
+if [ -n "${MOVIES_ARCHIVE}" ]; then
+	extract_data '7z' "${MOVIES_ARCHIVE}" "${PKG1_DIR}${PATH_GAME}/data" 'quiet'
 fi
 
 if [ "${NO_ICON}" = '0' ]; then
