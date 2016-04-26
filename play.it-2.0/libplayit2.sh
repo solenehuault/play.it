@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160425.1
+library_revision=20160426.1
 
 testvar() { [ -n "$(echo "$1" | grep ^${2}[0-9]$)" ] || return 1; }
 

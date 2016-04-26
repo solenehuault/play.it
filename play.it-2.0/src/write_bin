@@ -1,0 +1,290 @@
+write_bin() {
+local app="$1"
+testvar "$app" 'APP' || liberror 'app' 'write_bin'
+local app_id=$(eval echo \$${app}_ID)
+local app_type=$(eval echo \$${app}_TYPE)
+local file="${PKG_PATH}${PATH_BIN}/${app_id}"
+mkdir --parents "${file%/*}"
+write_bin_header
+write_bin_set_vars
+if [ "$app_type" != 'scummvm' ]; then
+	local app_exe="$(eval echo \$${app}_EXE)"
+	write_bin_set_exe
+	write_bin_set_prefix
+	write_bin_build_userdirs
+	write_bin_build_prefix
+fi
+write_bin_run
+chmod 755 "$file"
+}
+
+write_bin_header() {
+cat > "$file" << EOF
+#!/bin/sh
+set -o errexit
+set -o nounset
+
+EOF
+}
+
+write_bin_set_vars() {
+cat >> "$file" << EOF
+# Set game-specific variables
+
+GAME_ID="$GAME_ID"
+PATH_GAME="$PATH_GAME"
+
+EOF
+if [ "$app_type" != 'scummvm' ]; then
+	cat >> "$file" <<- EOF
+	CACHE_DIRS='$CACHE_DIRS'
+	CACHE_FILES='$CACHE_FILES'
+	
+	CONFIG_DIRS='$CONFIG_DIRS'
+	CONFIG_FILES='$CONFIG_FILES'
+	
+	DATA_DIRS='$DATA_DIRS'
+	DATA_FILES='$DATA_FILES'
+	
+	EOF
+else
+	cat >> "$file" <<- EOF
+	SCUMMVM_ID='$(eval echo \$${app}_SCUMMID)'
+	
+	EOF
+fi
+}
+
+write_bin_set_exe() {
+cat >> "$file" << EOF
+# Set executable file
+
+unset APP_EXE
+case "\${0##*/}" in
+	$app_id) APP_EXE="$app_exe" ;;
+	*) [ -n "\$1" ] && APP_EXE="\$1" && shift 1 ;;
+esac
+
+EOF
+[ "$app_type" = 'wine' ] && echo "[ -z \"\$APP_EXE\" ] && APP_EXE='winecfg'\n" >> "$file"
+}
+
+write_bin_set_prefix() {
+cat >> "$file" << EOF
+# Set prefix name
+
+[ -n "\$PREFIX_ID" ] || PREFIX_ID="$GAME_ID"
+
+EOF
+write_bin_set_prefix_vars
+write_bin_set_prefix_funcs
+}
+
+write_bin_set_prefix_vars() {
+cat >> "$file" << EOF
+# Set prefix-specific variables
+
+[ -w "\$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="\${HOME}/.cache"
+[ -w "\$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="\${HOME}/.config"
+[ -w "\$XDG_DATA_HOME" ] || XGD_DATA_HOME="\${HOME}/.local/share"
+PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
+PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
+PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
+EOF
+if [ "$app_type" = 'wine' ] ; then
+	write_bin_set_prefix_vars_wine
+else
+	cat >> "$file" <<- EOF
+	PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+	EOF
+fi
+}
+
+write_bin_set_prefix_vars_wine() {
+cat >> "$file" << EOF
+WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
+WINEARCH='win32'
+WINEDEBUG='-all'
+WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
+EOF
+}
+
+write_bin_set_prefix_funcs() {
+cat >> "$file" << EOF
+clean_userdir() {
+local target="\$1"
+shift 1
+for file in "\$@"; do
+if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
+	mkdir -p "\${target}/\${file%/*}"
+	mv "\${file}" "\${target}/\${file}"
+	ln -s "\${target}/\${file}" "\${file}"
+fi
+done
+}
+
+init_prefix_dirs() {
+cd "\$1"
+shift 1
+for dir in "\$@"; do
+	rm -rf "\${PATH_PREFIX}/\${dir}"
+	mkdir -p "\${PATH_PREFIX}/\${dir%/*}"
+	ln -s "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+done
+cd - 1>/dev/null
+}
+
+init_prefix_files() {
+cd "\$1"
+find . -type f | while read file; do
+	rm -f "\${PATH_PREFIX}/\${file}"
+	mkdir -p "\${PATH_PREFIX}/\${file%/*}"
+	ln -s "\$(readlink -e "\${file}")" "\${PATH_PREFIX}/\${file}"
+done
+cd - 1>/dev/null
+}
+
+init_userdir_dirs() {
+cd "\$1"
+shift 1
+for dir in "\$@"; do
+if ! [ -e "\$dir" ]; then
+	if [ -e "\${PATH_GAME}/\${dir}" ]; then
+		mkdir -p "\${dir%/*}"
+		cp -r "\${PATH_GAME}/\${dir}" "\$dir"
+	else
+		mkdir -p "\$dir"
+	fi
+fi
+done
+cd - 1>/dev/null
+}
+
+init_userdir_files() {
+cd "\$1"
+shift 1
+for file in "\$@"; do
+if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
+	mkfile -p "\${file%/*}"
+	cp "\${PATH_GAME}/\${file}" "\$file"
+fi
+done
+cd - 1>/dev/null
+}
+
+EOF
+}
+
+write_bin_build_userdirs() {
+cat >> "$file" << EOF
+# Build user-writable directories
+
+if [ ! -e "\$PATH_CACHE" ]; then
+	mkdir -p "\$PATH_CACHE"
+	init_userdir_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
+	init_userdir_files "\$PATH_CACHE" \$GAME_CACHE_FILES
+fi
+if [ ! -e "\$PATH_CONFIG" ]; then
+	mkdir -p "\$PATH_CONFIG"
+	init_userdir_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
+	init_userdir_files "\$PATH_CONFIG" \$GAME_CONFIG_FILES
+fi
+if [ ! -e "\$PATH_DATA" ]; then
+	mkdir -p "\$PATH_DATA"
+	init_userdir_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
+	init_userdir_files "\$PATH_DATA" \$GAME_DATA_FILES
+fi
+
+EOF
+}
+
+write_bin_build_userdirs() {
+cat >> "$file" << EOF
+# Build prefix
+
+EOF
+[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
+cat >> "$file" << EOF
+if [ ! -e "\$PATH_PREFIX" ]; then
+	mkdir -p "\$PATH_PREFIX"
+	cp -surf "\${PATH_GAME}"/* "\${PATH_PREFIX}"
+fi
+init_prefix_files "\$PATH_CACHE"
+init_prefix_files "\$PATH_CONFIG"
+init_prefix_files "\$PATH_DATA"
+init_prefix_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
+init_prefix_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
+init_prefix_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
+
+EOF
+}
+
+write_bin_build_userdirs_wine() {
+cat >> "$file" << EOF
+export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
+if ! [ -e "\$WINEPREFIX" ]; then
+	mkdir -p "\${WINEPREFIX%/*}"
+	wineboot -i 2>/dev/null
+	rm "\${WINEPREFIX}/dosdevices/z:"
+fi
+EOF
+}
+
+write_bin_run() {
+cat >> "$file" << EOF
+# Run the game
+
+EOF
+case $app_type in
+	dosbox) write_bin_run_dosbox ;;
+	native) write_bin_run_native ;;
+	scummvm) write_bin_run_scummvm ;;
+	wine) write_bin_run_wine ;;
+esac
+if ! [ $app_type = 'scummvm' ]; then
+	cat >> "$file" <<- EOF
+	
+	sleep 5
+	clean_userdir "\$PATH_CACHE" \$CACHE_FILES
+	clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
+	clean_userdir "\$PATH_DATA" \$DATA_FILES
+	EOF
+fi
+cat >> "$file" <<- EOF
+
+exit 0
+EOF
+}
+
+write_bin_run_dosbox() {
+cat >> "$file" << EOF
+cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+dosbox -c "mount c .
+c:
+imgmount d \$GAME_IMAGE -t iso -fs iso
+\${APP_EXE##*/} \$@
+exit"
+EOF
+}
+
+write_bin_run_native() {
+cat >> "$file" << EOF
+cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+./\${APP_EXE##*/} \$@
+EOF
+}
+
+write_bin_run_scummvm() {
+cat >> "$file" << EOF
+scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
+EOF
+}
+
+write_bin_run_wine() {
+cat >> "$file" << EOF
+cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+wine "\${APP_EXE##*/}" \$@
+EOF
+}
+
