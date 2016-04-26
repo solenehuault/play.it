@@ -36,7 +36,7 @@
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160212.1
+script_version=20160426.1
 
 # Set game-specific variables
 
@@ -46,20 +46,19 @@ GAME_ID='beneath-a-steel-sky'
 GAME_ID_SHORT='bass'
 GAME_NAME='Beneath a Steel Sky'
 
-GAME_ARCHIVE1='gog_beneath_a_steel_sky_2.0.0.3.sh'
-GAME_ARCHIVE1_MD5='bafc8867bba791bbb661cc64772efe8f'
-GAME_ARCHIVE2='gog_beneath_a_steel_sky_french_2.0.0.3.sh'
-GAME_ARCHIVE2_MD5='4999eba2374a5580d77f0fbab1657fbc'
+GAME_ARCHIVE1='gog_beneath_a_steel_sky_2.1.0.4.sh'
+GAME_ARCHIVE1_MD5='603887dd11b4dec2ff43553ce40303a0'
 GAME_ARCHIVE_FULLSIZE='130000'
-PKG_REVISION='gog2.0.0.3'
+PKG_REVISION='gog2.1.0.4'
 
-INSTALLER_JUNK='data/noarch/docs/scummvm'
-INSTALLER_DOC='data/noarch/docs/* data/noarch/data/readme.txt'
-INSTALLER_GAME='data/noarch/data/sky.* data/noarch/support/icon.png'
+INSTALLER_PATH='data/noarch'
+INSTALLER_JUNK='docs/scummvm'
+INSTALLER_DOC='docs/* data/readme.txt'
+INSTALLER_GAME='data/sky.*'
 
 APP1_ID="${GAME_ID}"
 APP1_SCUMMID='sky'
-APP1_ICON='./icon.png'
+APP1_ICON='data/noarch/support/icon.png'
 APP1_ICON_RES='256x256'
 APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
@@ -128,9 +127,7 @@ PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
 printf '\n'
-
-set_target '2' 'gog.com'
-
+set_target '1' 'gog.com'
 printf '\n'
 
 # Check target file integrity
@@ -141,38 +138,35 @@ fi
 
 # Extract game data
 
-build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON_BASE}"
-
+PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
+build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON}"
 print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet,tolower'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_JUNK}; do
-	rm -rf "${PKG_TMPDIR}"/${file}
+	rm -rf "${file}"
 done
 
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - 1>/dev/null
 
-PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
-mkdir -p "${PKG1_DIR}${PATH_ICON}"
-mv "${PKG1_DIR}${PATH_GAME}/${APP1_ICON}" "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png"
+mv "${PKG_TMPDIR}/${APP1_ICON}" "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png"
 
 rm -rf "${PKG_TMPDIR}"
-
 print done
 
 # Write launchers
 
 write_bin_scummvm "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_SCUMMID}" '-q ${LANG%%_*}' '' "${APP1_NAME}"
-
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
-
 printf '\n'
 
 # Build package
@@ -180,9 +174,7 @@ printf '\n'
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 
 file="${PKG1_DIR}/etc/apt/preferences.d/${GAME_ID}"
-
 mkdir -p "${file%/*}"
-
 cat > "${file}" << EOF
 Package: ${GAME_ID}
 Pin: release o=Debian
@@ -192,7 +184,6 @@ EOF
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
-
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
