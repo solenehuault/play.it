@@ -33,39 +33,57 @@
 ###
 
 library_version=2.0
+library_revision=20160425.1
 
 testvar() { [ -n "$(echo "$1" | grep ^${2}[0-9]$)" ] || return 1; }
 
+string_error_en="\n\033[1;31mError:\033[0m"
+string_error_fr="\n\033[1;31mErreur :\033[0m"
+
 build_pkg() {
 local pkg=$1
-testvar "$pkg" 'PKG'
+testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
 local pkg_path="$(eval echo \$${pkg}_PATH)"
 case $PACKAGE_TYPE in
 	deb) build_pkg_deb ;;
 	tar) build_pkg_tar ;;
+	*) liberror 'PACKAGE_TYPE' 'build_pkg'
 esac
 }
 
 build_pkg_deb() {
 local pkg_filename="${PWD}/${pkg_path##*/}.deb"
-TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename"
+build_pkg_print
+TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
 }
 
 build_pkg_tar() {
 local pkg_filename="${PWD}/${pkg_path##*/}.tar"
+build_pkg_print
 cd "$pkg_path"
-tar --create --verbose --file "$pkg_filename" .
+tar --create --file "$pkg_filename" .
 cd -
 }
 
+build_pkg_print() {
+case ${LANG%_*} in
+	fr) echo "Construction de $pkg_filename" ;;
+	en|*) echo "Building $pkg_filename" ;;
+esac
+}
+
 check_deps() {
-[ "$ARCHIVE_TYPE" = 'mojosetup' ] && SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} unzip"
-[ "$CHECKSUM_METHOD" = 'md5sum' ] && SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} md5sum"
-[ "$PACKAGE_TYPE" = 'deb' ] && SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} fakeroot dpkg"
-for dep in $SCRIPT_DEPS_HARD; do
+[ "$ARCHIVE_TYPE" = 'innosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
+[ "$ARCHIVE_TYPE" = 'mojosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+[ "$ARCHIVE_TYPE" = 'zip' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+[ "$ARCHIVE_TYPE" = 'rar' ] && SCRIPT_DEPS="$SCRIPT_DEPS unar"
+[ "$CHECKSUM_METHOD" = 'md5sum' ] && SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
+[ "$PACKAGE_TYPE" = 'deb' ] && SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
+for dep in $SCRIPT_DEPS; do
 case $dep in
 	7z) check_deps_7z ;;
-	*) [ -n $(which "$dep") ] || return 1 ;;
+	convert|icotool|wrestool) check_deps_icon "$dep" ;;
+	*) [ -n "$(which $dep)" ] || check_deps_failed "$dep" ;;
 esac
 done
 }
@@ -78,28 +96,46 @@ elif [ -n "$(which 7za)" ]; then
 elif [ -n "$(which unar)" ]; then
 	extract_7z() { unar -output-directory "$PLAYIT_WORKDIR" -force-overwrite -no-directory "$file"; }
 else
-	return 1
+	check_deps_failed 'p7zip'
 fi
 }
 
-file_checksum() {
-local archive_md5=$(eval echo \$${2}_MD5)
-FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
-[ "$FILE_MD5" = "$archive_md5" ] && return 0 || return 1
+check_deps_icon() {
+if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
+	NO_ICON='1'
+	case ${LANG%_*} in
+		fr) echo "$1 est introuvable. Les icônes ne seront pas extraites." ;;
+		en|*) echo "$1 not found. Skipping icons extraction." ;;
+	esac
+fi
+}
+
+check_deps_failed() {
+case ${LANG%_*} in
+	fr) echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script." ;;
+	en|*) echo "$string_error_en\n$1 not found. Install it before running this script." ;;
+esac
+return 1
 }
 
 extract_data_from() {
+case ${LANG%_*} in
+	fr) echo "Extraction des données de ${1##*/}" ;;
+	en|*) echo "Extracting data from ${1##*/}" ;;
+esac
 local destination="${PLAYIT_WORKDIR}/gamedata"
+mkdir --parents "$destination"
 archive_type=$(eval echo \$${ARCHIVE}_TYPE)
 case $archive_type in
 	7z) extract_7z "$1" "$destination" ;;
-	innosetup) innoextract --extract --lowercase --output-dir "$destination" --progress=0 "$1" ;;
-	mojosetup) unzip -d "$destination" "$1" || true && fix_rights "$destination" ;;
-	tar) tar xvf "$1" -C "$destination" ;;
-	unar) unar -output-directory "$destination" -no-directory "$1" ;;
-	unar-passwd) unar -output-directory "$destination" -no-directory -password "$ARCHIVE_PASSWD" "$1" ;;
-	zip) unzip -d "$destination" "$1" ;;
-	*) return 1 ;;
+	innosetup) innoextract --extract --lowercase --output-dir "$destination" --progress=1 "$1" ;;
+	mojosetup) unzip -d "$destination" "$1" 1>/dev/null 2>/dev/null || true ;;
+	tar) tar xf "$1" -C "$destination" ;;
+	rar) UNAR_OPTIONS="-output-directory \"$destination\" -no-directory"
+		[ -n "$ARCHIVE_PASSWD" ] && UNAR_OPTIONS="$UNAR_OPTIONS -password \"$ARCHIVE_PASSWD\""
+		unar $UNAR_OPTIONS "$1"	;;
+	zip) unzip -d "$destination" "$1" 1>/dev/null ;;
+	*) liberror 'ARCHIVE_TYPE' 'extract_data_from' ;;
 esac
 }
 
@@ -109,7 +145,7 @@ case $file_ext in
 	exe) wrestool --extract --type=14 --output="$PLAYIT_WORKDIR" "$1" ;;
 	ico) icotool --extract --output="$PLAYIT_WORKDIR" "$1" ;;
 	bmp) convert -debug "$1" "${PLAYIT_WORKDIR}/${1%.*}.png" ;;
-	*) return 1 ;;
+	*) liberror 'file_ext' 'extract_icon_from' ;;
 esac
 }
 
@@ -128,7 +164,7 @@ for arg in "$@"; do
 case "$arg" in
 	'--checksum='*) export CHECKSUM_METHOD="${arg#*=}" ;;
 	'--compression='*) export COMPRESSION_METHOD="${arg#*=}" ;;
-	'--icon='*) export GAME_LANG="${arg#*=}" ;;
+	'--icon='*) export ICON_CHOICE="${arg#*=}" ;;
 	'--prefix='*) export INSTALL_PREFIX="${arg#*=}" ;;
 	'--lang='*) export GAME_LANG="${arg#*=}" ;;
 	'--lang-audio='*) export GAME_LANG_AUDIO="${arg#*=}" ;;
@@ -150,10 +186,63 @@ fetch_args_set_var 'PACKAGE_TYPE'
 }
 
 fetch_args_set_var() {
-local varname="$1"
-local value="$(eval echo \$$varname)"
-local value_default="$(eval echo \$DEFAULT_$varname)"
-[ -n "$value" ] || export $varname="$value_default"
+local value="$(eval echo \$$1)"
+local value_default="$(eval echo \$DEFAULT_$1)"
+if [ -z "$value" ] && [ -n "$value_default" ]; then
+	export $1="$value_default"
+fi
+}
+
+file_checksum() {
+local source_file="$1"
+shift 1
+case $CHECKSUM_METHOD in
+	md5) file_checksum_md5 $@ ;;
+	none) file_checksum_none ;;
+	*) liberror 'CHECKSUM_METHOD' 'file_checksum' ;;
+esac
+}
+
+file_checksum_md5() {
+case ${LANG%_*} in
+	fr) echo "Contrôle de l’intégrité de ${source_file##*/}" ;;
+	en|*) echo "Checking ${source_file##*/} integrity" ;;
+esac
+FILE_MD5="$(md5sum "$source_file" | cut --delimiter=' ' --fields=1)"
+for archive in $@; do
+	local archive_md5=$(eval echo \$${archive}_MD5)
+	if [ "$FILE_MD5" = "$archive_md5" ]; then
+		if [ -z "$ARCHIVE" ]; then
+			ARCHIVE="$archive"
+			set_source_archive_vars
+		fi
+		return 0
+	fi
+done
+case ${LANG%_*} in
+	fr) echo "$string_error_fr\nSomme de contrôle incohérente. $source_file n’est pas le fichier attendu.\nUtilisez --checksum=none pour forcer son utilisation." ;;
+	en|*) echo "$string_error_en\nHasum mismatch. $source_file is not the expected file.\nUse --checksum=none to force its use." ;;
+esac
+return 1
+}
+
+file_checksum_none() {
+if [ -z "$ARCHIVE" ]; then
+	ARCHIVE='ARCHIVE1'
+	set_source_archive_vars
+fi
+}
+
+find_source_archive() {
+set_source_archive "$@"
+check_deps
+set_common_paths
+if [ -n "$ARCHIVE" ]; then
+	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
+else
+	file_checksum "$SOURCE_ARCHIVE" "$@"
+fi
+check_deps
 }
 
 fix_rights() {
@@ -162,45 +251,26 @@ find "$1" -type d -exec chmod -c 755 '{}' +
 find "$1" -type f -exec chmod -c 644 '{}' +
 }
 
-mkworkdir() {
-mkworkdir_workdir
-mkdir --parents --verbose "$PLAYIT_WORKDIR"
-while [ $# -ge 1 ]; do
-	local pkg=$1
-	testvar "$pkg" 'PKG'
-	mkworkdir_pkg $pkg
-	shift 1
-done
+liberror() {
+case ${LANG%_*} in
+	fr) echo "$string_error_fr\nvaleur incorrecte pour $1 appelée par $2 : $(eval echo \$$1)" ;;
+	en|*) echo "$string_error_en\ninvalid value for $1 called by $2: $(eval echo \$$1)" ;;
+esac
+return 1
 }
 
-mkworkdir_workdir() {
-local workdir_name=$(mktemp --dry-run ${GAME_ID_SHORT}.XXXXX)
-local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
-local needed_space=$(($archive_size * 2))
-local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
-if [ $free_space_tmp -ge $needed_space ]; then
-	export PLAYIT_WORKDIR="/tmp/play.it/${workdir_name}"
-else
-	[ -n "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="${HOME}/.cache"
-	local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
-	if [ $free_space_cache -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="${$XDG_CACHE_HOME}/play.it/${workdir_name}"
-	else
-		export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
-	fi
+organize_data() {
+[ -n "$PKG_PATH" ] || PKG_PATH="$(eval echo \$${PKG}_PATH)"
+if [ -n "${ARCHIVE_DOC_PATH}" ]; then
+	organize_data_doc
+fi
+if [ -n "${ARCHIVE_GAME_PATH}" ]; then
+	organize_data_game
 fi
 }
 
-mkworkdir_pkg() {
-local pkg_id=$(eval echo \$${pkg}_ID)
-local pkg_version=$(eval echo \$${pkg}_VERSION)
-local pkg_arch=$(eval echo \$${pkg}_ARCH)
-local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
-export ${pkg}_PATH="$pkg_path"
-}
-
 organize_data_doc() {
-mkdir --parents --verbose "${PKG_PATH}${PATH_DOC}"
+mkdir --parents "${PKG_PATH}${PATH_DOC}"
 cd "${PLAYIT_WORKDIR}/gamedata/${ARCHIVE_DOC_PATH}"
 for file in $ARCHIVE_DOC_FILES; do
 	mv "$file" "${PKG_PATH}${PATH_DOC}"
@@ -209,7 +279,7 @@ cd - 1>/dev/null
 }
 
 organize_data_game() {
-mkdir --parents --verbose "${PKG_PATH}${PATH_GAME}"
+mkdir --parents "${PKG_PATH}${PATH_GAME}"
 cd "${PLAYIT_WORKDIR}/gamedata/${ARCHIVE_GAME_PATH}"
 for file in $ARCHIVE_GAME_FILES; do
 	mv "$file" "${PKG_PATH}${PATH_GAME}"
@@ -218,7 +288,7 @@ cd - 1>/dev/null
 }
 
 set_common_defaults() {
-DEFAULT_CHECKSUM_METHOD='md5sum'
+DEFAULT_CHECKSUM_METHOD='md5'
 DEFAULT_COMPRESSION_METHOD='none'
 DEFAULT_GAME_LANG='en'
 DEFAULT_GAME_LANG_AUDIO='en'
@@ -230,6 +300,15 @@ DEFAULT_PACKAGE_TYPE='deb'
 }
 
 set_common_paths() {
+NO_ICON=0
+case $PACKAGE_TYPE in
+	deb) set_common_paths_deb ;;
+	tar) set_common_paths_tar ;;
+	*) liberror 'PACKAGE_TYPE' 'set_common_paths'
+esac
+}
+
+set_common_paths_deb() {
 PATH_BIN="${INSTALL_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
@@ -237,30 +316,86 @@ PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 }
 
+set_common_paths_tar() {
+PATH_BIN="${INSTALL_PREFIX}/bin"
+PATH_DESK="$INSTALL_PREFIX"
+PATH_DOC="${INSTALL_PREFIX}/doc"
+PATH_GAME="${INSTALL_PREFIX}/data"
+PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
+}
+
 set_source_archive() {
 for archive in "$@"; do
-	file="${PWD}/$(eval echo \$$archive)"
-	if [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
+	file="$(eval echo \$$archive)"
+	if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
+		ARCHIVE="$archive"
+		set_source_archive_vars
+		return 0
+	elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
 		SOURCE_ARCHIVE="$file"
 		ARCHIVE="$archive"
+		set_source_archive_vars
 		return 0
 	fi
 done
-[ -n "$SOURCE_ARCHIVE" ] || return 1
-if [ -z "$ARCHIVE" ]; then
-	echo "case ${SOURCE_ARCHIVE##*/} in"
-	case ${SOURCE_ARCHIVE##*/} in
-		"$ARCHIVE1") ARCHIVE='ARCHIVE1' ;;
-		"$ARCHIVE2") ARCHIVE='ARCHIVE2' ;;
-		"$ARCHIVE3") ARCHIVE='ARCHIVE3' ;;
-		"$ARCHIVE4") ARCHIVE='ARCHIVE4' ;;
-		"$ARCHIVE5") ARCHIVE='ARCHIVE5' ;;
-		"$ARCHIVE6") ARCHIVE='ARCHIVE6' ;;
-		"$ARCHIVE7") ARCHIVE='ARCHIVE7' ;;
-		"$ARCHIVE8") ARCHIVE='ARCHIVE8' ;;
-		"$ARCHIVE9") ARCHIVE='ARCHIVE9' ;;
-	esac
+if [ -z "$SOURCE_ARCHIVE" ]; then
+	set_source_archive_error
 fi
+}
+
+set_source_archive_vars() {
+case ${LANG%_*} in
+	fr) echo "Utilisation de ${SOURCE_ARCHIVE}" ;;
+	en|*) echo "Using ${SOURCE_ARCHIVE}" ;;
+esac
+ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
+ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
+ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+}
+
+set_source_archive_error () {
+case ${LANG%_*} in
+	fr) echo "$string_error_fr\nTODO set_source_archive_error (fr)" ;;
+	en|*) echo "$string_error_en\nTODO set_source_archive_error (en)" ;;
+esac
+return 1
+}
+
+set_workdir() {
+[ $# = 1 ] && PKG="$1"
+set_workdir_workdir
+while [ $# -ge 1 ]; do
+	local pkg=$1
+	testvar "$pkg" 'PKG'
+	set_workdir_pkg $pkg
+	shift 1
+done
+}
+
+set_workdir_workdir() {
+local workdir_name=$(mktemp --dry-run ${GAME_ID_SHORT}.XXXXX)
+local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
+local needed_space=$(($archive_size * 2))
+local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
+if [ $free_space_tmp -ge $needed_space ]; then
+	export PLAYIT_WORKDIR="/tmp/play.it/${workdir_name}"
+else
+	[ -w "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="${HOME}/.cache"
+	local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
+	if [ $free_space_cache -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="${$XDG_CACHE_HOME}/play.it/${workdir_name}"
+	else
+		export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
+	fi
+fi
+}
+
+set_workdir_pkg() {
+local pkg_id=$(eval echo \$${pkg}_ID)
+local pkg_version=$(eval echo \$${pkg}_VERSION)
+local pkg_arch=$(eval echo \$${pkg}_ARCH)
+local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+export ${pkg}_PATH="$pkg_path"
 }
 
 tolower() {
@@ -273,13 +408,20 @@ find "$1" -depth | while read file; do
 done
 }
 
+write_app() {
+for app in "$@"; do
+	write_bin "$app"
+	write_desktop "$app"
+done
+}
+
 write_bin() {
 local app="$1"
-testvar "$app" 'APP'
+testvar "$app" 'APP' || liberror 'app' 'write_bin'
 local app_id=$(eval echo \$${app}_ID)
 local app_type=$(eval echo \$${app}_TYPE)
 local file="${PKG_PATH}${PATH_BIN}/${app_id}"
-mkdir --parents --verbose "${file%/*}"
+mkdir --parents "${file%/*}"
 write_bin_header
 write_bin_set_vars
 if [ "$app_type" != 'scummvm' ]; then
@@ -359,22 +501,26 @@ write_bin_set_prefix_vars() {
 cat >> "$file" << EOF
 # Set prefix-specific variables
 
-[ -n "\$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="\${HOME}/.cache"
-[ -n "\$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="\${HOME}/.config"
-[ -n "\$XDG_DATA_HOME" ] || XGD_DATA_HOME="\${HOME}/.local/share"
-EOF
-[ "$app_type" = 'wine' ] && write_bin_set_prefix_vars_wine
-cat >> "$file" << EOF
+[ -w "\$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="\${HOME}/.cache"
+[ -w "\$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="\${HOME}/.config"
+[ -w "\$XDG_DATA_HOME" ] || XGD_DATA_HOME="\${HOME}/.local/share"
 PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
 PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
 PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
-PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
 EOF
+if [ "$app_type" = 'wine' ] ; then
+	write_bin_set_prefix_vars_wine
+else
+	cat >> "$file" <<- EOF
+	PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+	EOF
+fi
 }
 
 write_bin_set_prefix_vars_wine() {
 cat >> "$file" << EOF
-WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/wine/\${PREFIX_ID}"
+WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
 WINEARCH='win32'
 WINEDEBUG='-all'
 WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
@@ -397,6 +543,7 @@ done
 
 init_prefix_dirs() {
 cd "\$1"
+shift 1
 for dir in "\$@"; do
 	rm -rf "\${PATH_PREFIX}/\${dir}"
 	mkdir -p "\${PATH_PREFIX}/\${dir%/*}"
@@ -416,29 +563,31 @@ cd - 1>/dev/null
 }
 
 init_userdir_dirs() {
-local target="\$1"
+cd "\$1"
 shift 1
 for dir in "\$@"; do
-if ! [ -e "\${target}/\${dir}" ]; then
+if ! [ -e "\$dir" ]; then
 	if [ -e "\${PATH_GAME}/\${dir}" ]; then
-		mkdir -p "\${target}/\${dir%/*}"
-		cp -r "\${PATH_GAME}/\${dir}" "\${target}/\${dir}"
+		mkdir -p "\${dir%/*}"
+		cp -r "\${PATH_GAME}/\${dir}" "\$dir"
 	else
-		mkdir -p "\${target}/\${dir}"
+		mkdir -p "\$dir"
 	fi
 fi
 done
+cd - 1>/dev/null
 }
 
 init_userdir_files() {
-local target="\$1"
+cd "\$1"
 shift 1
 for file in "\$@"; do
-if ! [ -e "\${target}/\${file}" ] && [ -e "\$file" ]; then
-	mkdir -p "\${target}/\${file%/*}"
-	cp "\$file" "\${target}/\${file}"
+if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
+	mkfile -p "\${file%/*}"
+	cp "\${PATH_GAME}/\${file}" "\$file"
 fi
 done
+cd - 1>/dev/null
 }
 
 EOF
@@ -450,24 +599,18 @@ cat >> "$file" << EOF
 
 if [ ! -e "\$PATH_CACHE" ]; then
 	mkdir -p "\$PATH_CACHE"
-	cd "\$PATH_GAME"
 	init_userdir_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
 	init_userdir_files "\$PATH_CACHE" \$GAME_CACHE_FILES
-	cd - 1>/dev/null
 fi
 if [ ! -e "\$PATH_CONFIG" ]; then
 	mkdir -p "\$PATH_CONFIG"
-	cd "\$PATH_GAME"
 	init_userdir_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
 	init_userdir_files "\$PATH_CONFIG" \$GAME_CONFIG_FILES
-	cd - 1>/dev/null
 fi
 if [ ! -e "\$PATH_DATA" ]; then
 	mkdir -p "\$PATH_DATA"
-	cd "\$PATH_GAME"
 	init_userdir_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
 	init_userdir_files "\$PATH_DATA" \$GAME_DATA_FILES
-	cd - 1>/dev/null
 fi
 
 EOF
@@ -564,12 +707,12 @@ EOF
 
 write_desktop() {
 local app="$1"
-testvar "$app" 'APP'
+testvar "$app" 'APP' || liberror 'app' 'write_desktop'
 local app_id=$(eval echo \$${app}_ID)
 local app_name="$(eval echo \$${app}_NAME)"
 local app_cat="$(eval echo \$${app}_CAT)"
 local target="${PKG_PATH}${PATH_DESK}/${app_id}.desktop"
-mkdir --parents --verbose "${target%/*}"
+mkdir --parents "${target%/*}"
 cat > "${target}" << EOF
 [Desktop Entry]
 Version=1.0
@@ -595,13 +738,13 @@ local pkg_version=$(eval echo \$${pkg}_VERSION)
 local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 case $PACKAGE_TYPE in
 	deb) write_metadata_deb ;;
-	tar) true ;;
+	tar) return 0 ;;
 esac
 }
 
 write_metadata_deb() {
 local target="${pkg_path}/DEBIAN/control"
-mkdir --parents --verbose "${target%/*}"
+mkdir --parents "${target%/*}"
 cat > "${target}" << EOF
 Package: $pkg_id
 Version: $pkg_version
@@ -617,3 +760,4 @@ if [ "$pkg_arch" = 'all' ]; then
 	sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
 fi
 }
+
