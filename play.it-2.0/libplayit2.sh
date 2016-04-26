@@ -33,9 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160426.1
-
-testvar() { [ -n "$(echo "$1" | grep ^${2}[0-9]$)" ] || return 1; }
+library_revision=20160426.2
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -128,7 +126,7 @@ mkdir --parents "$destination"
 archive_type=$(eval echo \$${ARCHIVE}_TYPE)
 case $archive_type in
 	7z) extract_7z "$1" "$destination" ;;
-	innosetup) innoextract --extract --lowercase --output-dir "$destination" --progress=1 "$1" ;;
+	innosetup) innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$1" ;;
 	mojosetup) unzip -d "$destination" "$1" 1>/dev/null 2>/dev/null || true ;;
 	tar) tar xf "$1" -C "$destination" ;;
 	rar) UNAR_OPTIONS="-output-directory \"$destination\" -no-directory"
@@ -140,11 +138,12 @@ esac
 }
 
 extract_icon_from() {
+mkdir "${PLAYIT_WORKDIR}/icons"
 local file_ext=${1##*.}
 case $file_ext in
-	exe) wrestool --extract --type=14 --output="$PLAYIT_WORKDIR" "$1" ;;
-	ico) icotool --extract --output="$PLAYIT_WORKDIR" "$1" ;;
-	bmp) convert -debug "$1" "${PLAYIT_WORKDIR}/${1%.*}.png" ;;
+	exe) wrestool --extract --type=14 --output="${PLAYIT_WORKDIR}/icons" "$1" ;;
+	ico) icotool --extract --output="${PLAYIT_WORKDIR}/icons" "$1" 2>/dev/null ;;
+	bmp) convert "$1" "${PLAYIT_WORKDIR}/icons/${1%.bmp}.png" ;;
 	*) liberror 'file_ext' 'extract_icon_from' ;;
 esac
 }
@@ -398,6 +397,43 @@ local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 export ${pkg}_PATH="$pkg_path"
 }
 
+sort_icons() {
+local app="$1"
+testvar "$app" 'APP' || liberror 'app' 'sort_icons'
+local app_id="$(eval echo \$${app}_ID)"
+local icon_res="$(eval echo \$${app}_ICON_RES)"
+local pkg_path="$(eval echo \$${PKG}_PATH)"
+case $PACKAGE_TYPE in
+	deb) sort_icons_deb ;;
+	tar) sort_icons_tar ;;
+	*) liberror 'PACKAGE_TYPE' 'sort_icons'
+esac
+}
+
+sort_icons_deb() {
+for res in $icon_res; do
+	path_icon="${PATH_ICON_BASE}/${res}/apps"
+	mkdir -p "${pkg_path}${path_icon}"
+	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+		mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+	done
+done
+}
+
+sort_icons_tar() {
+for res in $icon_res; do
+	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+		mv "${file}" "${pkg_path}${PATH_ICON_BASE}/${app_id}_${res}.png"
+	done
+done
+}
+
+testvar() {
+if [ -z "$(echo "$1" | grep ^${2}[0-9]$)" ]; then
+	return 1
+fi
+}
+
 tolower() {
 [ -d "$1" ] || return 1
 find "$1" -depth | while read file; do
@@ -439,8 +475,119 @@ write_bin_header() {
 cat > "$file" << EOF
 #!/bin/sh
 set -o errexit
-set -o nounset
 
+EOF
+}
+
+write_bin_build_userdirs() {
+cat >> "$file" << EOF
+# Build user-writable directories
+
+if [ ! -e "\$PATH_CACHE" ]; then
+	mkdir -p "\$PATH_CACHE"
+	init_userdir_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
+	init_userdir_files "\$PATH_CACHE" \$GAME_CACHE_FILES
+fi
+if [ ! -e "\$PATH_CONFIG" ]; then
+	mkdir -p "\$PATH_CONFIG"
+	init_userdir_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
+	init_userdir_files "\$PATH_CONFIG" \$GAME_CONFIG_FILES
+fi
+if [ ! -e "\$PATH_DATA" ]; then
+	mkdir -p "\$PATH_DATA"
+	init_userdir_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
+	init_userdir_files "\$PATH_DATA" \$GAME_DATA_FILES
+fi
+
+EOF
+}
+
+write_bin_build_userdirs_wine() {
+cat >> "$file" << EOF
+export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
+if ! [ -e "\$WINEPREFIX" ]; then
+	mkdir -p "\${WINEPREFIX%/*}"
+	wineboot -i 2>/dev/null
+	rm "\${WINEPREFIX}/dosdevices/z:"
+fi
+EOF
+}
+
+write_bin_build_prefix() {
+cat >> "$file" << EOF
+# Build prefix
+
+EOF
+[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
+cat >> "$file" << EOF
+if [ ! -e "\$PATH_PREFIX" ]; then
+	mkdir -p "\$PATH_PREFIX"
+	cp -surf "\${PATH_GAME}"/* "\${PATH_PREFIX}"
+fi
+init_prefix_files "\$PATH_CACHE"
+init_prefix_files "\$PATH_CONFIG"
+init_prefix_files "\$PATH_DATA"
+init_prefix_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
+init_prefix_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
+init_prefix_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
+
+EOF
+}
+
+write_bin_run() {
+cat >> "$file" << EOF
+# Run the game
+
+EOF
+case $app_type in
+	dosbox) write_bin_run_dosbox ;;
+	native) write_bin_run_native ;;
+	scummvm) write_bin_run_scummvm ;;
+	wine) write_bin_run_wine ;;
+esac
+if ! [ $app_type = 'scummvm' ]; then
+	cat >> "$file" <<- EOF
+	
+	sleep 5
+	clean_userdir "\$PATH_CACHE" \$CACHE_FILES
+	clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
+	clean_userdir "\$PATH_DATA" \$DATA_FILES
+	EOF
+fi
+cat >> "$file" <<- EOF
+
+exit 0
+EOF
+}
+
+write_bin_run_dosbox() {
+cat >> "$file" << EOF
+cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+dosbox -c "mount c .
+c:
+imgmount d \$GAME_IMAGE -t iso -fs iso
+\${APP_EXE##*/} \$@
+exit"
+EOF
+}
+
+write_bin_run_native() {
+cat >> "$file" << EOF
+cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+./\${APP_EXE##*/} \$@
+EOF
+}
+
+write_bin_run_scummvm() {
+cat >> "$file" << EOF
+scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
+EOF
+}
+
+write_bin_run_wine() {
+cat >> "$file" << EOF
+cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+wine "\${APP_EXE##*/}" \$@
 EOF
 }
 
@@ -503,7 +650,8 @@ cat >> "$file" << EOF
 
 [ -w "\$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="\${HOME}/.cache"
 [ -w "\$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="\${HOME}/.config"
-[ -w "\$XDG_DATA_HOME" ] || XGD_DATA_HOME="\${HOME}/.local/share"
+[ -w "\$XDG_DATA_HOME" ] || XDG_DATA_HOME="\${HOME}/.local/share"
+
 PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
 PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
 PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
@@ -524,6 +672,7 @@ PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
 WINEARCH='win32'
 WINEDEBUG='-all'
 WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
+
 EOF
 }
 
@@ -590,118 +739,6 @@ done
 cd - 1>/dev/null
 }
 
-EOF
-}
-
-write_bin_build_userdirs() {
-cat >> "$file" << EOF
-# Build user-writable directories
-
-if [ ! -e "\$PATH_CACHE" ]; then
-	mkdir -p "\$PATH_CACHE"
-	init_userdir_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
-	init_userdir_files "\$PATH_CACHE" \$GAME_CACHE_FILES
-fi
-if [ ! -e "\$PATH_CONFIG" ]; then
-	mkdir -p "\$PATH_CONFIG"
-	init_userdir_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
-	init_userdir_files "\$PATH_CONFIG" \$GAME_CONFIG_FILES
-fi
-if [ ! -e "\$PATH_DATA" ]; then
-	mkdir -p "\$PATH_DATA"
-	init_userdir_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
-	init_userdir_files "\$PATH_DATA" \$GAME_DATA_FILES
-fi
-
-EOF
-}
-
-write_bin_build_userdirs() {
-cat >> "$file" << EOF
-# Build prefix
-
-EOF
-[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
-cat >> "$file" << EOF
-if [ ! -e "\$PATH_PREFIX" ]; then
-	mkdir -p "\$PATH_PREFIX"
-	cp -surf "\${PATH_GAME}"/* "\${PATH_PREFIX}"
-fi
-init_prefix_files "\$PATH_CACHE"
-init_prefix_files "\$PATH_CONFIG"
-init_prefix_files "\$PATH_DATA"
-init_prefix_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
-init_prefix_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
-init_prefix_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
-
-EOF
-}
-
-write_bin_build_userdirs_wine() {
-cat >> "$file" << EOF
-export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
-if ! [ -e "\$WINEPREFIX" ]; then
-	mkdir -p "\${WINEPREFIX%/*}"
-	wineboot -i 2>/dev/null
-	rm "\${WINEPREFIX}/dosdevices/z:"
-fi
-EOF
-}
-
-write_bin_run() {
-cat >> "$file" << EOF
-# Run the game
-
-EOF
-case $app_type in
-	dosbox) write_bin_run_dosbox ;;
-	native) write_bin_run_native ;;
-	scummvm) write_bin_run_scummvm ;;
-	wine) write_bin_run_wine ;;
-esac
-if ! [ $app_type = 'scummvm' ]; then
-	cat >> "$file" <<- EOF
-	
-	sleep 5
-	clean_userdir "\$PATH_CACHE" \$CACHE_FILES
-	clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
-	clean_userdir "\$PATH_DATA" \$DATA_FILES
-	EOF
-fi
-cat >> "$file" <<- EOF
-
-exit 0
-EOF
-}
-
-write_bin_run_dosbox() {
-cat >> "$file" << EOF
-cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-dosbox -c "mount c .
-c:
-imgmount d \$GAME_IMAGE -t iso -fs iso
-\${APP_EXE##*/} \$@
-exit"
-EOF
-}
-
-write_bin_run_native() {
-cat >> "$file" << EOF
-cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-./\${APP_EXE##*/} \$@
-EOF
-}
-
-write_bin_run_scummvm() {
-cat >> "$file" << EOF
-scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
-EOF
-}
-
-write_bin_run_wine() {
-cat >> "$file" << EOF
-cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-wine "\${APP_EXE##*/}" \$@
 EOF
 }
 
