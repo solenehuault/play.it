@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160422.1
+script_version=20160427.1
 
 # Set game-specific variables
 
@@ -44,13 +44,16 @@ GAME_ID='lure-of-the-temptress'
 GAME_ID_SHORT='lure'
 GAME_NAME='Lure of the Temptress'
 
-GAME_ARCHIVE1='gog_lure_of_the_temptress_2.0.0.5.sh'
-GAME_ARCHIVE1_MD5='8d7431b120e62ca1f5c397c03f61557e'
+GAME_ARCHIVE1='gog_lure_of_the_temptress_2.0.0.6.sh'
+GAME_ARCHIVE1_MD5='86d110cf60accee567af61e22657a14f'
+GAME_ARCHIVE2='gog_lure_of_the_temptress_french_2.0.0.6.sh'
+GAME_ARCHIVE2_MD5='d3f454f2d328b5ac91874e79c0b4b0ca'
 GAME_ARCHIVE_FULLSIZE='60000'
-PKG_REVISION='gog2.0.0.5'
+PKG_REVISION='gog2.0.0.6'
 
-INSTALLER_DOC='data/noarch/docs/* data/noarch/data/*.txt'
-INSTALLER_GAME='data/noarch/data/*'
+INSTALLER_PATH='data/noarch'
+INSTALLER_DOC='docs/* data/*.txt'
+INSTALLER_GAME='data/*'
 
 APP1_ID="${GAME_ID}"
 APP1_SCUMMID='lure'
@@ -121,7 +124,7 @@ PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
 printf '\n'
-set_target '1' 'gog.com'
+set_target '2' 'gog.com'
 printf '\n'
 
 # Check target file integrity
@@ -138,13 +141,15 @@ print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet,tolower'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - 1>/dev/null
 
 mv "${PKG_TMPDIR}/${APP1_ICON}" "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png"
 
