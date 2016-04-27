@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160427.1
+script_version=20160427.2
 
 # Set game-specific variables
 
@@ -45,9 +45,8 @@ GAME_ID='neverwinter-nights'
 GAME_ID_SHORT='nwn'
 GAME_NAME='Neverwinter Nights'
 
-GAME_ARCHIVE1='setup_nwn_diamond_french_2.1.0.19.exe'
-GAME_ARCHIVE2='setup_nwn_diamond_french_2.1.0.19.bin'
-GAME_ARCHIVE2_MD5='ec4444d6eec0f8ac8503fccf327af3c6'
+GAME_ARCHIVE1='setup_nwn_diamond_french_2.1.0.19.bin'
+GAME_ARCHIVE1_MD5='ec4444d6eec0f8ac8503fccf327af3c6'
 GAME_GOGID='1207658890'
 PKG_REVISION='gog2.1.0.19'
 
@@ -183,7 +182,6 @@ PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
 printf '\n'
 set_target '1' 'gog.com'
-set_target_extra 'GAME_ARCHIVE' '' "${GAME_ARCHIVE2}"
 set_target_extra 'CLIENT_ARCHIVE1' "${CLIENT_ARCHIVE1_URL}" "${CLIENT_ARCHIVE1}"
 set_target_extra 'CLIENT_ARCHIVE2' "${CLIENT_ARCHIVE2_URL}" "${CLIENT_ARCHIVE2}"
 set_target_extra 'CLIENT_ARCHIVE3' "${CLIENT_ARCHIVE3_URL}" "${CLIENT_ARCHIVE3}"
@@ -197,7 +195,7 @@ printf '\n'
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
 	printf '%s…\n' "$(l10n 'checksum_multiple')"
 	print wait
-	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE2_MD5}"
+	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE1_MD5}"
 	checksum "${CLIENT_ARCHIVE1}" 'quiet' "${CLIENT_ARCHIVE1_MD5}"
 	checksum "${CLIENT_ARCHIVE2}" 'quiet' "${CLIENT_ARCHIVE2_MD5}"
 	checksum "${CLIENT_ARCHIVE3}" 'quiet' "${CLIENT_ARCHIVE3_MD5}"
