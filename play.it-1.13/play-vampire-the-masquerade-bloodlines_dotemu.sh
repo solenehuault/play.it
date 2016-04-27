@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160426.1
+script_version=20160427.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ SCRIPT_DEPS_SOFT='icotool wrestool'
 
 GAME_ID='vampire-the-masquerade-bloodlines'
 GAME_ID_SHORT='bloodlines'
-GAME_NAME='Vampire the Masquerade: Bloodlines'
+GAME_NAME='Vampire: The Masquerade - Bloodlines'
 
 GAME_ARCHIVE1='vampire_the_masquerade_bloodlines_v1.2.exe'
 GAME_ARCHIVE1_MD5='8981da5fa644475583b2888a67fdd741'
