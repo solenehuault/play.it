@@ -1,3 +1,5 @@
+.PHONY: all
+
 all: libplayit2.sh
 
 libplayit2.sh: src/*
