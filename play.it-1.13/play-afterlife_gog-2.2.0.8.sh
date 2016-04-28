@@ -34,11 +34,11 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160428.1
+script_version=20160428.2
 
 # Set game-specific variables
 
-SCRIPT_DEPS_HARD='fakeroot realpath innoextract'
+SCRIPT_DEPS_HARD='fakeroot realpath unzip'
 
 GAME_ID='afterlife'
 GAME_ID_SHORT='alife'
