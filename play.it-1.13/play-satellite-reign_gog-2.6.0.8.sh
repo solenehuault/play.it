@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160421.1
+script_version=20160429.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='satellite-reign'
 GAME_ID_SHORT='sreign'
 GAME_NAME='Satellite Reign'
 
-GAME_ARCHIVE1='gog_satellite_reign_2.5.0.7.sh'
-GAME_ARCHIVE1_MD5='970b29c756debabf81c06e0c60df8836'
+GAME_ARCHIVE1='gog_satellite_reign_2.6.0.8.sh'
+GAME_ARCHIVE1_MD5='0e050bac1c75632b094097132fa6be72'
 GAME_ARCHIVE_FULLSIZE='1400000'
-PKG_REVISION='gog2.5.0.7'
+PKG_REVISION='gog2.6.0.8'
 
 INSTALLER_DOC='data/noarch/docs/* data/noarch/game/*.txt'
 INSTALLER_GAME_PATH='data/noarch/game'
@@ -65,7 +65,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='1.07.06'
+PKG_VERSION='1.07.08'
 PKG_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
@@ -190,7 +190,7 @@ done
 for file in ${INSTALLER_GAME_PKG3}; do
 	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
 done
-cd - 1>/dev/null
+cd - > /dev/null
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
