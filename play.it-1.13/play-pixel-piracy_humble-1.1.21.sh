@@ -30,13 +30,11 @@
 ###
 # conversion script for Pixel Piracy archive sold on HumbleBundle.com
 # build a .deb package from the .zip archive
-# tested on Debian, should work on any .deb-based distribution
-#
-# script version 20160105.1
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
+
+script_version=20160430.1
 
 # Set game-specific variables
 
@@ -51,7 +49,8 @@ GAME_ARCHIVE1_MD5='18fb2d3f8adf6f320d507653298dc504'
 GAME_ARCHIVE_FULLSIZE='290000'
 PKG_REVISION='humble151206'
 
-INSTALLER_GAME='Linux/*'
+INSTALLER_PATH='Linux'
+INSTALLER_GAME='./*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./linux.x86'
@@ -69,53 +68,63 @@ PKG1_RECS=''
 PKG1_CONFLICTS=''
 PKG1_DESC="${GAME_NAME}
  package built from HumbleBundle.com archive
- ./play.it script version 20160105."
+ ./play.it script version ${script_version}"
 
 # Load common functions
 
 TARGET_LIB_VERSION='1.13'
-if ! [ -e './play-anything.sh' ]; then
+
+if [ -z "${PLAYIT_LIB}" ]; then
+	PLAYIT_LIB='./play-anything.sh'
+fi
+
+if ! [ -e "${PLAYIT_LIB}" ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'play-anything.sh not found.\nIt must be placed in the same directory than this script.\n\n'
+	printf 'play-anything.sh not found.\n'
+	printf 'It must be placed in the same directory than this script.\n\n'
 	exit 1
 fi
-LIB_VERSION="$(grep '^# library version' './play-anything.sh' | cut -d' ' -f4 | cut -d'.' -f1,2)"
+
+LIB_VERSION="$(grep '^# library version' "${PLAYIT_LIB}" | cut -d' ' -f4 | cut -d'.' -f1,2)"
+
 if [ ${LIB_VERSION%.*} -ne ${TARGET_LIB_VERSION%.*} ] || [ ${LIB_VERSION#*.} -lt ${TARGET_LIB_VERSION#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'Wrong version of play-anything.\nIt must be at least %s but lower than %s.\n\n' "${TARGET_LIB_VERSION}" "$((${TARGET_LIB_VERSION%.*}+1)).0"
+	printf 'Wrong version of play-anything.\n'
+	printf 'It must be at least %s ' "${TARGET_LIB_VERSION}"
+	printf 'but lower than %s.\n\n' "$((${TARGET_LIB_VERSION%.*}+1)).0"
 	exit 1
 fi
-. './play-anything.sh'
+
+. "${PLAYIT_LIB}"
 
 # Set extra variables
 
-PKG_PREFIX_DEFAULT='/usr/local'
-PKG_COMPRESSION_DEFAULT='none'
 GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
-GAME_LANG_DEFAULT=''
-WITH_MOVIES_DEFAULT=''
+PKG_COMPRESSION_DEFAULT='none'
+PKG_PREFIX_DEFAULT='/usr/local'
 
-printf '\n'
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 fetch_args "$@"
-check_deps "${SCRIPT_DEPS_HARD}"
-printf '\n'
+
 set_checksum
 set_compression
 set_prefix
+
+check_deps_hard ${SCRIPT_DEPS_HARD}
+
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON="/usr/local/share/icons/hicolor/${APP1_ICON_RES}/apps"
+PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
 printf '\n'
-set_target '1' 'gog.com'
+set_target '1' 'humblebundle.com'
 printf '\n'
 
-# Check target files integrity
+# Check target file integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
 	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
@@ -123,12 +132,19 @@ fi
 
 # Extract game data
 
+PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON}"
+
 extract_data 'zip' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
+
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
+
 rm -rf "${PKG_TMPDIR}"
 print done
 
@@ -140,8 +156,8 @@ printf '\n'
 
 # Build packages
 
-printf '%s…\n' "$(l10n 'build_pkgs')"
-print wait
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+
 file="${PKG1_DIR}/DEBIAN/postinst"
 cat > "${file}" << EOF
 #!/bin/sh -e
@@ -149,6 +165,7 @@ ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
+
 file="${PKG1_DIR}/DEBIAN/prerm"
 cat > "${file}" << EOF
 #!/bin/sh -e
@@ -156,9 +173,9 @@ rm "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" ''
-build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet' ''
-print done
+
+build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
+
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
