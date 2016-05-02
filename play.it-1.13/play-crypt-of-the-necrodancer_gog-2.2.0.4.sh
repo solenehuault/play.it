@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160409.1
+script_version=20160502.1
 
 # Set game-specific variables
 
@@ -44,13 +44,14 @@ GAME_ID='crypt-of-the-necrodancer'
 GAME_ID_SHORT='cotn'
 GAME_NAME='Crypt Of The Necrodancer'
 
-GAME_ARCHIVE1='gog_crypt_of_the_necrodancer_2.1.0.3.sh'
-GAME_ARCHIVE1_MD5='6621ca4a1950b26349dd5f209b351b3e'
+GAME_ARCHIVE1='gog_crypt_of_the_necrodancer_2.2.0.4.sh'
+GAME_ARCHIVE1_MD5='184900ddbd2c958303bccf63c4d6d5ec'
 GAME_ARCHIVE_FULLSIZE='1500000'
-PKG_REVISION='gog2.1.0.3'
+PKG_REVISION='gog2.2.0.4'
 
-INSTALLER_DOC='data/noarch/docs/* data/noarch/game/license.txt'
-INSTALLER_GAME='data/noarch/game/*'
+INSTALLER_PATH='data/noarch'
+INSTALLER_DOC='docs/* game/license.txt'
+INSTALLER_GAME='game/*'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -74,7 +75,7 @@ APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH='i386'
-PKG1_VERSION='1.19'
+PKG1_VERSION='1.24'
 PKG1_DEPS='libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
@@ -148,13 +149,15 @@ build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 mv "${PKG_TMPDIR}/${APP1_ICON}" "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png"
 
@@ -167,12 +170,12 @@ print done
 
 write_bin_native_prefix_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
 write_bin_native_prefix "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
-write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
+write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
 printf '\n'
 
 # Build packages
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" ''
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 
