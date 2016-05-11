@@ -28,13 +28,13 @@
 ###
 
 ###
-# conversion script for the vvvvvv installer sold on GOG.com
+# conversion script for the VVVVVV installer sold on GOG.com
 # build a .deb package from the MojoSetup (.sh) installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160414.3
+script_version=20160511.2
 
 # Set game-specific variables
 
@@ -49,10 +49,11 @@ GAME_ARCHIVE1_MD5='f25b5dd11ea1778d17d4b2e0b54c7eed'
 GAME_ARCHIVE_FULLSIZE='100000'
 PKG_REVISION='gog2.0.0.2'
 
-INSTALLER_DOC='data/noarch/docs/*'
-INSTALLER_GAME_PKG1='data/noarch/game/x86'
-INSTALLER_GAME_PKG2='data/noarch/game/x86_64'
-INSTALLER_GAME_PKG3='data/noarch/game/VVVVVV.png data/noarch/game/data.zip'
+INSTALLER_PATH='data/noarch'
+INSTALLER_DOC='docs/*'
+INSTALLER_GAME_PKG1='game/x86'
+INSTALLER_GAME_PKG2='game/x86_64'
+INSTALLER_GAME_PKG3='game/VVVVVV.png game/data.zip'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -77,10 +78,7 @@ APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
 PKG_VERSION='2.2'
-PKG_ARCH='i386'
-PKG_CONFLICTS=''
-PKG_DEPS='libc6, libstdc++6, libgl1-mesa-glx, libsdl2-2.0-0'
-PKG_RECS=''
+PKG_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libsdl2-2.0-0'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
@@ -88,15 +86,17 @@ PKG_DESC="${GAME_NAME}
 PKG1_ID="${PKG_ID}"
 PKG1_ARCH='i386'
 PKG1_VERSION="${PKG_VERSION}"
+PKG1_CONFLICTS=''
 PKG1_DEPS="${PKG_DEPS}"
-PKG1_RECS="${PKG_RECS}"
+PKG1_RECS=''
 PKG1_DESC="${PKG_DESC}"
 
 PKG2_ID="${PKG_ID}"
 PKG2_ARCH='amd64'
 PKG2_VERSION="${PKG_VERSION}"
+PKG2_CONFLICTS=''
 PKG2_DEPS="${PKG_DEPS}"
-PKG2_RECS="${PKG_RECS}"
+PKG2_RECS=''
 PKG2_DESC="${PKG_DESC}"
 
 PKG3_ID="${GAME_ID}-common"
@@ -187,23 +187,23 @@ print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG3_DIR}${PATH_DOC}"
-done
-
-for file in ${INSTALLER_GAME_PKG3}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG3_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG3_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME_PKG1}; do
-  mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+  mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
 
 for file in ${INSTALLER_GAME_PKG2}; do
-  mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}"
+  mv "${file}" "${PKG2_DIR}${PATH_GAME}"
 done
 
-mv "${PKG_TMPDIR}/${APP1_ICON}" "${PKG3_DIR}${PATH_ICON}/${APP1_ID}.png"
+for file in ${INSTALLER_GAME_PKG3}; do
+	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
+done
+cd - > /dev/null
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
@@ -225,7 +225,7 @@ printf '\n'
 # Build package
 
 printf '%s…\n' "$(l10n 'build_pkgs')"
-print_wait
+print wait
 
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" 'arch'
 write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}" 'arch'
@@ -250,7 +250,7 @@ chmod 755 "${file}"
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG1_ARCH}"
 build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG2_ARCH}"
 build_pkg "${PKG3_DIR}" "${PKG3_DESC}" "${PKG_COMPRESSION}" 'quiet'
-print_done
+print done
 
 print_instructions "$(printf '%s' "${PKG1_DESC}" | head -n1) (${PKG1_ARCH})" "${PKG3_DIR}" "${PKG1_DIR}"
 printf '\n'
