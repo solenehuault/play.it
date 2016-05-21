@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.13.17
+# library version 1.13.18
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -1100,7 +1100,7 @@ cat > "${target}" << EOF
 # Setting game-specific variables
 GAME_ID="${GAME_ID}"
 GAME_PATH="${PATH_GAME}"
-GAME_CACHE_DIRS="${GAME_CACHE_FILES}"
+GAME_CACHE_DIRS="${GAME_CACHE_DIRS}"
 GAME_CACHE_FILES="${GAME_CACHE_FILES}"
 GAME_CACHE_FILES_POST="${GAME_CACHE_FILES_POST}"
 GAME_CONFIG_DIRS="${GAME_CONFIG_DIRS}"
