@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160420.1
+script_version=20160521.1
 
 # Set game-specific variables
 
@@ -44,13 +44,14 @@ GAME_ID='baldurs-gate-ee'
 GAME_ID_SHORT='bg1ee'
 GAME_NAME='Baldur’s Gate - Enhanced Edition'
 
-GAME_ARCHIVE1='gog_baldur_s_gate_enhanced_edition_2.2.0.4.sh'
-GAME_ARCHIVE1_MD5='28f27eeb7823a4de14182f66dbbc99a8'
-GAME_ARCHIVE_FULLSIZE='2900000'
-PKG_REVISION='gog2.2.0.4'
+GAME_ARCHIVE1='gog_baldur_s_gate_enhanced_edition_2.3.0.5.sh'
+GAME_ARCHIVE1_MD5='c2395714cb8aa7a9dda48981055e8004'
+GAME_ARCHIVE_FULLSIZE='3200000'
+PKG_REVISION='gog2.3.0.5'
 
-INSTALLER_DOC='data/noarch/docs/*'
-INSTALLER_GAME='data/noarch/game/*'
+INSTALLER_PATH='data/noarch'
+INSTALLER_DOC='docs/*'
+INSTALLER_GAME='game/*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./BaldursGate'
@@ -61,10 +62,10 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='2.1.63.2'
+PKG1_VERSION='2.2.66.0'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx, libjson0, libopenal1, libssl1.0.0'
+PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
@@ -138,13 +139,15 @@ print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 mv "${PKG_TMPDIR}/${APP1_ICON}" "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png"
 
@@ -156,7 +159,7 @@ print done
 # Write launchers
 
 write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
-write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
+write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
 printf '\n'
 
 # Build package
