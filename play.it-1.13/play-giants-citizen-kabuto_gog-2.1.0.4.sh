@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160418.1
+script_version=20160521.1
 
 # Set game-specific variables
 
@@ -45,23 +45,19 @@ GAME_ID='giants-citizen-kabuto'
 GAME_ID_SHORT='giants'
 GAME_NAME='Giants: Citizen Kabuto'
 
-GAME_ARCHIVE1='setup_giants_2.0.0.3.exe'
-GAME_ARCHIVE1_MD5='3b45e431472dc7a91d9cc1ab8b149246'
-GAME_ARCHIVE1_FILE2='setup_giants_2.0.0.3-1.bin'
-GAME_ARCHIVE1_FILE2_MD5='b34907a93089d396d6ccfe55037cba3d'
-GAME_CUSTOM_DLL1='gg_dx7r.dll'
-GAME_CUSTOM_DLL1_MD5='1c250209e110a3473558a0d1edb508d6'
-GAME_ARCHIVE_FULLSIZE='1200000'
-PKG_REVISION='gog2.0.0.3'
+GAME_ARCHIVE1='setup_giants_2.1.0.4.exe'
+GAME_ARCHIVE1_MD5='33015108ece9e52b1f525880f0867e11'
+GAME_ARCHIVE_FULLSIZE='1600000'
+PKG_REVISION='gog2.1.0.4'
 
 INSTALLER_DOC='app/manual.pdf app/*.txt tmp/gog_eula.txt'
-INSTALLER_GAME='app/bin app/music app/stream* app/*.exe app/eaxman.dll app/gg_dx7r.dll app/giants.ico app/gs_ds.dll'
+INSTALLER_GAME='app/*.exe app/*.ini app/bin app/music app/stream* app/eaxman.dll app/giants.ico app/gs_ds.dll app/__support/dx7/gg_dx7r.dll'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
 GAME_CACHE_FILES_POST=''
 GAME_CONFIG_DIRS=''
-GAME_CONFIG_FILES=''
+GAME_CONFIG_FILES='./*.ini'
 GAME_CONFIG_FILES_POST=''
 GAME_DATA_DIRS='./savegame'
 GAME_DATA_FILES=''
@@ -77,8 +73,14 @@ APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
+APP2_ID="${GAME_ID}_lang"
+APP2_EXE='./language_setup.exe'
+APP2_NAME="${GAME_NAME} - language selection"
+APP2_NAME_FR="${GAME_NAME} - choix de la langue"
+APP2_CAT='Settings'
+
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='1.0'
+PKG1_VERSION='1.4'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
@@ -142,19 +144,12 @@ PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
 printf '\n'
 set_target '1' 'gog.com'
-set_target_extra 'GAME_ARCHIVE_FILE2' '' "${GAME_ARCHIVE1_FILE2}"
-set_target_optional 'GAME_CUSTOM_DLL' "${GAME_CUSTOM_DLL1}"
 printf '\n'
 
 # Check target file integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	printf '%s…\n' "$(l10n 'checksum_multiple')"
-	print wait
-	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE1_MD5}"
-	checksum "${GAME_ARCHIVE_FILE2}" 'quiet' "${GAME_ARCHIVE1_FILE2_MD5}"
-	[ -n "${GAME_CUSTOM_DLL}" ] && checksum "${GAME_CUSTOM_DLL}" 'quiet' "${GAME_CUSTOM_DLL1_MD5}"
-	print done
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
 fi
 
 # Extract game data
@@ -164,15 +159,15 @@ print wait
 
 extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 
+cd "${PKG_TMPDIR}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
-
-[ -n "${GAME_CUSTOM_DLL}" ] && cp "${GAME_CUSTOM_DLL}" "${PKG1_DIR}${PATH_GAME}" 
+cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
@@ -203,15 +198,44 @@ print done
 write_bin_wine_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
 write_bin_wine_cfg "${PKG1_DIR}${PATH_BIN}/${GAME_ID_SHORT}-winecfg"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' "${APP1_NAME}"
+write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP2_ID}" "${APP2_EXE}" '' '' "${APP2_NAME}"
 
 sed -i 's|cp -surf "${GAME_PATH}"/\* "${WINE_GAME_PATH}"|&\n\tregedit "${WINE_GAME_PATH}/giants.reg" 2>/dev/null\n\trm "${WINE_GAME_PATH}/giants.reg"|' "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
 
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" 'wine'
+write_desktop "${APP2_ID}" "${APP2_NAME}" "${APP2_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP2_ID}.desktop" "${APP2_CAT}" 'wine'
 printf '\n'
 
 # Build package
 
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+
+if [ "${NO_ICON}" = '0' ]; then
+	file="${PKG1_DIR}/DEBIAN/postinst"
+	cat > "${file}" <<- EOF
+	#!/bin/sh -e
+	for res in ${APP1_ICON_RES}; do
+	  path_icon="${PATH_ICON_BASE}/\${res}/apps"
+	  ln -s "./${APP1_ID}.png" "\${path_icon}/${APP2_ID}.png"
+	done
+	exit 0
+	EOF
+	sed -i 's/  /\t/' "${file}"
+	chmod 755 "${file}"
+
+	file="${PKG1_DIR}/DEBIAN/prerm"
+	cat > "${file}" <<- EOF
+	#!/bin/sh -e
+	for res in ${APP1_ICON_RES}; do
+	  path_icon="${PATH_ICON_BASE}/\${res}/apps"
+	  rm -f "\${path_icon}/${APP2_ID}.png"
+	done
+	exit 0
+	EOF
+	sed -i 's/  /\t/' "${file}"
+	chmod 755 "${file}"
+fi
+
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
