@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160505.1
+script_version=20160521.1
 
 # Set game-specific variables
 
@@ -44,17 +44,17 @@ GAME_ID='risk-of-rain'
 GAME_ID_SHORT='ror'
 GAME_NAME='Risk of Rain'
 
-GAME_ARCHIVE1='gog_risk_of_rain_2.0.0.4.sh'
-GAME_ARCHIVE1_MD5='66b77f7f43375ee8de8605f7109fc084'
+GAME_ARCHIVE1='gog_risk_of_rain_2.1.0.5.sh'
+GAME_ARCHIVE1_MD5='34f8e1e2dddc6726a18c50b27c717468'
 GAME_ARCHIVE_FULLSIZE='180000'
-PKG_REVISION='gog2.0.0.4'
+PKG_REVISION='gog2.1.0.5'
 
 INSTALLER_PATH='data/noarch'
 INSTALLER_DOC='docs/*'
 INSTALLER_GAME='game/*'
 
 APP1_ID="${GAME_ID}"
-APP1_EXE='./ROR.bin'
+APP1_EXE='./Risk_of_Rain'
 APP1_ICON='assets/icon.png'
 APP1_ICON_RES='256x256'
 APP1_NAME="${GAME_NAME}"
@@ -65,7 +65,7 @@ PKG1_ID="${GAME_ID}"
 PKG1_VERSION='1.2.8'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libc6, libglu1-mesa | libglu1, libopenal1, libssl1.0.0, libstdc++6, libxcursor1, libxrandr2'
+PKG1_DEPS='libc6, libcurl3, libcurl3-gnutls, libglu1-mesa | libglu1, libopenal1, libssl1.0.0, libstdc++6, libxcursor1, libxrandr2'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
