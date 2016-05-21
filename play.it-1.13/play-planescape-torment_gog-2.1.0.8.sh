@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160510.1
+script_version=20160521.1
 
 # Setting game-specific variables
 
@@ -44,13 +44,13 @@ SCRIPT_DEPS_SOFT='icotool wrestool'
 GAME_ID='planescape-torment'
 GAME_ID_SHORT='pst'
 GAME_NAME='Planescape: Torment'
-PKG_REVISION='gog2.0.0.7'
+PKG_REVISION='gog2.1.0.8'
 
-GAME_ARCHIVE1='gog_planescape_torment_2.0.0.7.sh'
-GAME_ARCHIVE1_MD5='87a2352ac182d9a9e07ac6cd944014fe'
-GAME_ARCHIVE2='gog_planescape_torment_french_2.0.0.7.sh'
-GAME_ARCHIVE2_MD5='1086f8a44d766c243d33438f9bd9ff40'
-GAME_ARCHIVE_FULLSIZE='2500000'
+GAME_ARCHIVE1='gog_planescape_torment_2.1.0.8.sh'
+GAME_ARCHIVE1_MD5='b268cd99194a5c55f308d34a852beac6'
+GAME_ARCHIVE2='gog_planescape_torment_french_2.1.0.8.sh'
+GAME_ARCHIVE2_MD5='268117b3ab317cf24a7d10fb3faa3705'
+GAME_ARCHIVE_FULLSIZE='2400000'
 
 INSTALLER_DOC_PATH='data/noarch/docs'
 INSTALLER_DOC='*'
