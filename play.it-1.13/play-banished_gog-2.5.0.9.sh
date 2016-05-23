@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160521.1
+script_version=20160523.1
 
 # Set game-specific variables
 
@@ -45,10 +45,10 @@ GAME_ID='banished'
 GAME_ID_SHORT='banished'
 GAME_NAME='Banished'
 
-GAME_ARCHIVE1='setup_banished_2.4.0.8.exe'
-GAME_ARCHIVE1_MD5='7ab42e13bdec48c969ce7e7103249598'
+GAME_ARCHIVE1='setup_banished_2.5.0.9.exe'
+GAME_ARCHIVE1_MD5='c1dcc1a2d1c8279bb8881b83ea811a71'
 GAME_ARCHIVE_FULLSIZE='360000'
-PKG_REVISION='gog2.4.0.8'
+PKG_REVISION='gog2.5.0.9'
 
 INSTALLER_JUNK='app/win64/windata'
 INSTALLER_DOC='tmp/gog_eula.txt'
@@ -77,7 +77,7 @@ APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
-PKG_VERSION='1.0.5.160505'
+PKG_VERSION='1.0.6.160521'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
