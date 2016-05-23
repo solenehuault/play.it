@@ -36,7 +36,7 @@
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160414.1
+script_version=20160523.1
 
 # Set game-specific variables
 
@@ -52,10 +52,11 @@ GAME_ARCHIVE1_MD5='791e0bc8de73fcdcd5f461a4548ea2d8'
 GAME_ARCHIVE_FULLSIZE='220000'
 PKG_REVISION='humble140602'
 
-INSTALLER_DOC='FTL/FTL_README.html FTL/data/licenses'
-INSTALLER_GAME_PKG1='FTL/data/x86'
-INSTALLER_GAME_PKG2='FTL/data/amd64'
-INSTALLER_GAME_PKG3='FTL/data/*'
+INSTALLER_PATH='FTL/data'
+INSTALLER_DOC='../FTL_README.html licenses'
+INSTALLER_GAME_PKG1='x86'
+INSTALLER_GAME_PKG2='amd64'
+INSTALLER_GAME_PKG3='resources exe_icon.bmp'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE_PKG1='x86/bin/FTL'
@@ -70,7 +71,7 @@ APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
 PKG_VERSION='1.5.13'
-PKG_DEPS='libglu1-mesa | libglu1, libsdl1.2debian'
+PKG_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libsdl1.2debian'
 PKG_DESC="${GAME_NAME}
  package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
@@ -190,21 +191,23 @@ print wait
 
 extract_data 'tar' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG3_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG3_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME_PKG1}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
 
 for file in ${INSTALLER_GAME_PKG2}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG2_DIR}${PATH_GAME}"
 done
 
 for file in ${INSTALLER_GAME_PKG3}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG3_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
@@ -225,7 +228,7 @@ write_bin_native "${PKG2_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_PKG2}" '' 'amd6
 sed -i 's|cd "${GAME_EXE_PATH%/\*}"|cd "${GAME_PATH}"|' "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${PKG2_DIR}${PATH_BIN}/${APP1_ID}"
 sed -i 's|./"${GAME_EXE_PATH##\*/}"|./"${GAME_EXE}"|' "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${PKG2_DIR}${PATH_BIN}/${APP1_ID}"
 
-write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
+write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
 cp -l "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${PKG2_DIR}${PATH_DESK}/${APP1_ID}.desktop"
 printf '\n'
 
