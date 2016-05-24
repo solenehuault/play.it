@@ -29,12 +29,12 @@
 
 ###
 # conversion script for Risk Of Rain installer sold on GOG.com
-# build a .deb package from the MojoSetup (.sh) installer
+# build a .deb package from the .zip archive
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160505.1
+script_version=20160524.1
 
 # Set game-specific variables
 
@@ -44,16 +44,15 @@ GAME_ID='risk-of-rain'
 GAME_ID_SHORT='ror'
 GAME_NAME='Risk of Rain'
 
-GAME_ARCHIVE1='RoR-Linux-2015-05-07.sh'
-GAME_ARCHIVE1_MD5='d573810cbacc6e466f2c564202edd50d'
-GAME_ARCHIVE_FULLSIZE='93000'
-PKG_REVISION='humble150507'
+GAME_ARCHIVE1='Risk_of_Rain_v1.3.0_DRM-Free_Linux_.zip'
+GAME_ARCHIVE1_MD5='21eb80a7b517d302478c4f86dd5ea9a2'
+GAME_ARCHIVE_FULLSIZE='100000'
+PKG_REVISION='humble160519'
 
-INSTALLER_PATH='data'
-INSTALLER_GAME='noarch/* x86/*'
+INSTALLER_GAME='Risk_of_Rain assets'
 
 APP1_ID="${GAME_ID}"
-APP1_EXE='./ROR.bin'
+APP1_EXE='./Risk_of_Rain'
 APP1_ICON='assets/icon.png'
 APP1_ICON_RES='256x256'
 APP1_NAME="${GAME_NAME}"
@@ -61,13 +60,13 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='1.2.8'
+PKG1_VERSION='1.3.0'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libc6, libglu1-mesa | libglu1, libopenal1, libssl1.0.0, libstdc++6, libxcursor1, libxrandr2'
+PKG1_DEPS='libc6, libstdc++6, libcurl3, libgl1-mesa-glx | libgl1, libopenal1, libssl1.0.0, libxrandr2'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
- package built from GOG.com installer
+ package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
 
 # Load common functions
@@ -115,7 +114,6 @@ game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
-PATH_DOC="/usr/local/share/doc/${GAME_ID}"
 PATH_DESK='/usr/local/share/applications'
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
@@ -133,16 +131,12 @@ fi
 # Extract game data
 
 PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
-build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON}"
+build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}" "${PATH_ICON}"
 print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
-cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
-for file in ${INSTALLER_DOC}; do
-	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
-done
-
+cd "${PKG_TMPDIR}"
 for file in ${INSTALLER_GAME}; do
 	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
@@ -164,7 +158,7 @@ printf '\n'
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 
 file="${PKG1_DIR}/DEBIAN/postinst"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
@@ -172,7 +166,7 @@ EOF
 chmod 755 "${file}"
 
 file="${PKG1_DIR}/DEBIAN/prerm"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
 exit 0
