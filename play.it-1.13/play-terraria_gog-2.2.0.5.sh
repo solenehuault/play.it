@@ -44,10 +44,10 @@ GAME_ID='terraria'
 GAME_ID_SHORT='terraria'
 GAME_NAME='Terraria'
 
-GAME_ARCHIVE1='gog_terraria_2.1.0.4.sh'
-GAME_ARCHIVE1_MD5='c61a55597f912e0e836bb9e743f20f24'
+GAME_ARCHIVE1='gog_terraria_2.2.0.5.sh'
+GAME_ARCHIVE1_MD5='67a140a40ad907a6cf6d04becf0ed5ca'
 GAME_ARCHIVE_FULLSIZE='300000'
-PKG_REVISION='gog2.1.0.4'
+PKG_REVISION='gog2.2.0.5'
 
 INSTALLER_PATH='data/noarch'
 INSTALLER_DOC='docs/* game/changelog.txt'
