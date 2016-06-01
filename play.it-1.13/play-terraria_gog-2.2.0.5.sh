@@ -83,8 +83,6 @@ APP1_CAT='Game'
 APP2_ID="${GAME_ID}_server"
 APP2_EXE_PKG1='./TerrariaServer.bin.x86'
 APP2_EXE_PKG2='./TerrariaServer.bin.x86_64'
-APP2_ICON="${APP1_ICON}"
-APP2_ICON_RES='512x512'
 APP2_NAME="${GAME_NAME}: server"
 APP2_NAME_FR="${GAME_NAME} : serveur"
 APP2_CAT='Game'
@@ -265,7 +263,7 @@ file="${PKG3_DIR}/DEBIAN/postinst"
 cat > "${file}" <<- EOF
 #!/bin/sh -e
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${APP1_ID}.png"
-ln -s "${PATH_GAME}/${APP2_ICON}" "${PATH_ICON}/${APP2_ID}.png"
+ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${APP2_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
