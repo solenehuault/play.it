@@ -88,7 +88,7 @@ APP2_NAME_FR="${GAME_NAME} : serveur"
 APP2_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='1.3.1'
+PKG_VERSION='1.3.1.1'
 PKG_DEPS='libglu1-mesa | libglu1, libxcursor1, libxrandr2'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
