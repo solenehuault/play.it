@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160525.1
+script_version=20160612.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='baldurs-gate-2-ee'
 GAME_ID_SHORT='bg2ee'
 GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
 
-GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.4.0.8.sh'
-GAME_ARCHIVE1_MD5='7cb5385ac5cd51cf0cc9f66cbafc3c99'
+GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.5.0.9.sh'
+GAME_ARCHIVE1_MD5='f0cf23798fad26409add1c396b17dc54'
 GAME_ARCHIVE_FULLSIZE='2700000'
-PKG_REVISION='gog2.4.0.8'
+PKG_REVISION='gog2.5.0.9'
 
 INSTALLER_PATH='data/noarch'
 INSTALLER_DOC='docs/*'
@@ -62,7 +62,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='2.2.66.0'
+PKG1_VERSION='2.3.67.2'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0'
