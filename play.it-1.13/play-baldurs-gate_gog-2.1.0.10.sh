@@ -30,13 +30,11 @@
 ###
 # conversion script for the Baldur’s Gate installer sold on GOG.com
 # build a .deb package from the .sh MojoSetup installer
-# tested on Debian, should work on any .deb-based distribution
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160209.1
+script_version=20160612.2
 
 # Set game-specific variables
 
@@ -47,12 +45,12 @@ GAME_ID='baldurs-gate'
 GAME_ID_SHORT='bg1'
 GAME_NAME='Baldur’s Gate'
 
-GAME_ARCHIVE1='gog_baldur_s_gate_the_original_saga_2.0.0.9.sh'
-GAME_ARCHIVE1_MD5='db423fb2d41ea1f844cec141e6396a9b'
-GAME_ARCHIVE2='gog_baldur_s_gate_the_original_saga_french_2.0.0.9.sh'
-GAME_ARCHIVE2_MD5='aa2c58bc1ffbb5ed4f925f3371aa5df2'
+GAME_ARCHIVE1='gog_baldur_s_gate_the_original_saga_2.1.0.10.sh'
+GAME_ARCHIVE1_MD5='6810388ef67960dded254db5750f9aa5'
+GAME_ARCHIVE2='gog_baldur_s_gate_the_original_saga_french_2.1.0.10.sh'
+GAME_ARCHIVE2_MD5='87ed67decb79e497b8c0ce9e0b16ac4c'
 GAME_ARCHIVE_FULLSIZE='3200000'
-PKG_REVISION='gog2.0.0.9'
+PKG_REVISION='gog2.1.0.10'
 
 INSTALLER_DOC='data/noarch/docs/*'
 INSTALLER_GAME='data/noarch/prefix/drive_c/gog?games/*/*'
