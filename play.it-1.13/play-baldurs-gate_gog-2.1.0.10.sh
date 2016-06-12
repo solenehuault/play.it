@@ -52,8 +52,9 @@ GAME_ARCHIVE2_MD5='87ed67decb79e497b8c0ce9e0b16ac4c'
 GAME_ARCHIVE_FULLSIZE='3200000'
 PKG_REVISION='gog2.1.0.10'
 
-INSTALLER_DOC='data/noarch/docs/*'
-INSTALLER_GAME='data/noarch/prefix/drive_c/gog?games/*/*'
+INSTALLER_PATH='data/noarch'
+INSTALLER_DOC='docs/*'
+INSTALLER_GAME='prefix/drive_c/gog?games/*/*'
 
 GAME_CACHE_DIRS='./cache ./temp'
 GAME_CACHE_FILES=''
@@ -166,13 +167,15 @@ print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet,tolower'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 for drive in 'HD0' 'CD1' 'CD2' 'CD3' 'CD4' 'CD5' 'CD6'; do
 	sed -i "s/${drive}:=.\+/${drive}:=C:\\\\${GAME_ID}\\\\/" "${PKG1_DIR}${PATH_GAME}/baldur.ini"
