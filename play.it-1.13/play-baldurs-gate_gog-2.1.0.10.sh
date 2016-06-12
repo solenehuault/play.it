@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160612.2
+script_version=20160612.3
 
 # Set game-specific variables
 
@@ -52,9 +52,12 @@ GAME_ARCHIVE2_MD5='87ed67decb79e497b8c0ce9e0b16ac4c'
 GAME_ARCHIVE_FULLSIZE='3200000'
 PKG_REVISION='gog2.1.0.10'
 
-INSTALLER_PATH='data/noarch'
-INSTALLER_DOC='docs/*'
-INSTALLER_GAME='prefix/drive_c/gog?games/*/*'
+INSTALLER_DOC_PATH='data/noarch/docs'
+INSTALLER_DOC='*'
+INSTALLER_GAME_PATH='data/noarch/prefix/drive_c/gog?games/*'
+INSTALLER_GAME_JUNK='temp'
+INSTALLER_GAME_PKG1='./*.tlk ./*.exe ./mpsave ./override ./save ./sounds ./data/area000c.bif ./data/cresound.bif ./data/npcsound.bif ./data/chasound.bif ./data/mpsounds.bif ./movies/moviecd1.bif ./movies/moviecd2.bif ./movies/moviecd3.bif ./movies/moviecd4.bif'
+INSTALLER_GAME_PKG2='./*'
 
 GAME_CACHE_DIRS='./cache ./temp'
 GAME_CACHE_FILES=''
@@ -84,8 +87,10 @@ APP2_NAME="${GAME_NAME} - settings"
 APP2_NAME_FR="${GAME_NAME} - réglages"
 APP2_CAT='Settings'
 
+PKG_VERSION='1.3.5521'
+
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='1.3.5521'
+PKG1_VERSION="${PKG_VERSION}"
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
@@ -93,6 +98,18 @@ PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
+
+PKG2_ID="${GAME_ID}-common"
+PKG2_VERSION="${PKG_VERSION}"
+PKG2_ARCH='all'
+PKG2_CONFLICTS=''
+PKG2_DEPS=''
+PKG2_RECS=''
+PKG2_DESC="${GAME_NAME} - common data
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+
+PKG1_DEPS="${PKG2_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
 
 # Load common functions
 
@@ -140,6 +157,7 @@ check_deps_soft ${SCRIPT_DEPS_SOFT}
 
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -148,9 +166,11 @@ PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
 printf '\n'
-
 set_target '2' 'gog.com'
-
+case "$(basename ${GAME_ARCHIVE})" in
+	"${GAME_ARCHIVE1}") PKG1_DIR="${PKG1_DIR%/*}/${PKG1_ID}-en_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" ;;
+	"${GAME_ARCHIVE2}") PKG1_DIR="${PKG1_DIR%/*}/${PKG1_ID}-fr_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" ;;
+esac
 printf '\n'
 
 # Check target file integrity
@@ -162,23 +182,35 @@ fi
 # Extract game data
 
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}"
-
+rm -Rf "${PKG2_DIR}"
+mkdir -p "${PKG2_DIR}/DEBIAN" "${PKG2_DIR}${PATH_GAME}"
 print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet,tolower'
 
-cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
+cd "${PKG_TMPDIR}/${INSTALLER_DOC_PATH}"
 for file in ${INSTALLER_DOC}; do
 	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
+cd - > /dev/null
 
-for file in ${INSTALLER_GAME}; do
-	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
+cd "${PKG_TMPDIR}"/${INSTALLER_GAME_PATH}
+for file in ${INSTALLER_GAME_JUNK}; do
+	rm -rf "${file}"
+done
+
+for file in ${INSTALLER_GAME_PKG1}; do
+	mkdir -p "${PKG1_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}/${file}"
+done
+
+for file in ${INSTALLER_GAME_PKG2}; do
+	mv "${file}" "${PKG2_DIR}${PATH_GAME}"
 done
 cd - > /dev/null
 
 for drive in 'HD0' 'CD1' 'CD2' 'CD3' 'CD4' 'CD5' 'CD6'; do
-	sed -i "s/${drive}:=.\+/${drive}:=C:\\\\${GAME_ID}\\\\/" "${PKG1_DIR}${PATH_GAME}/baldur.ini"
+	sed -i "s/${drive}:=.\+/${drive}:=C:\\\\${GAME_ID}\\\\/" "${PKG2_DIR}${PATH_GAME}/baldur.ini"
 done
 
 if [ "${NO_ICON}" = '0' ]; then
@@ -204,12 +236,17 @@ printf '\n'
 
 # Build package
 
+printf '%s…\n' "$(l10n 'build_pkgs')"
+print wait
+
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}"
 
-build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
+build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet'
+build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet'
+print done
 
-print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
-
+print_instructions "${PKG1_DESC}" "${PKG2_DIR}" "${PKG1_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
