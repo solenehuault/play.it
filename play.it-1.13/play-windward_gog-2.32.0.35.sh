@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160414.2
+script_version=20160625.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='windward'
 GAME_ID_SHORT='windward'
 GAME_NAME='Windward'
 
-GAME_ARCHIVE1='gog_windward_2.25.0.29.sh'
-GAME_ARCHIVE1_MD5='f6099d8cfa33d55d2e977ff9681676cf'
+GAME_ARCHIVE1='gog_windward_2.32.0.35.sh'
+GAME_ARCHIVE1_MD5='6e374433305e1abe49a9ff576bb59c85'
 GAME_ARCHIVE_FULLSIZE='120000'
-PKG_REVISION='gog2.25.0.29'
+PKG_REVISION='gog2.32.0.35'
 
 INSTALLER_DOC='data/noarch/docs/*'
 INSTALLER_GAME='data/noarch/game/*'
