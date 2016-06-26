@@ -30,13 +30,11 @@
 ###
 # conversion script for the Transistor installer sold on GOG.com
 # build a .deb package from the MojoSetup .sh installer
-# tested on Debian, should work on any .deb-based distribution
-#
-# script version 20151207.1
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
+
+script_version=20160626.1
 
 # Set game-specific variables
 
@@ -46,22 +44,21 @@ SCRIPT_DEPS_SOFT='convert'
 GAME_ID='transistor'
 GAME_ID_SHORT='transistor'
 GAME_NAME='Transistor'
-#GAME_NAME_SHORT=''
 
 GAME_ARCHIVE1='gog_transistor_2.0.0.3.sh'
 GAME_ARCHIVE1_MD5='53dbaf643471f3b8494548261584dd13'
 GAME_ARCHIVE_FULLSIZE='3200000'
 PKG_REVISION='gog2.0.0.3'
 
-INSTALLER_JUNK=''
-INSTALLER_DOC='data/noarch/docs/*'
-INSTALLER_GAME_ARCH1='data/noarch/game/lib data/noarch/game/Transistor.bin.x86'
-INSTALLER_GAME_ARCH2='data/noarch/game/lib64 data/noarch/game/Transistor.bin.x86_64'
-INSTALLER_GAME='data/noarch/game/*'
+INSTALLER_PATH='data/noarch/game'
+INSTALLER_DOC='../docs/*'
+INSTALLER_GAME_PKG1='./lib ./Transistor.bin.x86'
+INSTALLER_GAME_PKG2='./lib64 ./Transistor.bin.x86_64'
+INSTALLER_GAME_PKG3='./*'
 
 APP1_ID="${GAME_ID}"
-APP1_EXE_ARCH1='./Transistor.bin.x86'
-APP1_EXE_ARCH2='./Transistor.bin.x86_64'
+APP1_EXE_PKG1='./Transistor.bin.x86'
+APP1_EXE_PKG2='./Transistor.bin.x86_64'
 APP1_ICON='Transistor.bmp'
 APP1_ICON_RES='256x256'
 APP1_NAME="${GAME_NAME}"
@@ -71,26 +68,39 @@ APP1_CAT='Game'
 PKG_ID="${GAME_ID}"
 PKG_VERSION='1.20140310'
 PKG_DEPS='libc6, libstdc++6, libgcc1, libsdl2-2.0-0, libasound2-plugins'
-PKG_RECS=''
 PKG_DESC="${GAME_NAME}
- package built from GOG.com installer"
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
 
 PKG1_ID="${PKG_ID}"
 PKG1_ARCH='i386'
 PKG1_VERSION="${PKG_VERSION}"
 PKG1_DEPS="${PKG_DEPS}"
-PKG1_RECS="${PKG_RECS}"
+PKG1_RECS=''
 PKG1_DESC="${PKG_DESC}"
 
 PKG2_ID="${PKG_ID}"
 PKG2_ARCH='amd64'
 PKG2_VERSION="${PKG_VERSION}"
 PKG2_DEPS="${PKG_DEPS}"
-PKG2_RECS="${PKG_RECS}"
+PKG2_RECS=''
 PKG2_DESC="${PKG_DESC}"
+
+PKG3_ID="${GAME_ID}-common"
+PKG3_ARCH='all'
+PKG3_VERSION="${PKG_VERSION}"
+PKG3_CONFLICTS=''
+PKG3_DEPS=''
+PKG3_RECS=''
+PKG3_DESC="${GAME_NAME} - arch-independant data
+ package built from GOG installer
+ ./play.it script version ${script_version}"
 
 PKG1_CONFLICTS="${PKG2_ID}:${PKG2_ARCH}"
 PKG2_CONFLICTS="${PKG1_ID}:${PKG1_ARCH}"
+
+PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
+PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
 
 # Load common functions
 
@@ -116,28 +126,30 @@ fi
 
 # Set extra variables
 
-PKG_PREFIX_DEFAULT='/usr/local'
-PKG_COMPRESSION_DEFAULT='none'
-GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
-GAME_LANG_DEFAULT=''
-WITH_MOVIES_DEFAULT=''
+NO_ICON=0
 
-printf '\n'
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
+PKG_COMPRESSION_DEFAULT='none'
+PKG_PREFIX_DEFAULT='/usr/local'
+
 fetch_args "$@"
-check_deps "${SCRIPT_DEPS_HARD}" "${SCRIPT_DEPS_SOFT}"
-printf '\n'
+
 set_checksum
 set_compression
 set_prefix
+
+check_deps_hard ${SCRIPT_DEPS_HARD}
+
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG3_DIR' "${PKG3_ID}_${PKG3_VERSION}-${PKG_REVISION}_${PKG3_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON="/usr/local/share/icons/hicolor/${APP1_ICON_RES}/apps"
+PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
 printf '\n'
 set_target '1' 'gog.com'
@@ -151,37 +163,51 @@ fi
 
 # Extract game data
 
-build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON}"
+PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
+build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}"
+rm -rf "${PKG3_DIR}"
+mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
 print wait
+
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	cp -rl "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
-	cp -rl "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_DOC}"
-	rm -r "${PKG_TMPDIR}"/${file}
+	mv "${file}" "${PKG3_DIR}${PATH_DOC}"
 done
-for file in ${INSTALLER_GAME_ARCH1}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+
+for file in ${INSTALLER_GAME_PKG1}; do
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
-for file in ${INSTALLER_GAME_ARCH2}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}"
+
+for file in ${INSTALLER_GAME_PKG2}; do
+	mv "${file}" "${PKG2_DIR}${PATH_GAME}"
 done
-for file in ${INSTALLER_GAME}; do
-	cp -rl "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
-	cp -rl "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}"
+
+for file in ${INSTALLER_GAME_PKG3}; do
+	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
 done
-chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_ARCH1}"
-chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_ARCH2}"
+cd - > /dev/null
+
+chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
+chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
+
 if [ "${NO_ICON}" = '0' ]; then
-	extract_icons "${APP1_ID}" "${APP1_ICON}" '' "${PKG1_DIR}${PATH_ICON}"
-	cp -l "${PKG1_DIR}${PATH_ICON}/${APP1_ID}.png" "${PKG2_DIR}${PATH_ICON}"
+	PKG1_REAL="${PKG1_DIR}"
+	PKG1_DIR="${PKG3_DIR}"
+	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
+	PKG1_DIR="${PKG1_REAL}"
+	mv "${PKG_TMPDIR}/${APP1_ID}.png" "${PKG3_DIR}${PATH_ICON}"
 fi
+
 rm -rf "${PKG_TMPDIR}"
 print done
 
 # Write launchers
 
-write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_ARCH1}" '' '' '' "${APP1_NAME} (${PKG1_ARCH})"
-write_bin_native "${PKG2_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_ARCH2}" '' '' '' "${APP1_NAME} (${PKG2_ARCH})"
+write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_PKG1}" '' '' '' "${APP1_NAME} (${PKG1_ARCH})"
+write_bin_native "${PKG2_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_PKG2}" '' '' '' "${APP1_NAME} (${PKG2_ARCH})"
+
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" ''
 cp -l "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${PKG2_DIR}${PATH_DESK}/${APP1_ID}.desktop"
 printf '\n'
@@ -190,14 +216,19 @@ printf '\n'
 
 printf '%s…\n' "$(l10n 'build_pkgs')"
 print wait
+
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" 'arch'
 write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}" 'arch'
+write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}"
+
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG1_ARCH}"
 build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG2_ARCH}"
+build_pkg "${PKG3_DIR}" "${PKG3_DESC}" "${PKG_COMPRESSION}" 'quiet'
 print done
-print_instructions "${PKG1_DESC} (${PKG1_ARCH})" "${PKG1_DIR}"
+
+print_instructions "$(printf '%s' "${PKG1_DESC}" | head -n1) (${PKG1_ARCH})" "${PKG3_DIR}" "${PKG1_DIR}"
 printf '\n'
-print_instructions "${PKG2_DESC} (${PKG2_ARCH})" "${PKG2_DIR}"
+print_instructions "$(printf '%s' "${PKG2_DESC}" | head -n1) (${PKG2_ARCH})" "${PKG3_DIR}" "${PKG2_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
