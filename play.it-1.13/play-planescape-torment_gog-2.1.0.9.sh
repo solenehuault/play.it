@@ -34,11 +34,13 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160625.1
+script_version=20160627.1
 
 # Setting game-specific variables
 
-SCRIPT_DEPS_HARD='fakeroot realpath unzip'
+SCRIPT_DEPS_HARD='fakeroot realpath'
+SCRIPT_DEPS_HARD_LINUX='unzip'
+SCRIPT_DEPS_HARD_WIN='innoextract'
 SCRIPT_DEPS_SOFT='icotool wrestool'
 
 GAME_ID='planescape-torment'
@@ -50,14 +52,23 @@ GAME_ARCHIVE1='gog_planescape_torment_2.1.0.9.sh'
 GAME_ARCHIVE1_MD5='a48bb772f60da3b5b2cac804b6e92670'
 GAME_ARCHIVE2='gog_planescape_torment_french_2.1.0.9.sh'
 GAME_ARCHIVE2_MD5='c3af554300a90297d4fca0b591d9c3fd'
+GAME_ARCHIVE3='setup_planescape_torment_russian_2.1.0.9.exe'
+GAME_ARCHIVE3_MD5='19dfa72ab89d1fe599015f382c42708c'
 GAME_ARCHIVE_FULLSIZE='2400000'
 
-INSTALLER_DOC_PATH='data/noarch/docs'
-INSTALLER_DOC='*'
-INSTALLER_GAME_PATH='data/noarch/prefix/drive_c/gog?games/*'
-INSTALLER_GAME_JUNK='*ddraw* gog_planescape_torment.sdb torment.err torment.log'
-INSTALLER_GAME_PKG1='./*.tlk ./cachemos.bif ./chitin.key ./crefiles.bif ./cs_0404.bif ./interface.bif ./sound.bif ./torment.ini ./voice.bif data/genmova.bif data/movies2.bif data/movies4.bif'
-INSTALLER_GAME_PKG2='*'
+LINUX_INSTALLER_DOC_PATH='data/noarch/docs'
+LINUX_INSTALLER_DOC='*'
+LINUX_INSTALLER_GAME_PATH='data/noarch/prefix/drive_c/gog?games/*'
+LINUX_INSTALLER_GAME_JUNK='*ddraw* gog_planescape_torment.sdb torment.err torment.log'
+LINUX_INSTALLER_GAME_PKG1='./*.tlk ./cachemos.bif ./chitin.key ./crefiles.bif ./cs_0404.bif ./interface.bif ./sound.bif ./torment.ini ./voice.bif data/genmova.bif data/movies2.bif data/movies4.bif'
+LINUX_INSTALLER_GAME_PKG2='*'
+
+WIN_INSTALLER_DOC_PATH='.'
+WIN_INSTALLER_DOC='tmp/gog_eula.txt app/*.txt'
+WIN_INSTALLER_GAME_PATH='app'
+WIN_INSTALLER_GAME_JUNK='/gameuxinstallhelper.dll ./goggame-1207658887ru.* ./goggame.sdb ./__support'
+WIN_INSTALLER_GAME_PKG1='./*.tlk ./cachemos.bif ./chitin.key ./crefiles.bif ./cs_0404.bif ./interface.bif ./sound.bif ./torment.ini ./voice.bif data/genmova.bif data/movies2.bif data/movies4.bif'
+WIN_INSTALLER_GAME_PKG2='*'
 
 GAME_CACHE_DIRS='./cache'
 GAME_CACHE_FILES=''
@@ -158,17 +169,35 @@ PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
 printf '\n'
-set_target '2' 'gog.com'
+set_target '3' 'gog.com'
 case "$(basename ${GAME_ARCHIVE})" in
 	"${GAME_ARCHIVE1}") PKG1_DIR="${PKG1_DIR%/*}/${PKG1_ID}-en_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" ;;
 	"${GAME_ARCHIVE2}") PKG1_DIR="${PKG1_DIR%/*}/${PKG1_ID}-fr_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" ;;
+	"${GAME_ARCHIVE3}") PKG1_DIR="${PKG1_DIR%/*}/${PKG1_ID}-ru_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" ;;
 esac
+if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE3}" ]; then
+	INSTALLER_DOC_PATH="${WIN_INSTALLER_DOC_PATH}"
+	INSTALLER_DOC="${WIN_INSTALLER_DOC}"
+	INSTALLER_GAME_PATH="${WIN_INSTALLER_GAME_PATH}"
+	INSTALLER_GAME_JUNK="${WIN_INSTALLER_GAME_JUNK}"
+	INSTALLER_GAME_PKG1="${WIN_INSTALLER_GAME_PKG1}"
+	INSTALLER_GAME_PKG2="${WIN_INSTALLER_GAME_PKG2}"
+	check_deps_hard ${SCRIPT_DEPS_HARD_WIN}
+else
+	INSTALLER_DOC_PATH="${LINUX_INSTALLER_DOC_PATH}"
+	INSTALLER_DOC="${LINUX_INSTALLER_DOC}"
+	INSTALLER_GAME_PATH="${LINUX_INSTALLER_GAME_PATH}"
+	INSTALLER_GAME_JUNK="${LINUX_INSTALLER_GAME_JUNK}"
+	INSTALLER_GAME_PKG1="${LINUX_INSTALLER_GAME_PKG1}"
+	INSTALLER_GAME_PKG2="${LINUX_INSTALLER_GAME_PKG2}"
+	check_deps_hard ${SCRIPT_DEPS_HARD_LINUX}
+fi
 printf '\n'
 
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}" "${GAME_ARCHIVE2_MD5}"
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}" "${GAME_ARCHIVE2_MD5}" "${GAME_ARCHIVE3_MD5}"
 fi
 
 # Extract game data
@@ -176,7 +205,11 @@ fi
 build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_GAME}"
 print wait
 
-extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet,tolower'
+if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE3}" ]; then
+	extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+else
+	extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet,tolower'
+fi
 
 cd "${PKG_TMPDIR}/${INSTALLER_DOC_PATH}"
 for file in ${INSTALLER_DOC}; do
