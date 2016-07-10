@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160710.1
+script_version=20160331.1
 
 # Set game-specific variables
 
@@ -170,10 +170,17 @@ rm -rf "${PKG3_DIR}"
 mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
 print wait
 
-extract_data 'nix_stage1' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+printf '%s %s…\n' "$(l10n 'extract_data')" "${GAME_ARCHIVE##*/}"
+mkdir "${PKG_TMPDIR}"
+dd if="${GAME_ARCHIVE}" ibs=$(head -n 514 "${GAME_ARCHIVE}" | wc -c | tr -d " ") skip=1 obs=1024 conv=sync 2>/dev/null | gunzip -c | tar xf - -C "${PKG_TMPDIR}"
+
 for file in 'instarchive_all' 'instarchive_linux_x86' 'instarchive_linux_x86_64'; do
-	extract_data 'nix_stage2' "${file}" "${PKG_TMPDIR}" 'quiet'
+	printf '%s %s…\n' "$(l10n 'extract_data')" "${file}"
+	mv "${PKG_TMPDIR}"/${file} "${PKG_TMPDIR}"/${file}.tar.xz
+	mkdir "${PKG_TMPDIR}"/${file}
+	tar xf "${PKG_TMPDIR}"/${file}.tar.xz -C "${PKG_TMPDIR}"/${file}
 done
+
 fix_rights "${PKG_TMPDIR}"
 
 for file in ${INSTALLER_DOC}; do
