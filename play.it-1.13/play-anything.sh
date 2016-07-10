@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.13.19
+# library version 1.13.20
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -203,31 +203,33 @@ parse_options "${options}"
 printf '%s %s…\n' "$(l10n 'extract_data')" "${archive##*/}"
 if [ "${opts_quiet}" = '0' ]; then print wait ; fi
 mkdir -p "${target}"
-if [ "${type}" = '7z' ]; then
-	extract_7z "${archive}" "${target}"
-elif [ "${type}" = 'inno' ]; then
-	innoextract -seL -p1 -d "${target}" "${archive}"
-elif [ "${type}" = 'mojo' ] && [ "${opts_force}" = '1' ]; then
-	unzip -qq -o -d "${target}" "${archive}" 2>/dev/null || true
-elif [ "${type}" = 'mojo' ]; then
-	unzip -qq -d "${target}" "${archive}" 2>/dev/null || true
-elif [ "${type}" = 'tar' ]; then
-	tar xf "${archive}" -C "${target}"
-elif [ "${type}" = 'unar_passwd' ]; then
-	unar -q -o "${target}" -D -p "${password}" "${archive}" >/dev/null
-elif [ "${type}" = 'zip' ] && [ "${opts_force}" = '1' ]; then
-	unzip -qq -o -d "${target}" "${archive}" 2>/dev/null
-elif [ "${type}" = 'zip' ]; then
-	unzip -qq -d "${target}" "${archive}" 2>/dev/null
-elif [ -n "${type}" ]; then
-	print error
-	printf '%s: %s.\n' "${type}" "$(l10n 'extract_data_unknown_type')"
-	exit 1
-else
-	print error
-	printf '%s' "$(l10n 'extract_data_no_type')"
-	exit 1
-fi
+case $type in
+	'7z') extract_7z "${archive}" "${target}" ;;
+	'inno') innoextract -seL -p1 -d "${target}" "${archive}" ;;
+	'mojo')
+		if [ "${opts_force}" = '1' ]; then
+			unzip -qq -o -d "${target}" "${archive}" 2>/dev/null || true
+		else
+			unzip -qq -d "${target}" "${archive}" 2>/dev/null || true
+	;;
+	'tar') tar xf "${archive}" -C "${target}" ;;
+	'unar_passwd') unar -q -o "${target}" -D -p "${password}" "${archive}" >/dev/null ;;
+	'zip')
+		if [ "${opts_force}" = '1' ]; then
+			unzip -qq -o -d "${target}" "${archive}" 2>/dev/null
+		else
+			unzip -qq -d "${target}" "${archive}" 2>/dev/null
+	;;
+	'') print error
+		printf '%s' "$(l10n 'extract_data_no_type')"
+		exit 1
+	;;
+	*)
+		print error
+		printf '%s: %s.\n' "${type}" "$(l10n 'extract_data_unknown_type')"
+		exit 1
+	;;
+esac
 if [ "${opts_tolower}" = '1' ]; then tolower "${target}"; fi
 if [ "${opts_fix_rights}" = '1' ]; then fix_rights "${target}"; fi
 if [ "${opts_quiet}" = '0' ]; then print done ; fi
