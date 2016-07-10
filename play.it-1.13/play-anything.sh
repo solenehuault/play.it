@@ -212,6 +212,12 @@ case $type in
 		else
 			unzip -qq -d "${target}" "${archive}" 2>/dev/null || true
 	;;
+	'nix_stage1') dd if="${archive}" ibs=$(head -n 514 "${archive}" | wc -c | tr -d " ") skip=1 obs=1024 conv=sync 2>/dev/null | gunzip -c | tar xf - -C "${target}" ;;
+	'nix_stage2')
+		mv "${target}/${archive}" "${target}/${archive}.tar.xz"
+		mkdir "${target}/${archive}"
+		tar xf "${target}/${archive}.tar.xz" -C "${target}/${archive}"
+	;;
 	'tar') tar xf "${archive}" -C "${target}" ;;
 	'unar_passwd') unar -q -o "${target}" -D -p "${password}" "${archive}" >/dev/null ;;
 	'zip')
