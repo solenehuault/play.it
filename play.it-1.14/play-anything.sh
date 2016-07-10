@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.13.20
+# library version 1.14.0
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
