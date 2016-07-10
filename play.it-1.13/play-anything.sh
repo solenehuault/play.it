@@ -211,6 +211,7 @@ case $type in
 			unzip -qq -o -d "${target}" "${archive}" 2>/dev/null || true
 		else
 			unzip -qq -d "${target}" "${archive}" 2>/dev/null || true
+		fi
 	;;
 	'nix_stage1') dd if="${archive}" ibs=$(head -n 514 "${archive}" | wc -c | tr -d " ") skip=1 obs=1024 conv=sync 2>/dev/null | gunzip -c | tar xf - -C "${target}" ;;
 	'nix_stage2')
@@ -225,6 +226,7 @@ case $type in
 			unzip -qq -o -d "${target}" "${archive}" 2>/dev/null
 		else
 			unzip -qq -d "${target}" "${archive}" 2>/dev/null
+		fi
 	;;
 	'') print error
 		printf '%s' "$(l10n 'extract_data_no_type')"
