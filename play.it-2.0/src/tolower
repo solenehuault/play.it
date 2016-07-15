@@ -1,3 +1,4 @@
+
 tolower() {
 [ -d "$1" ] || return 1
 find "$1" -depth | while read file; do

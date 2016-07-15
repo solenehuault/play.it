@@ -28,4 +28,3 @@ for res in $icon_res; do
 	done
 done
 }
-

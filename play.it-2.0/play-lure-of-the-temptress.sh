@@ -33,7 +33,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160425.1
+script_version=20160715.1
 
 # Set game-specific variables
 
@@ -41,35 +41,35 @@ GAME_ID='lure-of-the-temptress'
 GAME_ID_SHORT='lure'
 GAME_NAME='Lure of the Temptress'
 
-ARCHIVE1='gog_lure_of_the_temptress_2.0.0.6.sh'
-ARCHIVE1_MD5='86d110cf60accee567af61e22657a14f'
-ARCHIVE1_TYPE='mojosetup'
-ARCHIVE1_UNCOMPRESSED_SIZE='60000'
+ARCHIVE_EN='gog_lure_of_the_temptress_2.0.0.6.sh'
+ARCHIVE_EN_MD5='86d110cf60accee567af61e22657a14f'
+ARCHIVE_EN_TYPE='mojosetup'
+ARCHIVE_EN_UNCOMPRESSED_SIZE='60000'
 
-ARCHIVE2='gog_lure_of_the_temptress_french_2.0.0.6.sh'
-ARCHIVE2_MD5='d3f454f2d328b5ac91874e79c0b4b0ca'
-ARCHIVE2_TYPE='mojosetup'
-ARCHIVE2_UNCOMPRESSED_SIZE='60000'
+ARCHIVE_FR='gog_lure_of_the_temptress_french_2.0.0.6.sh'
+ARCHIVE_FR_MD5='d3f454f2d328b5ac91874e79c0b4b0ca'
+ARCHIVE_FR_TYPE='mojosetup'
+ARCHIVE_FR_UNCOMPRESSED_SIZE='60000'
 
 ARCHIVE_DOC_PATH='data/noarch'
 ARCHIVE_DOC_FILES='docs/* data/*.txt'
 ARCHIVE_GAME_PATH='data/noarch/data'
 ARCHIVE_GAME_FILES='./*'
 
-APP1_ID="${GAME_ID}"
-APP1_TYPE='scummvm'
-APP1_SCUMMID='lure'
-APP1_ICON='data/noarch/support/icon.png'
-APP1_ICON_RES='256x256'
-APP1_NAME="${GAME_NAME}"
-APP1_CAT='Game'
+APP_MAIN_ID="${GAME_ID}"
+APP_MAIN_TYPE='scummvm'
+APP_MAIN_SCUMMID='lure'
+APP_MAIN_ICON='data/noarch/support/icon.png'
+APP_MAIN_ICON_RES='256x256'
+APP_MAIN_NAME="${GAME_NAME}"
+APP_MAIN_CAT='Game'
 
-PKG1_ID="${GAME_ID}"
-PKG1_ARCH='all'
-PKG1_VERSION='1.1-gog2.0.0.6'
-PKG1_CONFLICTS=''
-PKG1_DEPS='scummvm'
-PKG1_DESC="${GAME_NAME}\n
+PKG_MAIN_ID="${GAME_ID}"
+PKG_MAIN_ARCH='all'
+PKG_MAIN_VERSION='1.1-gog2.0.0.6'
+PKG_MAIN_CONFLICTS=''
+PKG_MAIN_DEPS='scummvm'
+PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
  ./play.it script version ${script_version}"
 
@@ -102,28 +102,28 @@ fetch_args "$@"
 
 # Set source archive
 
-find_source_archive 'ARCHIVE1' 'ARCHIVE2'
+find_source_archive 'ARCHIVE_EN' 'ARCHIVE_FR'
 
 # Extract game data
 
-set_workdir 'PKG1'
+set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 organize_data
 
-PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
+PATH_ICON="${PATH_ICON_BASE}/${APP_MAIN_ICON_RES}/apps"
 mkdir --parents "${PKG_PATH}${PATH_ICON}"
-mv "${PLAYIT_WORKDIR}/gamedata/${APP1_ICON}" "${PKG_PATH}${PATH_ICON}/${APP1_ID}.png"
+mv "${PLAYIT_WORKDIR}/gamedata/${APP_MAIN_ICON}" "${PKG_PATH}${PATH_ICON}/${APP_MAIN_ID}.png"
 
 rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
 # Write launchers
 
-write_app 'APP1'
+write_app 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG1'
-build_pkg 'PKG1'
+write_metadata 'PKG_MAIN'
+build_pkg 'PKG_MAIN'
 
 # Clean up
 

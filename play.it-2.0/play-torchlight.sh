@@ -33,7 +33,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160426.1
+script_version=20160715.1
 
 # Set game-specific variables
 
@@ -41,10 +41,10 @@ GAME_ID='torchlight'
 GAME_ID_SHORT='torch'
 GAME_NAME='Torchlight'
 
-ARCHIVE1='setup_torchlight_2.0.0.12.exe'
-ARCHIVE1_MD5='4b721e1b3da90f170d66f42e60a3fece'
-ARCHIVE1_TYPE='innosetup'
-ARCHIVE1_UNCOMPRESSED_SIZE='460000'
+ARCHIVE_GOG='setup_torchlight_2.0.0.12.exe'
+ARCHIVE_GOG_MD5='4b721e1b3da90f170d66f42e60a3fece'
+ARCHIVE_GOG_TYPE='innosetup'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='460000'
 
 ARCHIVE_DOC_PATH='.'
 ARCHIVE_DOC_FILES='app/*.pdf tmp/*eula.txt'
@@ -58,20 +58,20 @@ CONFIG_FILES=''
 DATA_DIRS=''
 DATA_FILES=''
 
-APP1_ID="${GAME_ID}"
-APP1_TYPE='wine'
-APP1_EXE='./torchlight.exe'
-APP1_ICON='torchlight.ico'
-APP1_ICON_RES='16x16 24x24 32x32 48x48 256x256'
-APP1_NAME="${GAME_NAME}"
-APP1_CAT='Game'
+APP_MAIN_ID="${GAME_ID}"
+APP_MAIN_TYPE='wine'
+APP_MAIN_EXE='./torchlight.exe'
+APP_MAIN_ICON='torchlight.ico'
+APP_MAIN_ICON_RES='16x16 24x24 32x32 48x48 256x256'
+APP_MAIN_NAME="${GAME_NAME}"
+APP_MAIN_CAT='Game'
 
-PKG1_ID="${GAME_ID}"
-PKG1_VERSION='1.15-gog2.0.0.12'
-PKG1_ARCH='i386'
-PKG1_CONFLICTS=''
-PKG1_DEPS="wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
-PKG1_DESC="${GAME_NAME}\n
+PKG_MAIN_ID="${GAME_ID}"
+PKG_MAIN_VERSION='1.15-gog2.0.0.12'
+PKG_MAIN_ARCH='i386'
+PKG_MAIN_CONFLICTS=''
+PKG_MAIN_DEPS="wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
+PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
  ./play.it script version ${script_version}"
 
@@ -104,18 +104,18 @@ fetch_args "$@"
 
 # Set source archive
 
-find_source_archive 'ARCHIVE1' 'ARCHIVE2'
+find_source_archive 'ARCHIVE_GOG'
 
 # Extract game data
 
-set_workdir 'PKG1'
+set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data
 
 if [ "${NO_ICON}" = '0' ]; then
-	extract_icon_from "${PKG1_PATH}${PATH_GAME}/${APP1_ICON}"
-	sort_icons 'APP1'
+	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/${APP_MAIN_ICON}"
+	sort_icons 'APP_MAIN'
 	rm --recursive "${PLAYIT_WORKDIR}/icons"
 fi
 
@@ -123,12 +123,12 @@ rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
 # Write launchers
 
-write_app 'APP1'
+write_app 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG1'
-build_pkg 'PKG1'
+write_metadata 'PKG_MAIN'
+build_pkg 'PKG_MAIN'
 
 # Clean up
 

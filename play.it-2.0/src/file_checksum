@@ -1,3 +1,6 @@
+
+# check integrity of source archive
+
 file_checksum() {
 local source_file="$1"
 shift 1
@@ -33,8 +36,7 @@ return 1
 
 file_checksum_none() {
 if [ -z "$ARCHIVE" ]; then
-	ARCHIVE='ARCHIVE1'
+	ARCHIVE="$ARCHIVE_DEFAULT"
 	set_source_archive_vars
 fi
 }
-

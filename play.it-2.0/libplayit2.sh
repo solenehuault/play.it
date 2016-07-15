@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160426.2
+library_revision=20160715.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -192,6 +192,8 @@ if [ -z "$value" ] && [ -n "$value_default" ]; then
 fi
 }
 
+# check integrity of source archive
+
 file_checksum() {
 local source_file="$1"
 shift 1
@@ -227,7 +229,7 @@ return 1
 
 file_checksum_none() {
 if [ -z "$ARCHIVE" ]; then
-	ARCHIVE='ARCHIVE1'
+	ARCHIVE="$ARCHIVE_DEFAULT"
 	set_source_archive_vars
 fi
 }
@@ -428,8 +430,10 @@ for res in $icon_res; do
 done
 }
 
+# test the validity of the argument given to parent function
+# only used for debugging purposes
 testvar() {
-if [ -z "$(echo "$1" | grep ^${2}[0-9]$)" ]; then
+if [ -z "$(echo "$1" | grep ^${2})" ]; then
 	return 1
 fi
 }

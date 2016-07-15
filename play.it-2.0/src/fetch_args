@@ -41,4 +41,3 @@ if [ -z "$value" ] && [ -n "$value_default" ]; then
 	export $1="$value_default"
 fi
 }
-
