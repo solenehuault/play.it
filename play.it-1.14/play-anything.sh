@@ -29,11 +29,13 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.0
+# library version 1.14.1
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
+# build .deb package from given directory
+# USAGE: build_pkg $source_directory $package_description $compression_method [$options] [$extra_infos]
 build_pkg() {
 local dir="$1"
 local desc="$2"
@@ -57,6 +59,8 @@ if [ "${opts_quiet}" = '0' ]; then
 fi
 }
 
+# create package arborescence
+# USAGE: build_pkg_dirs $packages_number $subdirectory…
 build_pkg_dirs() {
 local pkg_nb="$1"
 shift 1
@@ -70,6 +74,8 @@ for dir in ${dirs} '/DEBIAN'; do
 done
 }
 
+# check dependencies
+# USAGE: check_deps "$required_dependency…" ["$optional_dependency…"]
 check_deps() {
 local deps_required="$1"
 local deps_optional="$2"
@@ -79,6 +85,8 @@ check_deps_hard ${deps_required}
 check_deps_soft ${deps_optional}
 }
 
+# check required dependencies
+# USAGE: check_deps_hard $required_dependency…
 check_deps_hard() {
 for dep in $@; do
 	case $dep in
@@ -96,6 +104,8 @@ for dep in $@; do
 done
 }
 
+# check optional dependencies
+# USAGE: check_deps_hard $optional_dependency…
 check_deps_soft() {
 for dep in $@; do
 	if [ -z $(which "${dep}") ]; then
@@ -119,6 +129,8 @@ for dep in $@; do
 done
 }
 
+# ask for user confirmation if an icon extracting dependency is not found
+# USAGE: check_deps_soft_userinput_icons
 check_deps_soft_userinput_icons() {
 local userinput='empty'
 while [ -n "${userinput}" ] && [ -z "$(printf '%s' "${userinput}" | grep -e ^'[nNoOyY]'$ )" ]; do
@@ -137,6 +149,8 @@ while [ -n "${userinput}" ] && [ -z "$(printf '%s' "${userinput}" | grep -e ^'[n
 done
 }
 
+# check that one package managing .7z archives is installed
+# USAGE: check_deps_7z
 check_deps_7z() {
 if [ -n "$(which 7zr)" ]; then
 	extract_7z() {
@@ -163,6 +177,8 @@ else
 fi
 }
 
+# check integrity of target file
+# USAGE: checksum $file $options $control_sum…
 checksum() {
 local file="$1"
 local options="$2"
@@ -186,6 +202,8 @@ esac
 if [ "${opts_quiet}" = '0' ]; then print done; fi
 }
 
+# print an error in cas of failed integrity check
+# USAGE: checksum_error $file
 checksum_error() {
 local file="$1"
 print error
@@ -193,6 +211,8 @@ printf '%s\n%s %s\n' "$(l10n 'checksum_error_1')" "${file}" "$(l10n 'checksum_er
 exit 1
 }
 
+# extract data from given archive
+# USAGE: extract_data $archive_type $file $output_directory [$options] [$password]
 extract_data() {
 local type="$1"
 local archive="$2"
@@ -243,6 +263,8 @@ if [ "${opts_fix_rights}" = '1' ]; then fix_rights "${target}"; fi
 if [ "${opts_quiet}" = '0' ]; then print done ; fi
 }
 
+# extract .png files from given file
+# USAGE: extract_icons $application_id $source_file "$resolution…" $output_directory [$extra_infos]
 extract_icons() {
 local id="$1"
 local icon="$2"
@@ -278,6 +300,8 @@ if [ "${icon##*.}" = 'exe' ] || [ "${icon##*.}" = 'ico' ] ; then
 fi
 }
 
+# parse arguments given to the script
+# USAGE: fetch_args $argument…
 fetch_args() {
 export GAME_ARCHIVE=''
 export GAME_ARCHIVE_CHECKSUM=''
@@ -345,6 +369,8 @@ for arg in "$@"; do
 done
 }
 
+# set file rights to 644 and directory rights to 755
+# USAGE: fix_rights $directory…
 fix_rights() {
 local targets="$*"
 printf '%s…\n' "$(l10n 'fix_rights')"
@@ -354,6 +380,8 @@ for target in ${targets}; do
 done
 }
 
+# set working directory
+# USAGE: game_mkdir $variable_name $directory_name $needed_free_space
 game_mkdir() {
 local dir_var="$1"
 local dir_name="$2"
@@ -365,6 +393,8 @@ else
 fi
 }
 
+# print script usage help
+# USAGE: help
 help() {
 	printf '%s %s' "$0" '[<archive>] [--checksum=md5|none] [--compression=none|gzip|xz] [--prefix=dir]'
 	if [ -n "${GAME_LANG_DEFAULT}" ]; then
@@ -385,6 +415,8 @@ help() {
 	fi
 }
 
+# print adequate string according to user locale
+# USAGE: l10n $keyword
 l10n() {
 local keyword="$1"
 local lang="${LANG%_*}"
@@ -398,6 +430,8 @@ case "${lang}" in
 esac
 }
 
+# parse options given to a function
+# USAGE: parse_options $option…
 parse_options() {
 for option in 'fix_rights' 'force' 'quiet' 'terminal' 'tolower'; do
 	if [ -n "$(printf '%s' "$*" | grep "${option}")" ]; then
@@ -408,6 +442,8 @@ for option in 'fix_rights' 'force' 'quiet' 'terminal' 'tolower'; do
 done
 }
 
+# print common strings in a pretty format
+# USAGE: print done|error|wait|warning
 print() {
 case $1 in
 	done)
@@ -430,6 +466,8 @@ esac
 printf "${string_format}" "${string_contents}"
 }
 
+# print installation instructions
+# USAGE: print_instructions $package_description $package_directory…
 print_instructions() {
 local desc="$1"
 shift 1
@@ -441,6 +479,8 @@ done
 printf '\napt-get install -f\n'
 }
 
+# set checksum method
+# USAGE: set_checksum
 set_checksum() {
 if [ -z "${GAME_ARCHIVE_CHECKSUM}" ]; then export GAME_ARCHIVE_CHECKSUM="${GAME_ARCHIVE_CHECKSUM_DEFAULT}"; fi
 printf '%s: %s\n' "$(l10n 'set_checksum')" "${GAME_ARCHIVE_CHECKSUM}"
@@ -453,6 +493,8 @@ if [ -z "$(printf '#md5sum#none#' | grep "#${GAME_ARCHIVE_CHECKSUM}#")" ]; then
 fi
 }
 
+# set compression method
+# USAGE: set_compression
 set_compression() {
 if [ -z "${PKG_COMPRESSION}" ]; then export PKG_COMPRESSION="${PKG_COMPRESSION_DEFAULT}"; fi
 printf '%s: %s\n' "$(l10n 'set_compression')" "${PKG_COMPRESSION}"
@@ -465,6 +507,8 @@ if [ -z "$(printf '#gzip#xz#none#' | grep "#${PKG_COMPRESSION}#")" ]; then
 fi
 }
 
+# set game language
+# USAGE: set_lang
 set_lang() {
 if [ -z "${GAME_LANG}" ]; then export GAME_LANG="${GAME_LANG_DEFAULT}"; fi
 printf '%s: %s\n' "$(l10n 'set_lang')" "${GAME_LANG}"
@@ -478,6 +522,8 @@ if [ -z "$(printf '#en#fr#' | grep "#${GAME_LANG}#")" ]; then
 fi
 }
 
+# set installation prefix
+# USAGE: set_prefix
 set_prefix() {
 if [ -z "${PKG_PREFIX}" ]; then export PKG_PREFIX="${PKG_PREFIX_DEFAULT}"; fi
 printf '%s: %s\n' "$(l10n 'set_prefix')" "${PKG_PREFIX}"
@@ -489,6 +535,8 @@ if [ "$(printf '%s' "${PKG_PREFIX}" | cut -c1)" != '/' ]; then
 fi
 }
 
+# set source archive
+# USAGE: set_target $valid_targets_number $archive_origin
 set_target() {
 local archives_nb="$1"
 local origin="$2"
@@ -523,6 +571,8 @@ if ! [ -f "${GAME_ARCHIVE}" ]; then
 fi
 }
 
+# set extra required archive
+# USAGE: set_target_extra $variable_name $file_download_url $file_name…
 set_target_extra() {
 local varname="$1"
 local url="$2"
@@ -568,6 +618,8 @@ fi
 printf '%s %s\n' "$(l10n 'using' )" "${archive}"
 }
 
+# set optional archive
+# USAGE: set_target_optional $variable_name $file_name…
 set_target_optional() {
 local varname="$1"
 shift 1
@@ -583,6 +635,8 @@ for archive in "$@"; do
 done
 }
 
+# convert files names to lower case
+# USAGE: tolower $directory…
 tolower() {
 local target="$1"
 printf '%s…\n' "$(l10n 'tolower')"
@@ -594,6 +648,8 @@ find "${target}" -depth | while read file; do
 done
 }
 
+# write launcher script for DOSBox game
+# USAGE: write_bin_dosbox $target_file $exe_file $exe_file_options $extra_infos [$exe_file_description]
 write_bin_dosbox() {
 local target="$1"
 local exe="$2"
@@ -672,6 +728,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write library script for DOSBox game
+# USAGE: write_bin_dosbox_common $target_file
 write_bin_dosbox_common() {
 local target="$1"
 cat > "${target}" << EOF
@@ -779,6 +837,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write launcher script for native game
+# USAGE: write_bin_native $target_file $exe_file $exe_file_options $libraries_directory $extra_infos [$exe_file_description]
 write_bin_native() {
 local target="$1"
 local exe="$2"
@@ -819,6 +879,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write launcher script for native game, with ./play.it user prefix
+# USAGE: write_bin_native_prefix $target_file $exe_file $exe_file_options $extra_infos [$exe_file_description]
 write_bin_native_prefix() {
 local target="$1"
 local exe="$2"
@@ -892,6 +954,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write library script for native game, with ./play.it user prefix
+# USAGE: write_bin_native_prefix_common $target_file
 write_bin_native_prefix_common() {
 local target="$1"
 cat > "${target}" << EOF
@@ -992,6 +1056,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write launcher script for ScummVM game
+# USAGE: write_bin_scummvm $target_file $scummvm_engine_id $scummvm_options $extra_infos [$game_description]
 write_bin_scummvm() {
 local target="$1"
 local scummid="$2"
@@ -1025,6 +1091,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write launcher script for WINE game
+# USAGE: write_bin_wine $target_file $exe_file $exe_file_options $extra_infos [$exe_file_description]
 write_bin_wine() {
 local target="$1"
 local exe="$2"
@@ -1104,6 +1172,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write winecfg script for WINE game
+# USAGE: write_bin_wine_cfg $target_file
 write_bin_wine_cfg() {
 local target="$1"
 cat > "${target}" << EOF
@@ -1165,6 +1235,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write library script for WINE game
+# USAGE: write_bin_wine_common $target_file
 write_bin_wine_common() {
 local target="$1"
 cat > "${target}" << EOF
@@ -1275,6 +1347,8 @@ EOF
 chmod 755 "${target}"
 }
 
+# write menu entry
+# USAGE: write_desktop $application_id $application_name $application_name_french $target_file [$application_category [$fallback_icon_id [$options]]]
 write_desktop() {
 local id="$1"
 local name="$2"
@@ -1309,6 +1383,8 @@ if [ "${NO_ICON}" = '1' ] && [ -n "${fallback}" ]; then
 fi
 }
 
+# write menu
+# USAGE: write_menu $menu_id $menu_name $menu_name_french $menu_category $.directory_directory $.menu_directory $fallback_icon_id $application_id…
 write_menu() {
 local id="$1"
 local name="$2"
@@ -1366,6 +1442,8 @@ cat >> "${target_merged}" << EOF
 EOF
 }
 
+# write .deb package meta-data
+# USAGE: write_pkg_debian $package_directory $package_id $version $architecture $conflicts $dependencies $recommended_dependencies $description [$extra_infos]
 write_pkg_debian() {
 local dir="$1"
 local id="$2"
@@ -1409,6 +1487,8 @@ Description: ${desc}
 EOF
 }
 
+# bank of strings used by the scripts
+# FORMAT: $keyword:$language_code:$string
 export STRINGS_BANK='
 build_pkg:en:Building package for
 build_pkg:fr:Construction du paquet pour
