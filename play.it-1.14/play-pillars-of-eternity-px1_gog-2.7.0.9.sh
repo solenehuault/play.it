@@ -36,7 +36,7 @@
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160324.1
+script_version=20160716.1
 
 # Set game-specific variables
 
@@ -46,16 +46,16 @@ GAME_ID='pillars-of-eternity'
 GAME_ID_SHORT='poe'
 GAME_NAME='Pillars of Eternity: The White March Part I'
 
-GAME_ARCHIVE1='gog_pillars_of_eternity_white_march_part_1_dlc_2.6.0.8.sh'
-GAME_ARCHIVE1_MD5='006044a20ebefb8170b2df22e3cda6f1'
+GAME_ARCHIVE1='gog_pillars_of_eternity_white_march_part_1_dlc_2.7.0.9.sh'
+GAME_ARCHIVE1_MD5='30397fa9635303c6cf4c9d8a2c6ce266'
 GAME_ARCHIVE_FULLSIZE='5500000'
-PKG_REVISION='gog2.6.0.8'
+PKG_REVISION='gog2.7.0.9'
 
 INSTALLER_DOC='data/noarch/docs/*'
 INSTALLER_GAME='data/noarch/game/*'
 
 PKG1_ID="${GAME_ID}-px1"
-PKG1_VERSION='3.02.1008'
+PKG1_VERSION='3.03'
 PKG1_ARCH='amd64'
 PKG1_CONFLICTS=''
 PKG1_DEPS="${GAME_ID} (>= ${PKG1_VERSION})"

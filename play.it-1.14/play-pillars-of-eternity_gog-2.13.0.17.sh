@@ -36,7 +36,7 @@
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160324.1
+script_version=20160716.1
 
 # Set game-specific variables
 
@@ -46,8 +46,8 @@ GAME_ID='pillars-of-eternity'
 GAME_ID_SHORT='poe'
 GAME_NAME='Pillars of Eternity'
 
-GAME_ARCHIVE1='gog_pillars_of_eternity_2.12.0.16.sh'
-GAME_ARCHIVE1_MD5='5cdeae373f182ad4cc83fd51e8e09e60'
+GAME_ARCHIVE1='gog_pillars_of_eternity_2.13.0.17.sh'
+GAME_ARCHIVE1_MD5='72f49ef025ddfeeb91b9603d9f3081ac'
 GAME_DLC_ARCHIVE1='gog_pillars_of_eternity_kickstarter_item_dlc_2.0.0.2.sh'
 GAME_DLC_ARCHIVE1_MD5='b4c29ae17c87956471f2d76d8931a4e5'
 GAME_DLC_ARCHIVE2='gog_pillars_of_eternity_kickstarter_pet_dlc_2.0.0.2.sh'
@@ -55,7 +55,7 @@ GAME_DLC_ARCHIVE2_MD5='3653fc2a98ef578335f89b607f0b7968'
 GAME_DLC_ARCHIVE3='gog_pillars_of_eternity_preorder_item_and_pet_dlc_2.0.0.2.sh'
 GAME_DLC_ARCHIVE3_MD5='b86ad866acb62937d2127407e4beab19'
 GAME_ARCHIVE_FULLSIZE='15000000'
-PKG_REVISION='gog2.12.0.16'
+PKG_REVISION='gog2.13.0.17'
 
 INSTALLER_DOC='data/noarch/game/Docs data/noarch/game/Links data/noarch/docs/*'
 INSTALLER_GAME_PKG1='data/noarch/game/*'
@@ -72,7 +72,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ARCH='amd64'
-PKG_VERSION='3.02.1008'
+PKG_VERSION='3.03'
 
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH="${PKG_ARCH}"

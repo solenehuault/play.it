@@ -36,7 +36,7 @@
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160324.1
+script_version=20160716.1
 
 # Set game-specific variables
 
@@ -46,17 +46,17 @@ GAME_ID='pillars-of-eternity'
 GAME_ID_SHORT='poe'
 GAME_NAME='Pillars of Eternity: The White March Part II'
 
-GAME_ARCHIVE1='gog_pillars_of_eternity_white_march_part_2_dlc_2.2.0.3.sh'
-GAME_ARCHIVE1_MD5='77c3269e5e6b8e5ae2cfa555d9e439e7'
+GAME_ARCHIVE1='gog_pillars_of_eternity_white_march_part_2_dlc_2.3.0.4.sh'
+GAME_ARCHIVE1_MD5='66173772c763c1aa2b659f20c3fe122a'
 GAME_ARCHIVE_FULLSIZE='4400000'
-PKG_REVISION='gog2.2.0.3'
+PKG_REVISION='gog2.3.0.4'
 
 INSTALLER_JUNK='data/noarch/game/PillarsOfEternity_Data/assetbundles/prefabs/objectbundle/px1_cre_blight_ice_terror.unity3d'
 INSTALLER_DOC='data/noarch/docs/*'
 INSTALLER_GAME='data/noarch/game/*'
 
 PKG1_ID="${GAME_ID}-px2"
-PKG1_VERSION='3.02.1008'
+PKG1_VERSION='3.03'
 PKG1_ARCH='amd64'
 PKG1_CONFLICTS=''
 PKG1_DEPS="${GAME_ID} (>= ${PKG1_VERSION}), ${GAME_ID}-px1 (>= ${PKG1_VERSION})"
