@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160409.1
+script_version=20160717.1
 
 # Set game-specific variables
 
@@ -94,7 +94,7 @@ PKG2_DESC="${GAME_NAME} - assets
  package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
 
-PKG1_DEPS="${PKG1_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
+PKG1_DEPS="${PKG2_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
 
 # Load common functions
 
