@@ -30,10 +30,8 @@
 ###
 # conversion script for the Pillars of Eternity: The White March Part II installer sold on GOG.com
 # build a .deb package from the .sh MojoSetup installer
-# tested on Debian, should work on any .deb-based distribution
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
 script_version=20160716.1

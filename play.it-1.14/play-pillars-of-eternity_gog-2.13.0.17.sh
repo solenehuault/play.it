@@ -30,10 +30,8 @@
 ###
 # conversion script for the Pillars of Eternity installer sold on GOG.com
 # build a .deb package from the .sh MojoSetup installer
-# tested on Debian, should work on any .deb-based distribution
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
 script_version=20160716.1
@@ -57,9 +55,10 @@ GAME_DLC_ARCHIVE3_MD5='b86ad866acb62937d2127407e4beab19'
 GAME_ARCHIVE_FULLSIZE='15000000'
 PKG_REVISION='gog2.13.0.17'
 
-INSTALLER_DOC='data/noarch/game/Docs data/noarch/game/Links data/noarch/docs/*'
-INSTALLER_GAME_PKG1='data/noarch/game/*'
-INSTALLER_GAME_PKG2='data/noarch/game/PillarsOfEternity_Data/assetbundles/st_*'
+INSTALLER_PATH='data/noarch/game'
+INSTALLER_DOC='./Docs ./Links ../docs/*'
+INSTALLER_GAME_PKG1='./*'
+INSTALLER_GAME_PKG2='./PillarsOfEternity_Data/assetbundles/st_*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./PillarsOfEternity'
@@ -183,17 +182,19 @@ extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 [ -n "${DLC2_ARCHIVE}" ] && extract_data 'mojo' "${DLC2_ARCHIVE}" "${PKG_TMPDIR}" 'force,quiet'
 [ -n "${DLC3_ARCHIVE}" ] && extract_data 'mojo' "${DLC3_ARCHIVE}" "${PKG_TMPDIR}" 'force,quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME_PKG2}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}/PillarsOfEternity_Data/assetbundles"
+	mv "${file}" "${PKG2_DIR}${PATH_GAME}/PillarsOfEternity_Data/assetbundles"
 done
 
 for file in ${INSTALLER_GAME_PKG1}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 fix_rights "${PKG1_DIR}${PATH_DOC}" "${PKG1_DIR}${PATH_GAME}" "${PKG2_DIR}${PATH_GAME}"
 
