@@ -97,7 +97,7 @@ PKG1_DEPS="${PKG2_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'

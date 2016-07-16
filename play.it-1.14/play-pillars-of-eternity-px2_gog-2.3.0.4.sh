@@ -65,7 +65,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
