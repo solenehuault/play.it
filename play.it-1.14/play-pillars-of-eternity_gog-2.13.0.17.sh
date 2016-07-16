@@ -56,7 +56,7 @@ GAME_ARCHIVE_FULLSIZE='15000000'
 PKG_REVISION='gog2.13.0.17'
 
 INSTALLER_PATH='data/noarch/game'
-INSTALLER_DOC='./Docs ./Links ../docs/*'
+INSTALLER_DOC='../docs/*'
 INSTALLER_GAME_PKG1='./*'
 INSTALLER_GAME_PKG2='./PillarsOfEternity_Data/assetbundles/st_*'
 
