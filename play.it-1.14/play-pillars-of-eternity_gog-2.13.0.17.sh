@@ -222,7 +222,7 @@ write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "$
 write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}"
 
 file="${PKG1_DIR}/DEBIAN/postinst"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 ln -s "${PATH_GAME}/${APP1_ICON1}" "${PATH_ICON1}/${GAME_ID}.png"
 ln -s "${PATH_GAME}/${APP1_ICON2}" "${PATH_ICON2}/${GAME_ID}.png"
@@ -231,7 +231,7 @@ EOF
 chmod 755 "${file}"
 
 file="${PKG1_DIR}/DEBIAN/prerm"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON1}/${GAME_ID}.png"
 rm "${PATH_ICON2}/${GAME_ID}.png"

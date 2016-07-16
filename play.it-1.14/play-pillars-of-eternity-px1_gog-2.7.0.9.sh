@@ -49,8 +49,9 @@ GAME_ARCHIVE1_MD5='30397fa9635303c6cf4c9d8a2c6ce266'
 GAME_ARCHIVE_FULLSIZE='5500000'
 PKG_REVISION='gog2.7.0.9'
 
-INSTALLER_DOC='data/noarch/docs/*'
-INSTALLER_GAME='data/noarch/game/*'
+INSTALLER_PATH='data/noarch'
+INSTALLER_DOC='./docs/*'
+INSTALLER_GAME='./game/*'
 
 PKG1_ID="${GAME_ID}-px1"
 PKG1_VERSION='3.03'
@@ -125,13 +126,15 @@ build_pkg_dirs '1' "${PATH_DOC}" "${PATH_GAME}"
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 # Building package
 

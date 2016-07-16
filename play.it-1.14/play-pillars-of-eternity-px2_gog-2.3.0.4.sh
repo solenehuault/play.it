@@ -49,9 +49,10 @@ GAME_ARCHIVE1_MD5='66173772c763c1aa2b659f20c3fe122a'
 GAME_ARCHIVE_FULLSIZE='4400000'
 PKG_REVISION='gog2.3.0.4'
 
-INSTALLER_JUNK='data/noarch/game/PillarsOfEternity_Data/assetbundles/prefabs/objectbundle/px1_cre_blight_ice_terror.unity3d'
-INSTALLER_DOC='data/noarch/docs/*'
-INSTALLER_GAME='data/noarch/game/*'
+INSTALLER_PATH='data/noarch/game'
+INSTALLER_JUNK='./PillarsOfEternity_Data/assetbundles/prefabs/objectbundle/px1_cre_blight_ice_terror.unity3d'
+INSTALLER_DOC='../docs/*'
+INSTALLER_GAME='./*'
 
 PKG1_ID="${GAME_ID}-px2"
 PKG1_VERSION='3.03'
@@ -126,17 +127,19 @@ build_pkg_dirs '1' "${PATH_DOC}" "${PATH_GAME}"
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_JUNK}; do
-	rm -Rf "${PKG_TMPDIR}"/${file}
+	rm -Rf "${file}"
 done
 
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 # Building package
 
