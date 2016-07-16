@@ -195,7 +195,7 @@ print wait
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}"
 
-file="${PKG2_DIR}/DEBIAN/postinst"
+file="${PKG1_DIR}/DEBIAN/postinst"
 cat > "${file}" << EOF
 #!/bin/sh -e
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
@@ -203,7 +203,7 @@ exit 0
 EOF
 chmod 755 "${file}"
 
-file="${PKG2_DIR}/DEBIAN/prerm"
+file="${PKG1_DIR}/DEBIAN/prerm"
 cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
