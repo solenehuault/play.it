@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160715.1
+script_version=20160717.1
 
 # Set game-specific variables
 
@@ -65,7 +65,7 @@ PKG1_ID="${GAME_ID}"
 PKG1_ARCH='amd64'
 PKG1_VERSION='3.3.1357'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3'
+PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
