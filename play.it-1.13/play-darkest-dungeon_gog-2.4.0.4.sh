@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160626.1
+script_version=20160719.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='darkest-dungeon'
 GAME_ID_SHORT='darkestd'
 GAME_NAME='Darkest Dungeon'
 
-GAME_ARCHIVE1='gog_darkest_dungeon_2.3.0.3.sh'
-GAME_ARCHIVE1_MD5='c8f993ad8e301b3a335480e71e7244d6'
+GAME_ARCHIVE1='gog_darkest_dungeon_2.4.0.4.sh'
+GAME_ARCHIVE1_MD5='f40c7cdbea58fb3a18e08083dd6d49dc'
 GAME_ARCHIVE_FULLSIZE='1800000'
-PKG_REVISION='gog2.3.0.3'
+PKG_REVISION='gog2.4.0.4'
 
 INSTALLER_PATH='data/noarch/game'
 INSTALLER_DOC='../docs/*'
@@ -65,7 +65,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='14620'
+PKG_VERSION='15015'
 PKG_DEPS='libc6, libstdc++6, libgcc1, libsdl2-2.0-0'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
