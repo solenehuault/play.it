@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160523.2
+script_version=20160720.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='terraria'
 GAME_ID_SHORT='terraria'
 GAME_NAME='Terraria'
 
-GAME_ARCHIVE1='gog_terraria_2.2.0.5.sh'
-GAME_ARCHIVE1_MD5='67a140a40ad907a6cf6d04becf0ed5ca'
+GAME_ARCHIVE1='gog_terraria_2.3.0.6.sh'
+GAME_ARCHIVE1_MD5='573f082cfa7a044e1ca0d7fabb6ee5b3'
 GAME_ARCHIVE_FULLSIZE='300000'
-PKG_REVISION='gog2.2.0.5'
+PKG_REVISION='gog2.3.0.6'
 
 INSTALLER_PATH='data/noarch/game'
 INSTALLER_DOC='../docs/* changelog.txt'
@@ -88,7 +88,7 @@ APP2_NAME_FR="${GAME_NAME} : serveur"
 APP2_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='1.3.1.1'
+PKG_VERSION='1.3.2'
 PKG_DEPS='libglu1-mesa | libglu1, libxcursor1, libxrandr2'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
