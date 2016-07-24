@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160720.1
+script_version=20160724.1
 
 # Set game-specific variables
 
@@ -87,7 +87,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
