@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160502.1
+script_version=20160731.1
 
 # Set game-specific variables
 
@@ -76,7 +76,7 @@ APP1_CAT='Game'
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH='i386'
 PKG1_VERSION='1.24'
-PKG1_DEPS='libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2'
+PKG1_DEPS='libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2, libvorbis0a'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
