@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160717.1
+script_version=20160810.1
 
 # Set game-specific variables
 
@@ -113,9 +113,6 @@ set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
@@ -128,6 +125,8 @@ case "$(basename ${GAME_ARCHIVE})" in
 	"${GAME_ARCHIVE1}") PKG1_ARCH='i386' ;;
 	"${GAME_ARCHIVE2}") PKG1_ARCH='amd64' ;;
 esac
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 printf '\n'
 
 # Check target file integrity
