@@ -165,9 +165,11 @@ set_target '2' 'gog.com'
 case "$(basename ${GAME_ARCHIVE})" in
 	"${GAME_ARCHIVE1}")
 		PKG_REVISION="${GAME_ARCHIVE1_REVISION}"
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
 	;;
 	"${GAME_ARCHIVE2}")
 		PKG_REVISION="${GAME_ARCHIVE2_REVISION}"
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
 		INSTALLER_GAME="${INSTALLER_GAME} ${INSTALLER_GAME_ARCHIVE2}"
 		set_target_extra 'GAME_ARCHIVE_PATCH' '' "${GAME_ARCHIVE2_PATCH}"
 	;;
@@ -188,7 +190,13 @@ game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" 
 # Check target file integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
+	printf '%s…\n' "$(l10n 'checksum_multiple')"
+	print wait
+	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE_MD5}"
+	if [ -n "${GAME_ARCHIVE_PATCH}" ]; then
+		checksum "${GAME_ARCHIVE_PATCH}" 'quiet' "${GAME_ARCHIVE2_PATCH_MD5}"
+	fi
+	print done
 fi
 
 # Extract game data
