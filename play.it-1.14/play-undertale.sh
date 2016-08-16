@@ -65,7 +65,7 @@ PKG1_ID="${GAME_ID}"
 PKG1_ARCH='i386'
 PKG1_VERSION='1.001'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libc6, libstdc++6, libglu1-mesa | libglu1, libxrandr2, libssl1.0.0'
+PKG1_DEPS='libc6, libstdc++6, libglu1-mesa | libglu1, libopenal1, libxrandr2, libssl1.0.0'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
