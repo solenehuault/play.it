@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.1
+# library version 1.14.2
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -573,49 +573,46 @@ fi
 
 # set extra required archive
 # USAGE: set_target_extra $variable_name $file_download_url $file_name…
+# $file_download_url may be empty
 set_target_extra() {
+local archives_list
+local archive_found=false
+local archives_multiple=false
 local varname="$1"
 local url="$2"
 shift 2
-local archive1="$1"
-if [ $# -ge 2 ]; then
-	local archive2="$2";
-fi
-if [ $# -ge 3 ]; then
-	local archive3="$3";
-fi
-if [ -e "${GAME_ARCHIVE%/*}/${archive1}" ]; then
-	archive="${GAME_ARCHIVE%/*}/${archive1}"
-	export ${varname}="${archive}"
-elif [ $# -ge 2 ] && [ -e "${GAME_ARCHIVE%/*}/${archive2}" ]; then
-	archive="${GAME_ARCHIVE%/*}/${archive2}"
-	export ${varname}="${archive}"
-elif [ $# -ge 3 ] && [ -e "${GAME_ARCHIVE%/*}/${archive3}" ]; then
-	archive="${GAME_ARCHIVE%/*}/${archive3}"
-	export ${varname}="${archive}"
+while [ -n "$1" ] && [ ${archive_found} = false ]; do
+	archive="$1"
+	shift 1
+	if [ -z "${archives_list}" ]; then
+		archives_list="${archive}"
+	else
+		archives_multiple=true
+		archives_list="${archives_list}, ${archive}"
+	fi
+	if [ -e "$(dirname "${GAME_ARCHIVE}")/${archive}" ]; then
+		archive_found=true
+		archive="$(dirname "${GAME_ARCHIVE}")/${archive}"
+		export ${varname}="${archive}"
+	fi
+done
+if [ ${archive_found} = true ]; then
+	printf '%s %s\n' "$(l10n 'using' )" "${archive}"
+elif [ ${archives_multiple} = true ]; then
+	print error
+	printf '%s %s.\n%s %s.\n' "${archives_list}" "$(l10n 'not_found_multiple')" "$(l10n 'set_target_extra_missing_multiple')" "${GAME_ARCHIVE}"
+	if [ -n "${url}" ]; then
+		printf '%s:\n%s\n\n' "$(l10n 'set_target_extra_missing_multiple_url')" "${url}"
+	fi
+	exit 1
 else
 	print error
-	printf '%s' "${archive1}"
-	if [ $# -ge 2 ]; then
-		printf ', %s' "${archive2}";
-	fi
-	if [ $# -ge 3 ]; then
-		printf ', %s' "${archive3}";
-	fi
-	if [ $# = 1 ]; then
-		printf ' %s.\n%s %s.\n' "$(l10n 'not_found')" "$(l10n 'set_target_extra_missing')" "${GAME_ARCHIVE}"
-		if [ -n "${url}" ]; then
-			printf '%s:\n%s\n\n' "$(l10n 'set_target_extra_missing_url')" "${url}"
-		fi
-	else
-		printf ' %s.\n%s %s.\n' "$(l10n 'not_found_multiple')" "$(l10n 'set_target_extra_missing_multiple')" "${GAME_ARCHIVE}"
-		if [ -n "${url}" ]; then
-			printf '%s:\n%s\n\n' "$(l10n 'set_target_extra_missing_multiple_url')" "${url}"
-		fi
+	printf '%s %s.\n%s %s.\n' "${archives_list}" "$(l10n 'not_found')" "$(l10n 'set_target_extra_missing')" "${GAME_ARCHIVE}"
+	if [ -n "${url}" ]; then
+		printf '%s:\n%s\n\n' "$(l10n 'set_target_extra_missing_url')" "${url}"
 	fi
 	exit 1
 fi
-printf '%s %s\n' "$(l10n 'using' )" "${archive}"
 }
 
 # set optional archive
