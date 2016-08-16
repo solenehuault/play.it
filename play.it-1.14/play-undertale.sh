@@ -168,7 +168,7 @@ write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "$
 file="${PKG1_DIR}/DEBIAN/postinst"
 cat > "${file}" << EOF
 #!/bin/sh -e
-mkdir -p "\${PATH_ICON}"
+mkdir -p "${PATH_ICON}"
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
