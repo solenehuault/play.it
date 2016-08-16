@@ -205,6 +205,9 @@ build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_DESK_DIR}"
 print wait
 
 extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+if [ -n "${GAME_ARCHIVE_PATCH}" ]; then
+	extract_data 'inno' "${GAME_ARCHIVE_PATCH}" "${PKG_TMPDIR}" 'quiet'
+fi
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_JUNK}; do
