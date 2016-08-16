@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160410.1
+script_version=20160816.1
 
 # Set game-specific variables
 
@@ -48,12 +48,19 @@ GAME_NAME_SHORT='HoMM3'
 
 GAME_ARCHIVE1='setup_homm3_complete_french_2.1.0.20.exe'
 GAME_ARCHIVE1_MD5='ca8e4726acd7b5bc13c782d59c5a459b'
+GAME_ARCHIVE1_REVISION='gog2.1.0.20'
+GAME_ARCHIVE2='setup_homm3_complete_2.0.0.16.exe'
+GAME_ARCHIVE2_MD5='263d58f8cc026dd861e9bbcadecba318'
+GAME_ARCHIVE2_PATCH='patch_heroes_of_might_and_magic_3_complete_2.0.1.17.exe'
+GAME_ARCHIVE2_PATCH_MD5='815b9c097cd57d0e269beb4cc718dad3'
+GAME_ARCHIVE2_REVISION='gog2.0.1.17'
 GAME_ARCHIVE_FULLSIZE='1100000'
-PKG_REVISION='gog2.1.0.20'
 
-INSTALLER_JUNK='app/gameuxinstallhelper.dll app/gfw_high.ico app/goggame* app/*.sdb app/gog.ico app/support.ico app/webcache.zip app/random_maps app/config app/games'
-INSTALLER_DOC='app/eula app/*.cnt app/*.hlp app/*.pdf app/*.txt tmp/*eula.txt'
-INSTALLER_GAME='app/*'
+INSTALLER_PATH='app'
+INSTALLER_JUNK='./gameuxinstallhelper.dll ./gfw_high.ico ./goggame* ./*.sdb ./gog.ico ./support.ico ./webcache.zip ./random_maps ./config ./games'
+INSTALLER_DOC='./eula ./*.cnt ./*.hlp ./*.pdf ./*.txt ../tmp/*eula.txt'
+INSTALLER_GAME='./*'
+INSTALLER_GAME_ARCHIVE2='../tmp/heroes3.exe'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -111,7 +118,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -153,8 +160,19 @@ set_prefix
 check_deps_hard ${SCRIPT_DEPS_HARD}
 check_deps_soft ${SCRIPT_DEPS_SOFT}
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+printf '\n'
+set_target '2' 'gog.com'
+case "$(basename ${GAME_ARCHIVE})" in
+	"${GAME_ARCHIVE1}")
+		PKG_REVISION="${GAME_ARCHIVE1_REVISION}"
+	;;
+	"${GAME_ARCHIVE2}")
+		PKG_REVISION="${GAME_ARCHIVE2_REVISION}"
+		INSTALLER_GAME="${INSTALLER_GAME} ${INSTALLER_GAME_ARCHIVE2}"
+		set_target_extra 'GAME_ARCHIVE_PATCH' '' "${GAME_ARCHIVE2_PATCH}"
+	;;
+esac
+printf '\n'
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -164,9 +182,8 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 # Check target file integrity
 
@@ -181,23 +198,27 @@ print wait
 
 extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_JUNK}; do
-	rm -rf "${PKG_TMPDIR}"/${file}
+	rm -rf "${file}"
 done
 
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
 	extract_icons "${APP2_ID}" "${APP2_ICON}" "${APP2_ICON_RES}" "${PKG_TMPDIR}"
 	extract_icons "${APP3_ID}" "${APP3_ICON}" "${APP3_ICON_RES}" "${PKG_TMPDIR}"
-	extract_icons "${APP4_ID}" "${APP4_ICON}" "${APP4_ICON_RES}" "${PKG_TMPDIR}"
+	if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE1}" ]; then
+		extract_icons "${APP4_ID}" "${APP4_ICON}" "${APP4_ICON_RES}" "${PKG_TMPDIR}"
+	fi
 fi
 
 rm -rf "${PKG_TMPDIR}"
@@ -210,19 +231,26 @@ write_bin_wine_cfg "${PKG1_DIR}${PATH_BIN}/${GAME_ID_SHORT}-winecfg"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' "${APP1_NAME}"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP2_ID}" "${APP2_EXE}" '' '' "${APP2_NAME}"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP3_ID}" "${APP3_EXE}" '' '' "${APP3_NAME}"
-write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP4_ID}" "${APP4_EXE}" '' '' "${APP4_NAME}"
+if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE1}" ]; then
+	write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP4_ID}" "${APP4_EXE}" '' '' "${APP4_NAME}"
+fi
 
-write_menu "${GAME_ID}" "${MENU_NAME}" "${MENU_NAME_FR}" "${MENU_CAT}" "${PKG1_DIR}${PATH_DESK_DIR}/${GAME_ID}.directory" "${PKG1_DIR}${PATH_DESK_MERGED}/${GAME_ID}.menu" 'wine' "${APP1_ID}" "${APP2_ID}" "${APP3_ID}" "${APP4_ID}"
+if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE1}" ]; then
+	write_menu "${GAME_ID}" "${MENU_NAME}" "${MENU_NAME_FR}" "${MENU_CAT}" "${PKG1_DIR}${PATH_DESK_DIR}/${GAME_ID}.directory" "${PKG1_DIR}${PATH_DESK_MERGED}/${GAME_ID}.menu" 'wine' "${APP1_ID}" "${APP2_ID}" "${APP3_ID}" "${APP4_ID}"
+else
+	write_menu "${GAME_ID}" "${MENU_NAME}" "${MENU_NAME_FR}" "${MENU_CAT}" "${PKG1_DIR}${PATH_DESK_DIR}/${GAME_ID}.directory" "${PKG1_DIR}${PATH_DESK_MERGED}/${GAME_ID}.menu" 'wine' "${APP1_ID}" "${APP2_ID}" "${APP3_ID}"
+fi
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" '' 'wine'
 write_desktop "${APP2_ID}" "${APP2_NAME}" "${APP2_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP2_ID}.desktop" '' 'wine'
 write_desktop "${APP3_ID}" "${APP3_NAME}" "${APP3_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP3_ID}.desktop" '' 'wine'
-write_desktop "${APP4_ID}" "${APP4_NAME}" "${APP4_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP4_ID}.desktop" '' 'wine'
+if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE1}" ]; then
+	write_desktop "${APP4_ID}" "${APP4_NAME}" "${APP4_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP4_ID}.desktop" '' 'wine'
+fi
 printf '\n'
 
 # Build package
 
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
-
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'defaults'
 
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
