@@ -66,7 +66,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='1.2.1'
+PKG_VERSION='1.20'
 PKG_DEPS='libc6, libstdc++6, libglu1-mesa | libglu1'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
