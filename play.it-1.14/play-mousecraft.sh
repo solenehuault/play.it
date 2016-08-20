@@ -189,8 +189,8 @@ for file in ${INSTALLER_GAME_PKG2}; do
 	mv "${file}" "${PKG2_DIR}${PATH_GAME}/${file}"
 done
 
-rmdir --parents --ignore-fail-on-non-empty "${PKG_TMPDIR}/MouseCraft_Data/Mono/*"
-rmdir --parents --ignore-fail-on-non-empty "${PKG_TMPDIR}/MouseCraft_Data/Plugins/*"
+rmdir --parents --ignore-fail-on-non-empty 'MouseCraft_Data/Mono'/*
+rmdir --parents --ignore-fail-on-non-empty 'MouseCraft_Data/Plugins'/*
 
 for file in ${INSTALLER_GAME_PKG3}; do
 	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
