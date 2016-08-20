@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160819.1
+script_version=20160820.1
 
 # Set game-specific variables
 
@@ -51,8 +51,8 @@ PKG_REVISION='gog2.1.0.7'
 
 INSTALLER_PATH='data/noarch/game'
 INSTALLER_DOC='../docs/*'
-INSTALLER_GAME_PKG1='./MouseCraft.x86'
-INSTALLER_GAME_PKG2='./MouseCraft.x86_64'
+INSTALLER_GAME_PKG1='./MouseCraft.x86 ./MouseCraft_Data/Plugins/x86/ScreenSelector.so ./MouseCraft_Data/Mono/x86/libmono.so'
+INSTALLER_GAME_PKG2='./MouseCraft.x86_64 ./MouseCraft_Data/Plugins/x86_64/ScreenSelector.so ./MouseCraft_Data/Mono/x86_64/libmono.so'
 INSTALLER_GAME_PKG3='./MouseCraft_Data'
 
 APP1_ID="${GAME_ID}"
@@ -179,12 +179,17 @@ for file in ${INSTALLER_DOC}; do
 done
 
 for file in ${INSTALLER_GAME_PKG1}; do
-	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
+	mkdir -p "${PKG1_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}/${file}"
 done
 
 for file in ${INSTALLER_GAME_PKG2}; do
-	mv "${file}" "${PKG2_DIR}${PATH_GAME}"
+	mkdir -p "${PKG2_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG2_DIR}${PATH_GAME}/${file}"
 done
+
+rmdir --parents --ignore-fail-on-non-empty "${PKG_TMPDIR}/MouseCraft_Data/Mono/*"
+rmdir --parents --ignore-fail-on-non-empty "${PKG_TMPDIR}/MouseCraft_Data/Plugins/*"
 
 for file in ${INSTALLER_GAME_PKG3}; do
 	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
