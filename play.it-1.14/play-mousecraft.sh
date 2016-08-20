@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 
 ###
 # Copyright (c) 2015-2016, Antoine Le Gonidec
