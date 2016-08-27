@@ -34,11 +34,12 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160825.1
+script_version=20160827.1
 
 # Set game-specific variables
 
 SCRIPT_DEPS_HARD='fakeroot realpath unzip'
+SCRIPT_DEPS_SOFT='convert'
 
 GAME_ID='darwinia'
 GAME_ID_SHORT='darwinia'
@@ -59,7 +60,7 @@ APP1_ID="${GAME_ID}"
 APP1_EXE_PKG1='./darwinia.bin.x86'
 APP1_EXE_PKG2='./darwinia.bin.x86_64'
 APP1_ICON='darwinian.png'
-APP1_ICON_RES='155x158'
+APP1_ICON_RES='128x128'
 APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
@@ -130,6 +131,8 @@ fi
 
 # Set extra variables
 
+NO_ICON='0'
+
 GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
 PKG_COMPRESSION_DEFAULT='none'
 PKG_PREFIX_DEFAULT='/usr/local'
@@ -141,6 +144,7 @@ set_compression
 set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
+check_deps_soft ${SCRIPT_DEPS_SOFT}
 
 printf '\n'
 set_target '1' 'gog.com'
@@ -194,6 +198,11 @@ cd - > /dev/null
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
 
+if [ "${NO_ICON}" = '0' ]; then
+	convert "${PKG3_DIR}${PATH_GAME}/${APP1_ICON}" -crop 155x155+0+1 "${PKG_TMPDIR}/${APP1_ID}.png"
+	convert "${PKG_TMPDIR}/${APP1_ID}.png" -resize "${APP1_ICON_RES}" "${PKG3_DIR}${PATH_ICON}/${APP1_ID}.png"
+fi
+
 rm -rf "${PKG_TMPDIR}"
 print done
 
@@ -213,28 +222,6 @@ print wait
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" 'arch'
 write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}" 'arch'
 write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}"
-
-file="${PKG3_DIR}/DEBIAN/postinst"
-cat > "${file}" << EOF
-#!/bin/sh -e
-
-mkdir -p "${PATH_ICON}"
-ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
-
-exit 0
-EOF
-chmod 755 "${file}"
-
-file="${PKG3_DIR}/DEBIAN/prerm"
-cat > "${file}" << EOF
-#!/bin/sh -e
-
-rm "${PATH_ICON}/${GAME_ID}.png"
-rmdir -p --ignore-fail-on-non-empty "${PATH_ICON}"
-
-exit 0
-EOF
-chmod 755 "${file}"
 
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG1_ARCH}"
 build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG2_ARCH}"
