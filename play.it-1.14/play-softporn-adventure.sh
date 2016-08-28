@@ -155,6 +155,10 @@ print wait
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet,fix_rights,tolower'
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
+for file in ${INSTALLER_JUNK}; do
+	rm -rf "${file}"
+done
+
 for file in ${INSTALLER_DOC}; do
 	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
