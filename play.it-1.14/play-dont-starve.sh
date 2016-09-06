@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160530.1
+script_version=20160906.1
 
 # Set game-specific variables
 
@@ -44,16 +44,16 @@ GAME_ID='dont-starve'
 GAME_ID_SHORT='dstarve'
 GAME_NAME='Don’t Starve'
 
-GAME_ARCHIVE1='gog_don_t_starve_2.3.0.5.sh'
-GAME_ARCHIVE1_MD5='eeb4e57909c97ed67e9828a69ab4069e'
+GAME_ARCHIVE1='gog_don_t_starve_2.4.0.6.sh'
+GAME_ARCHIVE1_MD5='42d40753747bd033ae536195918dc33b'
 GAME_ARCHIVE_FULLSIZE='640000'
-PKG_REVISION='gog2.3.0.5'
+PKG_REVISION='gog2.4.0.6'
 
-INSTALLER_PATH='data/noarch'
-INSTALLER_DOC='docs/*'
-INSTALLER_GAME_PKG1='game/dontstarve32/*.json game/dontstarve32/bin'
-INSTALLER_GAME_PKG2='game/dontstarve64/*.json game/dontstarve64/bin'
-INSTALLER_GAME_PKG3='game/dontstarve32/data game/dontstarve32/mods game/dontstarve32/dontstarve.xpm'
+INSTALLER_PATH='data/noarch/game/dontstarve32'
+INSTALLER_DOC='../../docs/*'
+INSTALLER_GAME_PKG1='./*.json ./bin'
+INSTALLER_GAME_PKG2='../dontstarve64/*.json ../dontstarve64/bin'
+INSTALLER_GAME_PKG3='./data ./mods ./dontstarve.xpm'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -68,8 +68,7 @@ GAME_DATA_FILES_POST=''
 APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
 
 APP1_ID="${GAME_ID}"
-APP1_EXE_PKG1='./bin/dontstarve'
-APP1_EXE_PKG2='./bin/dontstarve'
+APP1_EXE='./bin/dontstarve'
 APP1_ICON='./dontstarve.xpm'
 APP1_ICON_RES='256x256'
 APP1_NAME="${GAME_NAME}"
@@ -77,7 +76,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='2016.04.01'
+PKG_VERSION='2016.09.02'
 PKG_DEPS='libcurl3-gnutls, libglu1-mesa | libglu1, libsdl2-2.0-0, libxrandr2'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
@@ -117,7 +116,7 @@ PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -156,6 +155,10 @@ set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
+printf '\n'
+set_target '1' 'gog.com'
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -166,10 +169,6 @@ PATH_DOC="/usr/local/share/doc/${GAME_ID}"
 PATH_DESK='/usr/local/share/applications'
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
-
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
 
 # Check target files integrity
 
@@ -182,7 +181,7 @@ fi
 PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}"
 rm -rf "${PKG3_DIR}"
-mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
+mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}"
 print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
@@ -207,8 +206,8 @@ for file in ${INSTALLER_GAME_PKG3}; do
 done
 cd - > /dev/null
 
-chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
-chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
+chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
+chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE}"
 
 rm -rf "${PKG_TMPDIR}"
 print done
@@ -217,8 +216,8 @@ print done
 
 write_bin_native_prefix_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
 cp -l "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}" "${PKG2_DIR}${PATH_BIN}"
-write_bin_native_prefix "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_PKG1}" '' './lib32' '' "${APP1_NAME} (${PKG1_ARCH})"
-write_bin_native_prefix "${PKG2_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE_PKG2}" '' './lib64' '' "${APP1_NAME} (${PKG2_ARCH})"
+write_bin_native_prefix "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' './lib32' '' "${APP1_NAME} (${PKG1_ARCH})"
+write_bin_native_prefix "${PKG2_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' './lib64' '' "${APP1_NAME} (${PKG2_ARCH})"
 
 sed -i 's|cd "${USERDIR_DATA}"|GAME_EXE_PATH="${USERDIR_DATA}/${GAME_EXE}"\ncd "${GAME_EXE_PATH%/*}"|' "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${PKG2_DIR}${PATH_BIN}/${APP1_ID}"
 sed -i 's|"${GAME_EXE}" ${GAME_EXE_OPTIONS} $@|./"${GAME_EXE_PATH##\*/}" ${GAME_EXE_OPTIONS} $@|' "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${PKG2_DIR}${PATH_BIN}/${APP1_ID}"
@@ -237,17 +236,19 @@ write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "$
 write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}"
 
 file="${PKG3_DIR}/DEBIAN/postinst"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
+mkdir --parents "${PATH_ICON}"
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
 
 file="${PKG3_DIR}/DEBIAN/prerm"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
+rmdir --parents --ignore-fail-on-non-empty "${PATH_ICON}"
 exit 0
 EOF
 chmod 755 "${file}"
