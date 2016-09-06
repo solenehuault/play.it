@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160612.1
+script_version=20160906.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='baldurs-gate-2-ee'
 GAME_ID_SHORT='bg2ee'
 GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
 
-GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.5.0.9.sh'
-GAME_ARCHIVE1_MD5='f0cf23798fad26409add1c396b17dc54'
+GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.6.0.10.sh'
+GAME_ARCHIVE1_MD5='cd4d65cade256285a4490b48a0448e20'
 GAME_ARCHIVE_FULLSIZE='2700000'
-PKG_REVISION='gog2.5.0.9'
+PKG_REVISION='gog2.6.0.10'
 
 INSTALLER_PATH='data/noarch'
 INSTALLER_DOC='docs/*'
@@ -62,7 +62,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='2.3.67.2'
+PKG1_VERSION='2.3.67.3'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0'
@@ -73,7 +73,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -112,6 +112,10 @@ set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
+printf '\n'
+set_target '1' 'gog.com'
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
@@ -120,10 +124,6 @@ PATH_DOC="/usr/local/share/doc/${GAME_ID}"
 PATH_DESK='/usr/local/share/applications'
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
-
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
 
 # Check target files integrity
 
