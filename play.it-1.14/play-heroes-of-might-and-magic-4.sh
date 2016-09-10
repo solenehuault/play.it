@@ -28,8 +28,8 @@
 ###
 
 ###
-# conversion script for the Heroes of Might and Magic 4 Complete installer sold on GOG.com
-# build a .deb package from the Windows installer
+# conversion script for the Heroes of Might and Magic 4 Complete installers sold on GOG.com
+# build .deb packages from the Windows installers
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -46,14 +46,18 @@ GAME_ID_SHORT='homm4'
 GAME_NAME='Heroes of Might and Magic IV'
 GAME_NAME_SHORT='HoMM4'
 
-GAME_ARCHIVE1='setup_homm4_complete_french_2.1.0.14.exe'
-GAME_ARCHIVE1_MD5='2af96eb28226e563bbbcd62771f3a319'
+GAME_ARCHIVE1='setup_homm4_complete_2.0.0.12.exe'
+GAME_ARCHIVE1_MD5='74de66eb408bb2916dd0227781ba96dc'
+GAME_ARCHIVE1_PKG_REVISION='gog2.0.0.12'
+GAME_ARCHIVE2='setup_homm4_complete_french_2.1.0.14.exe'
+GAME_ARCHIVE2_MD5='2af96eb28226e563bbbcd62771f3a319'
+GAME_ARCHIVE2_PKG_REVISION='gog2.1.0.14'
 GAME_ARCHIVE_FULLSIZE='1100000'
-PKG_REVISION='gog2.1.0.14'
 
-INSTALLER_JUNK='app/gameuxinstallhelper.dll app/gfw_high.ico app/goggame* app/gog.ico app/support.ico app/webcache.zip app/games'
-INSTALLER_DOC='app/*.chm app/*.pdf app/*.txt tmp/*eula.txt'
-INSTALLER_GAME='app/*'
+INSTALLER_PATH='app'
+INSTALLER_JUNK='./gameuxinstallhelper.dll ./gfw_high.ico ./goggame* ./gog.ico ./support.ico ./webcache.zip ./games'
+INSTALLER_DOC='./*.chm ./*.pdf ./*.txt ../tmp/*eula.txt'
+INSTALLER_GAME='./*'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -97,7 +101,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -139,6 +143,20 @@ set_prefix
 check_deps_hard ${SCRIPT_DEPS_HARD}
 check_deps_soft ${SCRIPT_DEPS_SOFT}
 
+printf '\n'
+set_target '2' 'gog.com'
+case "$(basename ${GAME_ARCHIVE})" in
+	"${GAME_ARCHIVE1}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
+		PKG_REVISION="${GAME_ARCHIVE1_PKG_REVISION}"
+	;;
+	"${GAME_ARCHIVE2}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
+		PKG_REVISION="${GAME_ARCHIVE2_PKG_REVISION}"
+	;;
+esac
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
@@ -150,14 +168,10 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
-
 # Check target file integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE_MD5}"
 fi
 
 # Extract game data
@@ -167,17 +181,19 @@ print wait
 
 extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_JUNK}; do
-	rm -rf "${PKG_TMPDIR}"/${file}
+	rm -rf "${file}"
 done
 
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
