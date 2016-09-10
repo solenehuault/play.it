@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160331.1
+script_version=20160910.1
 
 # Set game-specific variables
 
