@@ -28,13 +28,13 @@
 ###
 
 ###
-# conversion script for Race The Sun installer sold on GOG.com
-# build a .deb package from the .sh MojoSetup installer
+# conversion script for Race The Sun installers sold on GOG.com & HumbleBundle.com
+# build .deb packages from the MojoSetup installer and the .zip archive
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160625.1
+script_version=20160910.1
 
 # Set game-specific variables
 
@@ -46,11 +46,17 @@ GAME_NAME='Race The Sun'
 
 GAME_ARCHIVE1='gog_race_the_sun_2.2.0.6.sh'
 GAME_ARCHIVE1_MD5='1dccb33582d0d888986ac29be75ebb79'
+GAME_ARCHIVE1_TYPE='mojo'
+GAME_ARCHIVE1_PKG_REVISION='gog2.2.0.6'
+GAME_ARCHIVE2='RaceTheSunLINUX_1.455.zip'
+GAME_ARCHIVE2_MD5='813643fe3aad662c3f1250cad8b5cdd1'
+GAME_ARCHIVE2_TYPE='zip'
+GAME_ARCHIVE2_PKG_REVISION='humble150109'
 GAME_ARCHIVE_FULLSIZE='170000'
-PKG_REVISION='gog2.2.0.6'
 
-INSTALLER_PATH='data/noarch/game'
-INSTALLER_DOC='../docs/*'
+GAME_ARCHIVE1_INSTALLER_PATH='data/noarch/game'
+GAME_ARCHIVE2_INSTALLER_PATH='RaceTheSunLINUX_1.455'
+GAME_ARCHIVE1_INSTALLER_DOC='../docs/*'
 INSTALLER_GAME_PKG1='./RaceTheSun.x86 RaceTheSun_Data/Mono/x86 RaceTheSun_Data/Plugins/x86'
 INSTALLER_GAME_PKG2='./RaceTheSun.x86_64 RaceTheSun_Data/Mono/x86_64 RaceTheSun_Data/Plugins/x86_64'
 INSTALLER_GAME_PKG3='*'
@@ -67,8 +73,11 @@ APP1_CAT='Game'
 PKG_ID="${GAME_ID}"
 PKG_VERSION='1.455'
 PKG_DEPS='libglu1-mesa | libglu1, libxcursor1, libxrandr2'
-PKG_DESC="${GAME_NAME}
+GAME_ARCHIVE1_PKG_DESC="${GAME_NAME}
  package built from GOG.com MojoSetup installer
+ ./play.it script version ${script_version}"
+GAME_ARCHIVE2_PKG_DESC="${GAME_NAME}
+ package built from HumbleBundle.com .zip archive
  ./play.it script version ${script_version}"
 
 PKG1_ID="${PKG_ID}"
@@ -76,14 +85,12 @@ PKG1_ARCH='i386'
 PKG1_VERSION="${PKG_VERSION}"
 PKG1_DEPS="${PKG_DEPS}"
 PKG1_RECS=''
-PKG1_DESC="${PKG_DESC}"
 
 PKG2_ID="${PKG_ID}"
 PKG2_ARCH='amd64'
 PKG2_VERSION="${PKG_VERSION}"
 PKG2_DEPS="${PKG_DEPS}"
 PKG2_RECS=''
-PKG2_DESC="${PKG_DESC}"
 
 PKG3_ID="${GAME_ID}-common"
 PKG3_ARCH='all'
@@ -91,19 +98,19 @@ PKG3_VERSION="${PKG_VERSION}"
 PKG3_CONFLICTS=''
 PKG3_DEPS=''
 PKG3_RECS=''
-PKG3_DESC="${GAME_NAME} - arch-independant data
- package built from GOG installer
+GAME_ARCHIVE1_PKG3_DESC="${GAME_NAME} - arch-independant data
+ package built from GOG.com MojoSetup installer
+ ./play.it script version ${script_version}"
+GAME_ARCHIVE2_PKG3_DESC="${GAME_NAME} - arch-independant data
+ package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
 
 PKG1_CONFLICTS="${PKG2_ID}:${PKG2_ARCH}"
 PKG2_CONFLICTS="${PKG1_ID}:${PKG1_ARCH}"
 
-PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
-PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
-
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -142,6 +149,33 @@ set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
+printf '\n'
+set_target '2' 'gog.com & humblebundle.com'
+case "$(basename ${GAME_ARCHIVE})" in
+	"${GAME_ARCHIVE1}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
+		PKG_REVISION="${GAME_ARCHIVE1_PKG_REVISION}"
+		INSTALLER_PATH="${GAME_ARCHIVE1_INSTALLER_PATH}"
+		INSTALLER_DOC="${GAME_ARCHIVE1_INSTALLER_DOC}"
+		PKG1_DESC="${GAME_ARCHIVE1_PKG_DESC}"
+		PKG2_DESC="${GAME_ARCHIVE1_PKG_DESC}"
+		PKG3_DESC="${GAME_ARCHIVE1_PKG3_DESC}"
+		ARCHIVE_TYPE="${GAME_ARCHIVE1_TYPE}"
+	;;
+	"${GAME_ARCHIVE2}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
+		PKG_REVISION="${GAME_ARCHIVE2_PKG_REVISION}"
+		INSTALLER_PATH="${GAME_ARCHIVE2_INSTALLER_PATH}"
+		PKG1_DESC="${GAME_ARCHIVE2_PKG_DESC}"
+		PKG2_DESC="${GAME_ARCHIVE2_PKG_DESC}"
+		PKG3_DESC="${GAME_ARCHIVE2_PKG3_DESC}"
+		ARCHIVE_TYPE="${GAME_ARCHIVE2_TYPE}"
+	;;
+esac
+PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
+PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -153,14 +187,10 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
-
 # Check target file integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE_MD5}"
 fi
 
 # Extract game data
@@ -168,15 +198,18 @@ fi
 PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}"
 rm -rf "${PKG3_DIR}"
-mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
+mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
+[ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE1}" ] && mkdir -p "${PKG3_DIR}${PATH_DOC}"
 print wait
 
-extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
-for file in ${INSTALLER_DOC}; do
-	mv "${file}" "${PKG3_DIR}${PATH_DOC}"
-done
+if [ "$(basename ${GAME_ARCHIVE})" = "${GAME_ARCHIVE1}" ]; then
+	for file in ${INSTALLER_DOC}; do
+		mv "${file}" "${PKG1_DIR}${PATH_GAME}"
+	done
+fi
 
 for file in ${INSTALLER_GAME_PKG1}; do
 	mkdir -p "${PKG1_DIR}${PATH_GAME}/${file%/*}"
@@ -218,7 +251,7 @@ write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "$
 write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}"
 
 file="${PKG3_DIR}/DEBIAN/postinst"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
@@ -226,7 +259,7 @@ EOF
 chmod 755 "${file}"
 
 file="${PKG3_DIR}/DEBIAN/prerm"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
 exit 0
