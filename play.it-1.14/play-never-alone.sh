@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160911.1
+script_version=20160911.2
 
 # Set game-specific variables
 
@@ -54,7 +54,7 @@ INSTALLER_GAME='./*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./Never_Alone.x64'
-APP1_ICON='./Never_Alone_Data/Ressources/UnityPlayer.png'
+APP1_ICON='./Never_Alone_Data/Resources/UnityPlayer.png'
 APP1_ICON_RES='128x128'
 APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
