@@ -47,7 +47,7 @@ GAME_NAME='Never Alone'
 GAME_ARCHIVE1='NeverAlone_ArcticCollection.v1.0.tar.gz'
 GAME_ARCHIVE1_MD5='fe1ca15db6cfe6c1db877e33ace378fa'
 GAME_ARCHIVE_FULLSIZE='5000000'
-PKG_REVISION='humble'
+PKG_REVISION='humble1'
 
 INSTALLER_PATH='*'
 INSTALLER_GAME='./*'
