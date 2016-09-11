@@ -54,6 +54,18 @@ INSTALLER_PATH='data/'
 INSTALLER_DOC='./README-linux.txt'
 INSTALLER_GAME='./*'
 
+GAME_CACHE_DIRS=''
+GAME_CACHE_FILES=''
+GAME_CACHE_FILES_POST=''
+GAME_CONFIG_DIRS='./settings.txt'
+GAME_CONFIG_FILES=''
+GAME_CONFIG_FILES_POST=''
+GAME_DATA_DIRS=''
+GAME_DATA_FILES=''
+GAME_DATA_FILES_POST=''
+
+APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
+
 APP1_ID="${GAME_ID}"
 APP1_EXE='./limbo'
 APP1_ICON='./limbo.png'
@@ -157,7 +169,8 @@ print done
 
 # Write launchers
 
-write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' 'libs64' '' "${APP1_NAME}"
+write_bin_native_prefix_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
+write_bin_native_prefix "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' 'libs64' '' "${APP1_NAME}"
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
 printf '\n'
 
