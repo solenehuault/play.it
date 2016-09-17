@@ -34,12 +34,11 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160429.1
+script_version=20160917.1
 
 # Setting game-specific variables
 
 SCRIPT_DEPS_HARD='fakeroot realpath unzip'
-SCRIPT_DEPS_SOFT='icotool wrestool'
 
 GAME_ID='trine'
 GAME_ID_SHORT='trine'
@@ -50,9 +49,9 @@ GAME_ARCHIVE1_MD5='0e8d2338b568222b28cf3c31059b4960'
 GAME_ARCHIVE_FULLSIZE='1500000'
 PKG_REVISION='gog2.0.0.2'
 
-INSTALLER_PATH='data/noarch'
-INSTALLER_DOC='docs/* game/*.txt'
-INSTALLER_GAME='game/*'
+INSTALLER_PATH='data/noarch/game'
+INSTALLER_DOC='../docs/* ./*.txt'
+INSTALLER_GAME='./*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='bin/trine1_linux_launcher_32bit'
@@ -66,7 +65,7 @@ PKG1_ID="${GAME_ID}"
 PKG1_VERSION='2.12.508'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libc6, libstdc++6, libglu1-mesa-glx|libglu1, libgtk2.0-0, libpng12-0, libasound2-plugins, libopenal1, libvorbisfile3'
+PKG1_DEPS='libc6, libstdc++6, libglu1-mesa-glx | libglu1, libgtk2.0-0, libpng12-0, libasound2-plugins, libopenal1, libvorbisfile3'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
@@ -74,7 +73,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -114,7 +113,10 @@ set_compression
 set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
-check_deps_soft ${SCRIPT_DEPS_SOFT}
+
+printf '\n'
+set_target '1' 'gog.com'
+printf '\n'
 
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -124,21 +126,17 @@ PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
-
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
+PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}" "${GAME_ARCHIVE2_MD5}"
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
 fi
 
 # Extract game data
 
-PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
-build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_GAME}" "${PATH_ICON}"
+build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_GAME}"
 print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
@@ -170,12 +168,13 @@ printf '\n'
 
 # Build package
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_ORIGIN}${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 
 file="${PKG1_DIR}/DEBIAN/postinst"
 cat > "${file}" << EOF
 #!/bin/sh -e
-ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
+mkdir --verbose --parents "${PATH_ICON}"
+ln --verbose --symbolic "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
@@ -183,7 +182,8 @@ chmod 755 "${file}"
 file="${PKG1_DIR}/DEBIAN/prerm"
 cat > "${file}" << EOF
 #!/bin/sh -e
-rm "${PATH_ICON}/${GAME_ID}.png"
+rm --verbose "${PATH_ICON}/${GAME_ID}.png"
+rmdir --verbose --parents --ignore-fail-on-non-empty "${PATH_ICON}"
 exit 0
 EOF
 chmod 755 "${file}"
