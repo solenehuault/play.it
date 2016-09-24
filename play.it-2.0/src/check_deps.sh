@@ -4,6 +4,7 @@
 # CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
 [ "$ARCHIVE_TYPE" = 'innosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
+[ "$ARCHIVE_TYPE" = 'nixstaller' ] && SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
 [ "$ARCHIVE_TYPE" = 'mojosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
 [ "$ARCHIVE_TYPE" = 'zip' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
 [ "$ARCHIVE_TYPE" = 'rar' ] && SCRIPT_DEPS="$SCRIPT_DEPS unar"
