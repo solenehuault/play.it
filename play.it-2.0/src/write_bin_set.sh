@@ -1,3 +1,5 @@
+# write launcher script - set common vars
+# USAGE: write_bin_set_vars
 write_bin_set_vars() {
 cat >> "$file" << EOF
 # Set game-specific variables
@@ -26,6 +28,8 @@ else
 fi
 }
 
+# write launcher script - set target binary/script to run the game
+# USAGE: write_bin_set_exe
 write_bin_set_exe() {
 cat >> "$file" << EOF
 # Set executable file
@@ -40,6 +44,9 @@ EOF
 [ "$app_type" = 'wine' ] && echo "[ -z \"\$APP_EXE\" ] && APP_EXE='winecfg'\n" >> "$file"
 }
 
+# write launcher script - set prefix path
+# USAGE: write_bin_set_prefix
+# CALLS: write_bin_set_prefix_vars, write_bin_set_prefix_funcs
 write_bin_set_prefix() {
 cat >> "$file" << EOF
 # Set prefix name
@@ -51,6 +58,10 @@ write_bin_set_prefix_vars
 write_bin_set_prefix_funcs
 }
 
+# write launcher script - set prefix-specific vars
+# USAGE: write_bin_set_prefix_vars
+# CALLED BY: write_bin_set_prefix
+# CALLS: write_bin_set_prefix_wine
 write_bin_set_prefix_vars() {
 cat >> "$file" << EOF
 # Set prefix-specific variables
@@ -72,6 +83,9 @@ else
 fi
 }
 
+# write launcher script - set WINE-specific prefix-specific vars
+# USAGE: write_bin_set_prefix_vars_wine
+# CALLED BY: write_bin_set_prefix_vars
 write_bin_set_prefix_vars_wine() {
 cat >> "$file" << EOF
 WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
@@ -83,6 +97,9 @@ WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
 EOF
 }
 
+# write launcher script - set prefix-specific functions
+# USAGE: write_bin_set_prefix_funcs
+# CALLED BY: write_bin_set_prefix
 write_bin_set_prefix_funcs() {
 cat >> "$file" << EOF
 clean_userdir() {

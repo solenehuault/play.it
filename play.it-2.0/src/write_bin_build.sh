@@ -1,3 +1,5 @@
+# write launcher script - set common user-writables directories
+# USAGE: write_bin_build_userdirs
 write_bin_build_userdirs() {
 cat >> "$file" << EOF
 # Build user-writable directories
@@ -21,6 +23,8 @@ fi
 EOF
 }
 
+# write launcher script - set WINE-specific user-writables directories
+# USAGE: write_bin_build_userdirs_wine
 write_bin_build_userdirs_wine() {
 cat >> "$file" << EOF
 export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
@@ -32,6 +36,8 @@ fi
 EOF
 }
 
+# write launcher script - build game prefix
+# USAGE: write_bin_build_prefix
 write_bin_build_prefix() {
 cat >> "$file" << EOF
 # Build prefix

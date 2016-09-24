@@ -1,3 +1,7 @@
+# write launcher script
+# USAGE: write_bin $app
+# NEEDED VARS: $app_ID, $app_TYPE, PKG_PATH, PATH_BIN, $app_EXE
+# CALLS: liberror, write_bin_header, write_bin_set_vars, write_bin_set_exe, write_bin_set_prefix, write_bin_build_userdirs, write_bin_build_prefix, write_bin_run
 write_bin() {
 local app="$1"
 testvar "$app" 'APP' || liberror 'app' 'write_bin'
@@ -18,6 +22,9 @@ write_bin_run
 chmod 755 "$file"
 }
 
+# write launcher script header
+# USAGE: write_bin_header
+# CALLED BY: write_bin
 write_bin_header() {
 cat > "$file" << EOF
 #!/bin/sh

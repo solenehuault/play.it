@@ -1,3 +1,7 @@
+# create icons tree
+# USAGE: sort_icons $app
+# NEEDED VARS: $app_ID, $app_ICON_RES, PKG, $PKG_PATH, PACKAGE_TYPE
+# CALLS: sort_icons_deb, sort_icons_tar
 sort_icons() {
 local app="$1"
 testvar "$app" 'APP' || liberror 'app' 'sort_icons'
@@ -11,6 +15,10 @@ case $PACKAGE_TYPE in
 esac
 }
 
+# create icons tree for .deb package
+# USAGE: sort_icons_deb
+# NEEDED VARS: PATH_ICON_BASE, PLAYIT_WORKDIR
+# CALLED BY: sort_icons
 sort_icons_deb() {
 for res in $icon_res; do
 	path_icon="${PATH_ICON_BASE}/${res}/apps"
@@ -21,6 +29,10 @@ for res in $icon_res; do
 done
 }
 
+# create icons tree for .tar archive
+# USAGE: sort_icons_tar
+# NEEDED VARS: PLAYIT_WORKDIR, PATH_ICON_BASE
+# CALLED BY: sort_icons
 sort_icons_tar() {
 for res in $icon_res; do
 	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do

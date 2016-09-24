@@ -1,3 +1,6 @@
+# set working directories
+# USAGE: set_workdir $pkg[…]
+# CALLS: set_workdir_workdir, testvar, set_workdir_pkg
 set_workdir() {
 [ $# = 1 ] && PKG="$1"
 set_workdir_workdir
@@ -9,6 +12,10 @@ while [ $# -ge 1 ]; do
 done
 }
 
+# set gobal working directory
+# USAGE: set_workdir_workdir
+# NEEDED VARS: GAME_ID_SHORT, ARCHIVE, $ARCHIVE_UNCOMPRESSED_SIZE
+# CALLED BY: set_workdir
 set_workdir_workdir() {
 local workdir_name=$(mktemp --dry-run ${GAME_ID_SHORT}.XXXXX)
 local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
@@ -27,6 +34,10 @@ else
 fi
 }
 
+# set package-secific working directory
+# USAGE: set_workdir_pkg $pkg
+# NEEDED VARS: $pkg_ID, $pkg_VERSION, $pkg_ARCH, PLAYIT_WORKDIR
+# CALLED BY: set_workdir
 set_workdir_pkg() {
 local pkg_id=$(eval echo \$${pkg}_ID)
 local pkg_version=$(eval echo \$${pkg}_VERSION)

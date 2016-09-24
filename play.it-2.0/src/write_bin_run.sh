@@ -1,3 +1,6 @@
+# write launcher script - run the game, then clean the user-writable directories
+# USAGE: write_bin_run
+# CALLS: write_bin_run_dosbox, write_bin_run_native, write_bin_run_scummvm, write_bin_run_wine 
 write_bin_run() {
 cat >> "$file" << EOF
 # Run the game
@@ -24,6 +27,9 @@ exit 0
 EOF
 }
 
+# write launcher script - run the DOSBox game
+# USAGE: write_bin_run_dosbox
+# CALLED BY: write_bin_run
 write_bin_run_dosbox() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
@@ -35,6 +41,9 @@ exit"
 EOF
 }
 
+# write launcher script - run the native game
+# USAGE: write_bin_run_native
+# CALLED BY: write_bin_run
 write_bin_run_native() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
@@ -42,12 +51,18 @@ cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
 EOF
 }
 
+# write launcher script - run the ScummVM game
+# USAGE: write_bin_run_scummvm
+# CALLED BY: write_bin_run
 write_bin_run_scummvm() {
 cat >> "$file" << EOF
 scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
 EOF
 }
 
+# write launcher script - run the WINE game
+# USAGE: write_bin_run_wine
+# CALLED BY: write_bin_run
 write_bin_run_wine() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"

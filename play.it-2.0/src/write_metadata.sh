@@ -1,3 +1,7 @@
+# write package meta-data
+# USAGE: write_metadata $pkg
+# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
+# CALLS: write_metadata_deb
 write_metadata() {
 local pkg="$1"
 testvar "$pkg" 'PKG'
@@ -16,6 +20,9 @@ case $PACKAGE_TYPE in
 esac
 }
 
+# write .deb package meta-data
+# USAGE: write_metadata_deb
+# CALLED BY: write_metadata
 write_metadata_deb() {
 local target="${pkg_path}/DEBIAN/control"
 mkdir --parents "${target%/*}"
