@@ -28,15 +28,13 @@
 ###
 
 ###
-# conversion script for the Faster Than Light archive sold on HumbleBundle.com
-# build a .deb package from the .tar.gz archive
-# tested on Debian, should work on any .deb-based distribution
+# conversion script for the Faster Than Light installers sold on GOG.com & Humble Bundle
+# build a .deb package from the MojoSetup installer sold on GOG.com or the .tar.gz archive sold on Humble Bundle
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160523.1
+script_version=20160914.1
 
 # Set game-specific variables
 
@@ -47,13 +45,23 @@ GAME_ID='faster-than-light'
 GAME_ID_SHORT='ftl'
 GAME_NAME='Faster Than Light'
 
-GAME_ARCHIVE1='FTL.1.5.13.tar.gz'
-GAME_ARCHIVE1_MD5='791e0bc8de73fcdcd5f461a4548ea2d8'
-GAME_ARCHIVE_FULLSIZE='220000'
-PKG_REVISION='humble140602'
+GAME_ARCHIVE1='gog_ftl_advanced_edition_2.0.0.2.sh'
+GAME_ARCHIVE1_MD5='2c24b70b31316acefedc082e9441a69a'
+GAME_ARCHIVE1_TYPE='mojo'
+GAME_ARCHIVE1_FULLSIZE='420000'
+GAME_ARCHIVE1_DEPS_HARD='unzip'
+GAME_ARCHIVE1_PKG_REVISION='2.0.0.2'
+GAME_ARCHIVE2='FTL.1.5.13.tar.gz'
+GAME_ARCHIVE2_MD5='791e0bc8de73fcdcd5f461a4548ea2d8'
+GAME_ARCHIVE2_TYPE='tar'
+GAME_ARCHIVE2_FULLSIZE='220000'
+GAME_ARCHIVE2_PKG_REVISION='humble140602'
 
-INSTALLER_PATH='FTL/data'
-INSTALLER_DOC='../FTL_README.html licenses'
+GAME_ARCHIVE1_INSTALLER_PATH='data/noarch/game/data'
+GAME_ARCHIVE2_INSTALLER_PATH='FTL/data'
+INSTALLER_DOC='./licenses'
+GAME_ARCHIVE1_INSTALLER_DOC='../../docs/*'
+GAME_ARCHIVE2_INSTALLER_DOC='../FTL_README.html'
 INSTALLER_GAME_PKG1='x86'
 INSTALLER_GAME_PKG2='amd64'
 INSTALLER_GAME_PKG3='resources exe_icon.bmp'
@@ -72,7 +80,10 @@ APP1_CAT='Game'
 PKG_ID="${GAME_ID}"
 PKG_VERSION='1.5.13'
 PKG_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libsdl1.2debian'
-PKG_DESC="${GAME_NAME}
+GAME_ARCHIVE1_PKG_DESC="${GAME_NAME}
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+GAME_ARCHIVE2_PKG_DESC="${GAME_NAME}
  package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
 
@@ -81,14 +92,12 @@ PKG1_ARCH='i386'
 PKG1_VERSION="${PKG_VERSION}"
 PKG1_DEPS="${PKG_DEPS}"
 PKG1_RECS=''
-PKG1_DESC="${PKG_DESC}"
 
 PKG2_ID="${PKG_ID}"
 PKG2_ARCH='amd64'
 PKG2_VERSION="${PKG_VERSION}"
 PKG2_DEPS="${PKG_DEPS}"
 PKG2_RECS=''
-PKG2_DESC="${PKG_DESC}"
 
 PKG3_ID="${GAME_ID}-common"
 PKG3_ARCH='all'
@@ -96,19 +105,19 @@ PKG3_VERSION="${PKG_VERSION}"
 PKG3_CONFLICTS=''
 PKG3_DEPS=''
 PKG3_RECS=''
-PKG3_DESC="${GAME_NAME} - arch-independant data
+GAME_ARCHIVE1_PKG3_DESC="${GAME_NAME} - arch-independant data
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+GAME_ARCHIVE2_PKG3_DESC="${GAME_NAME} - arch-independant data
  package built from HumbleBundle.com archive
  ./play.it script version ${script_version}"
 
 PKG1_CONFLICTS="${PKG2_ID}:${PKG2_ARCH}"
 PKG2_CONFLICTS="${PKG1_ID}:${PKG1_ARCH}"
 
-PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
-PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
-
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -161,6 +170,38 @@ set_prefix
 check_deps_hard ${SCRIPT_DEPS_HARD}
 check_deps_soft ${SCRIPT_DEPS_SOFT}
 
+printf '\n'
+set_target '2' 'gog.com/humblebundle.com'
+case "$(basename ${GAME_ARCHIVE})" in
+	"${GAME_ARCHIVE1}")
+		SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} ${GAME_ARCHIVE1_DEPS_HARD}"
+		check_deps_hard ${SCRIPT_DEPS_HARD}
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
+		ARCHIVE_TYPE="${GAME_ARCHIVE1_TYPE}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE1_FULLSIZE}"
+		PKG_REVISION="${GAME_ARCHIVE1_PKG_REVISION}"
+		INSTALLER_PATH="${GAME_ARCHIVE1_INSTALLER_PATH}"
+		INSTALLER_DOC="${INSTALLER_DOC} ${GAME_ARCHIVE1_INSTALLER_DOC}"
+		PKG1_DESC="${GAME_ARCHIVE1_PKG_DESC}"
+		PKG2_DESC="${GAME_ARCHIVE1_PKG_DESC}"
+		PKG3_DESC="${GAME_ARCHIVE1_PKG3_DESC}"
+	;;
+	"${GAME_ARCHIVE2}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
+		ARCHIVE_TYPE="${GAME_ARCHIVE2_TYPE}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE2_FULLSIZE}"
+		PKG_REVISION="${GAME_ARCHIVE2_PKG_REVISION}"
+		INSTALLER_PATH="${GAME_ARCHIVE2_INSTALLER_PATH}"
+		INSTALLER_DOC="${INSTALLER_DOC} ${GAME_ARCHIVE2_INSTALLER_DOC}"
+		PKG1_DESC="${GAME_ARCHIVE2_PKG_DESC}"
+		PKG2_DESC="${GAME_ARCHIVE2_PKG_DESC}"
+		PKG3_DESC="${GAME_ARCHIVE2_PKG3_DESC}"
+	;;
+esac
+PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
+PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -172,14 +213,10 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
-printf '\n'
-set_target '1' 'humblebundle.com'
-printf '\n'
-
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE_MD5}"
 fi
 
 # Extract game data
@@ -189,7 +226,7 @@ rm -rf "${PKG3_DIR}"
 mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}"
 print wait
 
-extract_data 'tar' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
