@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160816.1
+script_version=20160914.1
 
 # Set game-specific variables
 
@@ -55,6 +55,7 @@ GAME_ARCHIVE2_PATCH='patch_heroes_of_might_and_magic_3_complete_2.0.1.17.exe'
 GAME_ARCHIVE2_PATCH_MD5='815b9c097cd57d0e269beb4cc718dad3'
 GAME_ARCHIVE2_REVISION='gog2.0.1.17'
 GAME_ARCHIVE_FULLSIZE='1100000'
+ARCHIVE_TYPE='inno'
 
 INSTALLER_PATH='app'
 INSTALLER_JUNK='./gameuxinstallhelper.dll ./gfw_high.ico ./goggame* ./*.sdb ./gog.ico ./support.ico ./webcache.zip ./random_maps ./config ./games'
@@ -204,9 +205,9 @@ fi
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_DESK_DIR}" "${PATH_DESK_MERGED}" "${PATH_GAME}"
 print wait
 
-extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 if [ -n "${GAME_ARCHIVE_PATCH}" ]; then
-	extract_data 'inno' "${GAME_ARCHIVE_PATCH}" "${PKG_TMPDIR}" 'quiet'
+	extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE_PATCH}" "${PKG_TMPDIR}" 'quiet'
 fi
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
