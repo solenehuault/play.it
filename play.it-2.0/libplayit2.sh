@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160924.1
+library_revision=20160924.2
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -324,6 +324,10 @@ esac
 return 1
 }
 
+# put files from archive in the right package directories
+# USAGE: organize_data
+# NEEDED VARS: PKG_PATH, PKG, $PKG_PATH, ARCHIVE_DOC_PATH, ARCHIVE_GAME_PATH
+# CALLS: organize_data_doc, organize_data_game
 organize_data() {
 [ -n "$PKG_PATH" ] || PKG_PATH="$(eval echo \$${PKG}_PATH)"
 if [ -n "${ARCHIVE_DOC_PATH}" ]; then
@@ -334,6 +338,10 @@ if [ -n "${ARCHIVE_GAME_PATH}" ]; then
 fi
 }
 
+# put doc files from archive in the right package directories
+# USAGE: organize_data_doc
+# NEEDED VARS: PKG_PATH, PATH_DOC, PLAYIT_WORKDIR, ARCHIVE_DOC_PATH, ARCHIVE_DOC_FILES
+# CALLED BY: organize_data
 organize_data_doc() {
 mkdir --parents "${PKG_PATH}${PATH_DOC}"
 cd "${PLAYIT_WORKDIR}/gamedata/${ARCHIVE_DOC_PATH}"
@@ -343,6 +351,10 @@ done
 cd - 1>/dev/null
 }
 
+# put game files from archive in the right package directories
+# USAGE: organize_data_game
+# NEEDED VARS: PKG_PATH, PATH_GAME, PLAYIT_WORKDIR, ARCHIVE_GAME_PATH, ARCHIVE_GAME_FILES
+# CALLED BY: organize_data
 organize_data_game() {
 mkdir --parents "${PKG_PATH}${PATH_GAME}"
 cd "${PLAYIT_WORKDIR}/gamedata/${ARCHIVE_GAME_PATH}"
@@ -352,6 +364,8 @@ done
 cd - 1>/dev/null
 }
 
+# set default values for common vars
+# USAGE: set_common_defaults
 set_common_defaults() {
 DEFAULT_CHECKSUM_METHOD='md5'
 DEFAULT_COMPRESSION_METHOD='none'
@@ -364,6 +378,10 @@ DEFAULT_MOVIES_SUPPORT='0'
 DEFAULT_PACKAGE_TYPE='deb'
 }
 
+# set package paths
+# USAGE: set_common_paths
+# NEEDED VARS: PACKAGE_TYPE
+# CALLS: set_common_paths_deb, set_common_paths_tar, liberror
 set_common_paths() {
 NO_ICON=0
 case $PACKAGE_TYPE in
@@ -373,6 +391,10 @@ case $PACKAGE_TYPE in
 esac
 }
 
+# set .deb package paths
+# USAGE: set_common_paths_deb
+# NEEDED VARS: INSTALL_PREFIX, GAME_ID
+# CALLED BY: set_common_paths
 set_common_paths_deb() {
 PATH_BIN="${INSTALL_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -381,6 +403,10 @@ PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 }
 
+# set .tar archive paths
+# USAGE: set_common_paths_tar
+# NEEDED VARS: INSTALL_PREFIX
+# CALLED BY: set_common_paths
 set_common_paths_tar() {
 PATH_BIN="${INSTALL_PREFIX}/bin"
 PATH_DESK="$INSTALL_PREFIX"
@@ -389,6 +415,10 @@ PATH_GAME="${INSTALL_PREFIX}/data"
 PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
 }
 
+# set source archive for data extraction
+# USAGE: set_source_archive $archive[…]
+# NEEDED_VARS: SOURCE_ARCHIVE
+# CALLS: set_source_archive_vars, set_source_archive_error
 set_source_archive() {
 for archive in "$@"; do
 	file="$(eval echo \$$archive)"
@@ -408,6 +438,10 @@ if [ -z "$SOURCE_ARCHIVE" ]; then
 fi
 }
 
+# set archive-related vars
+# USAGE: set_source_archive_vars
+# NEEDED_VARS: ARCHIVE, $ARCHIVE_MD5, $ARCHIVE_TYPE, $ARCHIVE_UNCOMPRESSED_SIZE
+# CALLED BY: set_source_archive
 set_source_archive_vars() {
 case ${LANG%_*} in
 	fr) echo "Utilisation de ${SOURCE_ARCHIVE}" ;;
@@ -418,6 +452,9 @@ ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
 ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
 }
 
+# display an error message telling the target archive has not been found
+# USAGE: set_source_archive_error
+# CALLED BY: set_source_archive
 set_source_archive_error () {
 case ${LANG%_*} in
 	fr) echo "$string_error_fr\nTODO set_source_archive_error (fr)" ;;
@@ -426,6 +463,9 @@ esac
 return 1
 }
 
+# set working directories
+# USAGE: set_workdir $pkg[…]
+# CALLS: set_workdir_workdir, testvar, set_workdir_pkg
 set_workdir() {
 [ $# = 1 ] && PKG="$1"
 set_workdir_workdir
@@ -437,6 +477,10 @@ while [ $# -ge 1 ]; do
 done
 }
 
+# set gobal working directory
+# USAGE: set_workdir_workdir
+# NEEDED VARS: GAME_ID_SHORT, ARCHIVE, $ARCHIVE_UNCOMPRESSED_SIZE
+# CALLED BY: set_workdir
 set_workdir_workdir() {
 local workdir_name=$(mktemp --dry-run ${GAME_ID_SHORT}.XXXXX)
 local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
@@ -455,6 +499,10 @@ else
 fi
 }
 
+# set package-secific working directory
+# USAGE: set_workdir_pkg $pkg
+# NEEDED VARS: $pkg_ID, $pkg_VERSION, $pkg_ARCH, PLAYIT_WORKDIR
+# CALLED BY: set_workdir
 set_workdir_pkg() {
 local pkg_id=$(eval echo \$${pkg}_ID)
 local pkg_version=$(eval echo \$${pkg}_VERSION)
@@ -463,6 +511,10 @@ local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 export ${pkg}_PATH="$pkg_path"
 }
 
+# create icons tree
+# USAGE: sort_icons $app
+# NEEDED VARS: $app_ID, $app_ICON_RES, PKG, $PKG_PATH, PACKAGE_TYPE
+# CALLS: sort_icons_deb, sort_icons_tar
 sort_icons() {
 local app="$1"
 testvar "$app" 'APP' || liberror 'app' 'sort_icons'
@@ -476,6 +528,10 @@ case $PACKAGE_TYPE in
 esac
 }
 
+# create icons tree for .deb package
+# USAGE: sort_icons_deb
+# NEEDED VARS: PATH_ICON_BASE, PLAYIT_WORKDIR
+# CALLED BY: sort_icons
 sort_icons_deb() {
 for res in $icon_res; do
 	path_icon="${PATH_ICON_BASE}/${res}/apps"
@@ -486,6 +542,10 @@ for res in $icon_res; do
 done
 }
 
+# create icons tree for .tar archive
+# USAGE: sort_icons_tar
+# NEEDED VARS: PLAYIT_WORKDIR, PATH_ICON_BASE
+# CALLED BY: sort_icons
 sort_icons_tar() {
 for res in $icon_res; do
 	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
@@ -495,13 +555,15 @@ done
 }
 
 # test the validity of the argument given to parent function
-# only used for debugging purposes
+# USAGE: testvar $var_name $pattern
 testvar() {
 if [ -z "$(echo "$1" | grep ^${2})" ]; then
 	return 1
 fi
 }
 
+# convert files name to lower case
+# USAGE: tolower $dir
 tolower() {
 [ -d "$1" ] || return 1
 find "$1" -depth | while read file; do
@@ -512,6 +574,9 @@ find "$1" -depth | while read file; do
 done
 }
 
+# alias
+# USAGE: write_app $app[…]
+# CALLS: write_bin, write_desktop
 write_app() {
 for app in "$@"; do
 	write_bin "$app"
@@ -519,6 +584,10 @@ for app in "$@"; do
 done
 }
 
+# write launcher script
+# USAGE: write_bin $app
+# NEEDED VARS: $app_ID, $app_TYPE, PKG_PATH, PATH_BIN, $app_EXE
+# CALLS: liberror, write_bin_header, write_bin_set_vars, write_bin_set_exe, write_bin_set_prefix, write_bin_build_userdirs, write_bin_build_prefix, write_bin_run
 write_bin() {
 local app="$1"
 testvar "$app" 'APP' || liberror 'app' 'write_bin'
@@ -539,6 +608,9 @@ write_bin_run
 chmod 755 "$file"
 }
 
+# write launcher script header
+# USAGE: write_bin_header
+# CALLED BY: write_bin
 write_bin_header() {
 cat > "$file" << EOF
 #!/bin/sh
@@ -547,6 +619,8 @@ set -o errexit
 EOF
 }
 
+# write launcher script - set common user-writables directories
+# USAGE: write_bin_build_userdirs
 write_bin_build_userdirs() {
 cat >> "$file" << EOF
 # Build user-writable directories
@@ -570,6 +644,8 @@ fi
 EOF
 }
 
+# write launcher script - set WINE-specific user-writables directories
+# USAGE: write_bin_build_userdirs_wine
 write_bin_build_userdirs_wine() {
 cat >> "$file" << EOF
 export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
@@ -581,6 +657,8 @@ fi
 EOF
 }
 
+# write launcher script - build game prefix
+# USAGE: write_bin_build_prefix
 write_bin_build_prefix() {
 cat >> "$file" << EOF
 # Build prefix
@@ -602,6 +680,9 @@ init_prefix_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
 EOF
 }
 
+# write launcher script - run the game, then clean the user-writable directories
+# USAGE: write_bin_run
+# CALLS: write_bin_run_dosbox, write_bin_run_native, write_bin_run_scummvm, write_bin_run_wine 
 write_bin_run() {
 cat >> "$file" << EOF
 # Run the game
@@ -628,6 +709,9 @@ exit 0
 EOF
 }
 
+# write launcher script - run the DOSBox game
+# USAGE: write_bin_run_dosbox
+# CALLED BY: write_bin_run
 write_bin_run_dosbox() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
@@ -639,6 +723,9 @@ exit"
 EOF
 }
 
+# write launcher script - run the native game
+# USAGE: write_bin_run_native
+# CALLED BY: write_bin_run
 write_bin_run_native() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
@@ -646,12 +733,18 @@ cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
 EOF
 }
 
+# write launcher script - run the ScummVM game
+# USAGE: write_bin_run_scummvm
+# CALLED BY: write_bin_run
 write_bin_run_scummvm() {
 cat >> "$file" << EOF
 scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
 EOF
 }
 
+# write launcher script - run the WINE game
+# USAGE: write_bin_run_wine
+# CALLED BY: write_bin_run
 write_bin_run_wine() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
@@ -659,6 +752,8 @@ wine "\${APP_EXE##*/}" \$@
 EOF
 }
 
+# write launcher script - set common vars
+# USAGE: write_bin_set_vars
 write_bin_set_vars() {
 cat >> "$file" << EOF
 # Set game-specific variables
@@ -687,6 +782,8 @@ else
 fi
 }
 
+# write launcher script - set target binary/script to run the game
+# USAGE: write_bin_set_exe
 write_bin_set_exe() {
 cat >> "$file" << EOF
 # Set executable file
@@ -701,6 +798,9 @@ EOF
 [ "$app_type" = 'wine' ] && echo "[ -z \"\$APP_EXE\" ] && APP_EXE='winecfg'\n" >> "$file"
 }
 
+# write launcher script - set prefix path
+# USAGE: write_bin_set_prefix
+# CALLS: write_bin_set_prefix_vars, write_bin_set_prefix_funcs
 write_bin_set_prefix() {
 cat >> "$file" << EOF
 # Set prefix name
@@ -712,6 +812,10 @@ write_bin_set_prefix_vars
 write_bin_set_prefix_funcs
 }
 
+# write launcher script - set prefix-specific vars
+# USAGE: write_bin_set_prefix_vars
+# CALLED BY: write_bin_set_prefix
+# CALLS: write_bin_set_prefix_wine
 write_bin_set_prefix_vars() {
 cat >> "$file" << EOF
 # Set prefix-specific variables
@@ -733,6 +837,9 @@ else
 fi
 }
 
+# write launcher script - set WINE-specific prefix-specific vars
+# USAGE: write_bin_set_prefix_vars_wine
+# CALLED BY: write_bin_set_prefix_vars
 write_bin_set_prefix_vars_wine() {
 cat >> "$file" << EOF
 WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
@@ -744,6 +851,9 @@ WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
 EOF
 }
 
+# write launcher script - set prefix-specific functions
+# USAGE: write_bin_set_prefix_funcs
+# CALLED BY: write_bin_set_prefix
 write_bin_set_prefix_funcs() {
 cat >> "$file" << EOF
 clean_userdir() {
@@ -810,6 +920,10 @@ cd - 1>/dev/null
 EOF
 }
 
+# write menu entry
+# USAGE: write_desktop $app
+# NEEDED VARS: $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
+# CALLS: liberror
 write_desktop() {
 local app="$1"
 testvar "$app" 'APP' || liberror 'app' 'write_desktop'
@@ -829,6 +943,10 @@ Categories=$app_cat
 EOF
 }
 
+# write package meta-data
+# USAGE: write_metadata $pkg
+# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
+# CALLS: write_metadata_deb
 write_metadata() {
 local pkg="$1"
 testvar "$pkg" 'PKG'
@@ -847,6 +965,9 @@ case $PACKAGE_TYPE in
 esac
 }
 
+# write .deb package meta-data
+# USAGE: write_metadata_deb
+# CALLED BY: write_metadata
 write_metadata_deb() {
 local target="${pkg_path}/DEBIAN/control"
 mkdir --parents "${target%/*}"
