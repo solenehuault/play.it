@@ -1,3 +1,6 @@
+# parse arguments given to the script
+# USAGE: fetch_args $argument[…]
+# CALLS: fetch_args_set_var
 fetch_args() {
 unset CHECKSUM_METHOD
 unset COMPRESSION_METHOD
@@ -34,6 +37,9 @@ fetch_args_set_var 'MOVIES_SUPPORT'
 fetch_args_set_var 'PACKAGE_TYPE'
 }
 
+# set global vars not already set by script arguments
+# USAGE: fetch_args_set_var $var_name
+# CALLED BY: fetch_args
 fetch_args_set_var() {
 local value="$(eval echo \$$1)"
 local value_default="$(eval echo \$DEFAULT_$1)"

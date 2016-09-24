@@ -1,3 +1,7 @@
+# extract data from given archive
+# USAGE: extract_data $archive
+# NEEDED_VARS: PLAYIT_WORKDIR, ARCHIVE, $ARCHIVE_TYPE, ARCHIVE_PASSWD
+# CALLS: liberror, extract_7z (declared by check_deps_7z)
 extract_data_from() {
 case ${LANG%_*} in
 	fr) echo "Extraction des données de ${1##*/}" ;;

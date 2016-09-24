@@ -1,3 +1,7 @@
+# check script dependencies
+# USAGE: check_deps
+# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
+# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
 [ "$ARCHIVE_TYPE" = 'innosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 [ "$ARCHIVE_TYPE" = 'mojosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
@@ -14,6 +18,10 @@ esac
 done
 }
 
+# check presence of a software to handle .7z archives
+# USAGE: check_deps_7z
+# CALLS: check_deps_failed
+# CALLED BY: check_deps
 check_deps_7z() {
 if [ -n "$(which 7zr)" ]; then
 	extract_7z() { 7zr x -o"$PLAYIT_WORKDIR" -y "$file"; }
@@ -26,6 +34,10 @@ else
 fi
 }
 
+# check presence of a software to handle icon extraction
+# USAGE: check_deps_icon $command_name
+# NEEDED VARS: NO_ICON
+# CALLED BY: check_deps
 check_deps_icon() {
 if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
 	NO_ICON='1'
@@ -36,6 +48,9 @@ if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
 fi
 }
 
+# display a message if a required dependency is missing
+# USAGE: check_deps_failed $command_name
+# CALLED BY: check_deps, check_deps_7z
 check_deps_failed() {
 case ${LANG%_*} in
 	fr) echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script." ;;

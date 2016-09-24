@@ -1,3 +1,7 @@
+# extract .png or .ico files from given file
+# USAGE: extract_icons $file
+# NEEDED VARS: PLAYIT_WORKDIR
+# CALLS: liberror
 extract_icon_from() {
 mkdir "${PLAYIT_WORKDIR}/icons"
 local file_ext=${1##*.}

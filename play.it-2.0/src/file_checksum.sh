@@ -1,6 +1,8 @@
 
-# check integrity of source archive
-
+# check integrity of target file
+# USAGE: file_checksum $file $archive_name[…]
+# NEEDED VARS: CHECKSUM_METHOD
+# CALLS: file_checksum_md5, file_checksum_none, liberror
 file_checksum() {
 local source_file="$1"
 shift 1
@@ -11,6 +13,11 @@ case $CHECKSUM_METHOD in
 esac
 }
 
+# check integrity of target file against MD5 control sum
+# USAGE: file_checksum_md5 $archive_name[…]
+# NEEDED VARS: $archive_MD5
+# CALLS: set_source_archive_vars
+# CALLED BY: file_checksum
 file_checksum_md5() {
 case ${LANG%_*} in
 	fr) echo "Contrôle de l’intégrité de ${source_file##*/}" ;;
@@ -34,6 +41,11 @@ esac
 return 1
 }
 
+# set source archive if not already set by script arguments
+# USAGE: file_checksum_none
+# NEEDED_VARS: ARCHIVE, ARCHIVE_DEFAULT
+# CALLS: set_source_archive_vars
+# CALLED BY: file_checksum
 file_checksum_none() {
 if [ -z "$ARCHIVE" ]; then
 	ARCHIVE="$ARCHIVE_DEFAULT"
