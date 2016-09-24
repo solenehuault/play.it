@@ -33,11 +33,15 @@
 ###
 
 library_version=2.0
-library_revision=20160715.1
+library_revision=20160924.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
 
+# build .deb package or .tar archive
+# USAGE: build_pkg $pkg
+# NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
+# CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
 build_pkg() {
 local pkg=$1
 testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
@@ -49,12 +53,21 @@ case $PACKAGE_TYPE in
 esac
 }
 
+# build .deb package
+# USAGE: build_pkg_deb
+# NEEDED VARS: PLAYIT_WORKDIR, COMPRESSION_METHOD
+# CALLS: build_pkg_print
+# CALLED BY: build_pkg
 build_pkg_deb() {
 local pkg_filename="${PWD}/${pkg_path##*/}.deb"
 build_pkg_print
 TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
 }
 
+# build .tar archive
+# USAGE: build_pkg_tar
+# CALLS: build_pkg_print
+# CALLED BY: build_pkg
 build_pkg_tar() {
 local pkg_filename="${PWD}/${pkg_path##*/}.tar"
 build_pkg_print
@@ -63,6 +76,9 @@ tar --create --file "$pkg_filename" .
 cd -
 }
 
+# print package building message
+# USAGE: build_pkg_print
+# CALLED BY: build_pkg_deb, build_pkg_tar
 build_pkg_print() {
 case ${LANG%_*} in
 	fr) echo "Construction de $pkg_filename" ;;
@@ -70,6 +86,10 @@ case ${LANG%_*} in
 esac
 }
 
+# check script dependencies
+# USAGE: check_deps
+# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
+# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
 [ "$ARCHIVE_TYPE" = 'innosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 [ "$ARCHIVE_TYPE" = 'mojosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
@@ -86,6 +106,10 @@ esac
 done
 }
 
+# check presence of a software to handle .7z archives
+# USAGE: check_deps_7z
+# CALLS: check_deps_failed
+# CALLED BY: check_deps
 check_deps_7z() {
 if [ -n "$(which 7zr)" ]; then
 	extract_7z() { 7zr x -o"$PLAYIT_WORKDIR" -y "$file"; }
@@ -98,6 +122,10 @@ else
 fi
 }
 
+# check presence of a software to handle icon extraction
+# USAGE: check_deps_icon $command_name
+# NEEDED VARS: NO_ICON
+# CALLED BY: check_deps
 check_deps_icon() {
 if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
 	NO_ICON='1'
@@ -108,6 +136,9 @@ if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
 fi
 }
 
+# display a message if a required dependency is missing
+# USAGE: check_deps_failed $command_name
+# CALLED BY: check_deps, check_deps_7z
 check_deps_failed() {
 case ${LANG%_*} in
 	fr) echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script." ;;
@@ -116,6 +147,10 @@ esac
 return 1
 }
 
+# extract data from given archive
+# USAGE: extract_data $archive
+# NEEDED_VARS: PLAYIT_WORKDIR, ARCHIVE, $ARCHIVE_TYPE, ARCHIVE_PASSWD
+# CALLS: liberror, extract_7z (declared by check_deps_7z)
 extract_data_from() {
 case ${LANG%_*} in
 	fr) echo "Extraction des données de ${1##*/}" ;;
@@ -137,6 +172,10 @@ case $archive_type in
 esac
 }
 
+# extract .png or .ico files from given file
+# USAGE: extract_icons $file
+# NEEDED VARS: PLAYIT_WORKDIR
+# CALLS: liberror
 extract_icon_from() {
 mkdir "${PLAYIT_WORKDIR}/icons"
 local file_ext=${1##*.}
@@ -148,6 +187,9 @@ case $file_ext in
 esac
 }
 
+# parse arguments given to the script
+# USAGE: fetch_args $argument[…]
+# CALLS: fetch_args_set_var
 fetch_args() {
 unset CHECKSUM_METHOD
 unset COMPRESSION_METHOD
@@ -184,6 +226,9 @@ fetch_args_set_var 'MOVIES_SUPPORT'
 fetch_args_set_var 'PACKAGE_TYPE'
 }
 
+# set global vars not already set by script arguments
+# USAGE: fetch_args_set_var $var_name
+# CALLED BY: fetch_args
 fetch_args_set_var() {
 local value="$(eval echo \$$1)"
 local value_default="$(eval echo \$DEFAULT_$1)"
@@ -192,8 +237,10 @@ if [ -z "$value" ] && [ -n "$value_default" ]; then
 fi
 }
 
-# check integrity of source archive
-
+# check integrity of target file
+# USAGE: file_checksum $file $archive_name[…]
+# NEEDED VARS: CHECKSUM_METHOD
+# CALLS: file_checksum_md5, file_checksum_none, liberror
 file_checksum() {
 local source_file="$1"
 shift 1
@@ -204,6 +251,11 @@ case $CHECKSUM_METHOD in
 esac
 }
 
+# check integrity of target file against MD5 control sum
+# USAGE: file_checksum_md5 $archive_name[…]
+# NEEDED VARS: $archive_MD5
+# CALLS: set_source_archive_vars
+# CALLED BY: file_checksum
 file_checksum_md5() {
 case ${LANG%_*} in
 	fr) echo "Contrôle de l’intégrité de ${source_file##*/}" ;;
@@ -227,6 +279,11 @@ esac
 return 1
 }
 
+# set source archive if not already set by script arguments
+# USAGE: file_checksum_none
+# NEEDED_VARS: ARCHIVE, ARCHIVE_DEFAULT
+# CALLS: set_source_archive_vars
+# CALLED BY: file_checksum
 file_checksum_none() {
 if [ -z "$ARCHIVE" ]; then
 	ARCHIVE="$ARCHIVE_DEFAULT"
@@ -234,6 +291,9 @@ if [ -z "$ARCHIVE" ]; then
 fi
 }
 
+# alias
+# USAGE: find_source_archive $archive_name[…]
+# CALLS: set_source_archive, check_deps, set_common_paths, file_checksum, check_deps
 find_source_archive() {
 set_source_archive "$@"
 check_deps
@@ -246,12 +306,16 @@ fi
 check_deps
 }
 
+# set defaults rights on files (755 for dirs & 644 for regular files)
+# USAGE: fix_rights $dir
 fix_rights() {
 [ -d "$1" ] || return 1
 find "$1" -type d -exec chmod -c 755 '{}' +
 find "$1" -type f -exec chmod -c 644 '{}' +
 }
 
+# display an error if a function hs been called with invalid arguments
+# USAGE: liberror $var_name $calling_function
 liberror() {
 case ${LANG%_*} in
 	fr) echo "$string_error_fr\nvaleur incorrecte pour $1 appelée par $2 : $(eval echo \$$1)" ;;
