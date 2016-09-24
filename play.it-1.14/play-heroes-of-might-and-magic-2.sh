@@ -29,12 +29,12 @@
 
 ###
 # conversion script for the Heroes of Might and Magic 2 Gold installer sold on GOG.com
-# build a .deb package from the Windows installer
+# build a .deb package from the InnoSetup installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160413.1
+script_version=20160914.1
 
 # Set game-specific variables
 
@@ -51,10 +51,12 @@ GAME_ARCHIVE1_MD5='b6785579d75e47936517a79374b17ebc'
 GAME_ARCHIVE2='setup_homm2_gold_french_2.1.0.29.exe'
 GAME_ARCHIVE2_MD5='c49d8f5d0f6d56e54cf6f9c7a526750f'
 GAME_ARCHIVE_FULLSIZE='480000'
+ARCHIVE_TYPE='inno'
 PKG_REVISION='gog2.1.0.29'
 
-INSTALLER_DOC='app/eula app/help app/*.pdf app/*.txt tmp/gog_eula.txt tmp/eula.txt'
-INSTALLER_GAME='app/data app/games app/journals app/maps app/music app/sound app/*.cfg app/*.exe app/*.gog app/*.inst app/goggame-1207658785.ico'
+INSTALLER_PATH='app'
+INSTALLER_DOC='./eula ./help ./*.pdf ./*.txt ../tmp/gog_eula.txt ../tmp/eula.txt'
+INSTALLER_GAME='./data ./games ./journals ./maps ./music ./sound ./*.cfg ./*.exe ./*.gog ./*.inst ./goggame-1207658785.ico'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -98,7 +100,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -140,6 +142,10 @@ set_prefix
 check_deps_hard ${SCRIPT_DEPS_HARD}
 check_deps_soft ${SCRIPT_DEPS_SOFT}
 
+printf '\n'
+set_target '2' 'gog.com'
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
@@ -150,10 +156,6 @@ PATH_DESK_MERGED='/etc/xdg/menus/applications-merged'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
-
-printf '\n'
-set_target '2' 'gog.com'
-printf '\n'
 
 # Check target file integrity
 
@@ -166,15 +168,17 @@ fi
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_DESK_DIR}" "${PATH_DESK_MERGED}" "${PATH_GAME}"
 print wait
 
-extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
@@ -212,7 +216,7 @@ if [ "${NO_ICON}" = '0' ]; then
 	EOF
 	sed -i 's/  /\t/' "${file}"
 	chmod 755 "${file}"
-
+	
 	file="${PKG1_DIR}/DEBIAN/prerm"
 	cat > "${file}" <<- EOF
 	#!/bin/sh -e
