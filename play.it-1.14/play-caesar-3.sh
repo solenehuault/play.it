@@ -29,14 +29,12 @@
 
 ###
 # conversion script for the Caesar 3 installer sold on GOG.com
-# build a .deb package from the Windows installer
-# tested on Debian, should work on any .deb-based distribution
+# build a .deb package from the InnoSetup installer
 #
 # send your bug reports to vv221@dotslashplay.it
-# start the e-mail subject by "./play.it" to avoid it being flagged as spam
 ###
 
-script_version=20160209.1
+script_version=20160924.1
 
 # Set game-specific variables
 
@@ -50,16 +48,20 @@ GAME_NAME='Caesar III'
 GAME_ARCHIVE1='setup_caesar3_2.0.0.9.exe'
 GAME_ARCHIVE1_MD5='2ee16fab54493e1c2a69122fd2e56635'
 GAME_ARCHIVE_FULLSIZE='550000'
+ARCHIVE_TYPE='inno'
 PKG_REVISION='gog2.0.0.9'
 
-INSTALLER_DOC='app/readme.txt app/*.pdf tmp/gog_eula.txt tmp/eula.txt'
-INSTALLER_GAME='app/555 app/smk app/wavs app/*.555 app/*.emp app/*.eng app/*.inf app/*.map app/*.sg2 app/c3.exe app/c3_model.txt app/caesar3.ini app/mission1.pak app/smackw32.dll'
+INSTALLER_PATH='app'
+INSTALLER_DOC='./readme.txt ./*.pdf ../tmp/gog_eula.txt ../tmp/eula.txt'
+INSTALLER_GAME='./555 ./smk ./wavs ./*.555 ./*.emp ./*.eng ./*.inf ./*.map ./*.sg2 ./c3.exe ./c3_model.txt ./caesar3.ini ./mission1.pak ./smackw32.dll'
 
 TRADFR_URL='http://wiki.dotslashplay.it/fr/traductions/caesar-3'
 TRADFR_ARCHIVE1='caesar3fr-full.7z'
 TRADFR_ARCHIVE1_MD5='763e4281e35ebddd0a9e658820c3a6c2'
 TRADFR_ARCHIVE2='caesar3fr-light.7z'
 TRADFR_ARCHIVE2_MD5='7f698b7a86735087d6f95dca07f7f8bc'
+TRADFR_ARCHIVE_TYPE='7z'
+TRADFR_DEPS_HARD='7z'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -93,7 +95,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -135,11 +137,18 @@ set_prefix
 set_lang
 
 if [ "${GAME_LANG}" = 'fr' ]; then
-	SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} 7z"
+	SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} ${TRADFR_DEPS_HARD}"
 fi
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 check_deps_soft ${SCRIPT_DEPS_SOFT}
+
+printf '\n'
+set_target '1' 'gog.com'
+if [ "${GAME_LANG}" = 'fr' ]; then
+	set_target_extra 'TRADFR_ARCHIVE' "${TRADFR_URL}" "${TRADFR_ARCHIVE1}" "${TRADFR_ARCHIVE2}"
+fi
+printf '\n'
 
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -150,26 +159,13 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
-printf '\n'
-
-set_target '1' 'gog.com'
-
-if [ "${GAME_LANG}" = 'fr' ]; then
-	set_target_extra 'TRADFR_ARCHIVE' "${TRADFR_URL}" "${TRADFR_ARCHIVE1}" "${TRADFR_ARCHIVE2}"
-fi
-
-printf '\n'
-
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-
 	printf '%s…\n' "$(l10n 'checksum_multiple')"
-
 	print wait
 
 	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE1_MD5}"
-
 	if [ "${GAME_LANG}" = 'fr' ]; then
 		checksum "${TRADFR_ARCHIVE}" 'quiet' "${TRADFR_ARCHIVE1_MD5}" "${TRADFR_ARCHIVE2_MD5}"
 	fi
@@ -180,29 +176,28 @@ fi
 # Extract game data
 
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_GAME}"
-
 print wait
 
-extract_data 'inno' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
-
+extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 if [ "${GAME_LANG}" = 'fr' ]; then
-	extract_data '7z' "${TRADFR_ARCHIVE}" "${PKG_TMPDIR}/app" 'force,quiet'
+	extract_data "${TRADFR_ARCHIVE_TYPE}" "${TRADFR_ARCHIVE}" "${PKG_TMPDIR}/app" 'force,quiet'
 fi
 
+cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
 fi
 
 rm -rf "${PKG_TMPDIR}"
-
 print done
 
 # Write launchers
@@ -218,11 +213,9 @@ printf '\n'
 # Build package
 
 write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
-
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
-
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
