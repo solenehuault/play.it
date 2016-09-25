@@ -5,8 +5,9 @@
 write_bin() {
 for app in $@; do
 	testvar "$app" 'APP' || liberror 'app' 'write_bin'
-	local app_id=$(eval echo \$${app}_ID)
-	local app_type=$(eval echo \$${app}_TYPE)
+	local app_id="$(eval echo \$${app}_ID)"
+	[ -n "$app_id" ] || app_id="$GAME_ID"
+	local app_type="$(eval echo \$${app}_TYPE)"
 	local file="${PKG_PATH}${PATH_BIN}/${app_id}"
 	mkdir --parents "${file%/*}"
 	write_bin_header
