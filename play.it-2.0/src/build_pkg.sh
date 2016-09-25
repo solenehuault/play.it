@@ -33,7 +33,7 @@ local pkg_filename="${PWD}/${pkg_path##*/}.tar"
 build_pkg_print
 cd "$pkg_path"
 tar --create --file "$pkg_filename" .
-cd -
+cd - > /dev/null
 }
 
 # print package building message
