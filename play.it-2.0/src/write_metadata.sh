@@ -1,10 +1,10 @@
 # write package meta-data
 # USAGE: write_metadata $pkg
 # NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
-# CALLS: write_metadata_deb
+# CALLS: testvar, liberror, write_metadata_deb
 write_metadata() {
 for pkg in $@; do
-	testvar "$pkg" 'PKG'
+	testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
 	local pkg_arch=$(eval echo \$${pkg}_ARCH)
 	local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS)"
 	local pkg_deps="$(eval echo \$${pkg}_DEPS)"
