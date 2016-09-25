@@ -95,7 +95,15 @@ fetch_args "$@"
 
 # Set source archive
 
-find_source_archive 'ARCHIVE_EN' 'ARCHIVE_FR'
+set_source_archive 'ARCHIVE_EN' 'ARCHIVE_FR'
+check_deps
+set_common_paths
+if [ -n "$ARCHIVE" ]; then
+	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
+else
+	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_EN' 'ARCHIVE_FR'
+fi
+check_deps
 
 # Extract game data
 
