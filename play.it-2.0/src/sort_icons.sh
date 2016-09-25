@@ -3,17 +3,18 @@
 # NEEDED VARS: $app_ID, $app_ICON_RES, PKG, $PKG_PATH, PACKAGE_TYPE
 # CALLS: sort_icons_deb, sort_icons_tar
 sort_icons() {
-local app="$1"
-testvar "$app" 'APP' || liberror 'app' 'sort_icons'
-local app_id="$(eval echo \$${app}_ID)"
-[ -n "$app_id" ] || app_id="$GAME_ID"
-local icon_res="$(eval echo \$${app}_ICON_RES)"
-local pkg_path="$(eval echo \$${PKG}_PATH)"
-case $PACKAGE_TYPE in
-	deb) sort_icons_deb ;;
-	tar) sort_icons_tar ;;
-	*) liberror 'PACKAGE_TYPE' 'sort_icons'
-esac
+for app in $@; do
+	testvar "$app" 'APP' || liberror 'app' 'sort_icons'
+	local app_id="$(eval echo \$${app}_ID)"
+	[ -n "$app_id" ] || app_id="$GAME_ID"
+	local icon_res="$(eval echo \$${app}_ICON_RES)"
+	local pkg_path="$(eval echo \$${PKG}_PATH)"
+	case $PACKAGE_TYPE in
+		deb) sort_icons_deb ;;
+		tar) sort_icons_tar ;;
+		*) liberror 'PACKAGE_TYPE' 'sort_icons'
+	esac
+done
 }
 
 # create icons tree for .deb package
