@@ -33,7 +33,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160715.1
+script_version=20160925.1
 
 # Set game-specific variables
 
@@ -110,7 +110,10 @@ set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 organize_data
 
-PATH_ICON="${PATH_ICON_BASE}/${APP_MAIN_ICON_RES}/apps"
+case $PACKAGE_TYPE in
+	deb) PATH_ICON="${PATH_ICON_BASE}/${APP_MAIN_ICON_RES}/apps" ;;
+	tar) PATH_ICON="${PATH_ICON_BASE}/${APP_MAIN_ICON_RES}" ;;
+esac
 mkdir --parents "${PKG_PATH}${PATH_ICON}"
 mv "${PLAYIT_WORKDIR}/gamedata/${APP_MAIN_ICON}" "${PKG_PATH}${PATH_ICON}/${APP_MAIN_ID}.png"
 
