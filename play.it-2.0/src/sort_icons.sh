@@ -6,6 +6,7 @@ sort_icons() {
 local app="$1"
 testvar "$app" 'APP' || liberror 'app' 'sort_icons'
 local app_id="$(eval echo \$${app}_ID)"
+[ -n "$app_id" ] || app_id="$GAME_ID"
 local icon_res="$(eval echo \$${app}_ICON_RES)"
 local pkg_path="$(eval echo \$${PKG}_PATH)"
 case $PACKAGE_TYPE in
