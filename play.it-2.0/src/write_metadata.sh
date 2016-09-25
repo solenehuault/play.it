@@ -5,14 +5,18 @@
 write_metadata() {
 for pkg in $@; do
 	testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
-	local pkg_arch=$(eval echo \$${pkg}_ARCH)
+	local pkg_arch="$(eval echo \$${pkg}_ARCH)"
 	local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS)"
+	[ -n "$pkg_conflicts" ] || pkg_conflicts=''
 	local pkg_deps="$(eval echo \$${pkg}_DEPS)"
+	[ -n "$pkg_deps" ] || pkg_deps=''
 	local pkg_desc="$(eval echo \$${pkg}_DESC)"
-	local pkg_id=$(eval echo \$${pkg}_ID)
+	local pkg_id="$(eval echo \$${pkg}_ID)"
+	[ -n "$pkg_id" ] || pkg_id="$GAME_ID"
 	local pkg_maint="$(whoami)@$(hostname)"
 	local pkg_path="$(eval echo \$${pkg}_PATH)"
-	local pkg_version=$(eval echo \$${pkg}_VERSION)
+	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	[ -n "$pkg_version" ] || pkg_version='1.0-1'
 	local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 	case $PACKAGE_TYPE in
 		deb) write_metadata_deb ;;
