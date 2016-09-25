@@ -10,6 +10,7 @@ check_deps() {
 [ "$ARCHIVE_TYPE" = 'rar' ] && SCRIPT_DEPS="$SCRIPT_DEPS unar"
 [ "$CHECKSUM_METHOD" = 'md5sum' ] && SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
 [ "$PACKAGE_TYPE" = 'deb' ] && SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
+[ "${APP_MAIN_ICON##*.}" = 'ico' ] && SCRIPT_DEPS="$SCRIPT_DEPS icotool"
 for dep in $SCRIPT_DEPS; do
 case $dep in
 	7z) check_deps_7z ;;
