@@ -3,14 +3,15 @@
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
 # CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
 build_pkg() {
-local pkg=$1
-testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
-local pkg_path="$(eval echo \$${pkg}_PATH)"
-case $PACKAGE_TYPE in
-	deb) build_pkg_deb ;;
-	tar) build_pkg_tar ;;
-	*) liberror 'PACKAGE_TYPE' 'build_pkg'
-esac
+for pkg in $@; do
+	testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
+	local pkg_path="$(eval echo \$${pkg}_PATH)"
+	case $PACKAGE_TYPE in
+		deb) build_pkg_deb ;;
+		tar) build_pkg_tar ;;
+		*) liberror 'PACKAGE_TYPE' 'build_pkg'
+	esac
+done
 }
 
 # build .deb package
