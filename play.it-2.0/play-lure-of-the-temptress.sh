@@ -56,13 +56,10 @@ ARCHIVE_DOC_FILES='docs/* data/*.txt'
 ARCHIVE_GAME_PATH='data/noarch/data'
 ARCHIVE_GAME_FILES='./*'
 
-APP_MAIN_ID="${GAME_ID}"
 APP_MAIN_TYPE='scummvm'
 APP_MAIN_SCUMMID='lure'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
-APP_MAIN_NAME="${GAME_NAME}"
-APP_MAIN_CAT='Game'
 
 PKG_MAIN_ID="${GAME_ID}"
 PKG_MAIN_ARCH='all'
