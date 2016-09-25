@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.1
+library_revision=20160925.2
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -599,23 +599,24 @@ done
 # NEEDED VARS: $app_ID, $app_TYPE, PKG_PATH, PATH_BIN, $app_EXE
 # CALLS: liberror, write_bin_header, write_bin_set_vars, write_bin_set_exe, write_bin_set_prefix, write_bin_build_userdirs, write_bin_build_prefix, write_bin_run
 write_bin() {
-local app="$1"
-testvar "$app" 'APP' || liberror 'app' 'write_bin'
-local app_id=$(eval echo \$${app}_ID)
-local app_type=$(eval echo \$${app}_TYPE)
-local file="${PKG_PATH}${PATH_BIN}/${app_id}"
-mkdir --parents "${file%/*}"
-write_bin_header
-write_bin_set_vars
-if [ "$app_type" != 'scummvm' ]; then
-	local app_exe="$(eval echo \$${app}_EXE)"
-	write_bin_set_exe
-	write_bin_set_prefix
-	write_bin_build_userdirs
-	write_bin_build_prefix
-fi
-write_bin_run
-chmod 755 "$file"
+for app in $@; do
+	testvar "$app" 'APP' || liberror 'app' 'write_bin'
+	local app_id=$(eval echo \$${app}_ID)
+	local app_type=$(eval echo \$${app}_TYPE)
+	local file="${PKG_PATH}${PATH_BIN}/${app_id}"
+	mkdir --parents "${file%/*}"
+	write_bin_header
+	write_bin_set_vars
+	if [ "$app_type" != 'scummvm' ]; then
+		local app_exe="$(eval echo \$${app}_EXE)"
+		write_bin_set_exe
+		write_bin_set_prefix
+		write_bin_build_userdirs
+		write_bin_build_prefix
+	fi
+	write_bin_run
+	chmod 755 "$file"
+done
 }
 
 # write launcher script header
@@ -935,22 +936,23 @@ EOF
 # NEEDED VARS: $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
 # CALLS: liberror
 write_desktop() {
-local app="$1"
-testvar "$app" 'APP' || liberror 'app' 'write_desktop'
-local app_id=$(eval echo \$${app}_ID)
-local app_name="$(eval echo \$${app}_NAME)"
-local app_cat="$(eval echo \$${app}_CAT)"
-local target="${PKG_PATH}${PATH_DESK}/${app_id}.desktop"
-mkdir --parents "${target%/*}"
-cat > "${target}" << EOF
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=$app_name
-Icon=$app_id
-Exec=$app_id
-Categories=$app_cat
-EOF
+for app in $@; do
+	testvar "$app" 'APP' || liberror 'app' 'write_desktop'
+	local app_id=$(eval echo \$${app}_ID)
+	local app_name="$(eval echo \$${app}_NAME)"
+	local app_cat="$(eval echo \$${app}_CAT)"
+	local target="${PKG_PATH}${PATH_DESK}/${app_id}.desktop"
+	mkdir --parents "${target%/*}"
+	cat > "${target}" <<- EOF
+	[Desktop Entry]
+	Version=1.0
+	Type=Application
+	Name=$app_name
+	Icon=$app_id
+	Exec=$app_id
+	Categories=$app_cat
+	EOF
+done
 }
 
 # write package meta-data
