@@ -33,7 +33,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160715.1
+script_version=20160925.1
 
 # Set game-specific variables
 
@@ -43,7 +43,6 @@ GAME_NAME='Torchlight'
 
 ARCHIVE_GOG='setup_torchlight_2.0.0.12.exe'
 ARCHIVE_GOG_MD5='4b721e1b3da90f170d66f42e60a3fece'
-ARCHIVE_GOG_TYPE='innosetup'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='460000'
 
 ARCHIVE_DOC_PATH='.'
@@ -58,18 +57,13 @@ CONFIG_FILES=''
 DATA_DIRS=''
 DATA_FILES=''
 
-APP_MAIN_ID="${GAME_ID}"
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./torchlight.exe'
 APP_MAIN_ICON='torchlight.ico'
 APP_MAIN_ICON_RES='16x16 24x24 32x32 48x48 256x256'
-APP_MAIN_NAME="${GAME_NAME}"
-APP_MAIN_CAT='Game'
 
-PKG_MAIN_ID="${GAME_ID}"
 PKG_MAIN_VERSION='1.15-gog2.0.0.12'
 PKG_MAIN_ARCH='i386'
-PKG_MAIN_CONFLICTS=''
 PKG_MAIN_DEPS="wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
 PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
@@ -104,7 +98,15 @@ fetch_args "$@"
 
 # Set source archive
 
-find_source_archive 'ARCHIVE_GOG'
+set_source_archive 'ARCHIVE_GOG'
+check_deps
+set_common_paths
+if [ -n "$ARCHIVE" ]; then
+	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
+else
+	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+fi
+check_deps
 
 # Extract game data
 
@@ -123,7 +125,8 @@ rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
 # Write launchers
 
-write_app 'APP_MAIN'
+write_bin 'APP_MAIN'
+write_desktop 'APP_MAIN'
 
 # Build package
 
