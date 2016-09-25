@@ -43,12 +43,10 @@ GAME_NAME='Lure of the Temptress'
 
 ARCHIVE_EN='gog_lure_of_the_temptress_2.0.0.6.sh'
 ARCHIVE_EN_MD5='86d110cf60accee567af61e22657a14f'
-ARCHIVE_EN_TYPE='mojosetup'
 ARCHIVE_EN_UNCOMPRESSED_SIZE='60000'
 
 ARCHIVE_FR='gog_lure_of_the_temptress_french_2.0.0.6.sh'
 ARCHIVE_FR_MD5='d3f454f2d328b5ac91874e79c0b4b0ca'
-ARCHIVE_FR_TYPE='mojosetup'
 ARCHIVE_FR_UNCOMPRESSED_SIZE='60000'
 
 ARCHIVE_DOC_PATH='data/noarch'
