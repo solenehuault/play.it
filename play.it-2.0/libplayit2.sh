@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.8
+library_revision=20160925.9
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -372,6 +372,7 @@ DEFAULT_INSTALL_PREFIX='/usr/local'
 DEFAULT_ICON_CHOICE='original'
 DEFAULT_MOVIES_SUPPORT='0'
 DEFAULT_PACKAGE_TYPE='deb'
+NO_ICON='0'
 }
 
 # set package paths
@@ -379,7 +380,6 @@ DEFAULT_PACKAGE_TYPE='deb'
 # NEEDED VARS: PACKAGE_TYPE
 # CALLS: set_common_paths_deb, set_common_paths_tar, liberror
 set_common_paths() {
-NO_ICON=0
 case $PACKAGE_TYPE in
 	deb) set_common_paths_deb ;;
 	tar) set_common_paths_tar ;;
