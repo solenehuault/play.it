@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.2
+library_revision=20160925.3
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -601,8 +601,9 @@ done
 write_bin() {
 for app in $@; do
 	testvar "$app" 'APP' || liberror 'app' 'write_bin'
-	local app_id=$(eval echo \$${app}_ID)
-	local app_type=$(eval echo \$${app}_TYPE)
+	local app_id="$(eval echo \$${app}_ID)"
+	[ -n "$app_id" ] || app_id="$GAME_ID"
+	local app_type="$(eval echo \$${app}_TYPE)"
 	local file="${PKG_PATH}${PATH_BIN}/${app_id}"
 	mkdir --parents "${file%/*}"
 	write_bin_header
@@ -938,9 +939,12 @@ EOF
 write_desktop() {
 for app in $@; do
 	testvar "$app" 'APP' || liberror 'app' 'write_desktop'
-	local app_id=$(eval echo \$${app}_ID)
+	local app_id="$(eval echo \$${app}_ID)"
+	[ -n "$app_id" ] || app_id="$GAME_ID"
 	local app_name="$(eval echo \$${app}_NAME)"
+	[ -n "$app_name" ] || app_name="$GAME_NAME"
 	local app_cat="$(eval echo \$${app}_CAT)"
+	[ -n "$app_cat" ] || app_cat='Game'
 	local target="${PKG_PATH}${PATH_DESK}/${app_id}.desktop"
 	mkdir --parents "${target%/*}"
 	cat > "${target}" <<- EOF
