@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.3
+library_revision=20160925.4
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -43,14 +43,15 @@ string_error_fr="\n\033[1;31mErreur :\033[0m"
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
 # CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
 build_pkg() {
-local pkg=$1
-testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
-local pkg_path="$(eval echo \$${pkg}_PATH)"
-case $PACKAGE_TYPE in
-	deb) build_pkg_deb ;;
-	tar) build_pkg_tar ;;
-	*) liberror 'PACKAGE_TYPE' 'build_pkg'
-esac
+for pkg in $@; do
+	testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
+	local pkg_path="$(eval echo \$${pkg}_PATH)"
+	case $PACKAGE_TYPE in
+		deb) build_pkg_deb ;;
+		tar) build_pkg_tar ;;
+		*) liberror 'PACKAGE_TYPE' 'build_pkg'
+	esac
+done
 }
 
 # build .deb package
@@ -514,8 +515,10 @@ fi
 # NEEDED VARS: $pkg_ID, $pkg_VERSION, $pkg_ARCH, PLAYIT_WORKDIR
 # CALLED BY: set_workdir
 set_workdir_pkg() {
-local pkg_id=$(eval echo \$${pkg}_ID)
-local pkg_version=$(eval echo \$${pkg}_VERSION)
+local pkg_id="$(eval echo \$${pkg}_ID)"
+[ -n "$pkg_id" ] || pkg_id="$GAME_ID"
+local pkg_version="$(eval echo \$${pkg}_VERSION)"
+[ -n "$pkg_version" ] || pkg_version='1.0-1'
 local pkg_arch=$(eval echo \$${pkg}_ARCH)
 local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 export ${pkg}_PATH="$pkg_path"
@@ -962,23 +965,28 @@ done
 # write package meta-data
 # USAGE: write_metadata $pkg
 # NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
-# CALLS: write_metadata_deb
+# CALLS: testvar, liberror, write_metadata_deb
 write_metadata() {
-local pkg="$1"
-testvar "$pkg" 'PKG'
-local pkg_arch=$(eval echo \$${pkg}_ARCH)
-local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS)"
-local pkg_deps="$(eval echo \$${pkg}_DEPS)"
-local pkg_desc="$(eval echo \$${pkg}_DESC)"
-local pkg_id=$(eval echo \$${pkg}_ID)
-local pkg_maint="$(whoami)@$(hostname)"
-local pkg_path="$(eval echo \$${pkg}_PATH)"
-local pkg_version=$(eval echo \$${pkg}_VERSION)
-local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
-case $PACKAGE_TYPE in
-	deb) write_metadata_deb ;;
-	tar) return 0 ;;
-esac
+for pkg in $@; do
+	testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
+	local pkg_arch="$(eval echo \$${pkg}_ARCH)"
+	local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS)"
+	[ -n "$pkg_conflicts" ] || pkg_conflicts=''
+	local pkg_deps="$(eval echo \$${pkg}_DEPS)"
+	[ -n "$pkg_deps" ] || pkg_deps=''
+	local pkg_desc="$(eval echo \$${pkg}_DESC)"
+	local pkg_id="$(eval echo \$${pkg}_ID)"
+	[ -n "$pkg_id" ] || pkg_id="$GAME_ID"
+	local pkg_maint="$(whoami)@$(hostname)"
+	local pkg_path="$(eval echo \$${pkg}_PATH)"
+	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	[ -n "$pkg_version" ] || pkg_version='1.0-1'
+	local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
+	case $PACKAGE_TYPE in
+		deb) write_metadata_deb ;;
+		tar) return 0 ;;
+	esac
+done
 }
 
 # write .deb package meta-data
