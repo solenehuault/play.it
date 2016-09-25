@@ -61,10 +61,8 @@ APP_MAIN_SCUMMID='lure'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ID="${GAME_ID}"
 PKG_MAIN_ARCH='all'
 PKG_MAIN_VERSION='1.1-gog2.0.0.6'
-PKG_MAIN_CONFLICTS=''
 PKG_MAIN_DEPS='scummvm'
 PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
