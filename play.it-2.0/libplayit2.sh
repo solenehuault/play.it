@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160924.3
+library_revision=20160925.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -73,7 +73,7 @@ local pkg_filename="${PWD}/${pkg_path##*/}.tar"
 build_pkg_print
 cd "$pkg_path"
 tar --create --file "$pkg_filename" .
-cd -
+cd - > /dev/null
 }
 
 # print package building message
