@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.9
+library_revision=20160925.10
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -528,16 +528,18 @@ export ${pkg}_PATH="$pkg_path"
 # NEEDED VARS: $app_ID, $app_ICON_RES, PKG, $PKG_PATH, PACKAGE_TYPE
 # CALLS: sort_icons_deb, sort_icons_tar
 sort_icons() {
-local app="$1"
-testvar "$app" 'APP' || liberror 'app' 'sort_icons'
-local app_id="$(eval echo \$${app}_ID)"
-local icon_res="$(eval echo \$${app}_ICON_RES)"
-local pkg_path="$(eval echo \$${PKG}_PATH)"
-case $PACKAGE_TYPE in
-	deb) sort_icons_deb ;;
-	tar) sort_icons_tar ;;
-	*) liberror 'PACKAGE_TYPE' 'sort_icons'
-esac
+for app in $@; do
+	testvar "$app" 'APP' || liberror 'app' 'sort_icons'
+	local app_id="$(eval echo \$${app}_ID)"
+	[ -n "$app_id" ] || app_id="$GAME_ID"
+	local icon_res="$(eval echo \$${app}_ICON_RES)"
+	local pkg_path="$(eval echo \$${PKG}_PATH)"
+	case $PACKAGE_TYPE in
+		deb) sort_icons_deb ;;
+		tar) sort_icons_tar ;;
+		*) liberror 'PACKAGE_TYPE' 'sort_icons'
+	esac
+done
 }
 
 # create icons tree for .deb package
