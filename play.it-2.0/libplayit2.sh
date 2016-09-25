@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.4
+library_revision=20160925.5
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -460,6 +460,20 @@ case ${LANG%_*} in
 esac
 ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
 ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
+if [ -z "$ARCHIVE_TYPE" ]; then
+	if [ -n $(echo "${SOURCE_ARCHIVE##*/}" | grep '^gog_.*\.sh$') ]; then
+		ARCHIVE_TYPE='mojosetup'
+	elif [ -n $(echo "${SOURCE_ARCHIVE##*/}" | grep '^setup_.*\.exe$') ]; then
+		ARCHIVE_TYPE='innosetup'
+	else
+		case ${LANG%_*} in
+			fr) echo "$string_error_fr\nARCHIVE_TYPE n’est pas défini pour $SOURCE_ARCHIVE" ;;
+			en|*) echo "$string_error_en\nARCHIVE_TYPE is not set for $SOURCE_ARCHIVE" ;;
+		esac
+		return 1
+	fi
+	eval ${archive}_TYPE=$ARCHIVE_TYPE
+fi
 ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
 }
 
