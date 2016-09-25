@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20160925.5
+library_revision=20160925.6
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -301,22 +301,6 @@ if [ -z "$ARCHIVE" ]; then
 	set_source_archive_vars
 fi
 }
-
-# alias
-# USAGE: find_source_archive $archive_name[…]
-# CALLS: set_source_archive, check_deps, set_common_paths, file_checksum, check_deps
-find_source_archive() {
-set_source_archive "$@"
-check_deps
-set_common_paths
-if [ -n "$ARCHIVE" ]; then
-	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
-else
-	file_checksum "$SOURCE_ARCHIVE" "$@"
-fi
-check_deps
-}
-
 # set defaults rights on files (755 for dirs & 644 for regular files)
 # USAGE: fix_rights $dir
 fix_rights() {
@@ -598,16 +582,6 @@ find "$1" -depth | while read file; do
 	if [ "$newfile" != "$file" ] && [ "$file" != "$1" ]; then
 		mv --verbose "$file" "$newfile"
 	fi
-done
-}
-
-# alias
-# USAGE: write_app $app[…]
-# CALLS: write_bin, write_desktop
-write_app() {
-for app in "$@"; do
-	write_bin "$app"
-	write_desktop "$app"
 done
 }
 
