@@ -33,9 +33,9 @@ esac
 ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
 ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
 if [ -z "$ARCHIVE_TYPE" ]; then
-	if [ -n $(echo "${SOURCE_ARCHIVE##*/}" | grep '^gog_.*\.sh$') ]; then
+	if [ -n "$(echo "${SOURCE_ARCHIVE##*/}" | grep '^gog_.*\.sh$')" ]; then
 		ARCHIVE_TYPE='mojosetup'
-	elif [ -n $(echo "${SOURCE_ARCHIVE##*/}" | grep '^setup_.*\.exe$') ]; then
+	elif [ -n "$(echo "${SOURCE_ARCHIVE##*/}" | grep '^setup_.*\.exe$')" ]; then
 		ARCHIVE_TYPE='innosetup'
 	else
 		case ${LANG%_*} in
