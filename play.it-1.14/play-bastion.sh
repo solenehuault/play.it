@@ -29,12 +29,12 @@
 
 ###
 # conversion script for the Bastion installer sold on HumbleBundle.com
-# build a .deb package from the MojoSetup .sh installer
+# build a .deb package from the Nixstaller installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160710.2
+script_version=20161001.1
 
 # Set game-specific variables
 
@@ -46,6 +46,7 @@ GAME_NAME='Bastion'
 
 GAME_ARCHIVE1='Bastion-HIB-2012-06-20.sh'
 GAME_ARCHIVE1_MD5='aa6ccaead3b4b8a5fbd156f4019e8c8b'
+GAME_ARCHIVE1_TYPE='nix_stage1'
 GAME_ARCHIVE_FULLSIZE='1100000'
 PKG_REVISION='humble120620'
 
@@ -141,6 +142,10 @@ set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
+printf '\n'
+set_target '1' 'humblebundle.com'
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -152,10 +157,6 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
-printf '\n'
-set_target '1' 'humblebundle.com'
-printf '\n'
-
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
@@ -165,32 +166,35 @@ fi
 # Extract game data
 
 PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
+
 build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}"
 rm -rf "${PKG3_DIR}"
-mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
+mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}"
 print wait
 
-extract_data 'nix_stage1' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
+extract_data "${GAME_ARCHIVE1_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 for file in 'instarchive_all' 'instarchive_linux_x86' 'instarchive_linux_x86_64'; do
 	extract_data 'nix_stage2' "${file}" "${PKG_TMPDIR}" 'quiet'
 done
 fix_rights "${PKG_TMPDIR}"
 
+cd "${PKG_TMPDIR}"
 for file in ${INSTALLER_DOC}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG3_DIR}${PATH_DOC}"
+	mv "${file}" "${PKG3_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME_PKG1}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG1_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
 
 for file in ${INSTALLER_GAME_PKG2}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG2_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG2_DIR}${PATH_GAME}"
 done
 
 for file in ${INSTALLER_GAME_PKG3}; do
-	mv "${PKG_TMPDIR}"/${file} "${PKG3_DIR}${PATH_GAME}"
+	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
 done
+cd - > /dev/null
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
@@ -217,17 +221,19 @@ write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "$
 write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}" ''
 
 file="${PKG3_DIR}/DEBIAN/postinst"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
+mkdir --parents --verbose "${PATH_ICON}"
 ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
 
 file="${PKG3_DIR}/DEBIAN/prerm"
-cat > "${file}" <<- EOF
+cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
+rmdir --fail-on-non-empty --verbose "${PATH_ICON}"
 exit 0
 EOF
 chmod 755 "${file}"
