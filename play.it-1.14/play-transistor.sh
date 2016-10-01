@@ -29,12 +29,12 @@
 
 ###
 # conversion script for the Transistor installer sold on GOG.com
-# build a .deb package from the MojoSetup .sh installer
+# build a .deb package from the MojoSetup installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160626.1
+script_version=20161001.1
 
 # Set game-specific variables
 
@@ -47,6 +47,7 @@ GAME_NAME='Transistor'
 
 GAME_ARCHIVE1='gog_transistor_2.0.0.3.sh'
 GAME_ARCHIVE1_MD5='53dbaf643471f3b8494548261584dd13'
+GAME_ARCHIVE1_TYPE='mojo'
 GAME_ARCHIVE_FULLSIZE='3200000'
 PKG_REVISION='gog2.0.0.3'
 
@@ -104,7 +105,7 @@ PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
 fi
@@ -139,6 +140,11 @@ set_compression
 set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
+check_deps_soft ${SCRIPT_DEPS_SOFT}
+
+printf '\n'
+set_target '1' 'gog.com'
+printf '\n'
 
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
@@ -151,10 +157,6 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
-printf '\n'
-set_target '1' 'gog.com'
-printf '\n'
-
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
@@ -164,12 +166,13 @@ fi
 # Extract game data
 
 PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
+
 build_pkg_dirs '2' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}"
 rm -rf "${PKG3_DIR}"
 mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
 print wait
 
-extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+extract_data "${GAME_ARCHIVE1_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
