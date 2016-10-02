@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.2
+# library version 1.14.3
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -554,11 +554,36 @@ if [ -z "${GAME_ARCHIVE}" ]; then
 		export GAME_ARCHIVE="${PWD}/${GAME_ARCHIVE3}"
 	elif [ ${archives_nb} -ge 3 ] && [ -f "${HOME}/${GAME_ARCHIVE3}" ]; then
 		export GAME_ARCHIVE="${HOME}/${GAME_ARCHIVE3}"
+	elif [ ${archives_nb} -ge 4 ] && [ -f "${PWD}/${GAME_ARCHIVE4}" ]; then
+		export GAME_ARCHIVE="${PWD}/${GAME_ARCHIVE4}"
+	elif [ ${archives_nb} -ge 4 ] && [ -f "${HOME}/${GAME_ARCHIVE4}" ]; then
+		export GAME_ARCHIVE="${HOME}/${GAME_ARCHIVE4}"
+	elif [ ${archives_nb} -ge 5 ] && [ -f "${PWD}/${GAME_ARCHIVE5}" ]; then
+		export GAME_ARCHIVE="${PWD}/${GAME_ARCHIVE5}"
+	elif [ ${archives_nb} -ge 5 ] && [ -f "${HOME}/${GAME_ARCHIVE5}" ]; then
+		export GAME_ARCHIVE="${HOME}/${GAME_ARCHIVE5}"
+	elif [ ${archives_nb} -ge 6 ] && [ -f "${PWD}/${GAME_ARCHIVE6}" ]; then
+		export GAME_ARCHIVE="${PWD}/${GAME_ARCHIVE6}"
+	elif [ ${archives_nb} -ge 6 ] && [ -f "${HOME}/${GAME_ARCHIVE6}" ]; then
+		export GAME_ARCHIVE="${HOME}/${GAME_ARCHIVE6}"
+	elif [ ${archives_nb} -ge 7 ] && [ -f "${PWD}/${GAME_ARCHIVE7}" ]; then
+		export GAME_ARCHIVE="${PWD}/${GAME_ARCHIVE7}"
+	elif [ ${archives_nb} -ge 7 ] && [ -f "${HOME}/${GAME_ARCHIVE7}" ]; then
+		export GAME_ARCHIVE="${HOME}/${GAME_ARCHIVE7}"
+	elif [ ${archives_nb} -ge 8 ] && [ -f "${PWD}/${GAME_ARCHIVE8}" ]; then
+		export GAME_ARCHIVE="${PWD}/${GAME_ARCHIVE8}"
+	elif [ ${archives_nb} -ge 8 ] && [ -f "${HOME}/${GAME_ARCHIVE8}" ]; then
+		export GAME_ARCHIVE="${HOME}/${GAME_ARCHIVE8}"
 	else
 		print error
 		printf '%s %s. (%s' "$(l10n 'set_target_missing')" "${origin}" "${GAME_ARCHIVE1}"
 		if [ ${archives_nb} -ge 2 ]; then printf ', %s' "${GAME_ARCHIVE2}"; fi
 		if [ ${archives_nb} -ge 3 ]; then printf ', %s' "${GAME_ARCHIVE3}"; fi
+		if [ ${archives_nb} -ge 4 ]; then printf ', %s' "${GAME_ARCHIVE4}"; fi
+		if [ ${archives_nb} -ge 5 ]; then printf ', %s' "${GAME_ARCHIVE5}"; fi
+		if [ ${archives_nb} -ge 6 ]; then printf ', %s' "${GAME_ARCHIVE6}"; fi
+		if [ ${archives_nb} -ge 7 ]; then printf ', %s' "${GAME_ARCHIVE7}"; fi
+		if [ ${archives_nb} -ge 8 ]; then printf ', %s' "${GAME_ARCHIVE8}"; fi
 		printf ')\n\n'
 		exit 1
 	fi
