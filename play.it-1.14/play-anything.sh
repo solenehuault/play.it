@@ -277,7 +277,7 @@ else
 	printf '%s %s…\n' "$(l10n 'extract_icons')" "${icon##*/}"
 fi
 if [ "${icon##*.}" = 'exe' ]; then
-	wrestool -o "${target}" -t 14 -x "${PKG1_DIR}${PATH_GAME}/${icon}"
+	wrestool -o "${target}" -t 14 -x "${PKG1_DIR}${PATH_GAME}"/${icon}
 	icotool -o "${target}" -x "$(realpath "${target}"/*.ico | head -n1)" 2>/dev/null
 	rm "${target}"/*.ico
 elif [ "${icon##*.}" = 'ico' ]; then
