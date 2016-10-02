@@ -67,10 +67,16 @@ shift 1
 local dirs="$*"
 printf '%s…\n' "$(l10n 'build_pkg_dirs')"
 rm -rf "${PKG1_DIR}"
-if [ ${pkg_nb} -ge 2 ]; then rm -rf "${PKG2_DIR}"; fi
+[ ${pkg_nb} -ge 2 ] && rm -rf "${PKG2_DIR}"
+[ ${pkg_nb} -ge 3 ] && rm -rf "${PKG3_DIR}"
+[ ${pkg_nb} -ge 4 ] && rm -rf "${PKG4_DIR}"
+[ ${pkg_nb} -ge 5 ] && rm -rf "${PKG5_DIR}"
 for dir in ${dirs} '/DEBIAN'; do
 	mkdir -p "${PKG1_DIR}${dir}"
-	if [ ${pkg_nb} -ge 2 ]; then mkdir -p "${PKG2_DIR}${dir}"; fi
+	[ ${pkg_nb} -ge 2 ] && mkdir -p "${PKG2_DIR}${dir}"
+	[ ${pkg_nb} -ge 3 ] && mkdir -p "${PKG3_DIR}${dir}"
+	[ ${pkg_nb} -ge 4 ] && mkdir -p "${PKG4_DIR}${dir}"
+	[ ${pkg_nb} -ge 5 ] && mkdir -p "${PKG5_DIR}${dir}"
 done
 }
 
