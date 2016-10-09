@@ -78,6 +78,7 @@ for dir in ${dirs} '/DEBIAN'; do
 	[ ${pkg_nb} -ge 4 ] && mkdir -p "${PKG4_DIR}${dir}"
 	[ ${pkg_nb} -ge 5 ] && mkdir -p "${PKG5_DIR}${dir}"
 done
+return 0
 }
 
 # check dependencies
