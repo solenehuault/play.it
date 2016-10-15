@@ -35,7 +35,7 @@ set -e
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161009.1
+script_version=20161015.1
 
 # Set game-specific variables
 
@@ -296,6 +296,8 @@ cd - > /dev/null
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
 fi
+
+sed -i 's/IntroPath=.\+/IntroPath="intro\\"/' "${PKG2_DIR}${PATH_GAME}/startopia.ini"
 
 rm -rf "${PKG_TMPDIR}"
 print done
