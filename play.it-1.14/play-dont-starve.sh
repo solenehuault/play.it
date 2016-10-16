@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160906.1
+script_version=20161016.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='dont-starve'
 GAME_ID_SHORT='dstarve'
 GAME_NAME='Don’t Starve'
 
-GAME_ARCHIVE1='gog_don_t_starve_2.4.0.6.sh'
-GAME_ARCHIVE1_MD5='42d40753747bd033ae536195918dc33b'
-GAME_ARCHIVE_FULLSIZE='640000'
-PKG_REVISION='gog2.4.0.6'
+GAME_ARCHIVE1='gog_don_t_starve_2.5.0.7.sh'
+GAME_ARCHIVE1_MD5='9971acd10f12fff3e7bfa78e6102beaa'
+PKG_REVISION='gog2.5.0.7'
+GAME_ARCHIVE_FULLSIZE='650000'
 
 INSTALLER_PATH='data/noarch/game/dontstarve32'
 INSTALLER_DOC='../../docs/*'
@@ -76,7 +76,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='2016.09.02'
+PKG_VERSION='1.190713'
 PKG_DEPS='libcurl3-gnutls, libglu1-mesa | libglu1, libsdl2-2.0-0, libxrandr2'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
