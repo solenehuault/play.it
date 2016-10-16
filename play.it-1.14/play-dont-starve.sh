@@ -77,7 +77,7 @@ APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
 PKG_VERSION='1.190713'
-PKG_DEPS='libcurl3-gnutls, libglu1-mesa | libglu1, libsdl2-2.0-0, libxrandr2'
+PKG_DEPS='xdg-utils, libcurl3-gnutls, libglu1-mesa | libglu1, libsdl2-2.0-0, libxrandr2'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
