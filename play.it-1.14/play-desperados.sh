@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161001.1
+script_version=20161016.1
 
 # Set game-specific variables
 
@@ -56,13 +56,12 @@ INSTALLER_JUNK='./goggame.dll'
 INSTALLER_DOC='../manual.pdf ../readme.txt ../../tmp/gog_eula.txt'
 INSTALLER_GAME='./*'
 
-#TRADFR_URL='http://wiki.dotslashplay.it/fr/traductions/desperados'
 TRADFR_ARCHIVE1='desperadosfr-txt.7z'
-TRADFR_ARCHIVE1_MD5='8afa57221affff7254369731972fd36d'
+TRADFR_ARCHIVE1_MD5='a2cafc31d8cfce49b113a6d1a9385150'
 TRADFR_ARCHIVE2='desperadosfr-snd.7z'
-TRADFR_ARCHIVE2_MD5='088ed411523cd0654820e32cbee926a3'
+TRADFR_ARCHIVE2_MD5='5da11f4507bba55e48909a42e25c6f20'
 TRADFR_ARCHIVE3='desperadosfr-vid.7z'
-TRADFR_ARCHIVE3_MD5='8fb6fbc4044b322462bb9e48c6a102e1'
+TRADFR_ARCHIVE3_MD5='2b3d7adca4aa9e4b77af836c602fd30f'
 TRADFR_ARCHIVE_TYPE='7z'
 TRADFR_DEPS_HARD='7z'
 
