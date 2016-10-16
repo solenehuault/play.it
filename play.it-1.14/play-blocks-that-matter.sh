@@ -30,18 +30,18 @@ set -e
 
 ###
 # conversion script for the Blocks that Matter installer sold on GOG.com
-# build a .deb package from the .sh MojoSetup installer
+# build a .deb package from the MojoSetup installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161009.1
+script_version=20161016.1
 
 # Set game-specific variables
 
 SCRIPT_DEPS_HARD='fakeroot realpath unzip'
 
-GAME_ID='block-that-matter'
+GAME_ID='blocks-that-matter'
 GAME_ID_SHORT='blocks'
 GAME_NAME='Blocks that Matter'
 
@@ -145,7 +145,7 @@ extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,qui
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 
 for file in ${INSTALLER_JUNK}; do
-	rm "${file}" -rf
+	rm -rf "${file}"
 done
 
 for file in ${INSTALLER_DOC}; do
@@ -157,14 +157,14 @@ for file in ${INSTALLER_GAME}; do
 done
 cd - > /dev/null
 
-chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
-
 rm -rf "${PKG_TMPDIR}"
 print done
 
 # Write launchers
 
 write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
+sed -i 's|./"${GAME_EXE_PATH##\*/}"|java -Djava.library.path="." -Dorg.lwjgl.librarypath="$PWD" -jar BTM.jar -Xmx1024M -Xms512M "${GAME_EXE_PATH##\*/}"|' "${PKG1_DIR}${PATH_BIN}/${APP1_ID}"
+
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
 printf '\n'
 
