@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160827.1
+script_version=20161019.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='day-of-the-tentacle-remastered'
 GAME_ID_SHORT='dott'
 GAME_NAME='Day of the Tentacle Remastered'
 
-GAME_ARCHIVE1='gog_day_of_the_tentacle_remastered_2.0.0.1.sh'
-GAME_ARCHIVE1_MD5='e6cb3603be7a35d6ca9477092d04eb48'
+GAME_ARCHIVE1='gog_day_of_the_tentacle_remastered_2.1.0.2.sh'
+GAME_ARCHIVE1_MD5='612c59c5cbdbf4d73322b46527a2d502'
 GAME_ARCHIVE_FULLSIZE='2700000'
-PKG_REVISION='gog2.0.0.1'
+PKG_REVISION='gog2.1.0.2'
 
 INSTALLER_PATH='data/noarch/game'
 INSTALLER_DOC='../docs/* ./readme.txt'
@@ -63,7 +63,7 @@ APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH='i386'
-PKG1_VERSION='1.4'
+PKG1_VERSION='1.4.1'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1'
 PKG1_RECS=''
