@@ -28,13 +28,13 @@
 ###
 
 ###
-# conversion script for the Sunless Sea installer sold on HumbleBundle.com
-# build .deb packages from the MojoSetup installer
+# conversion script for the Sunless Sea installers sold on HumbleBundle.com & GOG.com
+# build .deb packages from the MojoSetup installers
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161015.1
+script_version=20161029.1
 
 # Set game-specific variables
 
@@ -44,27 +44,29 @@ GAME_ID='sunless-sea'
 GAME_ID_SHORT='sunless'
 GAME_NAME='Sunless Sea'
 
-GAME_ARCHIVE1='Sunless_Sea-StandAlone-Linux-2016-03-29.sh'
-GAME_ARCHIVE1_MD5='b82055a5e48ffe7188309ce28a003b98'
-GAME_ARCHIVE_FULLSIZE='690000'
+GAME_ARCHIVE1='gog_sunless_sea_2.6.0.9.sh'
+GAME_ARCHIVE1_MD5='882428a41a0555d6023db0e043747345'
+GAME_ARCHIVE1_VERSION='2.2.2.3108'
+GAME_ARCHIVE1_REVISION='gog2.6.0.9'
+GAME_ARCHIVE1_FULLSIZE='700000'
+GAME_ARCHIVE2='Sunless_Sea-StandAlone-Linux-2016-03-29.sh'
+GAME_ARCHIVE2_MD5='b82055a5e48ffe7188309ce28a003b98'
+GAME_ARCHIVE2_VERSION='1.0.4.2130'
+GAME_ARCHIVE2_REVISION='humble160329'
+GAME_ARCHIVE2_FULLSIZE='690000'
 ARCHIVE_TYPE='mojo'
-PKG_REVISION='humble160329'
 
-PATCH_ARCHIVE_ALL='sunless-sea_1.0.4.2130_2.1.2.3064_all.delta.7z'
-PATCH_ARCHIVE_ALL_MD5='d2a7c3afece1a0d3f373f2cdad1222bc'
-PATCH_ARCHIVE_I386='sunless-sea_1.0.4.2130_2.1.2.3064_i386.delta.7z'
-PATCH_ARCHIVE_I386_MD5='6a10fcf886bed22c4bfe4e70fb8ec80c'
-PATCH_ARCHIVE_AMD64='sunless-sea_1.0.4.2130_2.1.2.3064_amd64.delta.7z'
-PATCH_ARCHIVE_AMD64_MD5='35a057b2082293dbed07d95c807905bc'
-PATCH_ARCHIVE_TYPE='7z'
-PATCH_PKG_VERSION='2.1.2.3064'
-PATCH_DEPS_HARD='7z rdiffdir'
+GAME_ARCHIVE1_INSTALLER_PATH='data/noarch/game'
+GAME_ARCHIVE1_INSTALLER_DOC='../docs/* ./README.linux'
+GAME_ARCHIVE1_INSTALLER_GAME_PKG1='./*.x86 ./*_Data/Plugins/x86 ./*_Data/Mono/x86'
+GAME_ARCHIVE1_INSTALLER_GAME_PKG2='./*.x86_64 ./*_Data/Plugins/x86_64 ./*_Data/Mono/x86_64'
+GAME_ARCHIVE1_INSTALLER_GAME_PKG3='./*'
 
-INSTALLER_PATH='data'
-INSTALLER_DOC='noarch/README.linux'
-INSTALLER_GAME_PKG1='x86/* noarch/*_Data/Plugins/x86 noarch/*_Data/Mono/x86'
-INSTALLER_GAME_PKG2='x86_64/* noarch/*_Data/Plugins/x86_64 noarch/*_Data/Mono/x86_64'
-INSTALLER_GAME_PKG3='noarch/*'
+GAME_ARCHIVE2_INSTALLER_PATH='data'
+GAME_ARCHIVE2_INSTALLER_DOC='noarch/README.linux'
+GAME_ARCHIVE2_INSTALLER_GAME_PKG1='x86/* noarch/*_Data/Plugins/x86 noarch/*_Data/Mono/x86'
+GAME_ARCHIVE2_INSTALLER_GAME_PKG2='x86_64/* noarch/*_Data/Plugins/x86_64 noarch/*_Data/Mono/x86_64'
+GAME_ARCHIVE2_INSTALLER_GAME_PKG3='noarch/*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE_PKG1='./Sunless Sea.x86'
@@ -78,9 +80,11 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='1.0.4.2130'
 PKG_DEPS='libc6, libglu1-mesa | libglu1, libxcursor1'
-PKG_DESC="${GAME_NAME}
+GAME_ARCHIVE1_PKG_DESC="${GAME_NAME}
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+GAME_ARCHIVE2_PKG_DESC="${GAME_NAME}
  package built from HumbleBundle.com installer
  ./play.it script version ${script_version}"
 
@@ -88,21 +92,22 @@ PKG1_ID="${PKG_ID}"
 PKG1_ARCH='i386'
 PKG1_DEPS="${PKG_DEPS}"
 PKG1_RECS=''
-PKG1_DESC="${PKG_DESC}"
 
 PKG2_ID="${PKG_ID}"
 PKG2_ARCH='amd64'
 PKG2_DEPS="${PKG_DEPS}"
 PKG2_RECS=''
-PKG2_DESC="${PKG_DESC}"
 
 PKG3_ID="${GAME_ID}-common"
 PKG3_ARCH='all'
 PKG3_CONFLICTS=''
 PKG3_DEPS=''
 PKG3_RECS=''
-PKG3_DESC="${GAME_NAME} - arch-independant data
+GAME_ARCHIVE1_PKG3_DESC="${GAME_NAME} - arch-independant data
  package built from GOG.com installer
+ ./play.it script version ${script_version}"
+GAME_ARCHIVE2_PKG3_DESC="${GAME_NAME} - arch-independant data
+ package built from HumbleBundle.com installer
  ./play.it script version ${script_version}"
 
 PKG1_CONFLICTS="${PKG2_ID}:${PKG2_ARCH}"
@@ -150,18 +155,40 @@ set_prefix
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
 printf '\n'
-set_target '1' 'humblebundle.com'
-set_target_optional 'PATCH_ARCHIVE_ALL' "${PATCH_ARCHIVE_ALL}"
-if [ -n "${PATCH_ARCHIVE_ALL}" ]; then
-	set_target_extra 'PATCH_ARCHIVE_I386' '' "${PATCH_ARCHIVE_I386}"
-	set_target_extra 'PATCH_ARCHIVE_AMD64' '' "${PATCH_ARCHIVE_AMD64}"
-	SCRIPT_DEPS_HARD="${PATCH_DEPS_HARD} ${SCRIPT_DEPS_HARD}"
-	check_deps_hard ${SCRIPT_DEPS_HARD}
-	PKG_VERSION="${PATCH_PKG_VERSION}"
-fi
+set_target '2' 'gog.com & humblebundle.com'
+case "${GAME_ARCHIVE##*/}" in
+	"${GAME_ARCHIVE1}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE1_FULLSIZE}"
+		PKG_VERSION="${GAME_ARCHIVE1_VERSION}"
+		PKG_REVISION="${GAME_ARCHIVE1_REVISION}"
+		PKG_DESC="${GAME_ARCHIVE1_PKG_DESC}"
+		PKG3_DESC="${GAME_ARCHIVE1_PKG3_DESC}"
+		INSTALLER_PATH="${GAME_ARCHIVE1_INSTALLER_PATH}"
+		INSTALLER_DOC="${GAME_ARCHIVE1_INSTALLER_DOC}"
+		INSTALLER_GAME_PKG1="${GAME_ARCHIVE1_INSTALLER_GAME_PKG1}"
+		INSTALLER_GAME_PKG2="${GAME_ARCHIVE1_INSTALLER_GAME_PKG2}"
+		INSTALLER_GAME_PKG3="${GAME_ARCHIVE1_INSTALLER_GAME_PKG3}"
+	;;
+	"${GAME_ARCHIVE2}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE2_FULLSIZE}"
+		PKG_VERSION="${GAME_ARCHIVE2_VERSION}"
+		PKG_REVISION="${GAME_ARCHIVE2_REVISION}"
+		PKG_DESC="${GAME_ARCHIVE2_PKG_DESC}"
+		PKG3_DESC="${GAME_ARCHIVE2_PKG3_DESC}"
+		INSTALLER_PATH="${GAME_ARCHIVE2_INSTALLER_PATH}"
+		INSTALLER_DOC="${GAME_ARCHIVE2_INSTALLER_DOC}"
+		INSTALLER_GAME_PKG1="${GAME_ARCHIVE2_INSTALLER_GAME_PKG1}"
+		INSTALLER_GAME_PKG2="${GAME_ARCHIVE2_INSTALLER_GAME_PKG2}"
+		INSTALLER_GAME_PKG3="${GAME_ARCHIVE2_INSTALLER_GAME_PKG3}"
+	;;
+esac
 PKG1_VERSION="${PKG_VERSION}"
 PKG2_VERSION="${PKG_VERSION}"
 PKG3_VERSION="${PKG_VERSION}"
+PKG1_DESC="${PKG_DESC}"
+PKG2_DESC="${PKG_DESC}"
 PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
 PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
 printf '\n'
@@ -180,17 +207,7 @@ game_mkdir 'PKG3_DIR' "${PKG3_ID}_${PKG3_VERSION}-${PKG_REVISION}_${PKG3_ARCH}" 
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	printf '%s…\n' "$(l10n 'checksum_multiple')"
-	print wait
-
-	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE1_MD5}"
-	if [ -n "${PATCH_ARCHIVE_ALL}" ]; then
-		checksum "${PATCH_ARCHIVE_ALL}" 'quiet' "${PATCH_ARCHIVE_ALL_MD5}"
-		checksum "${PATCH_ARCHIVE_I386}" 'quiet' "${PATCH_ARCHIVE_I386_MD5}"
-		checksum "${PATCH_ARCHIVE_AMD64}" 'quiet' "${PATCH_ARCHIVE_AMD64_MD5}"
-	fi
-	
-	print done
+	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE_MD5}"
 fi
 
 # Extract game data
@@ -201,11 +218,6 @@ mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}"
 print wait
 
 extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
-if [ -n "${PATCH_ARCHIVE_ALL}" ]; then
-	extract_data "${PATCH_ARCHIVE_TYPE}" "${PATCH_ARCHIVE_ALL}" "${PKG_TMPDIR}" 'quiet'
-	extract_data "${PATCH_ARCHIVE_TYPE}" "${PATCH_ARCHIVE_I386}" "${PKG_TMPDIR}" 'quiet'
-	extract_data "${PATCH_ARCHIVE_TYPE}" "${PATCH_ARCHIVE_AMD64}" "${PKG_TMPDIR}" 'quiet'
-fi
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
@@ -224,8 +236,8 @@ for file in ${INSTALLER_GAME_PKG2}; do
 	mv "${file}" "${PKG2_DIR}${PATH_GAME}/${target_file}"
 done
 
-rmdir --parents --ignore-fail-on-non-empty noarch/*_Data/Mono
-rmdir --parents --ignore-fail-on-non-empty noarch/*_Data/Plugins
+rm --recursive --force noarch/*_Data/Mono ./*_Data/Mono
+rm --recursive --force noarch/*_Data/Plugins ./*_Data/Plugins
 
 for file in ${INSTALLER_GAME_PKG3}; do
 	mv "${file}" "${PKG3_DIR}${PATH_GAME}"
@@ -234,12 +246,6 @@ cd - > /dev/null
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE_PKG1}"
 chmod 755 "${PKG2_DIR}${PATH_GAME}/${APP1_EXE_PKG2}"
-
-if [ -n "${PATCH_ARCHIVE_ALL}" ]; then
-	rdiffdir patch "${PKG3_DIR}${PATH_GAME}" "${PKG_TMPDIR}/$(basename ${PATCH_ARCHIVE_ALL} .7z)"
-	rdiffdir patch "${PKG1_DIR}${PATH_GAME}" "${PKG_TMPDIR}/$(basename ${PATCH_ARCHIVE_I386} .7z)"
-	rdiffdir patch "${PKG2_DIR}${PATH_GAME}" "${PKG_TMPDIR}/$(basename ${PATCH_ARCHIVE_AMD64} .7z)"
-fi
 
 rm -rf "${PKG_TMPDIR}"
 print done
@@ -266,8 +272,8 @@ cat > "${file}" << EOF
 #!/bin/sh -e
 mkdir --parents "${PATH_ICON_BASE}/${APP1_ICON1_RES}/apps"
 mkdir --parents "${PATH_ICON_BASE}/${APP1_ICON2_RES}/apps"
-ln -s "${PATH_GAME}/${APP1_ICON1}" "${PATH_ICON_BASE}/${APP1_ICON1_RES}/apps/${GAME_ID}.png"
-ln -s "${PATH_GAME}/${APP1_ICON2}" "${PATH_ICON_BASE}/${APP1_ICON2_RES}/apps/${GAME_ID}.png"
+ln --symbolic "${PATH_GAME}/${APP1_ICON1}" "${PATH_ICON_BASE}/${APP1_ICON1_RES}/apps/${GAME_ID}.png"
+ln --symbolic "${PATH_GAME}/${APP1_ICON2}" "${PATH_ICON_BASE}/${APP1_ICON2_RES}/apps/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
