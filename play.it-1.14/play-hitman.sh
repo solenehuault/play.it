@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161029.1
+script_version=20161101.1
 
 # Set game-specific variables
 
@@ -77,7 +77,7 @@ APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${APP1_NAME}"
 APP1_CAT='Game'
 
-PKG_VERSION='1.0'
+PKG_VERSION='1.2'
 
 PKG_BIN_ID="${GAME_ID}"
 PKG_BIN_VERSION="${PKG_VERSION}"
