@@ -29,42 +29,84 @@
 
 ###
 # conversion script for the Neverwinter Nights installer sold on GOG.com
-# build a .deb package from the Windows installer
+# build a .deb package from the InnoSetup installer
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160427.2
+script_version=20161106.1
 
 # Set game-specific variables
 
-SCRIPT_DEPS_HARD='fakeroot realpath unar'
+SCRIPT_DEPS_HARD='fakeroot realpath find'
 SCRIPT_DEPS_SOFT='icotool wrestool'
 
 GAME_ID='neverwinter-nights'
 GAME_ID_SHORT='nwn'
 GAME_NAME='Neverwinter Nights'
 
-GAME_ARCHIVE1='setup_nwn_diamond_french_2.1.0.19.bin'
-GAME_ARCHIVE1_MD5='ec4444d6eec0f8ac8503fccf327af3c6'
-GAME_GOGID='1207658890'
-PKG_REVISION='gog2.1.0.19'
+GAME_ARCHIVE1='setup_nwn_diamond_2.0.0.15.exe'
+GAME_ARCHIVE1_MD5='e7d063a2c892519dc431fc84c3611a65'
+GAME_EN_ARCHIVE2='setup_nwn_diamond_2.0.0.15-1.bin'
+GAME_EN_ARCHIVE2_MD5='2b6bec0df8d2f1755876407069f6ae43'
+GAME_EN_ARCHIVE3='setup_nwn_diamond_2.0.0.15-2.bin'
+GAME_EN_ARCHIVE3_MD5='db2c1e75b087e43fa5895bcc70fca8b9'
+GAME_EN_ARCHIVE_FULLSIZE='6500000'
+GAME_EN_PKG_REVISION='gog2.0.0.15'
+GAME_EN_ARCHIVE_TYPE='inno'
+GAME_EN_DEPS_HARD='innoextract'
+
+GAME_ARCHIVE2='setup_nwn_diamond_spanish_2.0.0.15.exe'
+GAME_ARCHIVE2_MD5='55400b803f7d83f93670fd1db110eb06'
+GAME_ES_ARCHIVE2='setup_nwn_diamond_spanish_2.0.0.15-1.bin'
+GAME_ES_ARCHIVE2_MD5='d4a6360a99eb301663fe727a01a99e46'
+GAME_ES_ARCHIVE3='setup_nwn_diamond_spanish_2.0.0.15-2.bin'
+GAME_ES_ARCHIVE3_MD5='edb7af12e85bc88bcd31c921a2185562'
+GAME_ES_ARCHIVE_FULLSIZE='6500000'
+GAME_ES_PKG_REVISION='gog2.0.0.15'
+GAME_ES_ARCHIVE_TYPE='inno'
+GAME_ES_DEPS_HARD='innoextract'
+
+GAME_ARCHIVE3='setup_nwn_diamond_french_2.1.0.19.bin'
+GAME_ARCHIVE3_MD5='ec4444d6eec0f8ac8503fccf327af3c6'
+GAME_FR_GOGID='1207658890'
+GAME_FR_ARCHIVE_FULLSIZE='4800000'
+GAME_FR_PKG_REVISION='gog2.1.0.19'
+GAME_FR_ARCHIVE_TYPE='unar_passwd'
+GAME_FR_DEPS_HARD='unar'
 
 CLIENT_ARCHIVE1='nwclientgold.tar.gz'
 CLIENT_ARCHIVE1_URL='http://nwdownloads.bioware.com/neverwinternights/linux/gold/nwclientgold.tar.gz'
 CLIENT_ARCHIVE1_MD5='0a059d55225fc32f905e86191d88a11f'
-CLIENT_ARCHIVE2='nwclienthotuintl.tar.gz'
-CLIENT_ARCHIVE2_URL='http://files.bioware.com/neverwinternights/updates/linux/nwclienthotuintl.tar.gz'
-CLIENT_ARCHIVE2_MD5='cc63d00327ea5426c5a2322075cafba7'
-CLIENT_ARCHIVE3='French_linuxclient168_xp2.tar.gz'
-CLIENT_ARCHIVE3_URL='http://files.bioware.com/neverwinternights/updates/linux/168/French_linuxclient168_xp2.tar.gz'
-CLIENT_ARCHIVE3_MD5='83af9f06cc1bbe38d5cb90fe2da6a1a6'
-CLIENT_ARCHIVE_MOVIES='nwmovies-mpv.tar.gz'
-CLIENT_ARCHIVE_MOVIES_URL='https://sites.google.com/site/nwmoviesmpv/'
-CLIENT_ARCHIVE_MOVIES_MD5='71f3d88db1cd75665b62b77f7604dce1'
-GAME_ARCHIVE_FULLSIZE='4800000'
 
-INSTALLER_PATH='game'
+CLIENT_EN_ARCHIVE2='nwclienthotu.tar.gz'
+CLIENT_EN_ARCHIVE2_URL='http://files.bioware.com/neverwinternights/updates/linux/nwclienthotu.tar.gz'
+CLIENT_EN_ARCHIVE2_MD5='376cdece07106ea058d42b531f3146bb'
+CLIENT_EN_ARCHIVE3='English_linuxclient169_xp2.tar.gz'
+CLIENT_EN_ARCHIVE3_URL='http://files.bioware.com/neverwinternights/updates/linux/169/English_linuxclient169_xp2.tar.gz'
+CLIENT_EN_ARCHIVE3_MD5='b021f0da3b3e00848521926716fdf487'
+
+CLIENT_ES_ARCHIVE2='nwclienthotuintl.tar.gz'
+CLIENT_ES_ARCHIVE2_URL='http://files.bioware.com/neverwinternights/updates/linux/nwclienthotuintl.tar.gz'
+CLIENT_ES_ARCHIVE2_MD5='cc63d00327ea5426c5a2322075cafba7'
+CLIENT_ES_ARCHIVE3='Spanish_linuxclient168_xp2.tar.gz'
+CLIENT_ES_ARCHIVE3_URL='http://files.bioware.com/neverwinternights/updates/linux/168/Spanish_linuxclient168_xp2.tar.gz'
+CLIENT_ES_ARCHIVE3_MD5='04719199f69f19277f5c068826eee72c'
+
+CLIENT_FR_ARCHIVE2='nwclienthotuintl.tar.gz'
+CLIENT_FR_ARCHIVE2_URL='http://files.bioware.com/neverwinternights/updates/linux/nwclienthotuintl.tar.gz'
+CLIENT_FR_ARCHIVE2_MD5='cc63d00327ea5426c5a2322075cafba7'
+CLIENT_FR_ARCHIVE3='French_linuxclient168_xp2.tar.gz'
+CLIENT_FR_ARCHIVE3_URL='http://files.bioware.com/neverwinternights/updates/linux/168/French_linuxclient168_xp2.tar.gz'
+CLIENT_FR_ARCHIVE3_MD5='83af9f06cc1bbe38d5cb90fe2da6a1a6'
+
+CLIENT_ARCHIVE_MOVIES='nwmovies-mpv.tar.gz'
+CLIENT_ARCHIVE_MOVIES_URL='https://sites.google.com/site/gogdownloader/nwmovies-mpv.tar.gz'
+CLIENT_ARCHIVE_MOVIES_MD5='71f3d88db1cd75665b62b77f7604dce1'
+
+GAME_EN_INSTALLER_PATH='app'
+GAME_ES_INSTALLER_PATH='app'
+GAME_FR_INSTALLER_PATH='game'
 INSTALLER_DOC='docs'
 INSTALLER_GAME='ambient data dmvault hak localvault modules movies music nwm override texturepacks nwn.exe *.key *.tlk *.TLK'
 
@@ -90,11 +132,14 @@ APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
+GAME_EN_PKG_VERSION='1.69.8109'
+GAME_ES_PKG_VERSION='1.68.8099'
+GAME_FR_PKG_VERSION='1.68.8099'
+
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='1.68.8099'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
-PKG1_DEPS='libglu1-mesa | ligblu1, libsdl1.2debian'
+PKG1_DEPS='libc6, libstdc++6, libglu1-mesa | ligblu1, libsdl1.2debian'
 PKG1_RECS=''
 PKG1_DESC="${GAME_NAME}
  package built from GOG.com installer
@@ -102,7 +147,7 @@ PKG1_DESC="${GAME_NAME}
 
 # Load common functions
 
-TARGET_LIB_VERSION='1.13'
+TARGET_LIB_VERSION='1.14'
 
 if [ -z "${PLAYIT_LIB}" ]; then
 	PLAYIT_LIB='./play-anything.sh'
@@ -171,6 +216,80 @@ set_nwmovies
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
+printf '\n'
+set_target '3' 'gog.com'
+case "${GAME_ARCHIVE##*/}" in
+	"${GAME_ARCHIVE1}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
+		GAME_ARCHIVE2="${GAME_EN_ARCHIVE2}"
+		GAME_ARCHIVE2_MD5="${GAME_EN_ARCHIVE2_MD5}"
+		GAME_ARCHIVE3="${GAME_EN_ARCHIVE3}"
+		GAME_ARCHIVE3_MD5="${GAME_EN_ARCHIVE3_MD5}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_EN_ARCHIVE_FULLSIZE}"
+		ARCHIVE_TYPE="${GAME_EN_ARCHIVE_TYPE}"
+		SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} ${GAME_EN_DEPS_HARD}"
+		CLIENT_ARCHIVE2="${CLIENT_EN_ARCHIVE2}"
+		CLIENT_ARCHIVE2_URL="${CLIENT_EN_ARCHIVE2_URL}"
+		CLIENT_ARCHIVE2_MD5="${CLIENT_EN_ARCHIVE2_MD5}"
+		CLIENT_ARCHIVE3="${CLIENT_EN_ARCHIVE3}"
+		CLIENT_ARCHIVE3_URL="${CLIENT_EN_ARCHIVE3_URL}"
+		CLIENT_ARCHIVE3_MD5="${CLIENT_EN_ARCHIVE3_MD5}"
+		PKG_REVISION="${GAME_EN_PKG_REVISION}"
+		PKG_VERSION="${GAME_EN_PKG_VERSION}"
+		INSTALLER_PATH="${GAME_EN_INSTALLER_PATH}"
+		set_target_extra 'GAME_ARCHIVE2' '' "${GAME_ARCHIVE2}"
+		set_target_extra 'GAME_ARCHIVE3' '' "${GAME_ARCHIVE3}"
+	;;
+	"${GAME_ARCHIVE2}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
+		GAME_ARCHIVE2="${GAME_ES_ARCHIVE2}"
+		GAME_ARCHIVE2_MD5="${GAME_ES_ARCHIVE2_MD5}"
+		GAME_ARCHIVE3="${GAME_ES_ARCHIVE3}"
+		GAME_ARCHIVE3_MD5="${GAME_ES_ARCHIVE3_MD5}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_ES_ARCHIVE_FULLSIZE}"
+		ARCHIVE_TYPE="${GAME_ES_ARCHIVE_TYPE}"
+		SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} ${GAME_ES_DEPS_HARD}"
+		CLIENT_ARCHIVE2="${CLIENT_ES_ARCHIVE2}"
+		CLIENT_ARCHIVE2_URL="${CLIENT_ES_ARCHIVE2_URL}"
+		CLIENT_ARCHIVE2_MD5="${CLIENT_ES_ARCHIVE2_MD5}"
+		CLIENT_ARCHIVE3="${CLIENT_ES_ARCHIVE3}"
+		CLIENT_ARCHIVE3_URL="${CLIENT_ES_ARCHIVE3_URL}"
+		CLIENT_ARCHIVE3_MD5="${CLIENT_ES_ARCHIVE3_MD5}"
+		PKG_REVISION="${GAME_ES_PKG_REVISION}"
+		PKG_VERSION="${GAME_ES_PKG_VERSION}"
+		INSTALLER_PATH="${GAME_ES_INSTALLER_PATH}"
+		set_target_extra 'GAME_ARCHIVE2' '' "${GAME_ARCHIVE2}"
+		set_target_extra 'GAME_ARCHIVE3' '' "${GAME_ARCHIVE3}"
+	;;
+	"${GAME_ARCHIVE3}")
+		GAME_ARCHIVE_MD5="${GAME_ARCHIVE3_MD5}"
+		unset GAME_ARCHIVE2
+		unset GAME_ARCHIVE3
+		GAME_GOGID="${GAME_FR_GOGID}"
+		GAME_ARCHIVE_FULLSIZE="${GAME_FR_ARCHIVE_FULLSIZE}"
+		ARCHIVE_TYPE="${GAME_FR_ARCHIVE_TYPE}"
+		SCRIPT_DEPS_HARD="${SCRIPT_DEPS_HARD} ${GAME_FR_DEPS_HARD}"
+		CLIENT_ARCHIVE2="${CLIENT_FR_ARCHIVE2}"
+		CLIENT_ARCHIVE2_URL="${CLIENT_FR_ARCHIVE2_URL}"
+		CLIENT_ARCHIVE2_MD5="${CLIENT_FR_ARCHIVE2_MD5}"
+		CLIENT_ARCHIVE3="${CLIENT_FR_ARCHIVE3}"
+		CLIENT_ARCHIVE3_URL="${CLIENT_FR_ARCHIVE3_URL}"
+		CLIENT_ARCHIVE3_MD5="${CLIENT_FR_ARCHIVE3_MD5}"
+		PKG_REVISION="${GAME_FR_PKG_REVISION}"
+		PKG_VERSION="${GAME_FR_PKG_VERSION}"
+		INSTALLER_PATH="${GAME_FR_INSTALLER_PATH}"
+	;;
+esac
+check_deps_hard ${SCRIPT_DEPS_HARD}
+set_target_extra 'CLIENT_ARCHIVE1' "${CLIENT_ARCHIVE1_URL}" "${CLIENT_ARCHIVE1}"
+set_target_extra 'CLIENT_ARCHIVE2' "${CLIENT_ARCHIVE2_URL}" "${CLIENT_ARCHIVE2}"
+set_target_extra 'CLIENT_ARCHIVE3' "${CLIENT_ARCHIVE3_URL}" "${CLIENT_ARCHIVE3}"
+if [ "$WITH_MOVIES" = '1' ]; then
+	set_target_extra 'CLIENT_ARCHIVE_MOVIES' "${CLIENT_ARCHIVE_MOVIES_URL}" "${CLIENT_ARCHIVE_MOVIES}"
+fi
+PKG1_VERSION="${PKG_VERSION}"
+printf '\n'
+
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
@@ -178,24 +297,16 @@ PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON_BASE='/usr/local/share/icons/hicolor'
-
-printf '\n'
-set_target '1' 'gog.com'
-set_target_extra 'CLIENT_ARCHIVE1' "${CLIENT_ARCHIVE1_URL}" "${CLIENT_ARCHIVE1}"
-set_target_extra 'CLIENT_ARCHIVE2' "${CLIENT_ARCHIVE2_URL}" "${CLIENT_ARCHIVE2}"
-set_target_extra 'CLIENT_ARCHIVE3' "${CLIENT_ARCHIVE3_URL}" "${CLIENT_ARCHIVE3}"
-if [ "$WITH_MOVIES" = '1' ]; then
-	set_target_extra 'CLIENT_ARCHIVE_MOVIES' "${CLIENT_ARCHIVE_MOVIES_URL}" "${CLIENT_ARCHIVE_MOVIES}"
-fi
-printf '\n'
+PATH_ICON_BASE="/usr/local/share/icons/hicolor"
 
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
 	printf '%s…\n' "$(l10n 'checksum_multiple')"
 	print wait
-	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE1_MD5}"
+	checksum "${GAME_ARCHIVE}" 'quiet' "${GAME_ARCHIVE_MD5}"
+	[ -n "${GAME_ARCHIVE2}" ] && checksum "${GAME_ARCHIVE2}" 'quiet' "${GAME_ARCHIVE2_MD5}"
+	[ -n "${GAME_ARCHIVE3}" ] && checksum "${GAME_ARCHIVE3}" 'quiet' "${GAME_ARCHIVE3_MD5}"
 	checksum "${CLIENT_ARCHIVE1}" 'quiet' "${CLIENT_ARCHIVE1_MD5}"
 	checksum "${CLIENT_ARCHIVE2}" 'quiet' "${CLIENT_ARCHIVE2_MD5}"
 	checksum "${CLIENT_ARCHIVE3}" 'quiet' "${CLIENT_ARCHIVE3_MD5}"
@@ -208,26 +319,28 @@ fi
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}"
 print wait
 
-extract_data 'unar_passwd' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet' "$(printf "${GAME_GOGID}" | md5sum | cut -d' ' -f1)"
+extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet' "$(printf "${GAME_GOGID}" | md5sum | cut -d' ' -f1)"
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
+
 for file in ${INSTALLER_DOC}; do
 	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
 
 for file in ${INSTALLER_GAME}; do
-	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
+	[ -e "${file}" ] && mv "${file}" "${PKG1_DIR}${PATH_GAME}"
 done
+
 cd - > /dev/null
 
-cd "${PKG1_DIR}${PATH_GAME}"
-extract_data 'tar' "${CLIENT_ARCHIVE1}" . 'quiet,fix_rights'
-extract_data 'tar' "${CLIENT_ARCHIVE2}" . 'quiet,fix_rights'
-extract_data 'tar' "${CLIENT_ARCHIVE3}" . 'quiet,fix_rights'
+extract_data 'tar' "${CLIENT_ARCHIVE1}" "${PKG1_DIR}${PATH_GAME}" 'quiet,fix_rights'
+extract_data 'tar' "${CLIENT_ARCHIVE2}" "${PKG1_DIR}${PATH_GAME}" 'quiet,fix_rights'
+extract_data 'tar' "${CLIENT_ARCHIVE3}" "${PKG1_DIR}${PATH_GAME}" 'quiet,fix_rights'
 
-mv "${PKG_TMPDIR}/support/app/nwncdkey.ini" .
+cd "${PKG1_DIR}${PATH_GAME}"
+
+find "${PKG_TMPDIR}" -name 'nwncdkey.ini' -exec mv "{}" . \;
 mv *.txt "${PKG1_DIR}${PATH_DOC}"
-mv 'dialogF.TLK' 'dialogf.tlk'
 
 rm lib/*
 touch 'lib/libtxc_dxtn.so'
@@ -239,14 +352,13 @@ done
 for dir in 'portraits' 'saves' 'servervault'; do
 	mkdir "${dir}"
 done
+
 cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
 fi
 rm "${PKG1_DIR}${PATH_GAME}/${APP1_ICON}"
-
-rm -Rf "${PKG_TMPDIR}"
 
 # Building nwmovies
 
@@ -274,6 +386,7 @@ if [ "${WITH_MOVIES}" = '1' ]; then
 	PKG1_DEPS="${PKG1_DEPS}, mpv:amd64|mpv"
 fi
 
+rm -Rf "${PKG_TMPDIR}"
 print done
 
 # Write launchers
