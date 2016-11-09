@@ -34,12 +34,11 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161108.1
+script_version=20161109.1
 
 # Set game-specific variables
 
-SCRIPT_DEPS_HARD='fakeroot realpath unar'
-SCRIPT_DEPS_SOFT='icotool wrestool'
+SCRIPT_DEPS_HARD='fakeroot realpath'
 
 GAME_ID='star-wars-battlefront-2'
 GAME_ID_SHORT='swbf2'
@@ -49,13 +48,17 @@ GAME_ARCHIVE1='setup_sw_battlefront2_2.0.0.5-1.bin'
 GAME_ARCHIVE1_MD5='dc36b03c9c43fb8d3cb9b92c947daaa4'
 GAME_ARCHIVE2='setup_sw_battlefront2_2.0.0.5-2.bin'
 GAME_ARCHIVE2_MD5='5d4000fd480a80b6e7c7b73c5a745368'
-GAME_ARCHIVE_FULLSIZE='9100000'
-ARCHIVE_TYPE='unar_passwd'
-PKG_REVISION='gog2.0.0.5'
+GAME_ARCHIVE_TYPE='unar_passwd'
+SCRIPT_DEPS_HARD="${SCRIPTS_DEPS_HARD} unar"
+GAME_FULLSIZE='9100000'
+GAME_VERSION='1.1-gog2.0.0.5'
 
-INSTALLER_PATH='game/gamedata'
-INSTALLER_DOC='../*.pdf'
+INSTALLER_PATH_DOC='game'
+INSTALLER_DOC='./*.pdf'
+INSTALLER_PATH_GAME='game/gamedata'
 INSTALLER_BIN='./*.exe ./binkw32.dll ./eax.dll ./unicows.dll'
+INSTALLER_MOVIES='./data/_lvl_pc/movies'
+INSTALLER_SOUND='./data/_lvl_pc/sound'
 INSTALLER_DATA='./data'
 
 GAME_CACHE_DIRS=''
@@ -73,15 +76,13 @@ APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
 APP1_ID="${GAME_ID}"
 APP1_EXE='./battlefrontii.exe'
 APP1_ICON='./battlefrontii.exe'
+SCRIPT_DEPS_SOFT="${SCRIPT_DEPS_SOFT} icotool wrestool"
 APP1_ICON_RES='16x16 32x32'
 APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${APP1_NAME}"
 APP1_CAT='Game'
 
-PKG_VERSION='1.0'
-
 PKG_BIN_ID="${GAME_ID}"
-PKG_BIN_VERSION="${PKG_VERSION}"
 PKG_BIN_ARCH='i386'
 PKG_BIN_CONFLICTS=''
 PKG_BIN_DEPS='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
@@ -89,6 +90,28 @@ PKG_BIN_RECS=''
 PKG_BIN_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
+
+PKG_MOVIES_ID="${GAME_ID}-movies"
+PKG_MOVIES_ARCH='all'
+PKG_MOVIES_CONFLICTS=''
+PKG_MOVIES_DEPS=''
+PKG_MOVIES_RECS=''
+PKG_MOVIES_DESC="${GAME_NAME} - movies
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+
+PKG_BIN_DEPS="${PKG_MOVIES_ID} (= ${GAME_VERSION}), ${PKG_BIN_DEPS}"
+
+PKG_SOUND_ID="${GAME_ID}-sound"
+PKG_SOUND_ARCH='all'
+PKG_SOUND_CONFLICTS=''
+PKG_SOUND_DEPS=''
+PKG_SOUND_RECS=''
+PKG_SOUND_DESC="${GAME_NAME} - sounds
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+
+PKG_BIN_DEPS="${PKG_SOUND_ID} (= ${GAME_VERSION}), ${PKG_BIN_DEPS}"
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_VERSION="${PKG_VERSION}"
@@ -100,7 +123,7 @@ PKG_DATA_DESC="${GAME_NAME} - data
  package built from GOG.com installer
  ./play.it script version ${script_version}"
 
-PKG_BIN_DEPS="${PKG_DATA_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG_BIN_DEPS}"
+PKG_BIN_DEPS="${PKG_DATA_ID} (= ${GAME_VERSION}), ${PKG_BIN_DEPS}"
 
 # Load common functions
 
@@ -151,9 +174,11 @@ set_target '1' 'gog.com'
 set_target_extra 'GAME_ARCHIVE2' '' "${GAME_ARCHIVE2}"
 printf '\n'
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG_BIN_DIR' "${PKG_BIN_ID}_${PKG_BIN_VERSION}-${PKG_REVISION}_${PKG_BIN_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG_DATA_DIR' "${PKG_DATA_ID}_${PKG_DATA_VERSION}-${PKG_REVISION}_${PKG_DATA_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_FULLSIZE}*2))"
+game_mkdir 'PKG_BIN_DIR' "${PKG_BIN_ID}_${GAME_VERSION}_${PKG_BIN_ARCH}" "$((${GAME_FULLSIZE}*2))"
+game_mkdir 'PKG_MOVIES_DIR' "${PKG_MOVIES_ID}_${GAME_VERSION}_${PKG_MOVIES_ARCH}" "$((${GAME_FULLSIZE}*2))"
+game_mkdir 'PKG_SOUND_DIR' "${PKG_SOUND_ID}_${GAME_VERSION}_${PKG_SOUND_ARCH}" "$((${GAME_FULLSIZE}*2))"
+game_mkdir 'PKG_DATA_DIR' "${PKG_DATA_ID}_${GAME_VERSION}_${PKG_DATA_ARCH}" "$((${GAME_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -176,33 +201,56 @@ fi
 printf '%s…\n' "$(l10n 'build_pkg_dirs')"
 print wait
 rm -rf "${PKG_BIN_DIR}"
+rm -rf "${PKG_MOVIES_DIR}"
+rm -rf "${PKG_SOUND_DIR}"
 rm -rf "${PKG_DATA_DIR}"
-for dir in '/DEBIAN' "${PATH_BIN}" "${PATH_DESK}" "${PATH_GAME}"; do
+for dir in '/DEBIAN' "${PATH_GAME}"; do
 	mkdir -p "${PKG_BIN_DIR}/${dir}"
-done
-for dir in for dir in '/DEBIAN' "${PATH_DOC}" "${PATH_GAME}"; do
+	mkdir -p "${PKG_MOVIES_DIR}/${dir}"
+	mkdir -p "${PKG_SOUND_DIR}/${dir}"
 	mkdir -p "${PKG_DATA_DIR}/${dir}"
 done
+mkdir -p "${PKG_BIN_DIR}/${PATH_BIN}"
+mkdir -p "${PKG_BIN_DIR}/${PATH_DESK}"
+mkdir -p "${PKG_DATA_DIR}/${PATH_DOC}"
 
 mkdir --parents "${PKG_TMPDIR}"
 ln --symbolic "$(realpath ${GAME_ARCHIVE})" "${PKG_TMPDIR}/${GAME_ID_SHORT}.r01"
 ln --symbolic "$(realpath ${GAME_ARCHIVE2})" "${PKG_TMPDIR}/${GAME_ID_SHORT}.r02"
 GAME_ARCHIVE="${PKG_TMPDIR}/${GAME_ID_SHORT}.r01"
 
-extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet,tolower'
+extract_data "${GAME_ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet,tolower'
 
-cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
+cd "${PKG_TMPDIR}/${INSTALLER_PATH_DOC}"
+
 for file in ${INSTALLER_DOC}; do
-	mv "${file}" "${PKG_DATA_DIR}${PATH_DOC}"
+	mkdir -p "${PKG_DATA_DIR}${PATH_DOC}/${file%/*}"
+	mv "${file}" "${PKG_DATA_DIR}${PATH_DOC}/${file}"
 done
 
+cd - > /dev/null
+cd "${PKG_TMPDIR}/${INSTALLER_PATH_GAME}"
+
 for file in ${INSTALLER_BIN}; do
-	mv "${file}" "${PKG_BIN_DIR}${PATH_GAME}"
+	mkdir -p "${PKG_BIN_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG_BIN_DIR}${PATH_GAME}/${file}"
+done
+
+for file in ${INSTALLER_MOVIES}; do
+	mkdir -p "${PKG_MOVIES_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG_MOVIES_DIR}${PATH_GAME}/${file}"
+done
+
+for file in ${INSTALLER_SOUND}; do
+	mkdir -p "${PKG_SOUND_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG_SOUND_DIR}${PATH_GAME}/${file}"
 done
 
 for file in ${INSTALLER_DATA}; do
-	mv "${file}" "${PKG_DATA_DIR}${PATH_GAME}"
+	mkdir -p "${PKG_DATA_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG_DATA_DIR}${PATH_GAME}/${file}"
 done
+
 cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
@@ -228,14 +276,18 @@ printf '\n'
 printf '%s…\n' "$(l10n 'build_pkgs')"
 print wait
 
-write_pkg_debian "${PKG_BIN_DIR}" "${PKG_BIN_ID}" "${PKG_BIN_VERSION}-${PKG_REVISION}" "${PKG_BIN_ARCH}" "${PKG_BIN_CONFLICTS}" "${PKG_BIN_DEPS}" "${PKG_BIN_RECS}" "${PKG_BIN_DESC}"
-write_pkg_debian "${PKG_DATA_DIR}" "${PKG_DATA_ID}" "${PKG_DATA_VERSION}-${PKG_REVISION}" "${PKG_DATA_ARCH}" "${PKG_DATA_CONFLICTS}" "${PKG_DATA_DEPS}" "${PKG_DATA_RECS}" "${PKG_DATA_DESC}"
+write_pkg_debian "${PKG_BIN_DIR}" "${PKG_BIN_ID}" "${GAME_VERSION}" "${PKG_BIN_ARCH}" "${PKG_BIN_CONFLICTS}" "${PKG_BIN_DEPS}" "${PKG_BIN_RECS}" "${PKG_BIN_DESC}"
+write_pkg_debian "${PKG_MOVIES_DIR}" "${PKG_MOVIES_ID}" "${GAME_VERSION}" "${PKG_MOVIES_ARCH}" "${PKG_MOVIES_CONFLICTS}" "${PKG_MOVIES_DEPS}" "${PKG_MOVIES_RECS}" "${PKG_MOVIES_DESC}"
+write_pkg_debian "${PKG_SOUND_DIR}" "${PKG_SOUND_ID}" "${GAME_VERSION}" "${PKG_SOUND_ARCH}" "${PKG_SOUND_CONFLICTS}" "${PKG_SOUND_DEPS}" "${PKG_SOUND_RECS}" "${PKG_SOUND_DESC}"
+write_pkg_debian "${PKG_DATA_DIR}" "${PKG_DATA_ID}" "${GAME_VERSION}" "${PKG_DATA_ARCH}" "${PKG_DATA_CONFLICTS}" "${PKG_DATA_DEPS}" "${PKG_DATA_RECS}" "${PKG_DATA_DESC}"
 
 build_pkg "${PKG_BIN_DIR}" "${PKG_BIN_DESC}" "${PKG_COMPRESSION}" 'quiet'
+build_pkg "${PKG_MOVIES_DIR}" "${PKG_MOVIES_DESC}" "${PKG_COMPRESSION}" 'quiet'
+build_pkg "${PKG_SOUND_DIR}" "${PKG_SOUND_DESC}" "${PKG_COMPRESSION}" 'quiet'
 build_pkg "${PKG_DATA_DIR}" "${PKG_DATA_DESC}" "${PKG_COMPRESSION}" 'quiet'
 print done
 
-print_instructions "${PKG_BIN_DESC}" "${PKG_DATA_DIR}" "${PKG_BIN_DIR}"
+print_instructions "${PKG_BIN_DESC}" "${PKG_MOVIES_DIR}" "${PKG_SOUND_DIR}" "${PKG_DATA_DIR}" "${PKG_BIN_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
