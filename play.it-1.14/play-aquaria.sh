@@ -57,8 +57,8 @@ INSTALLER_GAME='./*'
 GAME_CACHE_DIRS='./maptemplates'
 GAME_CACHE_FILES=''
 GAME_CACHE_FILES_POST=''
-GAME_CONFIG_DIRS='./config'
-GAME_CONFIG_FILES='./*.xml'
+GAME_CONFIG_DIRS=''
+GAME_CONFIG_FILES='./*.xml ./config/*'
 GAME_CONFIG_FILES_POST=''
 GAME_DATA_DIRS=''
 GAME_DATA_FILES=''
@@ -152,6 +152,10 @@ print wait
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
+for file in ${INSTALLER_JUNK}; do
+	rm -r "${file}"
+done
+
 for file in ${INSTALLER_DOC}; do
 	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
 done
