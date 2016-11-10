@@ -33,25 +33,31 @@
 ###
 
 library_version=2.0
-library_revision=20160925.10
+library_revision=20161110.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
 
 # build .deb package or .tar archive
-# USAGE: build_pkg $pkg
+# USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
 # CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
 build_pkg() {
-for pkg in $@; do
-	testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
-	local pkg_path="$(eval echo \$${pkg}_PATH)"
-	case $PACKAGE_TYPE in
-		deb) build_pkg_deb ;;
-		tar) build_pkg_tar ;;
-		*) liberror 'PACKAGE_TYPE' 'build_pkg'
-	esac
-done
+	for pkg in $@; do
+		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
+		local pkg_path="$(eval echo \$${pkg}_PATH)"
+		case $PACKAGE_TYPE in
+			('deb')
+				build_pkg_deb
+			;;
+			('tar')
+				build_pkg_tar
+			;;
+			(*)
+				liberror 'PACKAGE_TYPE' 'build_pkg'
+			;;
+		esac
+	done
 }
 
 # build .deb package
@@ -60,9 +66,9 @@ done
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_deb() {
-local pkg_filename="${PWD}/${pkg_path##*/}.deb"
-build_pkg_print
-TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
+	local pkg_filename="${PWD}/${pkg_path##*/}.deb"
+	build_pkg_print
+	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
 }
 
 # build .tar archive
@@ -70,21 +76,25 @@ TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_pat
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_tar() {
-local pkg_filename="${PWD}/${pkg_path##*/}.tar"
-build_pkg_print
-cd "$pkg_path"
-tar --create --file "$pkg_filename" .
-cd - > /dev/null
+	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
+	build_pkg_print
+	cd "$pkg_path"
+	tar --create --file "$pkg_filename" .
+	cd - > /dev/null
 }
 
 # print package building message
 # USAGE: build_pkg_print
 # CALLED BY: build_pkg_deb, build_pkg_tar
 build_pkg_print() {
-case ${LANG%_*} in
-	fr) echo "Construction de $pkg_filename" ;;
-	en|*) echo "Building $pkg_filename" ;;
-esac
+	case ${LANG%_*} in
+		('fr')
+			echo "Construction de $pkg_filename"
+		;;
+		('en'|*)
+			echo "Building $pkg_filename"
+		;;
+	esac
 }
 
 # check script dependencies
@@ -92,21 +102,47 @@ esac
 # NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
 # CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
-[ "$ARCHIVE_TYPE" = 'innosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
-[ "$ARCHIVE_TYPE" = 'nixstaller' ] && SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
-[ "$ARCHIVE_TYPE" = 'mojosetup' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
-[ "$ARCHIVE_TYPE" = 'zip' ] && SCRIPT_DEPS="$SCRIPT_DEPS unzip"
-[ "$ARCHIVE_TYPE" = 'rar' ] && SCRIPT_DEPS="$SCRIPT_DEPS unar"
-[ "$CHECKSUM_METHOD" = 'md5sum' ] && SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
-[ "$PACKAGE_TYPE" = 'deb' ] && SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
-[ "${APP_MAIN_ICON##*.}" = 'ico' ] && SCRIPT_DEPS="$SCRIPT_DEPS icotool"
-for dep in $SCRIPT_DEPS; do
-case $dep in
-	7z) check_deps_7z ;;
-	convert|icotool|wrestool) check_deps_icon "$dep" ;;
-	*) [ -n "$(which $dep)" ] || check_deps_failed "$dep" ;;
-esac
-done
+	case "$ARCHIVE_TYPE" in
+		('innosetup')
+			SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
+		;;
+		('nixstaller')
+			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
+		;;
+		('mojosetup')
+			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+		;;
+		('zip')
+			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+		;;
+		('rar')
+			SCRIPT_DEPS="$SCRIPT_DEPS unar"
+		;;
+	esac
+	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
+	fi
+	if [ "$PACKAGE_TYPE" = 'deb' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
+	fi
+	if [ "${APP_MAIN_ICON##*.}" = 'ico' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS icotool"
+	fi
+	for dep in $SCRIPT_DEPS; do
+		case $dep in
+			('7z')
+				check_deps_7z
+			;;
+			('convert'|'icotool'|'wrestool')
+				check_deps_icon "$dep"
+			;;
+			(*)
+				if [ -z "$(which $dep)" ]; then
+					check_deps_failed "$dep"
+				fi
+			;;
+		esac
+	done
 }
 
 # check presence of a software to handle .7z archives
@@ -114,15 +150,15 @@ done
 # CALLS: check_deps_failed
 # CALLED BY: check_deps
 check_deps_7z() {
-if [ -n "$(which 7zr)" ]; then
-	extract_7z() { 7zr x -o"$PLAYIT_WORKDIR" -y "$file"; }
-elif [ -n "$(which 7za)" ]; then
-	extract_7z() { 7za x -o"$PLAYIT_WORKDIR" -y "$file"; }
-elif [ -n "$(which unar)" ]; then
-	extract_7z() { unar -output-directory "$PLAYIT_WORKDIR" -force-overwrite -no-directory "$file"; }
-else
-	check_deps_failed 'p7zip'
-fi
+	if [ -n "$(which 7zr)" ]; then
+		extract_7z() { 7zr x -o"$2" -y "$1"; }
+	elif [ -n "$(which 7za)" ]; then
+		extract_7z() { 7za x -o"$2" -y "$1"; }
+	elif [ -n "$(which unar)" ]; then
+		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
+	else
+		check_deps_failed 'p7zip'
+	fi
 }
 
 # check presence of a software to handle icon extraction
@@ -130,73 +166,119 @@ fi
 # NEEDED VARS: NO_ICON
 # CALLED BY: check_deps
 check_deps_icon() {
-if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
-	NO_ICON='1'
-	case ${LANG%_*} in
-		fr) echo "$1 est introuvable. Les icônes ne seront pas extraites." ;;
-		en|*) echo "$1 not found. Skipping icons extraction." ;;
-	esac
-fi
+	if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
+		NO_ICON='1'
+		case ${LANG%_*} in
+			('fr')
+				echo "$1 est introuvable. Les icônes ne seront pas extraites."
+			;;
+			('en'|*)
+				echo "$1 not found. Skipping icons extraction."
+			;;
+		esac
+	fi
 }
 
 # display a message if a required dependency is missing
 # USAGE: check_deps_failed $command_name
 # CALLED BY: check_deps, check_deps_7z
 check_deps_failed() {
-case ${LANG%_*} in
-	fr) echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script." ;;
-	en|*) echo "$string_error_en\n$1 not found. Install it before running this script." ;;
-esac
-return 1
+	case ${LANG%_*} in
+		('fr')
+			echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script."
+		;;
+		('en'|*)
+			echo "$string_error_en\n$1 not found. Install it before running this script."
+		;;
+	esac
+	return 1
 }
 
 # extract data from given archive
-# USAGE: extract_data $archive
+# USAGE: extract_data $archive[…]
 # NEEDED_VARS: PLAYIT_WORKDIR, ARCHIVE, $ARCHIVE_TYPE, ARCHIVE_PASSWD
 # CALLS: liberror, extract_7z (declared by check_deps_7z)
 extract_data_from() {
-case ${LANG%_*} in
-	fr) echo "Extraction des données de ${1##*/}" ;;
-	en|*) echo "Extracting data from ${1##*/}" ;;
-esac
-local destination="${PLAYIT_WORKDIR}/gamedata"
-mkdir --parents "$destination"
-archive_type=$(eval echo \$${ARCHIVE}_TYPE)
-case $archive_type in
-	7z) extract_7z "$1" "$destination" ;;
-	innosetup) innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$1" ;;
-	mojosetup) unzip -d "$destination" "$1" 1>/dev/null 2>/dev/null || true ;;
-	nix_stage1)
-		local input_blocksize=$(head --lines=514 "$1" | wc --bytes | tr --delete ' ')
-		dd if="$1" ibs=$input_blocksize skip=1 obs=1024 conv=sync 2>/dev/null | gunzip --stdout | tar xf - --directory "$destination"
-	;;
-	nix_stage2)
-		mv "$1" "$destination/${1##*/}.tar.xz"
-		mkdir "$destination/${1##*/}"
-		tar xf "$destination/${1##*/}.tar.xz" -C "$destination/$1"
-	;;
-	tar) tar xf "$1" -C "$destination" ;;
-	rar) UNAR_OPTIONS="-output-directory \"$destination\" -no-directory"
-		[ -n "$ARCHIVE_PASSWD" ] && UNAR_OPTIONS="$UNAR_OPTIONS -password \"$ARCHIVE_PASSWD\""
-		unar $UNAR_OPTIONS "$1"	;;
-	zip) unzip -d "$destination" "$1" 1>/dev/null ;;
-	*) liberror 'ARCHIVE_TYPE' 'extract_data_from' ;;
-esac
+	for file in "$@"; do
+		extract_data_from_print "$file"
+		local destination="${PLAYIT_WORKDIR}/gamedata"
+		mkdir --parents "$destination"
+		archive_type="$(eval echo \$${ARCHIVE}_TYPE)"
+		case $archive_type in
+			('7z')
+				extract_7z "$file" "$destination"
+			;;
+			('innosetup')
+				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
+			;;
+			('mojosetup')
+				unzip -d "$destination" "$file" 1>/dev/null 2>/dev/null || true
+			;;
+			('nix_stage1')
+				local input_blocksize=$(head --lines=514 "$file" | wc --bytes | tr --delete ' ')
+				dd if="$file" ibs=$input_blocksize skip=1 obs=1024 conv=sync 2>/dev/null | gunzip --stdout | tar --extract --file - --directory "$destination"
+			;;
+			('nix_stage2')
+				tar --extract --xz --file "$file" --directory "$destination"
+			;;
+			('rar')
+				if [ -n "$ARCHIVE_PASSWD" ]; then
+					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
+				fi
+				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file"
+			;;
+			('tar')
+				tar --extract --file "$file" --destination "$destination"
+			;;
+			('zip')
+				unzip -d "$destination" "$file" 1>/dev/null
+			;;
+			(*)
+				liberror 'ARCHIVE_TYPE' 'extract_data_from'
+			;;
+		esac
+	done
+}
+
+# print data extraction message
+# USAGE: extract_data_from_print
+# CALLED BY: extract_data_from
+extract_data_from() {
+	local file="$(basename $1)"
+	case ${LANG%_*} in
+		('fr')
+			echo "Extraction des données de $file"
+		;;
+		('en'|*)
+			echo "Extracting data from $file"
+		;;
+	esac
 }
 
 # extract .png or .ico files from given file
-# USAGE: extract_icons $file
+# USAGE: extract_icons_from $file[…]
 # NEEDED VARS: PLAYIT_WORKDIR
 # CALLS: liberror
 extract_icon_from() {
-mkdir "${PLAYIT_WORKDIR}/icons"
-local file_ext=${1##*.}
-case $file_ext in
-	exe) wrestool --extract --type=14 --output="${PLAYIT_WORKDIR}/icons" "$1" ;;
-	ico) icotool --extract --output="${PLAYIT_WORKDIR}/icons" "$1" 2>/dev/null ;;
-	bmp) convert "$1" "${PLAYIT_WORKDIR}/icons/${1%.bmp}.png" ;;
-	*) liberror 'file_ext' 'extract_icon_from' ;;
-esac
+	for file in "$@"; do
+		local destination="${PLAYIT_WORKDIR}/icons"
+		mkdir "$destination"
+		case ${file##*.} in
+			('exe')
+				wrestool --extract --type=14 --output="$destination" "$file"
+			;;
+			('ico')
+				icotool --extract --output="$destination" "$file" 2>/dev/null
+			;;
+			('bmp')
+				local filename="${file##*/}"
+				convert "$file" "$destination/${filename%.bmp}.png"
+			;;
+			(*)
+				liberror 'file_ext' 'extract_icon_from'
+			;;
+		esac
+	done
 }
 
 # parse arguments given to the script
@@ -722,8 +804,8 @@ write_bin_run_dosbox() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
 dosbox -c "mount c .
-c:
 imgmount d \$GAME_IMAGE -t iso -fs iso
+c:
 \${APP_EXE##*/} \$@
 exit"
 EOF
