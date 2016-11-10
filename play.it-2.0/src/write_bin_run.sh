@@ -34,8 +34,8 @@ write_bin_run_dosbox() {
 cat >> "$file" << EOF
 cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
 dosbox -c "mount c .
-c:
 imgmount d \$GAME_IMAGE -t iso -fs iso
+c:
 \${APP_EXE##*/} \$@
 exit"
 EOF
