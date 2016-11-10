@@ -1,15 +1,26 @@
 # extract .png or .ico files from given file
-# USAGE: extract_icons $file
+# USAGE: extract_icons_from $file[…]
 # NEEDED VARS: PLAYIT_WORKDIR
 # CALLS: liberror
 extract_icon_from() {
-mkdir "${PLAYIT_WORKDIR}/icons"
-local file_ext=${1##*.}
-case $file_ext in
-	exe) wrestool --extract --type=14 --output="${PLAYIT_WORKDIR}/icons" "$1" ;;
-	ico) icotool --extract --output="${PLAYIT_WORKDIR}/icons" "$1" 2>/dev/null ;;
-	bmp) convert "$1" "${PLAYIT_WORKDIR}/icons/${1%.bmp}.png" ;;
-	*) liberror 'file_ext' 'extract_icon_from' ;;
-esac
+	for file in "$@"; do
+		local destination="${PLAYIT_WORKDIR}/icons"
+		mkdir "$destination"
+		case ${file##*.} in
+			('exe')
+				wrestool --extract --type=14 --output="$destination" "$file"
+			;;
+			('ico')
+				icotool --extract --output="$destination" "$file" 2>/dev/null
+			;;
+			('bmp')
+				local filename="${file##*/}"
+				convert "$file" "$destination/${filename%.bmp}.png"
+			;;
+			(*)
+				liberror 'file_ext' 'extract_icon_from'
+			;;
+		esac
+	done
 }
 
