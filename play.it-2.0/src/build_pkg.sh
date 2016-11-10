@@ -3,15 +3,15 @@
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
 # CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
 build_pkg() {
-for pkg in $@; do
-	testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
-	local pkg_path="$(eval echo \$${pkg}_PATH)"
-	case $PACKAGE_TYPE in
-		deb) build_pkg_deb ;;
-		tar) build_pkg_tar ;;
-		*) liberror 'PACKAGE_TYPE' 'build_pkg'
-	esac
-done
+	for pkg in $@; do
+		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
+		local pkg_path="$(eval echo \$${pkg}_PATH)"
+		case $PACKAGE_TYPE in
+			deb) build_pkg_deb ;;
+			tar) build_pkg_tar ;;
+			*) liberror 'PACKAGE_TYPE' 'build_pkg'
+		esac
+	done
 }
 
 # build .deb package
@@ -20,9 +20,9 @@ done
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_deb() {
-local pkg_filename="${PWD}/${pkg_path##*/}.deb"
-build_pkg_print
-TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
+	local pkg_filename="${PWD}/${pkg_path##*/}.deb"
+	build_pkg_print
+	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
 }
 
 # build .tar archive
@@ -30,20 +30,20 @@ TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_pat
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_tar() {
-local pkg_filename="${PWD}/${pkg_path##*/}.tar"
-build_pkg_print
-cd "$pkg_path"
-tar --create --file "$pkg_filename" .
-cd - > /dev/null
+	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
+	build_pkg_print
+	cd "$pkg_path"
+	tar --create --file "$pkg_filename" .
+	cd - > /dev/null
 }
 
 # print package building message
 # USAGE: build_pkg_print
 # CALLED BY: build_pkg_deb, build_pkg_tar
 build_pkg_print() {
-case ${LANG%_*} in
-	fr) echo "Construction de $pkg_filename" ;;
-	en|*) echo "Building $pkg_filename" ;;
-esac
+	case ${LANG%_*} in
+		fr) echo "Construction de $pkg_filename" ;;
+		en|*) echo "Building $pkg_filename" ;;
+	esac
 }
 
