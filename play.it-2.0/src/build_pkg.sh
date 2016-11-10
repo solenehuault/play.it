@@ -1,5 +1,5 @@
 # build .deb package or .tar archive
-# USAGE: build_pkg $pkg
+# USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
 # CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
 build_pkg() {
@@ -7,9 +7,15 @@ build_pkg() {
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		case $PACKAGE_TYPE in
-			deb) build_pkg_deb ;;
-			tar) build_pkg_tar ;;
-			*) liberror 'PACKAGE_TYPE' 'build_pkg'
+			('deb')
+				build_pkg_deb
+			;;
+			('tar')
+				build_pkg_tar
+			;;
+			(*)
+				liberror 'PACKAGE_TYPE' 'build_pkg'
+			;;
 		esac
 	done
 }
@@ -42,8 +48,12 @@ build_pkg_tar() {
 # CALLED BY: build_pkg_deb, build_pkg_tar
 build_pkg_print() {
 	case ${LANG%_*} in
-		fr) echo "Construction de $pkg_filename" ;;
-		en|*) echo "Building $pkg_filename" ;;
+		('fr')
+			echo "Construction de $pkg_filename"
+		;;
+		('en'|*)
+			echo "Building $pkg_filename"
+		;;
 	esac
 }
 
