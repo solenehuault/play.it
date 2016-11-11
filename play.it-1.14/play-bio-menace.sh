@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161103.1
+script_version=20161111.1
 
 # Set game-specific variables
 
@@ -82,12 +82,12 @@ APP1_NAME_FR="${APP1_NAME}"
 APP2_ID="${GAME_ID}-part2"
 APP2_EXE='./bmenace2.exe'
 APP2_NAME="${GAME_NAME} Part 2"
-APP2_NAME_FR="${APP1_NAME}"
+APP2_NAME_FR="${APP2_NAME}"
 
 APP3_ID="${GAME_ID}-part3"
 APP3_EXE='./bmenace3.exe'
 APP3_NAME="${GAME_NAME} Part 3"
-APP3_NAME_FR="${APP1_NAME}"
+APP3_NAME_FR="${APP3_NAME}"
 
 PKG1_ID="${GAME_ID}"
 PKG1_VERSION='1.1'
