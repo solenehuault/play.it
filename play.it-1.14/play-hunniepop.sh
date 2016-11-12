@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161106.1
+script_version=20161112.1
 
 # Set game-specific variables
 
@@ -168,6 +168,8 @@ done
 cd - > /dev/null
 
 chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
+
+touch "${PKG1_DIR}${PATH_GAME}/huniepop_uncensored_patch.game"
 
 rm -rf "${PKG_TMPDIR}"
 print done
