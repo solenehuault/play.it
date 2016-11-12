@@ -46,24 +46,12 @@ GAME_NAME='HuniePop'
 
 GAME_ARCHIVE1='gog_huniepop_2.0.0.2.sh'
 GAME_ARCHIVE1_MD5='020cd6a015bd79a907f6c607102d797a'
-GAME_ARCHIVE_FULLSIZE='940000'
-PKG_REVISION='gog2.0.0.2'
+GAME_FULLSIZE='940000'
+GAME_VERSION='1.2.0-gog2.0.0.2'
 
 INSTALLER_PATH='data/noarch/game'
 INSTALLER_DOC='../docs/*'
 INSTALLER_GAME='./*'
-
-GAME_CACHE_DIRS=''
-GAME_CACHE_FILES=''
-GAME_CACHE_FILES_POST=''
-GAME_CONFIG_DIRS=''
-GAME_CONFIG_FILES=''
-GAME_CONFIG_FILES_POST=''
-GAME_DATA_DIRS=''
-GAME_DATA_FILES=''
-GAME_DATA_FILES_POST=''
-
-APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./HuniePop.x86'
@@ -74,7 +62,6 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='1.2.0'
 PKG1_ARCH='all'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libglu1-mesa | libglu1'
@@ -133,10 +120,10 @@ PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON_BASE='/usr/local/share/icons/hicolor'
+PATH_ICON="/usr/local/share/icons/hicolor/${APP1_ICON_RES}/apps"
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${GAME_VERSION}_${PKG1_ARCH}" "$((${GAME_FULLSIZE}*2))"
 
 # Check target file integrity
 
@@ -146,7 +133,6 @@ fi
 
 # Extract game data
 
-PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 
 build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DOC}" "${PATH_DESK}" "${PATH_GAME}" "${PATH_ICON}"
 print wait
@@ -182,7 +168,7 @@ printf '\n'
 
 # Build package
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${GAME_VERSION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 
 file="${PKG1_DIR}/DEBIAN/postinst"
 cat > "${file}" << EOF
