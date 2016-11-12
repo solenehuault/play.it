@@ -35,7 +35,7 @@ set -e
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161108.1
+script_version=20161112.1
 
 # Set game-specific variables
 
@@ -224,7 +224,7 @@ cat > "${file}" << EOF
 #!/bin/sh -e
 
 mkdir -p "${PATH_ICON}"
-ln -s "${PATH_GAME}/${APP1_ICON}" "${PATH_ICON}/${GAME_ID}.png"
+ln -s "${PATH_GAME}"/${APP1_ICON} "${PATH_ICON}/${GAME_ID}.png"
 
 exit 0
 EOF
