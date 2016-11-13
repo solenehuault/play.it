@@ -187,7 +187,7 @@ print done
 
 write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
 sed -i 's|./"${GAME_EXE_PATH##\*/}"|mkdir -p "${HOME}/.loki/ut/System"\n&|' "${PKG1_DIR}${PATH_BIN}/${APP1_ID}"
-write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" 'alpha-centauri'
+write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
 printf '\n'
 
 # Build package
