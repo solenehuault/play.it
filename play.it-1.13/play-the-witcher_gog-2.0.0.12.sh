@@ -32,7 +32,7 @@
 # build a .deb package from the Windows installer
 # tested on Debian, should work on any .deb-based distribution
 #
-# script version 20151127.1
+# script version 20161113.1
 #
 # send your bug reports to vv221@dotslashplay.it
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
@@ -205,7 +205,7 @@ print done
 # Write launchers
 
 write_bin_wine_common "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
-sed -i 's#cp -surf "${GAME_PATH}"/\* "${WINE_GAME_PATH}"#&\n\tcp -surf "${GAME_PATH}"/commondocs/* "${WINEPREFIX}/drive_c/users/Public/Documents/"\n\tregedit "${WINE_GAME_PATH}/witcher1.reg" 2>/dev/null\n\trm -r "${WINE_GAME_PATH}/commondocs" "${WINE_GAME_PATH}/witcher1.reg"\n\twinetricks d3dx9_36#' "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
+sed -i 's#cp -surf "${GAME_PATH}"/\* "${WINE_GAME_PATH}"#&\n\tcp -surf "${GAME_PATH}"/commondocs/* "${WINEPREFIX}/drive_c/users/Public/Documents/"\n\tregedit "${WINE_GAME_PATH}/witcher1.reg" 2>/dev/null\n\trm -r "${WINE_GAME_PATH}/commondocs" "${WINE_GAME_PATH}/witcher1.reg"\n\twinetricks d3dx9_35\n\twinetricks d3dx9_36#' "${PKG1_DIR}${PATH_BIN}/${APP_COMMON_ID}"
 write_bin_wine_cfg "${PKG1_DIR}${PATH_BIN}/${GAME_ID_SHORT}-winecfg"
 write_bin_wine "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' "${APP1_NAME}"
 write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}" 'wine'
