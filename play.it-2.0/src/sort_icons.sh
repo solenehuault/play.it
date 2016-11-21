@@ -36,9 +36,11 @@ done
 # NEEDED VARS: PLAYIT_WORKDIR, PATH_ICON_BASE
 # CALLED BY: sort_icons
 sort_icons_tar() {
-for res in $icon_res; do
-	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-		mv "${file}" "${pkg_path}${PATH_ICON_BASE}/${app_id}_${res}.png"
+	local icon_path="${pkg_path}${PATH_ICON_BASE}"
+	mkdir --parents "$icon_path"
+	for res in $icon_res; do
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+			mv "${file}" "${icon_path}/${app_id}_${res}.png"
+		done
 	done
-done
 }
