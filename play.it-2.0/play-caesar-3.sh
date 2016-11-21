@@ -33,7 +33,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161121.2
+script_version=20161121.3
 
 # Set game-specific variables
 
@@ -119,6 +119,7 @@ organize_data
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/${APP_MAIN_ICON}"
+	extract_icon_from "${PLAYIT_WORKDIR}/icons"/*.ico
 	sort_icons 'APP_MAIN'
 	rm --recursive "${PLAYIT_WORKDIR}/icons"
 fi
