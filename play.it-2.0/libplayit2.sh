@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161121.2
+library_revision=20161121.3
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -262,7 +262,7 @@ extract_data_from_print() {
 extract_icon_from() {
 	for file in "$@"; do
 		local destination="${PLAYIT_WORKDIR}/icons"
-		mkdir "$destination"
+		mkdir --parents "$destination"
 		case ${file##*.} in
 			('exe')
 				wrestool --extract --type=14 --output="$destination" "$file"
