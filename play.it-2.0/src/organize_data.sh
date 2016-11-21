@@ -1,11 +1,17 @@
 # put files from archive in the right package directories (alias)
 # USAGE: organize_data
-# NEEDED VARS: PKG_PATH, PKG, $PKG_PATH, ARCHIVE_DOC_PATH?, ARCHIVE_DOC_FILES?, PATH_DOC?, ARCHIVE_GAME_PATH?, ARCHIVE_GAME_FILES?, PATH_GAME?
+# NEEDED VARS: PKG_PATH, PKG, $PKG_PATH
 # CALLS: organize_data_doc, organize_data_game
 organize_data() {
 	[ -n "$PKG_PATH" ] || PKG_PATH="$(eval echo \$${PKG}_PATH)"
 	if [ -n "${ARCHIVE_DOC_PATH}" ]; then
 		organize_data_generic 'DOC' "$PATH_DOC"
+	fi
+	if [ -n "${ARCHIVE_DOC1_PATH}" ]; then
+		organize_data_generic 'DOC1' "$PATH_DOC"
+	fi
+	if [ -n "${ARCHIVE_DOC2_PATH}" ]; then
+		organize_data_generic 'DOC2' "$PATH_DOC"
 	fi
 	if [ -n "${ARCHIVE_GAME_PATH}" ]; then
 		organize_data_generic 'GAME' "$PATH_GAME"
