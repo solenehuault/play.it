@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161110.1
+library_revision=20161121.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -402,44 +402,40 @@ esac
 return 1
 }
 
-# put files from archive in the right package directories
+# put files from archive in the right package directories (alias)
 # USAGE: organize_data
-# NEEDED VARS: PKG_PATH, PKG, $PKG_PATH, ARCHIVE_DOC_PATH, ARCHIVE_GAME_PATH
+# NEEDED VARS: PKG_PATH, PKG, $PKG_PATH
 # CALLS: organize_data_doc, organize_data_game
 organize_data() {
-[ -n "$PKG_PATH" ] || PKG_PATH="$(eval echo \$${PKG}_PATH)"
-if [ -n "${ARCHIVE_DOC_PATH}" ]; then
-	organize_data_doc
-fi
-if [ -n "${ARCHIVE_GAME_PATH}" ]; then
-	organize_data_game
-fi
+	[ -n "$PKG_PATH" ] || PKG_PATH="$(eval echo \$${PKG}_PATH)"
+	if [ -n "${ARCHIVE_DOC_PATH}" ]; then
+		organize_data_generic 'DOC' "$PATH_DOC"
+	fi
+	if [ -n "${ARCHIVE_DOC1_PATH}" ]; then
+		organize_data_generic 'DOC1' "$PATH_DOC"
+	fi
+	if [ -n "${ARCHIVE_DOC2_PATH}" ]; then
+		organize_data_generic 'DOC2' "$PATH_DOC"
+	fi
+	if [ -n "${ARCHIVE_GAME_PATH}" ]; then
+		organize_data_generic 'GAME' "$PATH_GAME"
+	fi
 }
 
-# put doc files from archive in the right package directories
-# USAGE: organize_data_doc
-# NEEDED VARS: PKG_PATH, PATH_DOC, PLAYIT_WORKDIR, ARCHIVE_DOC_PATH, ARCHIVE_DOC_FILES
-# CALLED BY: organize_data
-organize_data_doc() {
-mkdir --parents "${PKG_PATH}${PATH_DOC}"
-cd "${PLAYIT_WORKDIR}/gamedata/${ARCHIVE_DOC_PATH}"
-for file in $ARCHIVE_DOC_FILES; do
-	mv "$file" "${PKG_PATH}${PATH_DOC}"
-done
-cd - 1>/dev/null
-}
-
-# put game files from archive in the right package directories
-# USAGE: organize_data_game
-# NEEDED VARS: PKG_PATH, PATH_GAME, PLAYIT_WORKDIR, ARCHIVE_GAME_PATH, ARCHIVE_GAME_FILES
-# CALLED BY: organize_data
-organize_data_game() {
-mkdir --parents "${PKG_PATH}${PATH_GAME}"
-cd "${PLAYIT_WORKDIR}/gamedata/${ARCHIVE_GAME_PATH}"
-for file in $ARCHIVE_GAME_FILES; do
-	mv "$file" "${PKG_PATH}${PATH_GAME}"
-done
-cd - 1>/dev/null
+# put files from archive in the right package directories (generic function)
+# USAGE: organize_data_generic $id $path
+# NEEDED VARS: PKG_PATH, PLAYIT_WORKDIR
+# CALLED BY: organize_data_doc organize_data_game
+organize_data_generic() {
+	local archive_path="${PLAYIT_WORKDIR}/gamedata/$(eval echo \$ARCHIVE_${1}_PATH)"
+	local archive_files="$(eval echo \$ARCHIVE_${1}_FILES)"
+	local pkg_path="${PKG_PATH}${2}"
+	mkdir --parents "$pkg_path"
+	cd "$archive_path"
+	for file in $archive_files; do
+		mv "$file" "$pkg_path"
+	done
+	cd - > /dev/null
 }
 
 # set default values for common vars
