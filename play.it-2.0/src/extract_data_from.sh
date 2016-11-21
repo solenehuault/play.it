@@ -47,7 +47,7 @@ extract_data_from() {
 # print data extraction message
 # USAGE: extract_data_from_print
 # CALLED BY: extract_data_from
-extract_data_from() {
+extract_data_from_print() {
 	local file="$(basename $1)"
 	case ${LANG%_*} in
 		('fr')
