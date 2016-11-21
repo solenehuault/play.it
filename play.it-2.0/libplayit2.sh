@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161121.1
+library_revision=20161121.2
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -243,7 +243,7 @@ extract_data_from() {
 # print data extraction message
 # USAGE: extract_data_from_print
 # CALLED BY: extract_data_from
-extract_data_from() {
+extract_data_from_print() {
 	local file="$(basename $1)"
 	case ${LANG%_*} in
 		('fr')
