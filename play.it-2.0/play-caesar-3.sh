@@ -33,7 +33,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161121.1
+script_version=20161121.2
 
 # Set game-specific variables
 
@@ -48,7 +48,7 @@ ARCHIVE_GOG_UNCOMPRESSED_SIZE='550000'
 ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./gog_eula.txt ./eula.txt'
 ARCHIVE_DOC2_PATH='app'
-ARCHIVE_DOC2_PATH='./readme.txt ./*.pdf'
+ARCHIVE_DOC2_FILES='./readme.txt ./*.pdf'
 ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./555 ./smk ./wavs ./*.555 ./*.emp ./*.eng ./*.inf ./*.map ./*.sg2 ./c3.exe ./c3_model.txt ./caesar3.ini ./mission1.pak ./smackw32.dll'
 
