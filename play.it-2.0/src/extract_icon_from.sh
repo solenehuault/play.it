@@ -5,7 +5,7 @@
 extract_icon_from() {
 	for file in "$@"; do
 		local destination="${PLAYIT_WORKDIR}/icons"
-		mkdir "$destination"
+		mkdir --parents "$destination"
 		case ${file##*.} in
 			('exe')
 				wrestool --extract --type=14 --output="$destination" "$file"
