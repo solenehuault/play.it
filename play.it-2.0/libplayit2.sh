@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161121.3
+library_revision=20161121.4
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -639,11 +639,13 @@ done
 # NEEDED VARS: PLAYIT_WORKDIR, PATH_ICON_BASE
 # CALLED BY: sort_icons
 sort_icons_tar() {
-for res in $icon_res; do
-	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-		mv "${file}" "${pkg_path}${PATH_ICON_BASE}/${app_id}_${res}.png"
+	local icon_path="${pkg_path}${PATH_ICON_BASE}"
+	mkdir --parents "$icon_path"
+	for res in $icon_res; do
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+			mv "${file}" "${icon_path}/${app_id}_${res}.png"
+		done
 	done
-done
 }
 
 # test the validity of the argument given to parent function
