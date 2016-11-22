@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161122.1
+library_revision=20161122.2
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -996,7 +996,7 @@ cd "\$1"
 shift 1
 for file in "\$@"; do
 if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	mkfile -p "\${file%/*}"
+	mkdir -p "\${file%/*}"
 	cp "\${PATH_GAME}/\${file}" "\$file"
 fi
 done
