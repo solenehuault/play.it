@@ -1,12 +1,15 @@
-# build .deb package or .tar archive
+# build .pkg.tar.xz package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
-# CALLS: testvar, liberror, build_pkg_deb, build_pkg_tar
+# CALLS: testvar, liberror, build_pkg_arch, build_pkg_deb, build_pkg_tar
 build_pkg() {
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		case $PACKAGE_TYPE in
+			('arch')
+				build_pkg_arch
+			;;
 			('deb')
 				build_pkg_deb
 			;;
@@ -18,6 +21,19 @@ build_pkg() {
 			;;
 		esac
 	done
+}
+
+# build .pkg.tar.xz package
+# USAGE: build_pkg_arch
+# NEEDED VARS: PLAYIT_WORKDIR, COMPRESSION_METHOD
+# CALLS: build_pkg_print
+# CALLED BY: build_pkg
+build_pkg_arch() {
+	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
+	build_pkg_print
+	cd "$pkg_path"
+	tar -cf "$pkg_filename" .PKGINFO *
+	cd - > /dev/null
 }
 
 # build .deb package
