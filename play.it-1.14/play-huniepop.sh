@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161112.1
+script_version=20161122.1
 
 # Set game-specific variables
 
@@ -62,7 +62,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_ARCH='all'
+PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libglu1-mesa | libglu1'
 PKG1_RECS=''
