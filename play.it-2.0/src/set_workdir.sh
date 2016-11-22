@@ -43,7 +43,17 @@ local pkg_id="$(eval echo \$${pkg}_ID)"
 [ -n "$pkg_id" ] || pkg_id="$GAME_ID"
 local pkg_version="$(eval echo \$${pkg}_VERSION)"
 [ -n "$pkg_version" ] || pkg_version='1.0-1'
-local pkg_arch=$(eval echo \$${pkg}_ARCH)
+case $PACKAGE_TYPE in
+	arch)
+		local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
+	;;
+	deb)
+		local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
+	;;
+	tar)
+		local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
+	;;
+esac
 local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 export ${pkg}_PATH="$pkg_path"
 }
