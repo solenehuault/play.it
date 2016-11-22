@@ -65,8 +65,10 @@ APP_MAIN_ICON='./c3.exe'
 APP_MAIN_ICON_RES='16x16 32x32'
 
 PKG_MAIN_VERSION='1.1-gog2.0.0.9'
-PKG_MAIN_ARCH='i386'
-PKG_MAIN_DEPS='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
+PKG_MAIN_ARCH_DEB='i386'
+PKG_MAIN_ARCH_ARCH='any'
+PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
+PKG_MAIN_DEPS_ARCH='wine'
 PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
  ./play.it script version ${script_version}"
