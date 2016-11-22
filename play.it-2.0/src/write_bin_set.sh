@@ -156,7 +156,7 @@ cd "\$1"
 shift 1
 for file in "\$@"; do
 if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	mkfile -p "\${file%/*}"
+	mkdir -p "\${file%/*}"
 	cp "\${PATH_GAME}/\${file}" "\$file"
 fi
 done
