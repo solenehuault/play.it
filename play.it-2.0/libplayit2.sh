@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161121.4
+library_revision=20161122.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -713,18 +713,18 @@ cat >> "$file" << EOF
 
 if [ ! -e "\$PATH_CACHE" ]; then
 	mkdir -p "\$PATH_CACHE"
-	init_userdir_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
-	init_userdir_files "\$PATH_CACHE" \$GAME_CACHE_FILES
+	init_userdir_dirs "\$PATH_CACHE" \$CACHE_DIRS
+	init_userdir_files "\$PATH_CACHE" \$CACHE_FILES
 fi
 if [ ! -e "\$PATH_CONFIG" ]; then
 	mkdir -p "\$PATH_CONFIG"
-	init_userdir_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
-	init_userdir_files "\$PATH_CONFIG" \$GAME_CONFIG_FILES
+	init_userdir_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
+	init_userdir_files "\$PATH_CONFIG" \$CONFIG_FILES
 fi
 if [ ! -e "\$PATH_DATA" ]; then
 	mkdir -p "\$PATH_DATA"
-	init_userdir_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
-	init_userdir_files "\$PATH_DATA" \$GAME_DATA_FILES
+	init_userdir_dirs "\$PATH_DATA" \$DATA_DIRS
+	init_userdir_files "\$PATH_DATA" \$DATA_FILES
 fi
 
 EOF
@@ -759,9 +759,9 @@ fi
 init_prefix_files "\$PATH_CACHE"
 init_prefix_files "\$PATH_CONFIG"
 init_prefix_files "\$PATH_DATA"
-init_prefix_dirs "\$PATH_CACHE" \$GAME_CACHE_DIRS
-init_prefix_dirs "\$PATH_CONFIG" \$GAME_CONFIG_DIRS
-init_prefix_dirs "\$PATH_DATA" \$GAME_DATA_DIRS
+init_prefix_dirs "\$PATH_CACHE" \$CACHE_DIRS
+init_prefix_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
+init_prefix_dirs "\$PATH_DATA" \$DATA_DIRS
 
 EOF
 }
