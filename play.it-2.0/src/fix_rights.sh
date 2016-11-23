@@ -1,8 +1,12 @@
 # set defaults rights on files (755 for dirs & 644 for regular files)
-# USAGE: fix_rights $dir
+# USAGE: fix_rights $dir[…]
 fix_rights() {
-[ -d "$1" ] || return 1
-find "$1" -type d -exec chmod -c 755 '{}' +
-find "$1" -type f -exec chmod -c 644 '{}' +
+	for dir in "$@"; do
+		if [ ! -d "$dir" ]; then
+			return 1
+		fi
+		find "$dir" -type d -exec chmod 755 '{}' +
+		find "$dir" -type f -exec chmod 644 '{}' +
+	done
 }
 
