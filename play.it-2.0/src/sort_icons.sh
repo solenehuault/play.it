@@ -6,14 +6,24 @@ sort_icons() {
 for app in $@; do
 	testvar "$app" 'APP' || liberror 'app' 'sort_icons'
 	local app_id="$(eval echo \$${app}_ID)"
-	[ -n "$app_id" ] || app_id="$GAME_ID"
+	if [ -z "$app_id" ]; then
+		app_id="$GAME_ID"
+	fi
 	local icon_res="$(eval echo \$${app}_ICON_RES)"
 	local pkg_path="$(eval echo \$${PKG}_PATH)"
 	case $PACKAGE_TYPE in
-		arch) sort_icons_arch ;;
-		deb) sort_icons_deb ;;
-		tar) sort_icons_tar ;;
-		*) liberror 'PACKAGE_TYPE' 'sort_icons'
+		('arch')
+			sort_icons_arch
+		;;
+		('deb')
+			sort_icons_deb
+		;;
+		('tar')
+			sort_icons_tar
+		;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'sort_icons'
+		;;
 	esac
 done
 }
@@ -23,13 +33,13 @@ done
 # NEEDED VARS: PATH_ICON_BASE, PLAYIT_WORKDIR
 # CALLED BY: sort_icons
 sort_icons_arch() {
-for res in $icon_res; do
-	path_icon="${PATH_ICON_BASE}/${res}/apps"
-	mkdir -p "${pkg_path}${path_icon}"
-	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-		mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+	for res in $icon_res; do
+		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		mkdir -p "${pkg_path}${path_icon}"
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+		done
 	done
-done
 }
 
 # create icons tree for .deb package
@@ -37,13 +47,13 @@ done
 # NEEDED VARS: PATH_ICON_BASE, PLAYIT_WORKDIR
 # CALLED BY: sort_icons
 sort_icons_deb() {
-for res in $icon_res; do
-	path_icon="${PATH_ICON_BASE}/${res}/apps"
-	mkdir -p "${pkg_path}${path_icon}"
-	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-		mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+	for res in $icon_res; do
+		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		mkdir -p "${pkg_path}${path_icon}"
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+		done
 	done
-done
 }
 
 # create icons tree for .tar archive
