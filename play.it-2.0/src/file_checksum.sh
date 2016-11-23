@@ -6,10 +6,10 @@ file_checksum() {
 	local source_file="$1"
 	shift 1
 	case $CHECKSUM_METHOD in
-		(md5)
+		('md5')
 			file_checksum_md5 $@
 		;;
-		(none)
+		('none')
 			file_checksum_none
 		;;
 		(*)
@@ -71,12 +71,12 @@ file_checksum_print() {
 # CALLED BY: file_checksum_md5
 file_checksum_error() {
 	case ${LANG%_*} in
-		(fr)
+		('fr')
 			echo "$string_error_fr"
 			echo "Somme de contrôle incohérente. $source_file n’est pas le fichier attendu."
 			echo "Utilisez --checksum=none pour forcer son utilisation."
 		;;
-		(en|*)
+		('en'|*)
 			echo "$string_error_en"
 			echo "Hasum mismatch. $source_file is not the expected file."
 			echo "Use --checksum=none to force its use."
