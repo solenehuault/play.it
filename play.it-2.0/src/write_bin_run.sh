@@ -7,16 +7,16 @@ write_bin_run() {
 	
 	EOF
 	case $app_type in
-		(dosbox)
+		('dosbox')
 			write_bin_run_dosbox
 		;;
-		(native)
+		('native')
 			write_bin_run_native
 		;;
-		(scummvm)
+		('scummvm')
 			write_bin_run_scummvm
 		;;
-		(wine)
+		('wine')
 			write_bin_run_wine
 		;;
 	esac
