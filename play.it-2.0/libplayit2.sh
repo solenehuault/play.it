@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161122.3
+library_revision=20161123.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -301,50 +301,74 @@ extract_icon_from() {
 # USAGE: fetch_args $argument[…]
 # CALLS: fetch_args_set_var
 fetch_args() {
-unset CHECKSUM_METHOD
-unset COMPRESSION_METHOD
-unset GAME_LANG
-unset GAME_LANG_AUDIO
-unset GAME_LANG_TXT
-unset ICON_CHOICE
-unset INSTALL_PREFIX
-unset MOVIES_SUPPORT
-unset PACKAGE_TYPE
-unset SOURCE_ARCHIVE
-for arg in "$@"; do
-case "$arg" in
-	'--checksum='*) export CHECKSUM_METHOD="${arg#*=}" ;;
-	'--compression='*) export COMPRESSION_METHOD="${arg#*=}" ;;
-	'--icon='*) export ICON_CHOICE="${arg#*=}" ;;
-	'--prefix='*) export INSTALL_PREFIX="${arg#*=}" ;;
-	'--lang='*) export GAME_LANG="${arg#*=}" ;;
-	'--lang-audio='*) export GAME_LANG_AUDIO="${arg#*=}" ;;
-	'--lang-txt='*) export GAME_LANG_TXT="${arg#*=}" ;;
-	'--package='*) export PACKAGE_TYPE="${arg#*=}" ;;
-	'--movies=') export MOVIES_SUPPORT="${arg#*=}" ;;
-	'--'*) return 1 ;;
-	*) export SOURCE_ARCHIVE="$arg" ;;
-esac
-done
-fetch_args_set_var 'CHECKSUM_METHOD'
-fetch_args_set_var 'COMPRESSION_METHOD'
-fetch_args_set_var 'GAME_LANG'
-fetch_args_set_var 'GAME_LANG_AUDIO'
-fetch_args_set_var 'GAME_LANG_TXT'
-fetch_args_set_var 'INSTALL_PREFIX'
-fetch_args_set_var 'MOVIES_SUPPORT'
-fetch_args_set_var 'PACKAGE_TYPE'
+	unset CHECKSUM_METHOD
+	unset COMPRESSION_METHOD
+	unset GAME_LANG
+	unset GAME_LANG_AUDIO
+	unset GAME_LANG_TXT
+	unset ICON_CHOICE
+	unset INSTALL_PREFIX
+	unset MOVIES_SUPPORT
+	unset PACKAGE_TYPE
+	unset SOURCE_ARCHIVE
+	for arg in "$@"; do
+		case "$arg" in
+			('--checksum='*)
+				export CHECKSUM_METHOD="${arg#*=}"
+			;;
+			('--compression='*)
+				export COMPRESSION_METHOD="${arg#*=}"
+			;;
+			('--icon='*)
+				export ICON_CHOICE="${arg#*=}"
+			;;
+			('--prefix='*)
+				export INSTALL_PREFIX="${arg#*=}"
+			;;
+			('--lang='*)
+				export GAME_LANG="${arg#*=}"
+			;;
+			('--lang-audio='*)
+				export GAME_LANG_AUDIO="${arg#*=}"
+			;;
+			('--lang-txt='*)
+				export GAME_LANG_TXT="${arg#*=}"
+			;;
+			('--package='*)
+				export PACKAGE_TYPE="${arg#*=}"
+			;;
+			('--movies=')
+				export MOVIES_SUPPORT="${arg#*=}"
+			;;
+			('--'*)
+				return 1
+			;;
+			(*)
+				export SOURCE_ARCHIVE="$arg"
+			;;
+		esac
+	done
+	fetch_args_set_var 'CHECKSUM_METHOD'
+	fetch_args_set_var 'COMPRESSION_METHOD'
+	fetch_args_set_var 'GAME_LANG'
+	fetch_args_set_var 'GAME_LANG_AUDIO'
+	fetch_args_set_var 'GAME_LANG_TXT'
+	fetch_args_set_var 'INSTALL_PREFIX'
+	fetch_args_set_var 'MOVIES_SUPPORT'
+	fetch_args_set_var 'PACKAGE_TYPE'
 }
 
 # set global vars not already set by script arguments
 # USAGE: fetch_args_set_var $var_name
 # CALLED BY: fetch_args
 fetch_args_set_var() {
-local value="$(eval echo \$$1)"
-local value_default="$(eval echo \$DEFAULT_$1)"
-if [ -z "$value" ] && [ -n "$value_default" ]; then
-	export $1="$value_default"
-fi
+	local value="$(eval echo \$$1)"
+	if [ -z "$value" ]; then
+		local value_default="$(eval echo \$DEFAULT_$1)"
+		if [ -n "$value_default" ]; then
+			export $1="$value_default"
+		fi
+	fi
 }
 
 # check integrity of target file
@@ -352,41 +376,41 @@ fi
 # NEEDED VARS: CHECKSUM_METHOD
 # CALLS: file_checksum_md5, file_checksum_none, liberror
 file_checksum() {
-local source_file="$1"
-shift 1
-case $CHECKSUM_METHOD in
-	md5) file_checksum_md5 $@ ;;
-	none) file_checksum_none ;;
-	*) liberror 'CHECKSUM_METHOD' 'file_checksum' ;;
-esac
+	local source_file="$1"
+	shift 1
+	case $CHECKSUM_METHOD in
+		('md5')
+			file_checksum_md5 $@
+		;;
+		('none')
+			file_checksum_none
+		;;
+		(*)
+			liberror 'CHECKSUM_METHOD' 'file_checksum'
+		;;
+	esac
 }
 
 # check integrity of target file against MD5 control sum
 # USAGE: file_checksum_md5 $archive_name[…]
 # NEEDED VARS: $archive_MD5
-# CALLS: set_source_archive_vars
+# CALLS: file_checksum_print, file_checksum_error, set_source_archive_vars
 # CALLED BY: file_checksum
 file_checksum_md5() {
-case ${LANG%_*} in
-	fr) echo "Contrôle de l’intégrité de ${source_file##*/}" ;;
-	en|*) echo "Checking ${source_file##*/} integrity" ;;
-esac
-FILE_MD5="$(md5sum "$source_file" | cut --delimiter=' ' --fields=1)"
-for archive in $@; do
-	local archive_md5=$(eval echo \$${archive}_MD5)
-	if [ "$FILE_MD5" = "$archive_md5" ]; then
-		if [ -z "$ARCHIVE" ]; then
-			ARCHIVE="$archive"
-			set_source_archive_vars
+	file_checksum_print
+	FILE_MD5="$(md5sum "$source_file" | cut --delimiter=' ' --fields=1)"
+	for archive in $@; do
+		local archive_md5=$(eval echo \$${archive}_MD5)
+		if [ "$FILE_MD5" = "$archive_md5" ]; then
+			if [ -z "$ARCHIVE" ]; then
+				ARCHIVE="$archive"
+				set_source_archive_vars
+			fi
+			return 0
 		fi
-		return 0
-	fi
-done
-case ${LANG%_*} in
-	fr) echo "$string_error_fr\nSomme de contrôle incohérente. $source_file n’est pas le fichier attendu.\nUtilisez --checksum=none pour forcer son utilisation." ;;
-	en|*) echo "$string_error_en\nHasum mismatch. $source_file is not the expected file.\nUse --checksum=none to force its use." ;;
-esac
-return 1
+	done
+	file_checksum_error
+	return 1
 }
 
 # set source archive if not already set by script arguments
@@ -395,27 +419,73 @@ return 1
 # CALLS: set_source_archive_vars
 # CALLED BY: file_checksum
 file_checksum_none() {
-if [ -z "$ARCHIVE" ]; then
-	ARCHIVE="$ARCHIVE_DEFAULT"
-	set_source_archive_vars
-fi
-}
-# set defaults rights on files (755 for dirs & 644 for regular files)
-# USAGE: fix_rights $dir
-fix_rights() {
-[ -d "$1" ] || return 1
-find "$1" -type d -exec chmod -c 755 '{}' +
-find "$1" -type f -exec chmod -c 644 '{}' +
+	if [ -z "$ARCHIVE" ]; then
+		ARCHIVE="$ARCHIVE_DEFAULT"
+		set_source_archive_vars
+	fi
 }
 
-# display an error if a function hs been called with invalid arguments
+# print integrity check message
+# USAGE: file_checksum_print
+# CALLED BY: file_checksum_md5
+file_checksum_print() {
+	case ${LANG%_*} in
+		(fr)
+			echo "Contrôle de l’intégrité de ${source_file##*/}"
+		;;
+		(en|*)
+			echo "Checking ${source_file##*/} integrity"
+		;;
+	esac
+}
+
+# print integrity check error message
+# USAGE: file_checksum_error
+# CALLED BY: file_checksum_md5
+file_checksum_error() {
+	case ${LANG%_*} in
+		('fr')
+			echo "$string_error_fr"
+			echo "Somme de contrôle incohérente. $source_file n’est pas le fichier attendu."
+			echo "Utilisez --checksum=none pour forcer son utilisation."
+		;;
+		('en'|*)
+			echo "$string_error_en"
+			echo "Hasum mismatch. $source_file is not the expected file."
+			echo "Use --checksum=none to force its use."
+		;;
+	esac
+}
+
+# set defaults rights on files (755 for dirs & 644 for regular files)
+# USAGE: fix_rights $dir[…]
+fix_rights() {
+	for dir in "$@"; do
+		if [ ! -d "$dir" ]; then
+			return 1
+		fi
+		find "$dir" -type d -exec chmod 755 '{}' +
+		find "$dir" -type f -exec chmod 644 '{}' +
+	done
+}
+
+# display an error if a function has been called with invalid arguments
 # USAGE: liberror $var_name $calling_function
 liberror() {
-case ${LANG%_*} in
-	fr) echo "$string_error_fr\nvaleur incorrecte pour $1 appelée par $2 : $(eval echo \$$1)" ;;
-	en|*) echo "$string_error_en\ninvalid value for $1 called by $2: $(eval echo \$$1)" ;;
-esac
-return 1
+	local var="$1"
+	local value="$(eval echo \$$var)"
+	local func="$2"
+	case ${LANG%_*} in
+		('fr')
+			echo "$string_error_fr"
+			echo "valeur incorrecte pour $var appelée par $func : $value"
+		;;
+		('en'|*)
+			echo "$string_error_en"
+			echo "invalid value for $var called by $func: $value"
+		;;
+	esac
+	return 1
 }
 
 # put files from archive in the right package directories (alias)
@@ -457,16 +527,16 @@ organize_data_generic() {
 # set default values for common vars
 # USAGE: set_common_defaults
 set_common_defaults() {
-DEFAULT_CHECKSUM_METHOD='md5'
-DEFAULT_COMPRESSION_METHOD='none'
-DEFAULT_GAME_LANG='en'
-DEFAULT_GAME_LANG_AUDIO='en'
-DEFAULT_GAME_LANG_TXT='en'
-DEFAULT_INSTALL_PREFIX='/usr/local'
-DEFAULT_ICON_CHOICE='original'
-DEFAULT_MOVIES_SUPPORT='0'
-DEFAULT_PACKAGE_TYPE='deb'
-NO_ICON='0'
+	DEFAULT_CHECKSUM_METHOD='md5'
+	DEFAULT_COMPRESSION_METHOD='none'
+	DEFAULT_GAME_LANG='en'
+	DEFAULT_GAME_LANG_AUDIO='en'
+	DEFAULT_GAME_LANG_TXT='en'
+	DEFAULT_INSTALL_PREFIX='/usr/local'
+	DEFAULT_ICON_CHOICE='original'
+	DEFAULT_MOVIES_SUPPORT='0'
+	DEFAULT_PACKAGE_TYPE='deb'
+	NO_ICON='0'
 }
 
 # set package paths
@@ -474,12 +544,20 @@ NO_ICON='0'
 # NEEDED VARS: PACKAGE_TYPE
 # CALLS: set_common_paths_arch, set_common_paths_deb, set_common_paths_tar, liberror
 set_common_paths() {
-case $PACKAGE_TYPE in
-	arch) set_common_paths_arch ;;
-	deb) set_common_paths_deb ;;
-	tar) set_common_paths_tar ;;
-	*) liberror 'PACKAGE_TYPE' 'set_common_paths'
-esac
+	case $PACKAGE_TYPE in
+		('arch')
+			set_common_paths_arch
+		;;
+		('deb')
+			set_common_paths_deb
+		;;
+		('tar')
+			set_common_paths_tar
+		;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'set_common_paths'
+		;;
+	esac
 }
 
 # set .pkg.tar.xz package paths
@@ -487,11 +565,11 @@ esac
 # NEEDED VARS: INSTALL_PREFIX, GAME_ID
 # CALLED BY: set_common_paths
 set_common_paths_arch() {
-PATH_BIN="${INSTALL_PREFIX}/bin"
-PATH_DESK='/usr/local/share/applications'
-PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
-PATH_GAME="${INSTALL_PREFIX}/share/${GAME_ID}"
-PATH_ICON_BASE='/usr/local/share/icons/hicolor'
+	PATH_BIN="${INSTALL_PREFIX}/bin"
+	PATH_DESK='/usr/local/share/applications'
+	PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
+	PATH_GAME="${INSTALL_PREFIX}/share/${GAME_ID}"
+	PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 }
 
 # set .deb package paths
@@ -499,11 +577,11 @@ PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 # NEEDED VARS: INSTALL_PREFIX, GAME_ID
 # CALLED BY: set_common_paths
 set_common_paths_deb() {
-PATH_BIN="${INSTALL_PREFIX}/games"
-PATH_DESK='/usr/local/share/applications'
-PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
-PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON_BASE='/usr/local/share/icons/hicolor'
+	PATH_BIN="${INSTALL_PREFIX}/games"
+	PATH_DESK='/usr/local/share/applications'
+	PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
+	PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
+	PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 }
 
 # set .tar archive paths
@@ -511,11 +589,11 @@ PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 # NEEDED VARS: INSTALL_PREFIX
 # CALLED BY: set_common_paths
 set_common_paths_tar() {
-PATH_BIN="${INSTALL_PREFIX}/bin"
-PATH_DESK="$INSTALL_PREFIX"
-PATH_DOC="${INSTALL_PREFIX}/doc"
-PATH_GAME="${INSTALL_PREFIX}/data"
-PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
+	PATH_BIN="${INSTALL_PREFIX}/bin"
+	PATH_DESK="$INSTALL_PREFIX"
+	PATH_DOC="${INSTALL_PREFIX}/doc"
+	PATH_GAME="${INSTALL_PREFIX}/data"
+	PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
 }
 
 # set source archive for data extraction
@@ -523,75 +601,112 @@ PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
 # NEEDED_VARS: SOURCE_ARCHIVE
 # CALLS: set_source_archive_vars, set_source_archive_error
 set_source_archive() {
-for archive in "$@"; do
-	file="$(eval echo \$$archive)"
-	if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
-		ARCHIVE="$archive"
-		set_source_archive_vars
-		return 0
-	elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
-		SOURCE_ARCHIVE="$file"
-		ARCHIVE="$archive"
-		set_source_archive_vars
-		return 0
+	for archive in "$@"; do
+		file="$(eval echo \$$archive)"
+		if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
+			ARCHIVE="$archive"
+			set_source_archive_vars
+			return 0
+		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
+			SOURCE_ARCHIVE="$file"
+			ARCHIVE="$archive"
+			set_source_archive_vars
+			return 0
+		fi
+	done
+	if [ -z "$SOURCE_ARCHIVE" ]; then
+		set_source_archive_error_not_found
 	fi
-done
-if [ -z "$SOURCE_ARCHIVE" ]; then
-	set_source_archive_error
-fi
 }
 
 # set archive-related vars
 # USAGE: set_source_archive_vars
 # NEEDED_VARS: ARCHIVE, $ARCHIVE_MD5, $ARCHIVE_TYPE, $ARCHIVE_UNCOMPRESSED_SIZE
+# CALLS: set_source_archive_print, set_source_archive_error_no_type
 # CALLED BY: set_source_archive
 set_source_archive_vars() {
-case ${LANG%_*} in
-	fr) echo "Utilisation de ${SOURCE_ARCHIVE}" ;;
-	en|*) echo "Using ${SOURCE_ARCHIVE}" ;;
-esac
-ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
-ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
-if [ -z "$ARCHIVE_TYPE" ]; then
-	if [ -n "$(echo "${SOURCE_ARCHIVE##*/}" | grep '^gog_.*\.sh$')" ]; then
-		ARCHIVE_TYPE='mojosetup'
-	elif [ -n "$(echo "${SOURCE_ARCHIVE##*/}" | grep '^setup_.*\.exe$')" ]; then
-		ARCHIVE_TYPE='innosetup'
-	else
-		case ${LANG%_*} in
-			fr) echo "$string_error_fr\nARCHIVE_TYPE n’est pas défini pour $SOURCE_ARCHIVE" ;;
-			en|*) echo "$string_error_en\nARCHIVE_TYPE is not set for $SOURCE_ARCHIVE" ;;
+	set_source_archive_print
+	ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
+	if [ -z "$ARCHIVE_TYPE" ]; then
+		case "${SOURCE_ARCHIVE##*/}" in
+			(gog_*.sh)
+				ARCHIVE_TYPE='mojosetup'
+			;;
+			(setup_*.exe)
+				ARCHIVE_TYPE='innosetup'
+			;;
+			(*)
+				set_source_archive_error_no_type
+			;;
 		esac
-		return 1
+		eval ${archive}_TYPE=$ARCHIVE_TYPE
 	fi
-	eval ${archive}_TYPE=$ARCHIVE_TYPE
-fi
-ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
+	ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+}
+
+# print archive use message
+# USAGE: set_source_archive_print
+# CALLED BY: set_source_archive_vars
+set_source_archive_print() {
+	case ${LANG%_*} in
+		('fr')
+			echo "Utilisation de $SOURCE_ARCHIVE"
+		;;
+		('en'|*)
+			echo "Using $SOURCE_ARCHIVE"
+		;;
+	esac
 }
 
 # display an error message telling the target archive has not been found
-# USAGE: set_source_archive_error
+# USAGE: set_source_archive_error_not_found
 # CALLED BY: set_source_archive
-set_source_archive_error () {
-case ${LANG%_*} in
-	fr) echo "$string_error_fr\nTODO set_source_archive_error (fr)" ;;
-	en|*) echo "$string_error_en\nTODO set_source_archive_error (en)" ;;
-esac
-return 1
+set_source_archive_error_not_found() {
+	case ${LANG%_*} in
+		('fr')
+			echo "$string_error_fr"
+			echo "La cible de ce script est introuvable"
+		;;
+		('en'|*)
+			echo "$string_error_en"
+			echo "The script target could not be found"
+		;;
+	esac
+	return 1
+}
+
+# display an error message telling the type of the target archive is not set
+# USAGE: set_source_archive_error_no_type
+# CALLED BY: set_source_archive_vars
+set_source_archive_error_no_type() {
+	case ${LANG%_*} in
+		('fr')
+			echo "$string_error_fr"
+			echo "ARCHIVE_TYPE n’est pas défini pour $SOURCE_ARCHIVE"
+		;;
+		('en'|*)
+			echo "$string_error_en"
+			echo "ARCHIVE_TYPE is not set for $SOURCE_ARCHIVE"
+		;;
+	esac
+	return 1
 }
 
 # set working directories
 # USAGE: set_workdir $pkg[…]
 # CALLS: set_workdir_workdir, testvar, set_workdir_pkg
 set_workdir() {
-[ $# = 1 ] && PKG="$1"
-set_workdir_workdir
-while [ $# -ge 1 ]; do
-	local pkg=$1
-	testvar "$pkg" 'PKG'
-	set_workdir_pkg $pkg
-	shift 1
-done
+	if [ $# = 1 ]; then
+		PKG="$1"
+	fi
+	set_workdir_workdir
+	while [ $# -ge 1 ]; do
+		local pkg=$1
+		testvar "$pkg" 'PKG'
+		set_workdir_pkg $pkg
+		shift 1
+	done
 }
 
 # set gobal working directory
@@ -599,21 +714,23 @@ done
 # NEEDED VARS: GAME_ID_SHORT, ARCHIVE, $ARCHIVE_UNCOMPRESSED_SIZE
 # CALLED BY: set_workdir
 set_workdir_workdir() {
-local workdir_name=$(mktemp --dry-run ${GAME_ID_SHORT}.XXXXX)
-local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
-local needed_space=$(($archive_size * 2))
-local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
-if [ $free_space_tmp -ge $needed_space ]; then
-	export PLAYIT_WORKDIR="/tmp/play.it/${workdir_name}"
-else
-	[ -w "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="${HOME}/.cache"
-	local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
-	if [ $free_space_cache -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="${$XDG_CACHE_HOME}/play.it/${workdir_name}"
+	local workdir_name=$(mktemp --dry-run ${GAME_ID_SHORT}.XXXXX)
+	local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
+	local needed_space=$(($archive_size * 2))
+	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
+	if [ $free_space_tmp -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="/tmp/play.it/${workdir_name}"
 	else
-		export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
+		if [ ! -w "$XDG_CACHE_HOME" ]; then
+			XDG_CACHE_HOME="${HOME}/.cache"
+		fi
+		local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
+		if [ $free_space_cache -ge $needed_space ]; then
+			export PLAYIT_WORKDIR="${$XDG_CACHE_HOME}/play.it/${workdir_name}"
+		else
+			export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
+		fi
 	fi
-fi
 }
 
 # set package-secific working directory
@@ -621,23 +738,27 @@ fi
 # NEEDED VARS: $pkg_ID, $pkg_VERSION, $pkg_ARCH, PLAYIT_WORKDIR
 # CALLED BY: set_workdir
 set_workdir_pkg() {
-local pkg_id="$(eval echo \$${pkg}_ID)"
-[ -n "$pkg_id" ] || pkg_id="$GAME_ID"
-local pkg_version="$(eval echo \$${pkg}_VERSION)"
-[ -n "$pkg_version" ] || pkg_version='1.0-1'
-case $PACKAGE_TYPE in
-	arch)
-		local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
-	;;
-	deb)
-		local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
-	;;
-	tar)
-		local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
-	;;
-esac
-local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
-export ${pkg}_PATH="$pkg_path"
+	local pkg_id="$(eval echo \$${pkg}_ID)"
+	if [ -z "$pkg_id" ]; then
+		pkg_id="$GAME_ID"
+	fi
+	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	if [ -z "$pkg_version" ]; then
+		pkg_version='1.0-1'
+	fi
+	case $PACKAGE_TYPE in
+		('arch')
+			local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
+		;;
+		('deb')
+			local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
+		;;
+		('tar')
+			local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
+		;;
+	esac
+	local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+	export ${pkg}_PATH="$pkg_path"
 }
 
 # create icons tree
@@ -648,14 +769,24 @@ sort_icons() {
 for app in $@; do
 	testvar "$app" 'APP' || liberror 'app' 'sort_icons'
 	local app_id="$(eval echo \$${app}_ID)"
-	[ -n "$app_id" ] || app_id="$GAME_ID"
+	if [ -z "$app_id" ]; then
+		app_id="$GAME_ID"
+	fi
 	local icon_res="$(eval echo \$${app}_ICON_RES)"
 	local pkg_path="$(eval echo \$${PKG}_PATH)"
 	case $PACKAGE_TYPE in
-		arch) sort_icons_arch ;;
-		deb) sort_icons_deb ;;
-		tar) sort_icons_tar ;;
-		*) liberror 'PACKAGE_TYPE' 'sort_icons'
+		('arch')
+			sort_icons_arch
+		;;
+		('deb')
+			sort_icons_deb
+		;;
+		('tar')
+			sort_icons_tar
+		;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'sort_icons'
+		;;
 	esac
 done
 }
@@ -665,13 +796,13 @@ done
 # NEEDED VARS: PATH_ICON_BASE, PLAYIT_WORKDIR
 # CALLED BY: sort_icons
 sort_icons_arch() {
-for res in $icon_res; do
-	path_icon="${PATH_ICON_BASE}/${res}/apps"
-	mkdir -p "${pkg_path}${path_icon}"
-	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-		mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+	for res in $icon_res; do
+		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		mkdir -p "${pkg_path}${path_icon}"
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+		done
 	done
-done
 }
 
 # create icons tree for .deb package
@@ -679,13 +810,13 @@ done
 # NEEDED VARS: PATH_ICON_BASE, PLAYIT_WORKDIR
 # CALLED BY: sort_icons
 sort_icons_deb() {
-for res in $icon_res; do
-	path_icon="${PATH_ICON_BASE}/${res}/apps"
-	mkdir -p "${pkg_path}${path_icon}"
-	for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-		mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+	for res in $icon_res; do
+		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		mkdir -p "${pkg_path}${path_icon}"
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
+		done
 	done
-done
 }
 
 # create icons tree for .tar archive
@@ -705,21 +836,25 @@ sort_icons_tar() {
 # test the validity of the argument given to parent function
 # USAGE: testvar $var_name $pattern
 testvar() {
-if [ -z "$(echo "$1" | grep ^${2})" ]; then
-	return 1
-fi
+	if [ -z "$(echo "$1" | grep ^${2})" ]; then
+		return 1
+	fi
 }
 
 # convert files name to lower case
-# USAGE: tolower $dir
+# USAGE: tolower $dir[…]
 tolower() {
-[ -d "$1" ] || return 1
-find "$1" -depth | while read file; do
-	newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
-	if [ "$newfile" != "$file" ] && [ "$file" != "$1" ]; then
-		mv --verbose "$file" "$newfile"
-	fi
-done
+	for dir in "$@"; do
+		if [ ! -d "$dir" ]; then
+			return 1
+		fi
+		find "$dir" -depth | while read file; do
+			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
+			if [ ! -e "$newfile" ] && [ "$file" != "$dir" ]; then
+				mv "$file" "$newfile"
+			fi
+		done
+	done
 }
 
 # write launcher script
@@ -727,229 +862,256 @@ done
 # NEEDED VARS: $app_ID, $app_TYPE, PKG_PATH, PATH_BIN, $app_EXE
 # CALLS: liberror, write_bin_header, write_bin_set_vars, write_bin_set_exe, write_bin_set_prefix, write_bin_build_userdirs, write_bin_build_prefix, write_bin_run
 write_bin() {
-for app in $@; do
-	testvar "$app" 'APP' || liberror 'app' 'write_bin'
-	local app_id="$(eval echo \$${app}_ID)"
-	[ -n "$app_id" ] || app_id="$GAME_ID"
-	local app_type="$(eval echo \$${app}_TYPE)"
-	local file="${PKG_PATH}${PATH_BIN}/${app_id}"
-	mkdir --parents "${file%/*}"
-	write_bin_header
-	write_bin_set_vars
-	if [ "$app_type" != 'scummvm' ]; then
-		local app_exe="$(eval echo \$${app}_EXE)"
-		write_bin_set_exe
-		write_bin_set_prefix
-		write_bin_build_userdirs
-		write_bin_build_prefix
-	fi
-	write_bin_run
-	chmod 755 "$file"
-done
+	for app in $@; do
+		testvar "$app" 'APP' || liberror 'app' 'write_bin'
+		local app_id="$(eval echo \$${app}_ID)"
+		if [ -z "$app_id" ]; then
+			app_id="$GAME_ID"
+		fi
+		local app_type="$(eval echo \$${app}_TYPE)"
+		local file="${PKG_PATH}${PATH_BIN}/${app_id}"
+		mkdir --parents "${file%/*}"
+		write_bin_header
+		write_bin_set_vars
+		if [ "$app_type" != 'scummvm' ]; then
+			local app_exe="$(eval echo \$${app}_EXE)"
+			write_bin_set_exe
+			write_bin_set_prefix
+			write_bin_build_userdirs
+			write_bin_build_prefix
+		fi
+		write_bin_run
+		sed -i 's/  /\t/g' "$file"
+		chmod 755 "$file"
+	done
 }
 
 # write launcher script header
 # USAGE: write_bin_header
 # CALLED BY: write_bin
 write_bin_header() {
-cat > "$file" << EOF
-#!/bin/sh
-set -o errexit
-
-EOF
+	cat > "$file" <<- EOF
+	#!/bin/sh
+	set -o errexit
+	
+	EOF
 }
 
 # write launcher script - set common user-writables directories
 # USAGE: write_bin_build_userdirs
 write_bin_build_userdirs() {
-cat >> "$file" << EOF
-# Build user-writable directories
-
-if [ ! -e "\$PATH_CACHE" ]; then
-	mkdir -p "\$PATH_CACHE"
-	init_userdir_dirs "\$PATH_CACHE" \$CACHE_DIRS
-	init_userdir_files "\$PATH_CACHE" \$CACHE_FILES
-fi
-if [ ! -e "\$PATH_CONFIG" ]; then
-	mkdir -p "\$PATH_CONFIG"
-	init_userdir_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
-	init_userdir_files "\$PATH_CONFIG" \$CONFIG_FILES
-fi
-if [ ! -e "\$PATH_DATA" ]; then
-	mkdir -p "\$PATH_DATA"
-	init_userdir_dirs "\$PATH_DATA" \$DATA_DIRS
-	init_userdir_files "\$PATH_DATA" \$DATA_FILES
-fi
-
-EOF
+	cat >> "$file" <<- EOF
+	# Build user-writable directories
+	
+	if [ ! -e "\$PATH_CACHE" ]; then
+	  mkdir --parents "\$PATH_CACHE"
+	  init_userdir_dirs "\$PATH_CACHE" \$CACHE_DIRS
+	  init_userdir_files "\$PATH_CACHE" \$CACHE_FILES
+	fi
+	if [ ! -e "\$PATH_CONFIG" ]; then
+	  mkdir --parents "\$PATH_CONFIG"
+	  init_userdir_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
+	  init_userdir_files "\$PATH_CONFIG" \$CONFIG_FILES
+	fi
+	if [ ! -e "\$PATH_DATA" ]; then
+	  mkdir --parents "\$PATH_DATA"
+	  init_userdir_dirs "\$PATH_DATA" \$DATA_DIRS
+	  init_userdir_files "\$PATH_DATA" \$DATA_FILES
+	fi
+	
+	EOF
 }
 
 # write launcher script - set WINE-specific user-writables directories
 # USAGE: write_bin_build_userdirs_wine
 write_bin_build_userdirs_wine() {
-cat >> "$file" << EOF
-export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
-if ! [ -e "\$WINEPREFIX" ]; then
-	mkdir -p "\${WINEPREFIX%/*}"
-	wineboot -i 2>/dev/null
-	rm "\${WINEPREFIX}/dosdevices/z:"
-fi
-EOF
+	cat >> "$file" <<- EOF
+	export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
+	if ! [ -e "\$WINEPREFIX" ]; then
+	  mkdir --parents "\${WINEPREFIX%/*}"
+	  wineboot --init 2>/dev/null
+	  rm "\${WINEPREFIX}/dosdevices/z:"
+	fi
+	EOF
 }
 
 # write launcher script - build game prefix
 # USAGE: write_bin_build_prefix
 write_bin_build_prefix() {
-cat >> "$file" << EOF
-# Build prefix
-
-EOF
-[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
-cat >> "$file" << EOF
-if [ ! -e "\$PATH_PREFIX" ]; then
-	mkdir -p "\$PATH_PREFIX"
-	cp -surf "\${PATH_GAME}"/* "\${PATH_PREFIX}"
-fi
-init_prefix_files "\$PATH_CACHE"
-init_prefix_files "\$PATH_CONFIG"
-init_prefix_files "\$PATH_DATA"
-init_prefix_dirs "\$PATH_CACHE" \$CACHE_DIRS
-init_prefix_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
-init_prefix_dirs "\$PATH_DATA" \$DATA_DIRS
-
-EOF
+	cat >> "$file" <<- EOF
+	# Build prefix
+	
+	EOF
+	[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
+	cat >> "$file" <<- EOF
+	if [ ! -e "\$PATH_PREFIX" ]; then
+	  mkdir --parents "\$PATH_PREFIX"
+	  cp --force --recursive --symbolic-link --update "\${PATH_GAME}"/* "\${PATH_PREFIX}"
+	fi
+	init_prefix_files "\$PATH_CACHE"
+	init_prefix_files "\$PATH_CONFIG"
+	init_prefix_files "\$PATH_DATA"
+	init_prefix_dirs "\$PATH_CACHE" \$CACHE_DIRS
+	init_prefix_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
+	init_prefix_dirs "\$PATH_DATA" \$DATA_DIRS
+	
+	EOF
 }
 
 # write launcher script - run the game, then clean the user-writable directories
 # USAGE: write_bin_run
 # CALLS: write_bin_run_dosbox, write_bin_run_native, write_bin_run_scummvm, write_bin_run_wine 
 write_bin_run() {
-cat >> "$file" << EOF
-# Run the game
-
-EOF
-case $app_type in
-	dosbox) write_bin_run_dosbox ;;
-	native) write_bin_run_native ;;
-	scummvm) write_bin_run_scummvm ;;
-	wine) write_bin_run_wine ;;
-esac
-if ! [ $app_type = 'scummvm' ]; then
+	cat >> "$file" <<- EOF
+	# Run the game
+	
+	EOF
+	case $app_type in
+		('dosbox')
+			write_bin_run_dosbox
+		;;
+		('native')
+			write_bin_run_native
+		;;
+		('scummvm')
+			write_bin_run_scummvm
+		;;
+		('wine')
+			write_bin_run_wine
+		;;
+	esac
+	if [ $app_type != 'scummvm' ]; then
+		cat >> "$file" <<- EOF
+		
+		sleep 5
+		clean_userdir "\$PATH_CACHE" \$CACHE_FILES
+		clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
+		clean_userdir "\$PATH_DATA" \$DATA_FILES
+		EOF
+	fi
 	cat >> "$file" <<- EOF
 	
-	sleep 5
-	clean_userdir "\$PATH_CACHE" \$CACHE_FILES
-	clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
-	clean_userdir "\$PATH_DATA" \$DATA_FILES
+	exit 0
 	EOF
-fi
-cat >> "$file" <<- EOF
-
-exit 0
-EOF
 }
 
 # write launcher script - run the DOSBox game
 # USAGE: write_bin_run_dosbox
 # CALLED BY: write_bin_run
 write_bin_run_dosbox() {
-cat >> "$file" << EOF
-cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-dosbox -c "mount c .
-imgmount d \$GAME_IMAGE -t iso -fs iso
-c:
-\${APP_EXE##*/} \$@
-exit"
-EOF
+	cat >> "$file" <<- EOF
+	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+	dosbox -c "mount c .
+	imgmount d \$GAME_IMAGE -t iso -fs iso
+	c:
+	\${APP_EXE##*/} \$@
+	exit"
+	EOF
 }
 
 # write launcher script - run the native game
 # USAGE: write_bin_run_native
 # CALLED BY: write_bin_run
 write_bin_run_native() {
-cat >> "$file" << EOF
-cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-./\${APP_EXE##*/} \$@
-EOF
+	cat >> "$file" <<- EOF
+	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+	./\${APP_EXE##*/} \$@
+	EOF
 }
 
 # write launcher script - run the ScummVM game
 # USAGE: write_bin_run_scummvm
 # CALLED BY: write_bin_run
 write_bin_run_scummvm() {
-cat >> "$file" << EOF
-scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
-EOF
+	cat >> "$file" <<- EOF
+	scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
+	EOF
 }
 
 # write launcher script - run the WINE game
 # USAGE: write_bin_run_wine
 # CALLED BY: write_bin_run
 write_bin_run_wine() {
-cat >> "$file" << EOF
-cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-wine "\${APP_EXE##*/}" \$@
-EOF
+	cat >> "$file" <<- EOF
+	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+	wine "\${APP_EXE##*/}" \$@
+	EOF
 }
 
 # write launcher script - set common vars
 # USAGE: write_bin_set_vars
 write_bin_set_vars() {
-cat >> "$file" << EOF
-# Set game-specific variables
-
-GAME_ID="$GAME_ID"
-PATH_GAME="$PATH_GAME"
-
-EOF
-if [ "$app_type" != 'scummvm' ]; then
 	cat >> "$file" <<- EOF
-	CACHE_DIRS='$CACHE_DIRS'
-	CACHE_FILES='$CACHE_FILES'
+	# Set game-specific variables
 	
-	CONFIG_DIRS='$CONFIG_DIRS'
-	CONFIG_FILES='$CONFIG_FILES'
-	
-	DATA_DIRS='$DATA_DIRS'
-	DATA_FILES='$DATA_FILES'
+	GAME_ID="$GAME_ID"
+	PATH_GAME="$PATH_GAME"
 	
 	EOF
-else
-	cat >> "$file" <<- EOF
-	SCUMMVM_ID='$(eval echo \$${app}_SCUMMID)'
+	if [ "$app_type" != 'scummvm' ]; then
+		cat >> "$file" <<- EOF
+		CACHE_DIRS='$CACHE_DIRS'
+		CACHE_FILES='$CACHE_FILES'
 	
-	EOF
-fi
+		CONFIG_DIRS='$CONFIG_DIRS'
+		CONFIG_FILES='$CONFIG_FILES'
+	
+		DATA_DIRS='$DATA_DIRS'
+		DATA_FILES='$DATA_FILES'
+	
+		EOF
+	else
+		cat >> "$file" <<- EOF
+		SCUMMVM_ID='$(eval echo \$${app}_SCUMMID)'
+	
+		EOF
+	fi
 }
 
 # write launcher script - set target binary/script to run the game
 # USAGE: write_bin_set_exe
 write_bin_set_exe() {
-cat >> "$file" << EOF
-# Set executable file
-
-unset APP_EXE
-case "\${0##*/}" in
-	$app_id) APP_EXE="$app_exe" ;;
-	*) [ -n "\$1" ] && APP_EXE="\$1" && shift 1 ;;
-esac
-
-EOF
-[ "$app_type" = 'wine' ] && echo "[ -z \"\$APP_EXE\" ] && APP_EXE='winecfg'\n" >> "$file"
+	cat >> "$file" <<- EOF
+	# Set executable file
+	
+	unset APP_EXE
+	case "\${0##*/}" in
+	  ('$app_id')
+	    APP_EXE="$app_exe"
+	  ;;
+	  (*)
+	    if [ -n "\$1" ]; then
+	      APP_EXE="\$1"
+	      shift 1
+	    fi
+	  ;;
+	esac
+	
+	EOF
+	if [ "$app_type" = 'wine' ]; then
+		cat >> "$file" <<- EOF
+		if [ -z \"\$APP_EXE\" ]; then
+		  APP_EXE='winecfg'
+		fi
+		
+		EOF
+	fi
 }
 
 # write launcher script - set prefix path
 # USAGE: write_bin_set_prefix
 # CALLS: write_bin_set_prefix_vars, write_bin_set_prefix_funcs
 write_bin_set_prefix() {
-cat >> "$file" << EOF
-# Set prefix name
-
-[ -n "\$PREFIX_ID" ] || PREFIX_ID="$GAME_ID"
-
-EOF
-write_bin_set_prefix_vars
-write_bin_set_prefix_funcs
+	cat >> "$file" <<- EOF
+	# Set prefix name
+	
+	if [ -z "\$PREFIX_ID" ]; then
+	  PREFIX_ID="$GAME_ID"
+	fi
+	
+	EOF
+	write_bin_set_prefix_vars
+	write_bin_set_prefix_funcs
 }
 
 # write launcher script - set prefix-specific vars
@@ -957,107 +1119,113 @@ write_bin_set_prefix_funcs
 # CALLED BY: write_bin_set_prefix
 # CALLS: write_bin_set_prefix_wine
 write_bin_set_prefix_vars() {
-cat >> "$file" << EOF
-# Set prefix-specific variables
-
-[ -w "\$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="\${HOME}/.cache"
-[ -w "\$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="\${HOME}/.config"
-[ -w "\$XDG_DATA_HOME" ] || XDG_DATA_HOME="\${HOME}/.local/share"
-
-PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
-PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
-PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
-EOF
-if [ "$app_type" = 'wine' ] ; then
-	write_bin_set_prefix_vars_wine
-else
 	cat >> "$file" <<- EOF
-	PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+	# Set prefix-specific variables
+	
+	if [ ! -w "\$XDG_CACHE_HOME" ]; then
+	  XDG_CACHE_HOME="\${HOME}/.cache"
+	fi
+	if [ ! -w "\$XDG_CONFIG_HOME" ]; then
+	  XDG_CONFIG_HOME="\${HOME}/.config"
+	fi
+	if [ ! -w "\$XDG_DATA_HOME" ]; then
+	  XDG_DATA_HOME="\${HOME}/.local/share"
+	fi
+	
+	PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
+	PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
+	PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
 	EOF
-fi
+	if [ "$app_type" = 'wine' ] ; then
+		write_bin_set_prefix_vars_wine
+	else
+		cat >> "$file" <<- EOF
+		PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+		EOF
+	fi
 }
 
 # write launcher script - set WINE-specific prefix-specific vars
 # USAGE: write_bin_set_prefix_vars_wine
 # CALLED BY: write_bin_set_prefix_vars
 write_bin_set_prefix_vars_wine() {
-cat >> "$file" << EOF
-WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
-PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
-WINEARCH='win32'
-WINEDEBUG='-all'
-WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
-
-EOF
+	cat >> "$file" <<- EOF
+	WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+	PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
+	WINEARCH='win32'
+	WINEDEBUG='-all'
+	WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
+	
+	EOF
 }
 
 # write launcher script - set prefix-specific functions
 # USAGE: write_bin_set_prefix_funcs
 # CALLED BY: write_bin_set_prefix
 write_bin_set_prefix_funcs() {
-cat >> "$file" << EOF
-clean_userdir() {
-local target="\$1"
-shift 1
-for file in "\$@"; do
-if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
-	mkdir -p "\${target}/\${file%/*}"
-	mv "\${file}" "\${target}/\${file}"
-	ln -s "\${target}/\${file}" "\${file}"
-fi
-done
-}
-
-init_prefix_dirs() {
-cd "\$1"
-shift 1
-for dir in "\$@"; do
-	rm -rf "\${PATH_PREFIX}/\${dir}"
-	mkdir -p "\${PATH_PREFIX}/\${dir%/*}"
-	ln -s "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
-done
-cd - 1>/dev/null
-}
-
-init_prefix_files() {
-cd "\$1"
-find . -type f | while read file; do
-	rm -f "\${PATH_PREFIX}/\${file}"
-	mkdir -p "\${PATH_PREFIX}/\${file%/*}"
-	ln -s "\$(readlink -e "\${file}")" "\${PATH_PREFIX}/\${file}"
-done
-cd - 1>/dev/null
-}
-
-init_userdir_dirs() {
-cd "\$1"
-shift 1
-for dir in "\$@"; do
-if ! [ -e "\$dir" ]; then
-	if [ -e "\${PATH_GAME}/\${dir}" ]; then
-		mkdir -p "\${dir%/*}"
-		cp -r "\${PATH_GAME}/\${dir}" "\$dir"
-	else
-		mkdir -p "\$dir"
-	fi
-fi
-done
-cd - 1>/dev/null
-}
-
-init_userdir_files() {
-cd "\$1"
-shift 1
-for file in "\$@"; do
-if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	mkdir -p "\${file%/*}"
-	cp "\${PATH_GAME}/\${file}" "\$file"
-fi
-done
-cd - 1>/dev/null
-}
-
-EOF
+	cat >> "$file" <<- EOF
+	clean_userdir() {
+	  local target="\$1"
+	  shift 1
+	  for file in "\$@"; do
+	  if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
+	    mkdir --parents "\${target}/\${file%/*}"
+	    mv "\${file}" "\${target}/\${file}"
+	    ln --symbolic "\${target}/\${file}" "\${file}"
+	  fi
+	  done
+	}
+	
+	init_prefix_dirs() {
+	  cd "\$1"
+	  shift 1
+	  for dir in "\$@"; do
+	    rm --force --recursive "\${PATH_PREFIX}/\${dir}"
+	    mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
+	    ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+	  done
+	  cd - > /dev/null
+	}
+	
+	init_prefix_files() {
+	  cd "\$1"
+	  find . -type f | while read file; do
+	    rm --force "\${PATH_PREFIX}/\${file}"
+	    mkdir --parents "\${PATH_PREFIX}/\${file%/*}"
+	    ln --symbolic "\$(readlink -e "\${file}")" "\${PATH_PREFIX}/\${file}"
+	  done
+	  cd - > /dev/null
+	}
+	
+	init_userdir_dirs() {
+	  cd "\$1"
+	  shift 1
+	  for dir in "\$@"; do
+	  if ! [ -e "\$dir" ]; then
+	    if [ -e "\${PATH_GAME}/\${dir}" ]; then
+	      mkdir --parents "\${dir%/*}"
+	      cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
+	    else
+	      mkdir --parents "\$dir"
+	    fi
+	  fi
+	  done
+	  cd - > /dev/null
+	}
+	
+	init_userdir_files() {
+	  cd "\$1"
+	  shift 1
+	  for file in "\$@"; do
+	  if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
+	    mkdir --parents "\${file%/*}"
+	    cp "\${PATH_GAME}/\${file}" "\$file"
+	  fi
+	  done
+	  cd - > /dev/null
+	}
+	
+	EOF
 }
 
 # write menu entry
@@ -1065,26 +1233,32 @@ EOF
 # NEEDED VARS: $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
 # CALLS: liberror
 write_desktop() {
-for app in $@; do
-	testvar "$app" 'APP' || liberror 'app' 'write_desktop'
-	local app_id="$(eval echo \$${app}_ID)"
-	[ -n "$app_id" ] || app_id="$GAME_ID"
-	local app_name="$(eval echo \$${app}_NAME)"
-	[ -n "$app_name" ] || app_name="$GAME_NAME"
-	local app_cat="$(eval echo \$${app}_CAT)"
-	[ -n "$app_cat" ] || app_cat='Game'
-	local target="${PKG_PATH}${PATH_DESK}/${app_id}.desktop"
-	mkdir --parents "${target%/*}"
-	cat > "${target}" <<- EOF
-	[Desktop Entry]
-	Version=1.0
-	Type=Application
-	Name=$app_name
-	Icon=$app_id
-	Exec=$app_id
-	Categories=$app_cat
-	EOF
-done
+	for app in $@; do
+		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
+		local id="$(eval echo \$${app}_ID)"
+		if [ -z "$id" ]; then
+			id="$GAME_ID"
+		fi
+		local name="$(eval echo \$${app}_NAME)"
+		if [ -z "$name" ]; then
+			name="$GAME_NAME"
+		fi
+		local cat="$(eval echo \$${app}_CAT)"
+		if [ -z "$cat" ]; then
+			cat='Game'
+		fi
+		local target="${PKG_PATH}${PATH_DESK}/${id}.desktop"
+		mkdir --parents "${target%/*}"
+		cat > "${target}" <<- EOF
+		[Desktop Entry]
+		Version=1.0
+		Type=Application
+		Name=$name
+		Icon=$id
+		Exec=$id
+		Categories=$cat
+		EOF
+	done
 }
 
 # write package meta-data
@@ -1092,83 +1266,87 @@ done
 # NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
 # CALLS: testvar, liberror, write_metadata_arch, write_metadata_deb
 write_metadata() {
-for pkg in $@; do
-	testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
-	local pkg_desc="$(eval echo \$${pkg}_DESC)"
-	local pkg_id="$(eval echo \$${pkg}_ID)"
-	[ -n "$pkg_id" ] || pkg_id="$GAME_ID"
-	local pkg_maint="$(whoami)@$(hostname)"
-	local pkg_path="$(eval echo \$${pkg}_PATH)"
-	local pkg_version="$(eval echo \$${pkg}_VERSION)"
-	[ -n "$pkg_version" ] || pkg_version='1.0-1'
-	case $PACKAGE_TYPE in
-		arch)
-			local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
-			local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_ARCH)"
-			local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
-			local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
-			write_metadata_arch
-		;;
-		deb)
-			local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
-			local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_DEB)"
-			local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
-			local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
-			write_metadata_deb
-		;;
-		tar)
-			return 0
-		;;
-	esac
-done
+	for pkg in $@; do
+		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
+		local pkg_desc="$(eval echo \$${pkg}_DESC)"
+		local pkg_id="$(eval echo \$${pkg}_ID)"
+		if [ -z "$pkg_id" ]; then
+			pkg_id="$GAME_ID"
+		fi
+		local pkg_maint="$(whoami)@$(hostname)"
+		local pkg_path="$(eval echo \$${pkg}_PATH)"
+		local pkg_version="$(eval echo \$${pkg}_VERSION)"
+		if [ -z "$pkg_version" ]; then
+			pkg_version='1.0-1'
+		fi
+		case $PACKAGE_TYPE in
+			('arch')
+				local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
+				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_ARCH)"
+				local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+				local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
+				write_metadata_arch
+			;;
+			('deb')
+				local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
+				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_DEB)"
+				local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
+				write_metadata_deb
+			;;
+			('tar')
+				return 0
+			;;
+		esac
+	done
 }
 
 # write .pkg.tar.xz package meta-data
 # USAGE: write_metadata_arch
 # CALLED BY: write_metadata
 write_metadata_arch() {
-local target="${pkg_path}/.PKGINFO"
-mkdir --parents "${target%/*}"
-cat > "${target}" << EOF
-pkgname = $pkg_id
-pkgver = $pkg_version
-pkgdesc = $pkg_desc
-packager = $pkg_maint
-builddate = $(date +"%m%d%Y")
-size = $pkg_size
-arch = $pkg_arch
-EOF
-for dep in $pkg_deps; do
-	cat >> "${target}" <<- EOF
-	depends = $dep
+	local target="${pkg_path}/.PKGINFO"
+	mkdir --parents "${target%/*}"
+	cat > "${target}" <<- EOF
+	pkgname = $pkg_id
+	pkgver = $pkg_version
+	pkgdesc = $pkg_desc
+	packager = $pkg_maint
+	builddate = $(date +"%m%d%Y")
+	size = $pkg_size
+	arch = $pkg_arch
 	EOF
-done
-for conflict in $pkg_conflicts; do
-	cat >> "${target}" <<- EOF
-	conflicts = $conflict
-	EOF
-done
+	for dep in $pkg_deps; do
+		cat >> "${target}" <<- EOF
+		depends = $dep
+		EOF
+	done
+	for conflict in $pkg_conflicts; do
+		cat >> "${target}" <<- EOF
+		conflicts = $conflict
+		EOF
+	done
 }
 
 # write .deb package meta-data
 # USAGE: write_metadata_deb
 # CALLED BY: write_metadata
 write_metadata_deb() {
-local target="${pkg_path}/DEBIAN/control"
-mkdir --parents "${target%/*}"
-cat > "${target}" << EOF
-Package: $pkg_id
-Version: $pkg_version
-Architecture: $pkg_arch
-Maintainer: $pkg_maint
-Installed-Size: $pkg_size
-Conflicts: $pkg_conflicts
-Depends: $pkg_deps
-Section: non-free/games
-Description: $pkg_desc
-EOF
-if [ "$pkg_arch" = 'all' ]; then
-	sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
-fi
+	local target="${pkg_path}/DEBIAN/control"
+	mkdir --parents "${target%/*}"
+	cat > "${target}" <<- EOF
+	Package: $pkg_id
+	Version: $pkg_version
+	Architecture: $pkg_arch
+	Maintainer: $pkg_maint
+	Installed-Size: $pkg_size
+	Conflicts: $pkg_conflicts
+	Depends: $pkg_deps
+	Section: non-free/games
+	Description: $pkg_desc
+	EOF
+	if [ "$pkg_arch" = 'all' ]; then
+		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
+	fi
 }
 
