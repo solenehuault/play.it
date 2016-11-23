@@ -22,6 +22,7 @@ write_bin() {
 			write_bin_build_prefix
 		fi
 		write_bin_run
+		sed -i 's/  /\t/g' "$file"
 		chmod 755 "$file"
 	done
 }
