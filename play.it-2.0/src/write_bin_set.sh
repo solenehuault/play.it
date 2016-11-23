@@ -36,14 +36,24 @@ write_bin_set_exe() {
 	
 	unset APP_EXE
 	case "\${0##*/}" in
-		('$app_id') APP_EXE="$app_exe" ;;
-		(*) [ -n "\$1" ] && APP_EXE="\$1" && shift 1 ;;
+	  ('$app_id')
+	    APP_EXE="$app_exe"
+	  ;;
+	  (*)
+	    if [ -n "\$1" ]; then
+	      APP_EXE="\$1"
+	      shift 1
+	    fi
+	  ;;
 	esac
 	
 	EOF
 	if [ "$app_type" = 'wine' ]; then
 		cat >> "$file" <<- EOF
-		[ -z \"\$APP_EXE\" ] && APP_EXE='winecfg'
+		if [ -z \"\$APP_EXE\" ]; then
+		  APP_EXE='winecfg'
+		fi
+		
 		EOF
 	fi
 }
@@ -55,7 +65,9 @@ write_bin_set_prefix() {
 	cat >> "$file" <<- EOF
 	# Set prefix name
 	
-	[ -n "\$PREFIX_ID" ] || PREFIX_ID="$GAME_ID"
+	if [ -z "\$PREFIX_ID" ]; then
+	  PREFIX_ID="$GAME_ID"
+	fi
 	
 	EOF
 	write_bin_set_prefix_vars
@@ -70,9 +82,15 @@ write_bin_set_prefix_vars() {
 	cat >> "$file" <<- EOF
 	# Set prefix-specific variables
 	
-	[ -w "\$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="\${HOME}/.cache"
-	[ -w "\$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="\${HOME}/.config"
-	[ -w "\$XDG_DATA_HOME" ] || XDG_DATA_HOME="\${HOME}/.local/share"
+	if [ ! -w "\$XDG_CACHE_HOME" ]; then
+	  XDG_CACHE_HOME="\${HOME}/.cache"
+	fi
+	if [ ! -w "\$XDG_CONFIG_HOME" ]; then
+	  XDG_CONFIG_HOME="\${HOME}/.config"
+	fi
+	if [ ! -w "\$XDG_DATA_HOME" ]; then
+	  XDG_DATA_HOME="\${HOME}/.local/share"
+	fi
 	
 	PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
 	PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
@@ -107,64 +125,64 @@ write_bin_set_prefix_vars_wine() {
 write_bin_set_prefix_funcs() {
 	cat >> "$file" <<- EOF
 	clean_userdir() {
-	local target="\$1"
-	shift 1
-	for file in "\$@"; do
-	if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
-	  mkdir -p "\${target}/\${file%/*}"
-	  mv "\${file}" "\${target}/\${file}"
-	  ln -s "\${target}/\${file}" "\${file}"
-	fi
-	done
+	  local target="\$1"
+	  shift 1
+	  for file in "\$@"; do
+	  if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
+	    mkdir --parents "\${target}/\${file%/*}"
+	    mv "\${file}" "\${target}/\${file}"
+	    ln --symbolic "\${target}/\${file}" "\${file}"
+	  fi
+	  done
 	}
 	
 	init_prefix_dirs() {
-	cd "\$1"
-	shift 1
-	for dir in "\$@"; do
-	  rm -rf "\${PATH_PREFIX}/\${dir}"
-	  mkdir -p "\${PATH_PREFIX}/\${dir%/*}"
-	  ln -s "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
-	done
-	cd - > /dev/null
+	  cd "\$1"
+	  shift 1
+	  for dir in "\$@"; do
+	    rm --force --recursive "\${PATH_PREFIX}/\${dir}"
+	    mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
+	    ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+	  done
+	  cd - > /dev/null
 	}
 	
 	init_prefix_files() {
-	cd "\$1"
-	find . -type f | while read file; do
-	  rm -f "\${PATH_PREFIX}/\${file}"
-	  mkdir -p "\${PATH_PREFIX}/\${file%/*}"
-	  ln -s "\$(readlink -e "\${file}")" "\${PATH_PREFIX}/\${file}"
-	done
-	cd - > /dev/null
+	  cd "\$1"
+	  find . -type f | while read file; do
+	    rm --force "\${PATH_PREFIX}/\${file}"
+	    mkdir --parents "\${PATH_PREFIX}/\${file%/*}"
+	    ln --symbolic "\$(readlink -e "\${file}")" "\${PATH_PREFIX}/\${file}"
+	  done
+	  cd - > /dev/null
 	}
 	
 	init_userdir_dirs() {
-	cd "\$1"
-	shift 1
-	for dir in "\$@"; do
-	if ! [ -e "\$dir" ]; then
-	  if [ -e "\${PATH_GAME}/\${dir}" ]; then
-	    mkdir -p "\${dir%/*}"
-	    cp -r "\${PATH_GAME}/\${dir}" "\$dir"
-	  else
-	    mkdir -p "\$dir"
+	  cd "\$1"
+	  shift 1
+	  for dir in "\$@"; do
+	  if ! [ -e "\$dir" ]; then
+	    if [ -e "\${PATH_GAME}/\${dir}" ]; then
+	      mkdir --parents "\${dir%/*}"
+	      cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
+	    else
+	      mkdir --parents "\$dir"
+	    fi
 	  fi
-	fi
-	done
-	cd - > /dev/null
+	  done
+	  cd - > /dev/null
 	}
 	
 	init_userdir_files() {
-	cd "\$1"
-	shift 1
-	for file in "\$@"; do
-	if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	  mkdir -p "\${file%/*}"
-	  cp "\${PATH_GAME}/\${file}" "\$file"
-	fi
-	done
-	cd - > /dev/null
+	  cd "\$1"
+	  shift 1
+	  for file in "\$@"; do
+	  if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
+	    mkdir --parents "\${file%/*}"
+	    cp "\${PATH_GAME}/\${file}" "\$file"
+	  fi
+	  done
+	  cd - > /dev/null
 	}
 	
 	EOF
