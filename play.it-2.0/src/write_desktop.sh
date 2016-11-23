@@ -3,25 +3,31 @@
 # NEEDED VARS: $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
 # CALLS: liberror
 write_desktop() {
-for app in $@; do
-	testvar "$app" 'APP' || liberror 'app' 'write_desktop'
-	local app_id="$(eval echo \$${app}_ID)"
-	[ -n "$app_id" ] || app_id="$GAME_ID"
-	local app_name="$(eval echo \$${app}_NAME)"
-	[ -n "$app_name" ] || app_name="$GAME_NAME"
-	local app_cat="$(eval echo \$${app}_CAT)"
-	[ -n "$app_cat" ] || app_cat='Game'
-	local target="${PKG_PATH}${PATH_DESK}/${app_id}.desktop"
-	mkdir --parents "${target%/*}"
-	cat > "${target}" <<- EOF
-	[Desktop Entry]
-	Version=1.0
-	Type=Application
-	Name=$app_name
-	Icon=$app_id
-	Exec=$app_id
-	Categories=$app_cat
-	EOF
-done
+	for app in $@; do
+		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
+		local id="$(eval echo \$${app}_ID)"
+		if [ -z "$id" ]; then
+			id="$GAME_ID"
+		fi
+		local name="$(eval echo \$${app}_NAME)"
+		if [ -z "$name" ]; then
+			name="$GAME_NAME"
+		fi
+		local cat="$(eval echo \$${app}_CAT)"
+		if [ -z "$cat" ]; then
+			cat='Game'
+		fi
+		local target="${PKG_PATH}${PATH_DESK}/${id}.desktop"
+		mkdir --parents "${target%/*}"
+		cat > "${target}" <<- EOF
+		[Desktop Entry]
+		Version=1.0
+		Type=Application
+		Name=$name
+		Icon=$id
+		Exec=$id
+		Categories=$cat
+		EOF
+	done
 }
 
