@@ -69,3 +69,4 @@ sort_icons_tar() {
 		done
 	done
 }
+
