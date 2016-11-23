@@ -30,13 +30,17 @@ set_source_archive_vars() {
 	set_source_archive_print
 	ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
 	if [ -z "$ARCHIVE_TYPE" ]; then
-		if [ -n "$(echo "${SOURCE_ARCHIVE##*/}" | grep '^gog_.*\.sh$')" ]; then
-			ARCHIVE_TYPE='mojosetup'
-		elif [ -n "$(echo "${SOURCE_ARCHIVE##*/}" | grep '^setup_.*\.exe$')" ]; then
-			ARCHIVE_TYPE='innosetup'
-		else
-			set_source_archive_error_no_type
-		fi
+		case "${SOURCE_ARCHIVE##*/}" in
+			(gog_*.sh)
+				ARCHIVE_TYPE='mojosetup'
+			;;
+			(setup_*.exe)
+				ARCHIVE_TYPE='innosetup'
+			;;
+			(*)
+				set_source_archive_error_no_type
+			;;
+		esac
 		eval ${archive}_TYPE=$ARCHIVE_TYPE
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
