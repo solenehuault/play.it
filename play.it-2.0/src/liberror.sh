@@ -5,11 +5,11 @@ liberror() {
 	local value="$(eval echo \$$var)"
 	local func="$2"
 	case ${LANG%_*} in
-		fr)
+		('fr')
 			echo "$string_error_fr"
 			echo "valeur incorrecte pour $var appelée par $func : $value"
 		;;
-		en|*)
+		('en'|*)
 			echo "$string_error_en"
 			echo "invalid value for $var called by $func: $value"
 		;;
