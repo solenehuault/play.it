@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161125.1
+script_version=20161125.2
 
 # Set game-specific variables
 
@@ -156,7 +156,7 @@ game_mkdir 'PKG_COMMON_DIR' "${PKG_COMMON_ID}_${PKG_VERSION}_${PKG_COMMON_ARCH}"
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
-PATH_ICON="${PATH_ICON_BASE}/${APP_MAIN_ICON_RES}/apps"
+PATH_ICON="/usr/local/share/icons/hicolor/${APP_MAIN_ICON_RES}/apps"
 
 # Check target files integrity
 
