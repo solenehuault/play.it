@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161125.1
+script_version=20161125.2
 
 # Set game-specific variables
 
@@ -53,11 +53,13 @@ GAME_ARCHIVE_GOG_TYPE='mojo'
 GAME_ARCHIVE_GOG_VERSION='1.1-gog2.2.0.8'
 
 INSTALLER_DOC1_PATH='data/noarch/docs'
-INSTALLER_DOC1_FILES='./*.pdf ./*.txt'
+INSTALLER_DOC1_FILES_MAIN='./*.pdf'
+INSTALLER_DOC1_FILES_L10N='./*.txt'
 INSTALLER_DOC2_PATH='data/noarch/data'
 INSTALLER_DOC2_FILES='./*.txt'
 INSTALLER_GAME_PATH='data/noarch/data'
-INSTALLER_GAME_FILES='./*'
+INSTALLER_GAME_FILES_MAIN='./*.ini alife/*.ini alife/install.bat alife/dos4gw.exe alife/uvconfig.exe'
+INSTALLER_GAME_FILES_L10N='./*'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -87,6 +89,22 @@ PKG_MAIN_RECS=''
 PKG_MAIN_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
+
+PKG_L10N_ID_EN="${GAME_ID}-l10n-en"
+PKG_L10N_ID_FR="${GAME_ID}-l10n-fr"
+PKG_L10N_ARCH='all'
+PKG_L10N_CONFLICTS_EN="${PKG_L10N_ID_FR}"
+PKG_L10N_CONFLICTS_FR="${PKG_L10N_ID_EN}"
+PKG_L10N_DEPS=''
+PKG_L10N_RECS=''
+PKG_L10N_DESC_EN="${GAME_NAME} - English files
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+PKG_L10N_DESC_FR="${GAME_NAME} - French files
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+
+PKG_MAIN_DEPS="${PKG_L10N_ID_EN} | ${PKG_L10N_ID_FR}, ${PKG_MAIN_DEPS}"
 
 # Load common functions
 
@@ -136,9 +154,15 @@ set_target '2' 'gog.com'
 case "${GAME_ARCHIVE##*/}" in
 	("${GAME_ARCHIVE_GOG_EN}")
 		GAME_ARCHIVE_MD5="${GAME_ARCHIVE_GOG_EN_MD5}"
+		PKG_L10N_ID="${PKG_L10N_ID_EN}"
+		PKG_L10N_CONFLICTS="${PKG_L10N_CONFLICTS_EN}"
+		PKG_L10N_DESC="${PKG_L10N_DESC_EN}"
 	;;
 	("${GAME_ARCHIVE_GOG_FR}")
 		GAME_ARCHIVE_MD5="${GAME_ARCHIVE_GOG_FR_MD5}"
+		PKG_L10N_ID="${PKG_L10N_ID_FR}"
+		PKG_L10N_CONFLICTS="${PKG_L10N_CONFLICTS_FR}"
+		PKG_L10N_DESC="${PKG_L10N_DESC_FR}"
 	;;
 esac
 GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE_GOG_FULLSIZE}"
@@ -148,6 +172,7 @@ printf '\n'
 
 game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 game_mkdir 'PKG_MAIN_DIR' "${PKG_MAIN_ID}_${PKG_VERSION}_${PKG_MAIN_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_L10N_DIR' "${PKG_L10N_ID}_${PKG_VERSION}_${PKG_L10N_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -165,12 +190,15 @@ fi
 
 printf '%s…\n' "$(l10n 'build_pkg_dirs')"
 
-rm -Rf "${PKG_MAIN_DIR}"
-mkdir -p "${PKG_MAIN_DIR}/DEBIAN"
+for pkg_dir in "${PKG_MAIN_DIR}" "${PKG_L10N_DIR}"; do
+	rm -Rf "${pkg_dir}"
+	mkdir -p "${pkg_dir}/DEBIAN"
+	mkdir -p "${pkg_dir}${PATH_DOC}"
+	mkdir -p "${pkg_dir}${PATH_GAME}"
+done
+
 mkdir -p "${PKG_MAIN_DIR}${PATH_BIN}"
-mkdir -p "${PKG_MAIN_DIR}${PATH_DOC}"
 mkdir -p "${PKG_MAIN_DIR}${PATH_DESK}"
-mkdir -p "${PKG_MAIN_DIR}${PATH_GAME}"
 mkdir -p "${PKG_MAIN_DIR}${PATH_ICON}"
 
 print wait
@@ -190,8 +218,13 @@ done
 cd - > /dev/null
 
 cd "${PKG_TMPDIR}/${INSTALLER_GAME_PATH}"
-for file in ${INSTALLER_GAME_FILES}; do
-	mv "${file}" "${PKG_MAIN_DIR}${PATH_GAME}"
+for file in ${INSTALLER_GAME_FILES_MAIN}; do
+	mkdir -p "${PKG_MAIN_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG_MAIN_DIR}${PATH_GAME}/${file}"
+done
+for file in ${INSTALLER_GAME_FILES_L10N}; do
+	mkdir -p "${PKG_L10N_DIR}${PATH_GAME}/${file%/*}"
+	mv "${file}" "${PKG_L10N_DIR}${PATH_GAME}/${file}"
 done
 cd - > /dev/null
 
@@ -216,10 +249,17 @@ printf '\n'
 
 # Build package
 
-write_pkg_debian "${PKG_MAIN_DIR}" "${PKG_MAIN_ID}" "${PKG_VERSION}" "${PKG_MAIN_ARCH}" "${PKG_MAIN_CONFLICTS}" "${PKG_MAIN_DEPS}" "${PKG_MAIN_RECS}" "${PKG_MAIN_DESC}"
-build_pkg "${PKG_MAIN_DIR}" "${PKG_MAIN_DESC}" "${PKG_COMPRESSION}"
+printf '%s…\n' "$(l10n 'build_pkgs')"
+print wait
 
-print_instructions "${PKG_MAIN_DESC}" "${PKG_MAIN_DIR}"
+write_pkg_debian "${PKG_MAIN_DIR}" "${PKG_MAIN_ID}" "${PKG_VERSION}" "${PKG_MAIN_ARCH}" "${PKG_MAIN_CONFLICTS}" "${PKG_MAIN_DEPS}" "${PKG_MAIN_RECS}" "${PKG_MAIN_DESC}"
+write_pkg_debian "${PKG_L10N_DIR}" "${PKG_L10N_ID}" "${PKG_VERSION}" "${PKG_L10N_ARCH}" "${PKG_L10N_CONFLICTS}" "${PKG_L10N_DEPS}" "${PKG_L10N_RECS}" "${PKG_L10N_DESC}"
+
+build_pkg "${PKG_MAIN_DIR}" "${PKG_MAIN_DESC}" "${PKG_COMPRESSION}" 'quiet'
+build_pkg "${PKG_L10N_DIR}" "${PKG_L10N_DESC}" "${PKG_COMPRESSION}" 'quiet'
+print done
+
+print_instructions "${PKG_MAIN_DESC}" "${PKG_L10N_DIR}" "${PKG_MAIN_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
