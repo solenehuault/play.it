@@ -33,29 +33,9 @@ write_bin_set_vars() {
 write_bin_set_exe() {
 	cat >> "$file" <<- EOF
 	# Set executable file
-	
-	unset APP_EXE
-	case "\${0##*/}" in
-	  ('$app_id')
-	    APP_EXE="$app_exe"
-	  ;;
-	  (*)
-	    if [ -n "\$1" ]; then
-	      APP_EXE="\$1"
-	      shift 1
-	    fi
-	  ;;
-	esac
+	APP_EXE="$app_exe"
 	
 	EOF
-	if [ "$app_type" = 'wine' ]; then
-		cat >> "$file" <<- EOF
-		if [ -z \"\$APP_EXE\" ]; then
-		  APP_EXE='winecfg'
-		fi
-		
-		EOF
-	fi
 }
 
 # write launcher script - set prefix path
