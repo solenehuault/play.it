@@ -78,7 +78,7 @@ PKG_MAIN_DESC="${GAME_NAME}\n
 target_version='2.0'
 
 if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XGD_DATA_HOME="${HOME}/.local/share"
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
 	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
 		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
