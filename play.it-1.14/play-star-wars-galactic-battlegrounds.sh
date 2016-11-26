@@ -35,7 +35,7 @@ set -e
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161126.1
+script_version=20161126.2
 
 # Set game-specific variables
 
@@ -96,7 +96,7 @@ APP2_EXE='./battlegrounds_x1.exe'
 APP2_ICON='./battlegrounds_x1.exe'
 APP2_ICON_RES='16x16 32x32'
 APP2_NAME="${GAME_NAME} - Clone Campaigns"
-APP2_NAME_FR="${APP1_NAME}"
+APP2_NAME_FR="${APP2_NAME}"
 APP2_CAT='Game'
 
 PKG_BIN_ID="${GAME_ID}"
