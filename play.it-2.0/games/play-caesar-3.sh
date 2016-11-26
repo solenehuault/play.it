@@ -29,11 +29,12 @@ set -o errexit
 ###
 
 ###
-# prototype script using libplayit2.sh
+# Caesar III
+# build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161121.3
+script_version=20161126.1
 
 # Set game-specific variables
 
