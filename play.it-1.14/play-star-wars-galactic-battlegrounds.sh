@@ -35,7 +35,7 @@ set -e
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161113.1
+script_version=20161126.1
 
 # Set game-specific variables
 
@@ -78,7 +78,7 @@ GAME_CONFIG_FILES=''
 GAME_CONFIG_FILES_POST=''
 GAME_DATA_DIRS='./ai ./campaign ./random ./savegame ./scenario'
 GAME_DATA_FILES=''
-GAME_DATA_FILES_POST=''
+GAME_DATA_FILES_POST='./player.nf*'
 
 APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
 
