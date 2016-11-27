@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161127.2
+library_revision=20161127.3
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -492,10 +492,8 @@ liberror() {
 
 # put files from archive in the right package directories (alias)
 # USAGE: organize_data
-# NEEDED VARS: PKG_PATH, PKG, $PKG_PATH
 # CALLS: organize_data_doc, organize_data_game
 organize_data() {
-	[ -n "$PKG_PATH" ] || PKG_PATH="$(eval echo \$${PKG}_PATH)"
 	if [ -n "${ARCHIVE_DOC_PATH}" ]; then
 		organize_data_generic 'DOC' "$PATH_DOC"
 	fi
@@ -512,16 +510,18 @@ organize_data() {
 
 # put files from archive in the right package directories (generic function)
 # USAGE: organize_data_generic $id $path
-# NEEDED VARS: PKG_PATH, PLAYIT_WORKDIR
+# NEEDED VARS: PKG, $PKG_PATH, PLAYIT_WORKDIR
 # CALLED BY: organize_data_doc organize_data_game
 organize_data_generic() {
+	PKG_PATH="$(eval echo \$${PKG}_PATH)"
 	local archive_path="${PLAYIT_WORKDIR}/gamedata/$(eval echo \$ARCHIVE_${1}_PATH)"
 	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
 	cd "$archive_path"
 	for file in $archive_files; do
-		mv "$file" "$pkg_path"
+		mkdir --parents "$pkg_path/${file%/*}"
+		mv "$file" "$pkg_path/$file"
 	done
 	cd - > /dev/null
 }
@@ -1017,7 +1017,7 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	./\${APP_EXE##*/} \$@
+	"./\${APP_EXE##*/}" \$@
 	EOF
 }
 
