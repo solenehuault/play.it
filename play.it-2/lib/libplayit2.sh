@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161126.1
+library_revision=20161127.1
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -514,7 +514,7 @@ organize_data() {
 # CALLED BY: organize_data_doc organize_data_game
 organize_data_generic() {
 	local archive_path="${PLAYIT_WORKDIR}/gamedata/$(eval echo \$ARCHIVE_${1}_PATH)"
-	local archive_files="$(eval echo \$ARCHIVE_${1}_FILES)"
+	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
 	cd "$archive_path"
@@ -726,7 +726,7 @@ set_workdir_workdir() {
 		fi
 		local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
 		if [ $free_space_cache -ge $needed_space ]; then
-			export PLAYIT_WORKDIR="${$XDG_CACHE_HOME}/play.it/${workdir_name}"
+			export PLAYIT_WORKDIR="${XDG_CACHE_HOME}/play.it/${workdir_name}"
 		else
 			export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
 		fi
