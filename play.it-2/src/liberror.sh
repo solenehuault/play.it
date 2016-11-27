@@ -6,11 +6,11 @@ liberror() {
 	local func="$2"
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "valeur incorrecte pour $var appelée par $func : $value"
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "invalid value for $var called by $func: $value"
 		;;
 	esac
