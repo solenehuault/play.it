@@ -72,12 +72,12 @@ file_checksum_print() {
 file_checksum_error() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "Somme de contrôle incohérente. $source_file n’est pas le fichier attendu."
 			echo "Utilisez --checksum=none pour forcer son utilisation."
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "Hasum mismatch. $source_file is not the expected file."
 			echo "Use --checksum=none to force its use."
 		;;
