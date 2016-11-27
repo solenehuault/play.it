@@ -86,10 +86,12 @@ check_deps_icon() {
 check_deps_failed() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script."
+			printf "$string_error_fr\n"
+			echo "$1 est introuvable. Installez-le avant de lancer ce script."
 		;;
 		('en'|*)
-			echo "$string_error_en\n$1 not found. Install it before running this script."
+			printf "$string_error_en\n"
+			echo "$1 not found. Install it before running this script."
 		;;
 	esac
 	return 1
