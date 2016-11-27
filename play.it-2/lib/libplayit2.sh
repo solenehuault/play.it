@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161127.1
+library_revision=20161127.2
 
 string_error_en="\n\033[1;31mError:\033[0m"
 string_error_fr="\n\033[1;31mErreur :\033[0m"
@@ -201,10 +201,12 @@ check_deps_icon() {
 check_deps_failed() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr\n$1 est introuvable. Installez-le avant de lancer ce script."
+			printf "$string_error_fr\n"
+			echo "$1 est introuvable. Installez-le avant de lancer ce script."
 		;;
 		('en'|*)
-			echo "$string_error_en\n$1 not found. Install it before running this script."
+			printf "$string_error_en\n"
+			echo "$1 not found. Install it before running this script."
 		;;
 	esac
 	return 1
@@ -445,12 +447,12 @@ file_checksum_print() {
 file_checksum_error() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "Somme de contrôle incohérente. $source_file n’est pas le fichier attendu."
 			echo "Utilisez --checksum=none pour forcer son utilisation."
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "Hasum mismatch. $source_file is not the expected file."
 			echo "Use --checksum=none to force its use."
 		;;
@@ -477,11 +479,11 @@ liberror() {
 	local func="$2"
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "valeur incorrecte pour $var appelée par $func : $value"
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "invalid value for $var called by $func: $value"
 		;;
 	esac
@@ -665,11 +667,11 @@ set_source_archive_print() {
 set_source_archive_error_not_found() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "La cible de ce script est introuvable"
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "The script target could not be found"
 		;;
 	esac
@@ -682,11 +684,11 @@ set_source_archive_error_not_found() {
 set_source_archive_error_no_type() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "ARCHIVE_TYPE n’est pas défini pour $SOURCE_ARCHIVE"
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "ARCHIVE_TYPE is not set for $SOURCE_ARCHIVE"
 		;;
 	esac
