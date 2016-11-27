@@ -24,7 +24,7 @@ organize_data() {
 # CALLED BY: organize_data_doc organize_data_game
 organize_data_generic() {
 	local archive_path="${PLAYIT_WORKDIR}/gamedata/$(eval echo \$ARCHIVE_${1}_PATH)"
-	local archive_files="$(eval echo \$ARCHIVE_${1}_FILES)"
+	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
 	cd "$archive_path"
