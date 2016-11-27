@@ -55,7 +55,7 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	./\${APP_EXE##*/} \$@
+	"./\${APP_EXE##*/}" \$@
 	EOF
 }
 
