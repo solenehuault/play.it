@@ -31,7 +31,7 @@ set_workdir_workdir() {
 		fi
 		local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
 		if [ $free_space_cache -ge $needed_space ]; then
-			export PLAYIT_WORKDIR="${$XDG_CACHE_HOME}/play.it/${workdir_name}"
+			export PLAYIT_WORKDIR="${XDG_CACHE_HOME}/play.it/${workdir_name}"
 		else
 			export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
 		fi
