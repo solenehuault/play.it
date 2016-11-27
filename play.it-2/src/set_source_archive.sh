@@ -67,11 +67,11 @@ set_source_archive_print() {
 set_source_archive_error_not_found() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "La cible de ce script est introuvable"
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "The script target could not be found"
 		;;
 	esac
@@ -84,11 +84,11 @@ set_source_archive_error_not_found() {
 set_source_archive_error_no_type() {
 	case ${LANG%_*} in
 		('fr')
-			echo "$string_error_fr"
+			printf "$string_error_fr\n"
 			echo "ARCHIVE_TYPE n’est pas défini pour $SOURCE_ARCHIVE"
 		;;
 		('en'|*)
-			echo "$string_error_en"
+			printf "$string_error_en\n"
 			echo "ARCHIVE_TYPE is not set for $SOURCE_ARCHIVE"
 		;;
 	esac
