@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161126.1
+script_version=20161127.1
 
 # Set game-specific variables
 
@@ -85,14 +85,17 @@ if [ -z "${PLAYIT_LIB2}" ]; then
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "${target_version}"
 	return 1
 fi
 
