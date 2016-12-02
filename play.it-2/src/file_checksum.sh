@@ -58,10 +58,10 @@ file_checksum_none() {
 file_checksum_print() {
 	case ${LANG%_*} in
 		(fr)
-			echo "Contrôle de l’intégrité de ${source_file##*/}"
+			printf 'Contrôle de l’intégrité de %s\n' "$(basename "$source_file")"
 		;;
 		(en|*)
-			echo "Checking ${source_file##*/} integrity"
+			printf 'Checking %s integrity\n' "$(basename "$source_file")"
 		;;
 	esac
 }
@@ -72,14 +72,14 @@ file_checksum_print() {
 file_checksum_error() {
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
-			echo "Somme de contrôle incohérente. $source_file n’est pas le fichier attendu."
-			echo "Utilisez --checksum=none pour forcer son utilisation."
+			printf '%s\n' "$string_error_fr"
+			printf 'Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n' "$source_file"
+			printf 'Utilisez --checksum=none pour forcer son utilisation.\n'
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
-			echo "Hasum mismatch. $source_file is not the expected file."
-			echo "Use --checksum=none to force its use."
+			printf '%s\n' "$string_error_en"
+			printf 'Hashsum mismatch. %s is not the expected file.\n' "$source_file"
+			printf 'Use --checksum=none to force its use.\n'
 		;;
 	esac
 }
