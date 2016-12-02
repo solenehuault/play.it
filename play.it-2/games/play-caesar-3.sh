@@ -146,4 +146,8 @@ build_pkg 'PKG_MAIN'
 
 rm --recursive "${PLAYIT_WORKDIR}"
 
+# Print instructions
+
+print_instructions "$PKG_MAIN_PKG"
+
 exit 0
