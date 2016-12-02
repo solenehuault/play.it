@@ -3,13 +3,12 @@
 # NEEDED VARS: PKG
 print_instructions() {
 	local description="$(eval echo \$${PKG}_DESC | head --lines=1)"
-	echo ""
 	case ${LANG%_*} in
 		('fr')
-			echo "Installez $description en lançant la série de commandes suivantes en root :"
+			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$description"
 		;;
 		('en'|*)
-			echo "Install $description by running the following commands as root:"
+			printf '\nInstall %s by running the following commands as root:\n' "$description"
 		;;
 	esac
 	case $PACKAGE_TYPE in
