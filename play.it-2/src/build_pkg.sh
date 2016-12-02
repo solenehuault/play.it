@@ -49,6 +49,7 @@ build_pkg_arch() {
 	cd "$pkg_path"
 	tar $tar_options --file "$pkg_filename" .PKGINFO *
 	cd - > /dev/null
+	export ${pkg}_PKG="$pkg_filename"
 }
 
 # build .deb package
@@ -61,6 +62,7 @@ build_pkg_deb() {
 	local dpkg_options="-Z$COMPRESSION_METHOD"
 	build_pkg_print
 	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
+	export ${pkg}_PKG="$pkg_filename"
 }
 
 # build .tar archive
@@ -88,6 +90,7 @@ build_pkg_tar() {
 	cd "$pkg_path"
 	tar $tar_options --file "$pkg_filename" .
 	cd - > /dev/null
+	export ${pkg}_PKG="$pkg_filename"
 }
 
 # print package building message
