@@ -58,9 +58,9 @@ build_pkg_arch() {
 # CALLED BY: build_pkg
 build_pkg_deb() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.deb"
-	local dpkg_options="-Z$COMPRESSION_METHOD --build \"$pkg_path\""
+	local dpkg_options="-Z$COMPRESSION_METHOD"
 	build_pkg_print
-	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options "$pkg_filename" 1>/dev/null
+	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
 }
 
 # build .tar archive
