@@ -70,14 +70,13 @@ file_checksum_print() {
 # USAGE: file_checksum_error
 # CALLED BY: file_checksum_md5
 file_checksum_error() {
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf '%s\n' "$string_error_fr"
 			printf 'Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n' "$source_file"
 			printf 'Utilisez --checksum=none pour forcer son utilisation.\n'
 		;;
 		('en'|*)
-			printf '%s\n' "$string_error_en"
 			printf 'Hashsum mismatch. %s is not the expected file.\n' "$source_file"
 			printf 'Use --checksum=none to force its use.\n'
 		;;
