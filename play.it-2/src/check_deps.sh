@@ -84,13 +84,12 @@ check_deps_icon() {
 # USAGE: check_deps_failed $command_name
 # CALLED BY: check_deps, check_deps_7z
 check_deps_failed() {
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
 			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
 			printf '%s not found. Install it before running this script.\n' "$1"
 		;;
 	esac
