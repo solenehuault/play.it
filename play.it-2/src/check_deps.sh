@@ -71,10 +71,10 @@ check_deps_icon() {
 		NO_ICON='1'
 		case ${LANG%_*} in
 			('fr')
-				echo "$1 est introuvable. Les icônes ne seront pas extraites."
+				printf '%s est introuvable. Les icônes ne seront pas extraites.\n' "$1"
 			;;
 			('en'|*)
-				echo "$1 not found. Skipping icons extraction."
+				printf '%s not found. Skipping icons extraction.\n' "$1"
 			;;
 		esac
 	fi
@@ -87,11 +87,11 @@ check_deps_failed() {
 	case ${LANG%_*} in
 		('fr')
 			printf "$string_error_fr\n"
-			echo "$1 est introuvable. Installez-le avant de lancer ce script."
+			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
 		;;
 		('en'|*)
 			printf "$string_error_en\n"
-			echo "$1 not found. Install it before running this script."
+			printf '%s not found. Install it before running this script.\n' "$1"
 		;;
 	esac
 	return 1
