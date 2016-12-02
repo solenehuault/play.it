@@ -4,7 +4,7 @@
 # CALLS: liberror, extract_7z (declared by check_deps_7z)
 extract_data_from() {
 	for file in "$@"; do
-		extract_data_from_print "$file"
+		extract_data_from_print
 		local destination="${PLAYIT_WORKDIR}/gamedata"
 		mkdir --parents "$destination"
 		archive_type="$(eval echo \$${ARCHIVE}_TYPE)"
@@ -48,13 +48,13 @@ extract_data_from() {
 # USAGE: extract_data_from_print
 # CALLED BY: extract_data_from
 extract_data_from_print() {
-	local file="$(basename $1)"
+	local file="$(basename $file)"
 	case ${LANG%_*} in
 		('fr')
-			echo "Extraction des données de $file"
+			printf 'Extraction des données de %s\n' "$file"
 		;;
 		('en'|*)
-			echo "Extracting data from $file"
+			printf 'Extracting data from %s \n' "$file"
 		;;
 	esac
 }
