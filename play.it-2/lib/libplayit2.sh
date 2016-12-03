@@ -33,12 +33,9 @@
 ###
 
 library_version=2.0
-library_revision=20161127.3
+library_revision=20161203.1
 
-string_error_en="\n\033[1;31mError:\033[0m"
-string_error_fr="\n\033[1;31mErreur :\033[0m"
-
-# build .pkg.tar.xz package, .deb package or .tar archive
+# build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
 # CALLS: testvar, liberror, build_pkg_arch, build_pkg_deb, build_pkg_tar
@@ -63,17 +60,33 @@ build_pkg() {
 	done
 }
 
-# build .pkg.tar.xz package
+# build .pkg.tar package
 # USAGE: build_pkg_arch
 # NEEDED VARS: PLAYIT_WORKDIR, COMPRESSION_METHOD
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_arch() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
+	local tar_options='--create'
+	case $COMPRESSION_METHOD in
+		('gzip')
+			tar_options="$tar_options --gzip"
+			pkg_filename="${pkg_filename}.gz"
+		;;
+		('xz')
+			tar_options="$tar_options --xz"
+			pkg_filename="${pkg_filename}.xz"
+		;;
+		('none') ;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'build_pkg'
+		;;
+	esac
 	build_pkg_print
 	cd "$pkg_path"
-	tar -cf "$pkg_filename" .PKGINFO *
+	tar $tar_options --file "$pkg_filename" .PKGINFO *
 	cd - > /dev/null
+	export ${pkg}_PKG="$pkg_filename"
 }
 
 # build .deb package
@@ -83,8 +96,10 @@ build_pkg_arch() {
 # CALLED BY: build_pkg
 build_pkg_deb() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.deb"
+	local dpkg_options="-Z$COMPRESSION_METHOD"
 	build_pkg_print
-	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb -Z$COMPRESSION_METHOD -b "$pkg_path" "$pkg_filename" 1>/dev/null
+	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
+	export ${pkg}_PKG="$pkg_filename"
 }
 
 # build .tar archive
@@ -93,10 +108,26 @@ build_pkg_deb() {
 # CALLED BY: build_pkg
 build_pkg_tar() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
+	local tar_options='--create'
+	case $COMPRESSION_METHOD in
+		('gzip')
+			tar_options="$tar_options --gzip"
+			pkg_filename="${pkg_filename}.gz"
+		;;
+		('xz')
+			tar_options="$tar_options --xz"
+			pkg_filename="${pkg_filename}.xz"
+		;;
+		('none') ;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'build_pkg'
+		;;
+	esac
 	build_pkg_print
 	cd "$pkg_path"
-	tar --create --file "$pkg_filename" .
+	tar $tar_options --file "$pkg_filename" .
 	cd - > /dev/null
+	export ${pkg}_PKG="$pkg_filename"
 }
 
 # print package building message
@@ -105,10 +136,10 @@ build_pkg_tar() {
 build_pkg_print() {
 	case ${LANG%_*} in
 		('fr')
-			echo "Construction de $pkg_filename"
+			printf 'Construction de %s\n' "$pkg_filename"
 		;;
 		('en'|*)
-			echo "Building $pkg_filename"
+			printf 'Building %s\n' "$pkg_filename"
 		;;
 	esac
 }
@@ -186,10 +217,10 @@ check_deps_icon() {
 		NO_ICON='1'
 		case ${LANG%_*} in
 			('fr')
-				echo "$1 est introuvable. Les icônes ne seront pas extraites."
+				printf '%s est introuvable. Les icônes ne seront pas extraites.\n' "$1"
 			;;
 			('en'|*)
-				echo "$1 not found. Skipping icons extraction."
+				printf '%s not found. Skipping icons extraction.\n' "$1"
 			;;
 		esac
 	fi
@@ -199,14 +230,13 @@ check_deps_icon() {
 # USAGE: check_deps_failed $command_name
 # CALLED BY: check_deps, check_deps_7z
 check_deps_failed() {
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
-			echo "$1 est introuvable. Installez-le avant de lancer ce script."
+			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
-			echo "$1 not found. Install it before running this script."
+			printf '%s not found. Install it before running this script.\n' "$1"
 		;;
 	esac
 	return 1
@@ -218,7 +248,7 @@ check_deps_failed() {
 # CALLS: liberror, extract_7z (declared by check_deps_7z)
 extract_data_from() {
 	for file in "$@"; do
-		extract_data_from_print "$file"
+		extract_data_from_print
 		local destination="${PLAYIT_WORKDIR}/gamedata"
 		mkdir --parents "$destination"
 		archive_type="$(eval echo \$${ARCHIVE}_TYPE)"
@@ -262,13 +292,13 @@ extract_data_from() {
 # USAGE: extract_data_from_print
 # CALLED BY: extract_data_from
 extract_data_from_print() {
-	local file="$(basename $1)"
+	local file="$(basename $file)"
 	case ${LANG%_*} in
 		('fr')
-			echo "Extraction des données de $file"
+			printf 'Extraction des données de %s\n' "$file"
 		;;
 		('en'|*)
-			echo "Extracting data from $file"
+			printf 'Extracting data from %s \n' "$file"
 		;;
 	esac
 }
@@ -433,10 +463,10 @@ file_checksum_none() {
 file_checksum_print() {
 	case ${LANG%_*} in
 		(fr)
-			echo "Contrôle de l’intégrité de ${source_file##*/}"
+			printf 'Contrôle de l’intégrité de %s\n' "$(basename "$source_file")"
 		;;
 		(en|*)
-			echo "Checking ${source_file##*/} integrity"
+			printf 'Checking %s integrity\n' "$(basename "$source_file")"
 		;;
 	esac
 }
@@ -445,16 +475,15 @@ file_checksum_print() {
 # USAGE: file_checksum_error
 # CALLED BY: file_checksum_md5
 file_checksum_error() {
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
-			echo "Somme de contrôle incohérente. $source_file n’est pas le fichier attendu."
-			echo "Utilisez --checksum=none pour forcer son utilisation."
+			printf 'Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n' "$source_file"
+			printf 'Utilisez --checksum=none pour forcer son utilisation.\n'
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
-			echo "Hasum mismatch. $source_file is not the expected file."
-			echo "Use --checksum=none to force its use."
+			printf 'Hashsum mismatch. %s is not the expected file.\n' "$source_file"
+			printf 'Use --checksum=none to force its use.\n'
 		;;
 	esac
 }
@@ -477,14 +506,13 @@ liberror() {
 	local var="$1"
 	local value="$(eval echo \$$var)"
 	local func="$2"
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
-			echo "valeur incorrecte pour $var appelée par $func : $value"
+			printf 'valeur incorrecte pour %s appelée par %s : %s\n' "$var" "$func" "$value"
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
-			echo "invalid value for $var called by $func: $value"
+			printf 'invalid value for %s called by %s: %s\n' "$var" "$func" "$value"
 		;;
 	esac
 	return 1
@@ -526,6 +554,59 @@ organize_data_generic() {
 	cd - > /dev/null
 }
 
+# print a localized error message
+# USAGE: print_error
+print_error() {
+	case ${LANG%_*} in
+		('fr')
+			printf '\n\033[1;31mErreur :\033[0m\n'
+		;;
+		('en'|*)
+			printf '\n\033[1;31mError:\033[0m\n'
+		;;
+	esac
+}
+
+# print installation instructions
+# USAGE: print_instructions $pkg[…]
+# NEEDED VARS: PKG
+print_instructions() {
+	local description="$(eval echo \$${PKG}_DESC | head --lines=1)"
+	case ${LANG%_*} in
+		('fr')
+			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$description"
+		;;
+		('en'|*)
+			printf '\nInstall %s by running the following commands as root:\n' "$description"
+		;;
+	esac
+	case $PACKAGE_TYPE in
+		('arch')
+			printf 'pacman -U'
+			for pkg in $@; do
+				printf ' %s' "$pkg"
+			done
+			printf '\n'
+		;;
+		('deb')
+			printf 'dpkg -i'
+			for pkg in $@; do
+				printf ' %s' "$pkg"
+			done
+			printf '\n'
+			printf 'apt-get install -f\n'
+		;;
+		('tar')
+			command='tar -C / -xvf'
+			for pkg in $@; do
+				printf 'tar -C / -xvf %s\n' "$pkg"
+			done
+		;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'build_pkg'
+		;;
+	esac
+}
 # set default values for common vars
 # USAGE: set_common_defaults
 set_common_defaults() {
@@ -653,10 +734,10 @@ set_source_archive_vars() {
 set_source_archive_print() {
 	case ${LANG%_*} in
 		('fr')
-			echo "Utilisation de $SOURCE_ARCHIVE"
+			printf 'Utilisation de %s\n' "$SOURCE_ARCHIVE"
 		;;
 		('en'|*)
-			echo "Using $SOURCE_ARCHIVE"
+			printf 'Using %s\n' "$SOURCE_ARCHIVE"
 		;;
 	esac
 }
@@ -665,14 +746,13 @@ set_source_archive_print() {
 # USAGE: set_source_archive_error_not_found
 # CALLED BY: set_source_archive
 set_source_archive_error_not_found() {
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
-			echo "La cible de ce script est introuvable"
+			printf 'La cible de ce script est introuvable\n'
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
-			echo "The script target could not be found"
+			printf 'The script target could not be found\n'
 		;;
 	esac
 	return 1
@@ -682,14 +762,13 @@ set_source_archive_error_not_found() {
 # USAGE: set_source_archive_error_no_type
 # CALLED BY: set_source_archive_vars
 set_source_archive_error_no_type() {
+	print_error
 	case ${LANG%_*} in
 		('fr')
-			printf "$string_error_fr\n"
-			echo "ARCHIVE_TYPE n’est pas défini pour $SOURCE_ARCHIVE"
+			printf 'ARCHIVE_TYPE n’est pas défini pour %s\n' "$SOURCE_ARCHIVE"
 		;;
 		('en'|*)
-			printf "$string_error_en\n"
-			echo "ARCHIVE_TYPE is not set for $SOURCE_ARCHIVE"
+			printf 'ARCHIVE_TYPE is not set for %s\n' "$SOURCE_ARCHIVE"
 		;;
 	esac
 	return 1
