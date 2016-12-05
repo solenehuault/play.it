@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161203.1
+library_revision=20161205.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -67,7 +67,7 @@ build_pkg() {
 # CALLED BY: build_pkg
 build_pkg_arch() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
-	local tar_options='--create'
+	local tar_options='--create --group=root --owner=root'
 	case $COMPRESSION_METHOD in
 		('gzip')
 			tar_options="$tar_options --gzip"
@@ -108,7 +108,7 @@ build_pkg_deb() {
 # CALLED BY: build_pkg
 build_pkg_tar() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
-	local tar_options='--create'
+	local tar_options='--create --group=root --owner=root'
 	case $COMPRESSION_METHOD in
 		('gzip')
 			tar_options="$tar_options --gzip"
@@ -184,7 +184,7 @@ check_deps() {
 				check_deps_icon "$dep"
 			;;
 			(*)
-				if [ -z "$(which $dep)" ]; then
+				if [ -z "$(which $dep 2 > /dev/null)" ]; then
 					check_deps_failed "$dep"
 				fi
 			;;
@@ -197,11 +197,11 @@ check_deps() {
 # CALLS: check_deps_failed
 # CALLED BY: check_deps
 check_deps_7z() {
-	if [ -n "$(which 7zr)" ]; then
+	if [ -n "$(which 7zr 2 > /dev/null)" ]; then
 		extract_7z() { 7zr x -o"$2" -y "$1"; }
-	elif [ -n "$(which 7za)" ]; then
+	elif [ -n "$(which 7za 2 > /dev/null)" ]; then
 		extract_7z() { 7za x -o"$2" -y "$1"; }
-	elif [ -n "$(which unar)" ]; then
+	elif [ -n "$(which unar 2 > /dev/null)" ]; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
 		check_deps_failed 'p7zip'
@@ -213,7 +213,7 @@ check_deps_7z() {
 # NEEDED VARS: NO_ICON
 # CALLED BY: check_deps
 check_deps_icon() {
-	if [ -z "$(which $1)" ] && [ "$NO_ICON" != '1' ]; then
+	if [ -z "$(which $1 2 > /dev/null)" ] && [ "$NO_ICON" != '1' ]; then
 		NO_ICON='1'
 		case ${LANG%_*} in
 			('fr')
@@ -1379,12 +1379,12 @@ write_metadata_arch() {
 	EOF
 	for dep in $pkg_deps; do
 		cat >> "${target}" <<- EOF
-		depends = $dep
+		depend = $dep
 		EOF
 	done
 	for conflict in $pkg_conflicts; do
 		cat >> "${target}" <<- EOF
-		conflicts = $conflict
+		conflict = $conflict
 		EOF
 	done
 }
