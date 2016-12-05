@@ -30,7 +30,7 @@ build_pkg() {
 # CALLED BY: build_pkg
 build_pkg_arch() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
-	local tar_options='--create'
+	local tar_options='--create --group=root --owner=root'
 	case $COMPRESSION_METHOD in
 		('gzip')
 			tar_options="$tar_options --gzip"
@@ -71,7 +71,7 @@ build_pkg_deb() {
 # CALLED BY: build_pkg
 build_pkg_tar() {
 	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
-	local tar_options='--create'
+	local tar_options='--create --group=root --owner=root'
 	case $COMPRESSION_METHOD in
 		('gzip')
 			tar_options="$tar_options --gzip"
