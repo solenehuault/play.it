@@ -55,12 +55,12 @@ write_metadata_arch() {
 	EOF
 	for dep in $pkg_deps; do
 		cat >> "${target}" <<- EOF
-		depends = $dep
+		depend = $dep
 		EOF
 	done
 	for conflict in $pkg_conflicts; do
 		cat >> "${target}" <<- EOF
-		conflicts = $conflict
+		conflict = $conflict
 		EOF
 	done
 }
