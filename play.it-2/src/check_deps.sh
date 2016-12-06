@@ -38,7 +38,7 @@ check_deps() {
 				check_deps_icon "$dep"
 			;;
 			(*)
-				if [ -z "$(which $dep 2 > /dev/null)" ]; then
+				if [ -z "$(which $dep 2>/dev/null)" ]; then
 					check_deps_failed "$dep"
 				fi
 			;;
@@ -51,11 +51,11 @@ check_deps() {
 # CALLS: check_deps_failed
 # CALLED BY: check_deps
 check_deps_7z() {
-	if [ -n "$(which 7zr 2 > /dev/null)" ]; then
+	if [ -n "$(which 7zr 2>/dev/null)" ]; then
 		extract_7z() { 7zr x -o"$2" -y "$1"; }
-	elif [ -n "$(which 7za 2 > /dev/null)" ]; then
+	elif [ -n "$(which 7za 2>/dev/null)" ]; then
 		extract_7z() { 7za x -o"$2" -y "$1"; }
-	elif [ -n "$(which unar 2 > /dev/null)" ]; then
+	elif [ -n "$(which unar 2>/dev/null)" ]; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
 		check_deps_failed 'p7zip'
@@ -67,7 +67,7 @@ check_deps_7z() {
 # NEEDED VARS: NO_ICON
 # CALLED BY: check_deps
 check_deps_icon() {
-	if [ -z "$(which $1 2 > /dev/null)" ] && [ "$NO_ICON" != '1' ]; then
+	if [ -z "$(which $1 2>/dev/null)" ] && [ "$NO_ICON" != '1' ]; then
 		NO_ICON='1'
 		case ${LANG%_*} in
 			('fr')
