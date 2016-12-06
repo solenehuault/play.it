@@ -47,7 +47,11 @@ build_pkg_arch() {
 	esac
 	build_pkg_print
 	cd "$pkg_path"
-	tar $tar_options --file "$pkg_filename" .PKGINFO *
+	local files="* .PKGINFO"
+	if [ -e '.INSTALL' ]; then
+		files="$files .INSTALL"
+	fi
+	tar $tar_options --file "$pkg_filename" $files
 	cd - > /dev/null
 	export ${pkg}_PKG="$pkg_filename"
 }
