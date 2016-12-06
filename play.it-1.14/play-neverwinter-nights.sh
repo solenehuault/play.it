@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161206.1
+script_version=20161206.2
 
 # Set game-specific variables
 
@@ -294,9 +294,16 @@ done
 
 mv "${PKG1_DIR}${PATH_GAME}"/*.txt "${PKG1_DIR}${PATH_DOC}"
 
-if [ -e "${PKG1_DIR}${PATH_GAME}/dialogF.TLK" ]; then
-	mv "${PKG1_DIR}${PATH_GAME}/dialogF.TLK" "${PKG1_DIR}${PATH_GAME}/dialogf.tlk"
+cd "${PKG1_DIR}${PATH_GAME}"
+if [ -e 'dialogF.TLK' ]; then
+	mv 'dialogF.TLK' 'dialogf.tlk'
 fi
+for tiles in 'a' 'b' 'c'; do
+	if [ -e "texturepacks/Tiles_TP${tiles}.ERF" ]; then
+		mv "texturepacks/Tiles_TP${tiles}.ERF" "texturepacks/Tiles_Tp${tiles}.erf"
+	fi
+done
+cd - > /dev/null
 
 if [ "${NO_ICON}" = '0' ]; then
 	extract_icons "${APP1_ID}" "${APP1_ICON}" "${APP1_ICON_RES}" "${PKG_TMPDIR}"
