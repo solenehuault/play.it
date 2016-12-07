@@ -63,6 +63,25 @@ write_metadata_arch() {
 		conflict = $conflict
 		EOF
 	done
+	local target="${pkg_path}/.INSTALL"
+	if [ -e "$postinst" ]; then
+		cat >> "$target" <<- EOF
+		post_install() {
+		EOF
+		cat "$postinst" >> "$target"
+		cat >> "$target" <<- EOF
+		}
+		EOF
+	fi
+	if [ -e "$prerm" ]; then
+		cat >> "$target" <<- EOF
+		pre_remove() {
+		EOF
+		cat "$prerm" >> "$target"
+		cat >> "$target" <<- EOF
+		}
+		EOF
+	fi
 }
 
 # write .deb package meta-data
@@ -84,6 +103,28 @@ write_metadata_deb() {
 	EOF
 	if [ "$pkg_arch" = 'all' ]; then
 		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
+	fi
+	if [ -e "$postinst" ]; then
+		local target="${pkg_path}/DEBIAN/postinst"
+		cat >> "$target" <<- EOF
+		#!/bin/sh -e
+		EOF
+		cat "$postinst" >> "$target"
+		cat >> "$target" <<- EOF
+		exit 0
+		EOF
+		chmod 755 "$target"
+	fi
+	if [ -e "$prerm" ]; then
+		local target="${pkg_path}/DEBIAN/prerm"
+		cat >> "$target" <<- EOF
+		#!/bin/sh -e
+		EOF
+		cat "$prerm" >> "$target"
+		cat >> "$target" <<- EOF
+		exit 0
+		EOF
+		chmod 755 "$target"
 	fi
 }
 
