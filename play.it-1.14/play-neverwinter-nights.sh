@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161206.2
+script_version=20161207.1
 
 # Set game-specific variables
 
@@ -73,7 +73,7 @@ GAME_ARCHIVE5_VERSION='1.68.8099-gog2.1.0.21'
 ARCHIVE_TYPE='unar_passwd'
 
 CLIENT_ARCHIVE_COMMON='nwn-linux-common.tar.gz'
-CLIENT_ARCHIVE_COMMON_MD5='e32cf6720463763ef9f2b28eec50d3d6'
+CLIENT_ARCHIVE_COMMON_MD5='9aa7dae2ba9111c96b10679fa085c66e'
 
 CLIENT_ARCHIVE_169='nwn-linux-1.69.tar.gz'
 CLIENT_ARCHIVE_169_MD5='b703f017446440e386ae142c1aa74a71'
