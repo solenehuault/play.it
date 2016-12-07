@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161207.1
+script_version=20161207.2
 
 # Set game-specific variables
 
@@ -196,7 +196,7 @@ set_nwmovies
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
 printf '\n'
-set_target '4' 'gog.com'
+set_target '5' 'gog.com'
 set_target_extra 'CLIENT_ARCHIVE_COMMON' '' "${CLIENT_ARCHIVE_COMMON}"
 case "${GAME_ARCHIVE##*/}" in
 	("${GAME_ARCHIVE1}")
