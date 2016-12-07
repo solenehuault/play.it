@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161207.2
+script_version=20161207.3
 
 # Set game-specific variables
 
@@ -295,6 +295,9 @@ done
 mv "${PKG1_DIR}${PATH_GAME}"/*.txt "${PKG1_DIR}${PATH_DOC}"
 
 cd "${PKG1_DIR}${PATH_GAME}"
+if [ -e 'dialog.TLK' ]; then
+	mv 'dialog.TLK' 'dialog.tlk'
+fi
 if [ -e 'dialogF.TLK' ]; then
 	mv 'dialogF.TLK' 'dialogf.tlk'
 fi
