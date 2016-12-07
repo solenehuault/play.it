@@ -6,6 +6,9 @@ set_workdir() {
 		PKG="$1"
 	fi
 	set_workdir_workdir
+	mkdir --parents "$PLAYIT_WORKDIR/scripts"
+	export postinst="$PLAYIT_WORKDIR/scripts/postinst"
+	export prerm="$PLAYIT_WORKDIR/scripts/prerm"
 	while [ $# -ge 1 ]; do
 		local pkg=$1
 		testvar "$pkg" 'PKG'
