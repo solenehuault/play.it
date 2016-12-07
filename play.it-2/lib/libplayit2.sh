@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161205.1
+library_revision=20161207.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -84,7 +84,11 @@ build_pkg_arch() {
 	esac
 	build_pkg_print
 	cd "$pkg_path"
-	tar $tar_options --file "$pkg_filename" .PKGINFO *
+	local files="* .PKGINFO"
+	if [ -e '.INSTALL' ]; then
+		files="$files .INSTALL"
+	fi
+	tar $tar_options --file "$pkg_filename" $files
 	cd - > /dev/null
 	export ${pkg}_PKG="$pkg_filename"
 }
@@ -184,7 +188,7 @@ check_deps() {
 				check_deps_icon "$dep"
 			;;
 			(*)
-				if [ -z "$(which $dep 2 > /dev/null)" ]; then
+				if [ -z "$(which $dep 2>/dev/null)" ]; then
 					check_deps_failed "$dep"
 				fi
 			;;
@@ -197,11 +201,11 @@ check_deps() {
 # CALLS: check_deps_failed
 # CALLED BY: check_deps
 check_deps_7z() {
-	if [ -n "$(which 7zr 2 > /dev/null)" ]; then
+	if [ -n "$(which 7zr 2>/dev/null)" ]; then
 		extract_7z() { 7zr x -o"$2" -y "$1"; }
-	elif [ -n "$(which 7za 2 > /dev/null)" ]; then
+	elif [ -n "$(which 7za 2>/dev/null)" ]; then
 		extract_7z() { 7za x -o"$2" -y "$1"; }
-	elif [ -n "$(which unar 2 > /dev/null)" ]; then
+	elif [ -n "$(which unar 2>/dev/null)" ]; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
 		check_deps_failed 'p7zip'
@@ -213,7 +217,7 @@ check_deps_7z() {
 # NEEDED VARS: NO_ICON
 # CALLED BY: check_deps
 check_deps_icon() {
-	if [ -z "$(which $1 2 > /dev/null)" ] && [ "$NO_ICON" != '1' ]; then
+	if [ -z "$(which $1 2>/dev/null)" ] && [ "$NO_ICON" != '1' ]; then
 		NO_ICON='1'
 		case ${LANG%_*} in
 			('fr')
@@ -782,6 +786,9 @@ set_workdir() {
 		PKG="$1"
 	fi
 	set_workdir_workdir
+	mkdir --parents "$PLAYIT_WORKDIR/scripts"
+	export postinst="$PLAYIT_WORKDIR/scripts/postinst"
+	export prerm="$PLAYIT_WORKDIR/scripts/prerm"
 	while [ $# -ge 1 ]; do
 		local pkg=$1
 		testvar "$pkg" 'PKG'
@@ -824,6 +831,9 @@ set_workdir_pkg() {
 		pkg_id="$GAME_ID"
 	fi
 	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	if [ -z "$pkg_version" ]; then
+		pkg_version="$PKG_VERSION"
+	fi
 	if [ -z "$pkg_version" ]; then
 		pkg_version='1.0-1'
 	fi
@@ -1338,6 +1348,9 @@ write_metadata() {
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		local pkg_version="$(eval echo \$${pkg}_VERSION)"
 		if [ -z "$pkg_version" ]; then
+			pkg_version="$PKG_VERSION"
+		fi
+		if [ -z "$pkg_version" ]; then
 			pkg_version='1.0-1'
 		fi
 		case $PACKAGE_TYPE in
@@ -1387,6 +1400,25 @@ write_metadata_arch() {
 		conflict = $conflict
 		EOF
 	done
+	local target="${pkg_path}/.INSTALL"
+	if [ -e "$postinst" ]; then
+		cat >> "$target" <<- EOF
+		post_install() {
+		EOF
+		cat "$postinst" >> "$target"
+		cat >> "$target" <<- EOF
+		}
+		EOF
+	fi
+	if [ -e "$prerm" ]; then
+		cat >> "$target" <<- EOF
+		pre_remove() {
+		EOF
+		cat "$prerm" >> "$target"
+		cat >> "$target" <<- EOF
+		}
+		EOF
+	fi
 }
 
 # write .deb package meta-data
@@ -1408,6 +1440,28 @@ write_metadata_deb() {
 	EOF
 	if [ "$pkg_arch" = 'all' ]; then
 		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
+	fi
+	if [ -e "$postinst" ]; then
+		local target="${pkg_path}/DEBIAN/postinst"
+		cat >> "$target" <<- EOF
+		#!/bin/sh -e
+		EOF
+		cat "$postinst" >> "$target"
+		cat >> "$target" <<- EOF
+		exit 0
+		EOF
+		chmod 755 "$target"
+	fi
+	if [ -e "$prerm" ]; then
+		local target="${pkg_path}/DEBIAN/prerm"
+		cat >> "$target" <<- EOF
+		#!/bin/sh -e
+		EOF
+		cat "$prerm" >> "$target"
+		cat >> "$target" <<- EOF
+		exit 0
+		EOF
+		chmod 755 "$target"
 	fi
 }
 
