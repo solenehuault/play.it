@@ -14,6 +14,9 @@ write_metadata() {
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		local pkg_version="$(eval echo \$${pkg}_VERSION)"
 		if [ -z "$pkg_version" ]; then
+			pkg_version="$PKG_VERSION"
+		fi
+		if [ -z "$pkg_version" ]; then
 			pkg_version='1.0-1'
 		fi
 		case $PACKAGE_TYPE in
