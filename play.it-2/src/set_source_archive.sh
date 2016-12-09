@@ -37,6 +37,9 @@ set_source_archive_vars() {
 			(setup_*.exe)
 				ARCHIVE_TYPE='innosetup'
 			;;
+			(*.zip)
+				ARCHIVE_TYPE='zip'
+			;;
 			(*)
 				set_source_archive_error_no_type
 			;;
