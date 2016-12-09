@@ -33,5 +33,5 @@
 ###
 
 library_version=2.0
-library_revision=20161209.2
+library_revision=20161209.3
 

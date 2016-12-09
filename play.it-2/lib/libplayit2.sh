@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161209.2
+library_revision=20161209.3
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -729,6 +729,9 @@ set_source_archive_vars() {
 			;;
 			(setup_*.exe)
 				ARCHIVE_TYPE='innosetup'
+			;;
+			(*.zip)
+				ARCHIVE_TYPE='zip'
 			;;
 			(*)
 				set_source_archive_error_no_type
