@@ -121,11 +121,7 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
 check_deps
 set_common_paths
-if [ -n "$ARCHIVE" ]; then
-	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
-else
-	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
-fi
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
 check_deps
 case "$ARCHIVE" in
 	('ARCHIVE_GOG_EN')
