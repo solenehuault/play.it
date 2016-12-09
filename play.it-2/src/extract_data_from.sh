@@ -17,6 +17,7 @@ extract_data_from() {
 			;;
 			('mojosetup')
 				unzip -d "$destination" "$file" 1>/dev/null 2>/dev/null || true
+				fix_rights "$destination"
 			;;
 			('nix_stage1')
 				local input_blocksize=$(head --lines=514 "$file" | wc --bytes | tr --delete ' ')
