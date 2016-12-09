@@ -109,11 +109,7 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-if [ -n "$ARCHIVE" ]; then
-	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
-else
-	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-fi
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
 # Extract game data
