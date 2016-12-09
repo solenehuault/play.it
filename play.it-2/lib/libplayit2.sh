@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161207.1
+library_revision=20161209.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -435,16 +435,23 @@ file_checksum() {
 file_checksum_md5() {
 	file_checksum_print
 	FILE_MD5="$(md5sum "$source_file" | cut --delimiter=' ' --fields=1)"
-	for archive in $@; do
-		local archive_md5=$(eval echo \$${archive}_MD5)
+	if [ -n "$ARCHIVE" ]; then
+		local archive_md5=$(eval echo \$${ARCHIVE}_MD5)
 		if [ "$FILE_MD5" = "$archive_md5" ]; then
-			if [ -z "$ARCHIVE" ]; then
-				ARCHIVE="$archive"
-				set_source_archive_vars
-			fi
 			return 0
 		fi
-	done
+	else
+		for archive in $@; do
+			local archive_md5=$(eval echo \$${archive}_MD5)
+			if [ "$FILE_MD5" = "$archive_md5" ]; then
+				if [ -z "$ARCHIVE" ]; then
+					ARCHIVE="$archive"
+					set_source_archive_vars
+				fi
+				return 0
+			fi
+		done
+	fi
 	file_checksum_error
 	return 1
 }
@@ -1408,6 +1415,9 @@ write_metadata_arch() {
 		cat "$postinst" >> "$target"
 		cat >> "$target" <<- EOF
 		}
+		post_upgrade() {
+		post_install
+		}
 		EOF
 	fi
 	if [ -e "$prerm" ]; then
@@ -1416,6 +1426,9 @@ write_metadata_arch() {
 		EOF
 		cat "$prerm" >> "$target"
 		cat >> "$target" <<- EOF
+		}
+		pre_upgrade() {
+		pre_remove
 		}
 		EOF
 	fi
