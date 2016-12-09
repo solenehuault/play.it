@@ -74,6 +74,9 @@ write_metadata_arch() {
 		cat "$postinst" >> "$target"
 		cat >> "$target" <<- EOF
 		}
+		post_upgrade() {
+		post_install
+		}
 		EOF
 	fi
 	if [ -e "$prerm" ]; then
@@ -82,6 +85,9 @@ write_metadata_arch() {
 		EOF
 		cat "$prerm" >> "$target"
 		cat >> "$target" <<- EOF
+		}
+		pre_upgrade() {
+		pre_remove
 		}
 		EOF
 	fi
