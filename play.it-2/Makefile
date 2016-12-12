@@ -8,7 +8,7 @@ libplayit2.sh: src/*
 clean:
 	rm -f lib/libplayit2.sh
 
-install: all
+install:
 	mkdir -p ~/.local/share/play.it/
 	cp lib/libplayit2.sh ~/.local/share/play.it/
 
