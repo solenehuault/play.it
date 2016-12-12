@@ -142,11 +142,8 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-if [ -n "$ARCHIVE" ]; then
-	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
-else
-	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-fi
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
 # Extract game data
@@ -168,12 +165,6 @@ ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_MAIN"
 organize_data_generic 'GAME' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-mkdir --parents "${PATH_ICON}"
-cd "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "./$GAME_ID.png"
-cd - > /dev/null
-
 rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
 # Write launchers
@@ -184,11 +175,17 @@ write_desktop 'APP_MAIN' 'APP_CONFIG'
 # Build package
 
 cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME"/$APP_CONFIG_ICON "$PATH_ICON/$APP_CONFIG_ID.png"
 cat "$PATH_GAME/CookedPC/pack0.dzip.split"* > "$PATH_GAME/CookedPC/pack0.dzip"
 rm "$PATH_GAME/CookedPC/pack0.dzip.split"*
 EOF
 
 cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rm "$PATH_ICON/$APP_CONFIG_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 rm "$PKG_GAME/CookedPC/pack0.dzip"
 EOF
 
