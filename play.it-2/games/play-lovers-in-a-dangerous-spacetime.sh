@@ -29,7 +29,8 @@ set -o errexit
 ###
 
 ###
-# prototype script using libplayit2.sh
+# Lovers in a Dangerous Spacetime
+# build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
@@ -41,9 +42,9 @@ GAME_ID='lovers-in-a-dangerous-spacetime'
 GAME_ID_SHORT='spacelovers'
 GAME_NAME='Lovers in a Dangerous Spacetime'
 
-ARCHIVE_GOG='LoversInADangerousSpacetime-1.4.3_Linux.zip'
-ARCHIVE_GOG_MD5='e838cad67e8814e955dab42efd4995e2'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='880000'
+ARCHIVE_HUMBLE='LoversInADangerousSpacetime-1.4.3_Linux.zip'
+ARCHIVE_HUMBLE_MD5='e838cad67e8814e955dab42efd4995e2'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='880000'
 
 ARCHIVE_GAME_32_PATH='.'
 ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/Plugins/x86 ./*_Data/Mono/x86'
@@ -124,14 +125,11 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG'
+set_source_archive 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
-if [ -n "$ARCHIVE" ]; then
-	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
-else
-	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-fi
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
 check_deps
 
 # Extract game data
@@ -146,12 +144,6 @@ organize_data_generic 'GAME_64' "$PATH_GAME"
 PKG='PKG_MAIN'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
-
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-mkdir --parents "${PATH_ICON}"
-cd "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "./$GAME_ID.png"
-cd - > /dev/null
 
 rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
@@ -168,6 +160,16 @@ write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
+
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
 
 write_metadata 'PKG_MAIN' 'PKG_32' 'PKG_64'
 build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
