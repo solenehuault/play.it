@@ -130,9 +130,13 @@ write_bin_set_prefix_funcs() {
 	init_prefix_files() {
 	  cd "\$1"
 	  find . -type f | while read file; do
-	    rm --force "\${PATH_PREFIX}/\${file}"
-	    mkdir --parents "\${PATH_PREFIX}/\${file%/*}"
-	    ln --symbolic "\$(readlink -e "\${file}")" "\${PATH_PREFIX}/\${file}"
+	    local file_prefix="$(readlink -e "\$PATH_PREFIX/\$file")"
+	    local file_real="$(readlink -e "\$file")"
+	    if [ "\$file_real" != "\$file_prefix" ]; then
+	      rm --force "\$file_prefix"
+	      mkdir --parents "\${file_prefix%/*}"
+	      ln --symbolic "\$file_real" "\$file_prefix"
+	    fi
 	  done
 	  cd - > /dev/null
 	}
