@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161212.1
+script_version=20161212.2
 
 # Set game-specific variables
 
@@ -78,7 +78,7 @@ PKG_VERSION='1release3-gog2.2.0.8'
 
 PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
-PKG_MAIN_DEPS_DEB='libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0'
+PKG_MAIN_DEPS_DEB='libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0, libudev1'
 PKG_MAIN_DEPS_ARCH='lib32-alsa-lib lib32-gtk2 lib32-sdl2_image lib32-freetype2 lib32-curl lib32-libtxc_dxtn'
 PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
