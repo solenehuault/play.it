@@ -29,11 +29,12 @@ set -o errexit
 ###
 
 ###
-# prototype script using libplayit2.sh
+# The Witcher 2
+# build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161205.1
+script_version=20161212.1
 
 # Set game-specific variables
 
@@ -121,14 +122,17 @@ if [ -z "${PLAYIT_LIB2}" ]; then
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "${target_version}"
 	return 1
 fi
 
@@ -162,8 +166,7 @@ ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_MOVIES"
 organize_data_generic 'GAME' "$PATH_GAME"
 PKG='PKG_MAIN'
 ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_MAIN"
-organize_data_generic 'GAME' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
+organize_data
 
 rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
@@ -176,8 +179,9 @@ write_desktop 'APP_MAIN' 'APP_CONFIG'
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
-ln --symbolic "$PATH_GAME"/$APP_CONFIG_ICON "$PATH_ICON/$APP_CONFIG_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_CONFIG_ICON" "$PATH_ICON/$APP_CONFIG_ID.png"
+printf 'Building pack0.dzip, this might take a while…\n'
 cat "$PATH_GAME/CookedPC/pack0.dzip.split"* > "$PATH_GAME/CookedPC/pack0.dzip"
 rm "$PATH_GAME/CookedPC/pack0.dzip.split"*
 EOF
