@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161213.1
+library_revision=20161213.2
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -1119,8 +1119,8 @@ write_bin_run_dosbox() {
 # CALLED BY: write_bin_run
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
-	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	"./\${APP_EXE##*/}" \$APP_OPTIONS \$@
+	cd "\$PATH_PREFIX"
+	"./\$APP_EXE" \$APP_OPTIONS \$@
 	EOF
 }
 
