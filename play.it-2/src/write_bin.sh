@@ -17,6 +17,7 @@ write_bin() {
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
 			local app_exe="$(eval echo \$${app}_EXE)"
+			local app_options="$(eval echo \$${app}_OPTIONS)"
 			chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
 			write_bin_set_exe
 			write_bin_set_prefix

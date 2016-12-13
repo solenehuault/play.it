@@ -44,7 +44,7 @@ write_bin_run_dosbox() {
 	dosbox -c "mount c .
 	imgmount d \$GAME_IMAGE -t iso -fs iso
 	c:
-	\${APP_EXE##*/} \$@
+	\${APP_EXE##*/} \$APP_OPTIONS \$@
 	exit"
 	EOF
 }
@@ -55,7 +55,7 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	"./\${APP_EXE##*/}" \$@
+	"./\${APP_EXE##*/}" \$APP_OPTIONS \$@
 	EOF
 }
 
@@ -74,7 +74,7 @@ write_bin_run_scummvm() {
 write_bin_run_wine() {
 	cat >> "$file" <<- EOF
 	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	wine "\${APP_EXE##*/}" \$@
+	wine "\${APP_EXE##*/}" \$APP_OPTIONS \$@
 	EOF
 }
 

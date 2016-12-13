@@ -34,6 +34,7 @@ write_bin_set_exe() {
 	cat >> "$file" <<- EOF
 	# Set executable file
 	APP_EXE="$app_exe"
+	APP_OPTIONS="$app_options"
 	
 	EOF
 }
