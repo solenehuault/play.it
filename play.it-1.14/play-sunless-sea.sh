@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161029.1
+script_version=20161213.1
 
 # Set game-specific variables
 
@@ -44,10 +44,10 @@ GAME_ID='sunless-sea'
 GAME_ID_SHORT='sunless'
 GAME_NAME='Sunless Sea'
 
-GAME_ARCHIVE1='gog_sunless_sea_2.6.0.9.sh'
-GAME_ARCHIVE1_MD5='882428a41a0555d6023db0e043747345'
-GAME_ARCHIVE1_VERSION='2.2.2.3108'
-GAME_ARCHIVE1_REVISION='gog2.6.0.9'
+GAME_ARCHIVE1='gog_sunless_sea_2.7.0.10.sh'
+GAME_ARCHIVE1_MD5='b1a7ae780bf3202895ba6fdcdaaf69b2'
+GAME_ARCHIVE1_VERSION='2.2.2.3125'
+GAME_ARCHIVE1_REVISION='gog2.7.0.10'
 GAME_ARCHIVE1_FULLSIZE='700000'
 GAME_ARCHIVE2='Sunless_Sea-StandAlone-Linux-2016-03-29.sh'
 GAME_ARCHIVE2_MD5='b82055a5e48ffe7188309ce28a003b98'
