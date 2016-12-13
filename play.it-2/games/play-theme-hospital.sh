@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161206.1
+script_version=20161213.1
 
 # Set game-specific variables
 
@@ -46,11 +46,11 @@ ARCHIVE_GOG='setup_theme_hospital_2.1.0.8.exe'
 ARCHIVE_GOG_MD5='c1dc6cd19a3e22f7f7b31a72957babf7'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='210000'
 
-ARCHIVE_DOC1_PATH='app/'
+ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./*.txt ./*.pdf'
-ARCHIVE_DOC2_PATH='tmp/'
+ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./eula.txt ./gog_eula.txt'
-ARCHIVE_GAME_PATH='app/'
+ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./anims ./cfg ./connect.bat ./data ./datam ./dos4gw.exe ./hospital.cfg ./hospital.exe ./intro ./levels ./modem.ini ./qdata ./qdatam ./save ./sound'
 
 CACHE_DIRS=''
@@ -70,18 +70,18 @@ PKG_MAIN_ARCH_DEB='all'
 PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB='dosbox'
 PKG_MAIN_DEPS_ARCH='dosbox'
-PKG_MAIN_DESC="${GAME_NAME}\n
+PKG_MAIN_DESC="$GAME_NAME\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
 # Load common functions
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
@@ -95,7 +95,7 @@ fi
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "${target_version}"
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -119,13 +119,13 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data
 
-if [ "${NO_ICON}" = '0' ]; then
-	extract_icon_from "${PLAYIT_WORKDIR}/gamedata/${APP_MAIN_ICON}"
+if [ "$NO_ICON" = '0' ]; then
+	extract_icon_from "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON"
 	sort_icons 'APP_MAIN'
-	rm --recursive "${PLAYIT_WORKDIR}/icons"
+	rm --recursive "$PLAYIT_WORKDIR/icons"
 fi
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -139,7 +139,7 @@ build_pkg 'PKG_MAIN'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
