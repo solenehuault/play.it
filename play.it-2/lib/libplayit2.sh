@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161212.1
+library_revision=20161213.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -978,6 +978,7 @@ write_bin() {
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
 			local app_exe="$(eval echo \$${app}_EXE)"
+			local app_options="$(eval echo \$${app}_OPTIONS)"
 			chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
 			write_bin_set_exe
 			write_bin_set_prefix
@@ -1108,7 +1109,7 @@ write_bin_run_dosbox() {
 	dosbox -c "mount c .
 	imgmount d \$GAME_IMAGE -t iso -fs iso
 	c:
-	\${APP_EXE##*/} \$@
+	\${APP_EXE##*/} \$APP_OPTIONS \$@
 	exit"
 	EOF
 }
@@ -1119,7 +1120,7 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	"./\${APP_EXE##*/}" \$@
+	"./\${APP_EXE##*/}" \$APP_OPTIONS \$@
 	EOF
 }
 
@@ -1138,7 +1139,7 @@ write_bin_run_scummvm() {
 write_bin_run_wine() {
 	cat >> "$file" <<- EOF
 	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	wine "\${APP_EXE##*/}" \$@
+	wine "\${APP_EXE##*/}" \$APP_OPTIONS \$@
 	EOF
 }
 
@@ -1178,6 +1179,7 @@ write_bin_set_exe() {
 	cat >> "$file" <<- EOF
 	# Set executable file
 	APP_EXE="$app_exe"
+	APP_OPTIONS="$app_options"
 	
 	EOF
 }
