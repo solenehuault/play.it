@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160716.1
+script_version=20161213.1
 
 # Set game-specific variables
 
@@ -44,8 +44,8 @@ GAME_ID='pillars-of-eternity'
 GAME_ID_SHORT='poe'
 GAME_NAME='Pillars of Eternity'
 
-GAME_ARCHIVE1='gog_pillars_of_eternity_2.13.0.17.sh'
-GAME_ARCHIVE1_MD5='72f49ef025ddfeeb91b9603d9f3081ac'
+GAME_ARCHIVE1='gog_pillars_of_eternity_2.15.0.19.sh'
+GAME_ARCHIVE1_MD5='2000052541abb1ef8a644049734e8526'
 GAME_DLC_ARCHIVE1='gog_pillars_of_eternity_kickstarter_item_dlc_2.0.0.2.sh'
 GAME_DLC_ARCHIVE1_MD5='b4c29ae17c87956471f2d76d8931a4e5'
 GAME_DLC_ARCHIVE2='gog_pillars_of_eternity_kickstarter_pet_dlc_2.0.0.2.sh'
@@ -53,7 +53,7 @@ GAME_DLC_ARCHIVE2_MD5='3653fc2a98ef578335f89b607f0b7968'
 GAME_DLC_ARCHIVE3='gog_pillars_of_eternity_preorder_item_and_pet_dlc_2.0.0.2.sh'
 GAME_DLC_ARCHIVE3_MD5='b86ad866acb62937d2127407e4beab19'
 GAME_ARCHIVE_FULLSIZE='15000000'
-PKG_REVISION='gog2.13.0.17'
+PKG_REVISION='gog2.15.0.19'
 
 INSTALLER_PATH='data/noarch/game'
 INSTALLER_DOC='../docs/*'
@@ -71,7 +71,7 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ARCH='amd64'
-PKG_VERSION='3.03.1047'
+PKG_VERSION='3.05.1186'
 
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH="${PKG_ARCH}"

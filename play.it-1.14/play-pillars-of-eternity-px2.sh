@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160716.1
+script_version=20161213.1
 
 # Set game-specific variables
 
@@ -44,8 +44,8 @@ GAME_ID='pillars-of-eternity'
 GAME_ID_SHORT='poe'
 GAME_NAME='Pillars of Eternity: The White March Part II'
 
-GAME_ARCHIVE1='gog_pillars_of_eternity_white_march_part_2_dlc_2.3.0.4.sh'
-GAME_ARCHIVE1_MD5='66173772c763c1aa2b659f20c3fe122a'
+GAME_ARCHIVE1='gog_pillars_of_eternity_white_march_part_2_dlc_2.5.0.6.sh'
+GAME_ARCHIVE1_MD5='483d4b8cc046a07ec91a6306d3409e23'
 GAME_ARCHIVE_FULLSIZE='4400000'
 PKG_REVISION='gog2.3.0.4'
 
@@ -55,7 +55,7 @@ INSTALLER_DOC='../docs/*'
 INSTALLER_GAME='./*'
 
 PKG1_ID="${GAME_ID}-px2"
-PKG1_VERSION='3.03.1047'
+PKG1_VERSION='3.05.1186'
 PKG1_ARCH='amd64'
 PKG1_CONFLICTS=''
 PKG1_DEPS="${GAME_ID} (>= ${PKG1_VERSION}), ${GAME_ID}-px1 (>= ${PKG1_VERSION})"
