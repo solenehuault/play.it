@@ -34,12 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161215.2
 
 # Set game-specific variables
 
 GAME_ID='theme-hospital'
-GAME_ID_SHORT='hospital'
 GAME_NAME='Theme Hospital'
 
 ARCHIVE_GOG='setup_theme_hospital_2.1.0.8.exe'
@@ -54,12 +53,8 @@ ARCHIVE_DOC2_FILES='./eula.txt ./gog_eula.txt'
 ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./anims ./cfg ./connect.bat ./data ./datam ./dos4gw.exe ./hospital.cfg ./hospital.exe ./intro ./levels ./modem.ini ./qdata ./qdatam ./save ./sound'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
 CONFIG_FILES='./*.ini ./*.cfg'
 DATA_DIRS='./save'
-DATA_FILES=''
 
 APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='./hospital.exe'
