@@ -34,12 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161215.2
 
 # Set game-specific variables
 
 GAME_ID='kingdom-rush'
-GAME_ID_SHORT='krush'
 GAME_NAME='Kingdom Rush'
 
 ARCHIVE_GOG='gog_kingdom_rush_2.0.0.5.sh'
@@ -53,11 +52,6 @@ ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES_BIN='./*.x86 ./*_Data/Mono/x86 ./*_Data/Plugins/x86'
 ARCHIVE_GAME_FILES_DATA='./*'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
 DATA_FILES='./slot*.data'
 
 APP_MAIN_TYPE='native'
