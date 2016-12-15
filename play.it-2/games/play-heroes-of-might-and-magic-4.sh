@@ -123,14 +123,6 @@ check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
 check_deps
-case "$ARCHIVE" in
-	('ARCHIVE_GOG_EN')
-		PKG_MAIN_VERSION="$ARCHIVE_GOG_EN_VERSION"
-	;;
-	('ARCHIVE_GOG_FR')
-		PKG_MAIN_VERSION="$ARCHIVE_GOG_FR_VERSION"
-	;;
-esac
 
 # Extract game data
 
