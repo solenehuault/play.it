@@ -34,33 +34,26 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161127.1
+script_version=20161215.1
 
 # Set game-specific variables
 
 GAME_ID='braveland-wizard'
-GAME_ID_SHORT='bravelandw'
 GAME_NAME='Braveland Wizard'
 
 ARCHIVE_GOG='gog_braveland_wizard_2.1.0.4.sh'
 ARCHIVE_GOG_MD5='14346dc8d6e7ad410dd1b179763aa94e'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='450000'
+ARCHIVE_GOG_VERSION='1.1.1.11-gog2.1.0.4'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 ARCHIVE_GAME_32_PATH='data/noarch/game'
-ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/Plugins/x86 ./*_Data/Mono/x86'
+ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
 ARCHIVE_GAME_64_PATH='data/noarch/game'
-ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/Plugins/x86_64 ./*_Data/Mono/x86_64'
+ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
 ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
 ARCHIVE_GAME_MAIN_FILES='./*_Data'
-
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
-DATA_FILES=''
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='./Braveland Wizard.x86'
@@ -69,55 +62,51 @@ APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
 PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_VERSION='1.1.1.11-gog2.1.0.4'
 PKG_MAIN_ARCH_DEB='all'
 PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DEPS_DEB=''
-PKG_MAIN_DEPS_ARCH=''
-PKG_MAIN_DESC="${GAME_NAME} - arch-independant data\n
+PKG_MAIN_DESC="$GAME_NAME - arch-independant data\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
-PKG_32_VERSION="${PKG_MAIN_VERSION}"
 PKG_32_ARCH_DEB='i386'
 PKG_32_ARCH_ARCH='i686'
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu | libglu1"
 PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu"
-PKG_32_DESC="${GAME_NAME}\n
+PKG_32_DESC="$GAME_NAME\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
-PKG_64_VERSION="${PKG_MAIN_VERSION}"
 PKG_64_ARCH_DEB='amd64'
 PKG_64_ARCH_ARCH='x86_64'
-PKG_64_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu | libglu1"
-PKG_64_DEPS_ARCH="$PKG_MAIN_ID glu"
-PKG_64_DESC="${GAME_NAME}\n
- package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
+PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_64_DESC="$PKG_32_DESC"
 
-PKG_32_CONFLICTS_DEB="${PKG_64_ID}:${PKG_64_ARCH_DEB}"
-PKG_64_CONFLICTS_DEB="${PKG_32_ID}:${PKG_32_ARCH_DEB}"
+PKG_32_CONFLICTS_DEB="${GAME_ID}:${PKG_64_ARCH_DEB}"
+PKG_64_CONFLICTS_DEB="${GAME_ID}:${PKG_32_ARCH_DEB}"
  
 # Load common functions
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -148,7 +137,7 @@ PKG='PKG_MAIN'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -174,11 +163,20 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata 'PKG_MAIN'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_32' 'PKG_64'
 build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
+
+# Print instructions
+
+printf '\n32-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+printf '\n64-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
 
 exit 0
