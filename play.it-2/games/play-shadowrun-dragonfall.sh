@@ -60,10 +60,6 @@ ARCHIVE_GAME_FILES_DATA_BERLIN='./Dragonfall_Data/StreamingAssets/*/berlin'
 ARCHIVE_GAME_FILES_DATA_SEATTLE='./Dragonfall_Data/StreamingAssets/*/seattle'
 ARCHIVE_GAME_FILES_DATA='./Dragonfall_Data'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
 DATA_DIRS='./DumpBox ./logs'
 DATA_FILES='./Dragonfall ./ShadowrunEditor ./Dragonfall.sh'
 
