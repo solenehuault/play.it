@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161212.2
+script_version=20161215.1
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ GAME_NAME='The Witcher 2: Assassins Of Kings'
 ARCHIVE_GOG='gog_the_witcher_2_assassins_of_kings_enhanced_edition_2.2.0.8.sh'
 ARCHIVE_GOG_MD5='3fff5123677a7be2023ecdb6af3b82b6'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='24000000'
+ARCHIVE_GOG_VERSION='1release3-gog2.2.0.8'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
@@ -73,8 +74,6 @@ APP_CONFIG_TYPE='native'
 APP_CONFIG_EXE='./configurator'
 APP_CONFIG_ICON='linux/icons/witcher2-configurator.png'
 APP_CONFIG_ICON_RES='256x256'
-
-PKG_VERSION='1release3-gog2.2.0.8'
 
 PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
