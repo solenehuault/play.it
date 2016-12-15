@@ -34,12 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161215.2
 
 # Set game-specific variables
 
 GAME_ID='the-witcher-2'
-GAME_ID_SHORT='witcher2'
 GAME_NAME='The Witcher 2: Assassins Of Kings'
 
 ARCHIVE_GOG='gog_the_witcher_2_assassins_of_kings_enhanced_edition_2.2.0.8.sh'
@@ -57,13 +56,6 @@ ARCHIVE_GAME_FILES_PACK1='./CookedPC/pack0.dzip.split00'
 ARCHIVE_GAME_FILES_PACK2='./CookedPC/pack0.dzip.split01 ./CookedPC/pack0.dzip.split02'
 ARCHIVE_GAME_FILES_MOVIES='./CookedPC/movies'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
-DATA_FILES=''
-
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./witcher2'
 APP_MAIN_ICON='linux/icons/witcher2-icon.png'
@@ -79,34 +71,34 @@ PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
 PKG_MAIN_DEPS_DEB='libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0, libudev1'
 PKG_MAIN_DEPS_ARCH='lib32-alsa-lib lib32-gtk2 lib32-sdl2_image lib32-freetype2 lib32-curl lib32-libtxc_dxtn'
-PKG_MAIN_DESC="${GAME_NAME}\n
+PKG_MAIN_DESC="$GAME_NAME\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
 PKG_PACK1_ID="${GAME_ID}-pack1"
 PKG_PACK1_ARCH_DEB='all'
 PKG_PACK1_ARCH_ARCH='any'
-PKG_PACK1_DESC="${GAME_NAME} - pack0, part 1\n
+PKG_PACK1_DESC="$GAME_NAME - pack0, part 1\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 PKG_MAIN_DEPS_DEB="$PKG_PACK1_ID, $PKG_MAIN_DEPS_DEB"
 PKG_MAIN_DEPS_ARCH="$PKG_PACK1_ID $PKG_MAIN_DEPS_ARCH"
 
 PKG_PACK2_ID="${GAME_ID}-pack2"
 PKG_PACK2_ARCH_DEB='all'
 PKG_PACK2_ARCH_ARCH='any'
-PKG_PACK2_DESC="${GAME_NAME} - pack0, part 2\n
+PKG_PACK2_DESC="$GAME_NAME - pack0, part 2\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 PKG_MAIN_DEPS_DEB="$PKG_PACK2_ID, $PKG_MAIN_DEPS_DEB"
 PKG_MAIN_DEPS_ARCH="$PKG_PACK2_ID $PKG_MAIN_DEPS_ARCH"
 
 PKG_MOVIES_ID="${GAME_ID}-movies"
 PKG_MOVIES_ARCH_DEB='all'
 PKG_MOVIES_ARCH_ARCH='any'
-PKG_MOVIES_DESC="${GAME_NAME} - movies\n
+PKG_MOVIES_DESC="$GAME_NAME - movies\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 PKG_MAIN_DEPS_DEB="$PKG_MOVIES_ID, $PKG_MAIN_DEPS_DEB"
 PKG_MAIN_DEPS_ARCH="$PKG_MOVIES_ID $PKG_MAIN_DEPS_ARCH"
 
@@ -114,10 +106,10 @@ PKG_MAIN_DEPS_ARCH="$PKG_MOVIES_ID $PKG_MAIN_DEPS_ARCH"
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
@@ -131,7 +123,7 @@ fi
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "${target_version}"
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -167,7 +159,7 @@ PKG='PKG_MAIN'
 ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_MAIN"
 organize_data
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -200,7 +192,7 @@ build_pkg 'PKG_MAIN' 'PKG_PACK1' 'PKG_PACK2' 'PKG_MOVIES'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
