@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161215.2
 
 # Set game-specific variables
 
@@ -116,7 +116,6 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_HUMBLE'
-PKG_VERSION="$ARCHIVE_HUMBLE_VERSION"
 check_deps
 set_common_paths
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
