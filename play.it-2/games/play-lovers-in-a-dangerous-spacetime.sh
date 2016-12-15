@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.2
+script_version=20161215.3
 
 # Set game-specific variables
 
@@ -80,8 +80,8 @@ PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
 PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
 PKG_64_DESC="$PKG_32_DESC"
 
-PKG_32_CONFLICTS_DEB="${PKG_64_ID}:${PKG_64_ARCH_DEB}"
-PKG_64_CONFLICTS_DEB="${PKG_32_ID}:${PKG_32_ARCH_DEB}"
+PKG_32_CONFLICTS_DEB="${GAME_ID}:${PKG_64_ARCH_DEB}"
+PKG_64_CONFLICTS_DEB="${GAME_ID}:${PKG_32_ARCH_DEB}"
  
 # Load common functions
 
