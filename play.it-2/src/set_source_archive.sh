@@ -48,6 +48,7 @@ set_source_archive_vars() {
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
 	ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+	PKG_VERSION="$(eval echo \$${archive}_VERSION)"
 }
 
 # print archive use message
