@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161209.1
+script_version=20161215.1
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ GAME_NAME='Kingdom Rush'
 ARCHIVE_GOG='gog_kingdom_rush_2.0.0.5.sh'
 ARCHIVE_GOG_MD5='a505372a8b3b0c98e0968301679e6781'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='2100000'
+ARCHIVE_GOG_VERSION='2.1-gog2.0.0.5'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -63,8 +64,6 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./Kingdom Rush.x86'
 APP_MAIN_ICON='./Kingdom Rush_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
-
-PKG_VERSION='2.1-gog2.0.0.5'
 
 PKG_BIN_ARCH_DEB='i386'
 PKG_BIN_ARCH_ARCH='x86_64'
