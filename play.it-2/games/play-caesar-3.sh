@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161127.1
+script_version=20161215.1
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ GAME_NAME='Caesar III'
 ARCHIVE_GOG='setup_caesar3_2.0.0.9.exe'
 ARCHIVE_GOG_MD5='2ee16fab54493e1c2a69122fd2e56635'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='550000'
+ARCHIVE_GOG_VERSION='1.1-gog2.0.0.9'
 
 ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./gog_eula.txt ./eula.txt'
@@ -65,7 +66,6 @@ APP_MAIN_EXE='./c3.exe'
 APP_MAIN_ICON='./c3.exe'
 APP_MAIN_ICON_RES='16x16 32x32'
 
-PKG_MAIN_VERSION='1.1-gog2.0.0.9'
 PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
