@@ -34,12 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161215.2
 
 # Set game-specific variables
 
 GAME_ID='caesar-3'
-GAME_ID_SHORT='c3'
 GAME_NAME='Caesar III'
 
 ARCHIVE_GOG='setup_caesar3_2.0.0.9.exe'
@@ -54,11 +53,7 @@ ARCHIVE_DOC2_FILES='./readme.txt ./*.pdf'
 ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./555 ./smk ./wavs ./*.555 ./*.emp ./*.eng ./*.inf ./*.map ./*.sg2 ./c3.exe ./c3_model.txt ./caesar3.ini ./mission1.pak ./smackw32.dll'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
 CONFIG_FILES='./caesar3.ini'
-DATA_DIRS=''
 DATA_FILES='./c3_model.txt ./status.txt ./*.sav'
 
 APP_MAIN_TYPE='wine'
@@ -78,10 +73,10 @@ PKG_MAIN_DESC="${GAME_NAME}\n
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
@@ -95,7 +90,7 @@ fi
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "${target_version}"
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -119,14 +114,14 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data
 
-if [ "${NO_ICON}" = '0' ]; then
-	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/${APP_MAIN_ICON}"
-	extract_icon_from "${PLAYIT_WORKDIR}/icons"/*.ico
+if [ "$NO_ICON" = '0' ]; then
+	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+	extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
 	sort_icons 'APP_MAIN'
-	rm --recursive "${PLAYIT_WORKDIR}/icons"
+	rm --recursive "$PLAYIT_WORKDIR/icons"
 fi
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -140,7 +135,7 @@ build_pkg 'PKG_MAIN'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
