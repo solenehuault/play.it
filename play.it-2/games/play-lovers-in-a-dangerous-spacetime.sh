@@ -34,31 +34,24 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161209.1
+script_version=20161215.1
 
 # Set game-specific variables
 
 GAME_ID='lovers-in-a-dangerous-spacetime'
-GAME_ID_SHORT='spacelovers'
 GAME_NAME='Lovers in a Dangerous Spacetime'
 
 ARCHIVE_HUMBLE='LoversInADangerousSpacetime-1.4.3_Linux.zip'
 ARCHIVE_HUMBLE_MD5='e838cad67e8814e955dab42efd4995e2'
 ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='880000'
+ARCHIVE_HUMBLE_VERSION='1.4.3-humble1'
 
 ARCHIVE_GAME_32_PATH='.'
-ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/Plugins/x86 ./*_Data/Mono/x86'
+ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
 ARCHIVE_GAME_64_PATH='.'
-ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/Plugins/x86_64 ./*_Data/Mono/x86_64'
+ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
 ARCHIVE_GAME_MAIN_PATH='.'
 ARCHIVE_GAME_MAIN_FILES='./*_Data'
-
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
-DATA_FILES=''
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='./LoversInADangerousSpacetime.x86'
@@ -66,32 +59,26 @@ APP_MAIN_EXE_64='./LoversInADangerousSpacetime.x86_64'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_VERSION='1.4.3-humble'
-
 PKG_MAIN_ID="${GAME_ID}-common"
 PKG_MAIN_ARCH_DEB='all'
 PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DEPS_DEB=''
-PKG_MAIN_DEPS_ARCH=''
-PKG_MAIN_DESC="${GAME_NAME} - arch-independant data\n
+PKG_MAIN_DESC="$GAME_NAME - arch-independant data\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
 PKG_32_ARCH_DEB='i386'
 PKG_32_ARCH_ARCH='i686'
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
 PKG_32_DEPS_ARCH="$PKG_MAIN_ID libgl libxcursor"
-PKG_32_DESC="${GAME_NAME}\n
+PKG_32_DESC="$GAME_NAME\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
 PKG_64_ARCH_DEB='amd64'
 PKG_64_ARCH_ARCH='x86_64'
 PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
 PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
-PKG_64_DESC="${GAME_NAME}\n
- package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+PKG_64_DESC="$PKG_32_DESC"
 
 PKG_32_CONFLICTS_DEB="${PKG_64_ID}:${PKG_64_ARCH_DEB}"
 PKG_64_CONFLICTS_DEB="${PKG_32_ID}:${PKG_32_ARCH_DEB}"
@@ -100,21 +87,24 @@ PKG_64_CONFLICTS_DEB="${PKG_32_ID}:${PKG_32_ARCH_DEB}"
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -126,6 +116,7 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_HUMBLE'
+PKG_VERSION="$ARCHIVE_HUMBLE_VERSION"
 check_deps
 set_common_paths
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
@@ -145,7 +136,7 @@ PKG='PKG_MAIN'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -171,11 +162,21 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata 'PKG_MAIN'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_32' 'PKG_64'
 build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
+
+# Print instructions
+
+printf '32-bit:\n'
+print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+printf '\n'
+printf '64-bit:\n'
+print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
 
 exit 0
