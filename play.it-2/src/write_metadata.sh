@@ -1,6 +1,6 @@
 # write package meta-data
 # USAGE: write_metadata $pkg
-# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
+# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_PROVIDES, $pkg_VERSION, $PACKAGE_TYPE
 # CALLS: testvar, liberror, write_metadata_arch, write_metadata_deb
 write_metadata() {
 	for pkg in $@; do
@@ -24,6 +24,7 @@ write_metadata() {
 				local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_ARCH)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_ARCH)"
 				local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_arch
 			;;
@@ -31,6 +32,7 @@ write_metadata() {
 				local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_DEB)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_DEB)"
 				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_deb
 			;;
@@ -64,6 +66,11 @@ write_metadata_arch() {
 	for conflict in $pkg_conflicts; do
 		cat >> "${target}" <<- EOF
 		conflict = $conflict
+		EOF
+	done
+	for provide in $pkg_provides; do
+		cat >> "${target}" <<- EOF
+		provide = $provide
 		EOF
 	done
 	local target="${pkg_path}/.INSTALL"
@@ -106,6 +113,7 @@ write_metadata_deb() {
 	Maintainer: $pkg_maint
 	Installed-Size: $pkg_size
 	Conflicts: $pkg_conflicts
+	Provides: $pkg_provides
 	Depends: $pkg_deps
 	Section: non-free/games
 	Description: $pkg_desc
