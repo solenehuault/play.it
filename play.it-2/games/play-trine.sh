@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161213.1
+script_version=20161215.1
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ GAME_NAME='Trine'
 ARCHIVE_GOG='gog_trine_enchanted_edition_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='0e8d2338b568222b28cf3c31059b4960'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='1500000'
+ARCHIVE_GOG_VERSION='2.12.508-gog2.0.0.2'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
@@ -64,8 +65,6 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE='bin/trine1_linux_launcher_32bit'
 APP_MAIN_ICON='trine1.png'
 APP_MAIN_ICON_RES='64x64'
-
-PKG_VERSION='2.12.508-gog2.0.0.2'
 
 PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
