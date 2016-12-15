@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161215.2
 
 # Set game-specific variables
 
@@ -43,8 +43,8 @@ GAME_NAME='Shadowrun: Dragonfall'
 
 ARCHIVE_GOG='gog_shadowrun_dragonfall_director_s_cut_2.6.0.10.sh'
 ARCHIVE_GOG_MD5='9ec016b74004e8def71d64023beb70f3'
-ARCHIVE_GOG_VERSION='2.0.9-gog2.6.0.10'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='7200000'
+ARCHIVE_GOG_VERSION='2.0.9-gog2.6.0.10'
 
 ARCHIVE_HUMBLE='shadowrun-dragonfall-linux.tar.gz_2.0.9.zip'
 ARCHIVE_HUMBLE_MD5='49e88d170e086c01c4dcb19154875cca'
@@ -147,13 +147,11 @@ case "$ARCHIVE" in
 		ARCHIVE_DOC_PATH="$ARCHIVE_GOG_DOC_PATH"
 		ARCHIVE_DOC_FILES="$ARCHIVE_GOG_DOC_FILES"
 		ARCHIVE_GAME_PATH="$ARCHIVE_GOG_GAME_PATH"
-		PKG_VERSION="$ARCHIVE_GOG_VERSION"
 	;;
 	('ARCHIVE_HUMBLE')
 		unset ARCHIVE_DOC_PATH
 		unset ARCHIVE_DOC_FILES
 		ARCHIVE_GAME_PATH="$ARCHIVE_HUMBLE_GAME_PATH"
-		PKG_VERSION="$ARCHIVE_HUMBLE_VERSION"
 	;;
 esac
 
