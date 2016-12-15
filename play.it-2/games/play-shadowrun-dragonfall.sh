@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161214.1
+script_version=20161215.1
 
 # Set game-specific variables
 
@@ -54,9 +54,11 @@ ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='7200000'
 ARCHIVE_GOG_DOC_PATH='data/noarch/docs'
 ARCHIVE_GOG_DOC_FILES='./*'
 ARCHIVE_GOG_GAME_PATH='data/noarch/game'
-ARCHIVE_GOG_GAME_FILES='./*'
 ARCHIVE_HUMBLE_GAME_PATH='*'
-ARCHIVE_HUMBLE_GAME_FILES='./*'
+ARCHIVE_GAME_FILES_BIN='./Dragonfall ./Dragonfall.sh ./ShadowrunEditor ./Dragonfall_Data/*/x86'
+ARCHIVE_GAME_FILES_DATA_BERLIN='./Dragonfall_Data/StreamingAssets/*/berlin'
+ARCHIVE_GAME_FILES_DATA_SEATTLE='./Dragonfall_Data/StreamingAssets/*/seattle'
+ARCHIVE_GAME_FILES_DATA='./Dragonfall_Data'
 
 CACHE_DIRS=''
 CACHE_FILES=''
@@ -70,22 +72,45 @@ APP_MAIN_EXE='./Dragonfall'
 APP_MAIN_ICON='./Dragonfall_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH_DEB='i386'
-PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu1-mesa | libglu1, libqtgui4, libqt4-network, libxcursor1, libxrandr2'
-PKG_MAIN_DEPS_ARCH='lib32-glu lib32-qt4 lib32-libxcursor lib32-libxrandr'
-PKG_MAIN_DESC="${GAME_NAME}\n
+PKG_DATA_BERLIN_ID="${GAME_ID}-data-berlin"
+PKG_DATA_BERLIN_ARCH_DEB='all'
+PKG_DATA_BERLIN_ARCH_ARCH='any'
+PKG_DATA_BERLIN_DESC="$GAME_NAME - data - Berlin\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
+
+PKG_DATA_SEATTLE_ID="${GAME_ID}-data-seattle"
+PKG_DATA_SEATTLE_ARCH_DEB='all'
+PKG_DATA_SEATTLE_ARCH_ARCH='any'
+PKG_DATA_SEATTLE_DESC="$GAME_NAME - data - Seattle\n
+ package built from GOG.com installer\n
+ ./play.it script version $script_version"
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_ARCH_DEB='all'
+PKG_DATA_ARCH_ARCH='any'
+PKG_BIN_DEPS_DEB="$PKG_DATA_BERLIN_ID, $PKG_DATA_SEATTLE_ID"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_BERLIN_ID $PKG_DATA_SEATTLE_ID"
+PKG_DATA_DESC="$GAME_NAME - data\n
+ package built from GOG.com installer\n
+ ./play.it script version $script_version"
+
+PKG_BIN_ARCH_DEB='i386'
+PKG_BIN_ARCH_ARCH='x86_64'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libqtgui4, libqt4-network, libxcursor1, libxrandr2"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-qt4 lib32-libxcursor lib32-libxrandr"
+PKG_BIN_DESC="$GAME_NAME\n
+ package built from GOG.com installer\n
+ ./play.it script version $script_version"
 
 # Load common functions
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
@@ -99,7 +124,7 @@ fi
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "${target_version}"
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -122,21 +147,19 @@ case "$ARCHIVE" in
 		ARCHIVE_DOC_PATH="$ARCHIVE_GOG_DOC_PATH"
 		ARCHIVE_DOC_FILES="$ARCHIVE_GOG_DOC_FILES"
 		ARCHIVE_GAME_PATH="$ARCHIVE_GOG_GAME_PATH"
-		ARCHIVE_GAME_FILES="$ARCHIVE_GOG_GAME_FILES"
 		PKG_MAIN_VERSION="$ARCHIVE_GOG_VERSION"
 	;;
 	('ARCHIVE_HUMBLE')
 		unset ARCHIVE_DOC_PATH
 		unset ARCHIVE_DOC_FILES
 		ARCHIVE_GAME_PATH="$ARCHIVE_HUMBLE_GAME_PATH"
-		ARCHIVE_GAME_FILES="$ARCHIVE_HUMBLE_GAME_FILES"
 		PKG_MAIN_VERSION="$ARCHIVE_HUMBLE_VERSION"
 	;;
 esac
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA_BERLIN' 'PKG_DATA_SEATTLE' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	extract_data_from "$PLAYIT_WORKDIR/gamedata"/*.tar.gz
@@ -144,12 +167,27 @@ if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	rm "$PLAYIT_WORKDIR/gamedata"/*.tar.gz
 fi
 
+PKG='PKG_BIN'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_BIN"
+organize_data_generic 'GAME' "$PATH_GAME"
+
+PKG='PKG_DATA_BERLIN'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA_BERLIN"
+organize_data_generic 'GAME' "$PATH_GAME"
+
+PKG='PKG_DATA_SEATTLE'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA_SEATTLE"
+organize_data_generic 'GAME' "$PATH_GAME"
+
+PKG='PKG_DATA'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA"
 organize_data
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_bin 'APP_MAIN' 'APP_EDITOR'
 write_desktop 'APP_MAIN' 'APP_EDITOR'
 
@@ -165,15 +203,17 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN' 'PKG_DATA_BERLIN' 'PKG_DATA_SEATTLE'
+build_pkg 'PKG_BIN' 'PKG_DATA_BERLIN' 'PKG_DATA_SEATTLE' 'PKG_DATA'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_BERLIN_PKG" "$PKG_DATA_SEATTLE_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
