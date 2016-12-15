@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161213.1
+script_version=20161215.1
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ GAME_NAME='Theme Hospital'
 ARCHIVE_GOG='setup_theme_hospital_2.1.0.8.exe'
 ARCHIVE_GOG_MD5='c1dc6cd19a3e22f7f7b31a72957babf7'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='210000'
+ARCHIVE_GOG_VERSION='1.0-gog2.0.0.7'
 
 ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./*.txt ./*.pdf'
@@ -65,7 +66,6 @@ APP_MAIN_EXE='./hospital.exe'
 APP_MAIN_ICON='app/goggame-1207659026.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
 
-PKG_MAIN_VERSION='1.0-gog2.0.0.7'
 PKG_MAIN_ARCH_DEB='all'
 PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB='dosbox'
