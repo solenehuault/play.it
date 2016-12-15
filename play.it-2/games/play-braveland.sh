@@ -34,63 +34,58 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161127.1
+script_version=20161215.1
 
 # Set game-specific variables
 
 GAME_ID='braveland'
-GAME_ID_SHORT='braveland'
 GAME_NAME='Braveland'
 
 ARCHIVE_GOG='gog_braveland_2.1.0.8.sh'
 ARCHIVE_GOG_MD5='c60ac5170e53a7ed22fda6a3e6ce690e'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='320000'
+ARCHIVE_GOG_VERSION='1.3.2.18-gog2.1.0.8'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./*'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
-DATA_FILES=''
-
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./Braveland.x86'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_VERSION='1.3.2.18-gog2.1.0.8'
 PKG_MAIN_ARCH_DEB='amd64'
 PKG_MAIN_ARCH_ARCH='x86_64'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu | libglu1'
 PKG_MAIN_DEPS_ARCH='glu'
-PKG_MAIN_DESC="${GAME_NAME}\n
+PKG_MAIN_DESC="$GAME_NAME\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
 # Load common functions
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -102,11 +97,11 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG'
+PKG_VERSION="$ARCHIVE_GOG_VERSION"
 check_deps
 set_common_paths
 PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
 
 # Extract game data
 
@@ -115,7 +110,7 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -139,7 +134,7 @@ build_pkg 'PKG_MAIN'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
