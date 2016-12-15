@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161215.1
+library_revision=20161215.2
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -741,6 +741,7 @@ set_source_archive_vars() {
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
 	ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+	PKG_VERSION="$(eval echo \$${archive}_VERSION)"
 }
 
 # print archive use message
