@@ -30,70 +30,63 @@ set -o errexit
 
 ###
 # Botanicula
-# prototype script using libplayit2.sh
+# build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161213.1
+script_version=20161215.1
 
 # Set game-specific variables
 
 GAME_ID='botanicula'
-GAME_ID_SHORT='bot'
 GAME_NAME='Botanicula'
 
-ARCHIVE_GO='gog_botanicula_2.0.0.2.sh'
+ARCHIVE_GOG='gog_botanicula_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='7b92a379f8d2749e2f97c43ecc540c3c'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='760000'
+ARCHIVE_GOG_VERSION='1.0-gog2.1.0.9'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./bin ./runtimes'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
-DATA_FILES=''
-
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='bin/adl'
 APP_MAIN_OPTIONS='bin/BotaniculaLinux-app.xml'
-
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_VERSION='1.0-gog2.1.0.9'
-
 PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libnss3'
-PKG_MAIN_DEPS_ARCH='lib32-nss'
-PKG_MAIN_DESC="${GAME_NAME}\n
+PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libnss3, libgtk2.0-0'
+PKG_MAIN_DEPS_ARCH='lib32-nss lib32-gtk2'
+PKG_MAIN_DESC="$GAME_NAME\n
  package built from GOG.com installer\n
- ./play.it script version ${script_version}"
+ ./play.it script version $script_version"
 
 # Load common functions
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -108,7 +101,6 @@ set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
@@ -119,15 +111,13 @@ extract_data_from "$SOURCE_ARCHIVE"
 organize_data
 
 mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "${PLAYIT_WORKDIR}/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
 write_bin 'APP_MAIN'
-sed -i 's|cd "${PATH_PREFIX}/${APP_EXE%/\*}"|cd "${PATH_PREFIX}"|' "$PKG_MAIN_PATH/$PATH_BIN/$GAME_ID"
-sed -i 's|"./${APP_EXE##\*/}" $@|"./${APP_EXE}" $@|' "$PKG_MAIN_PATH/$PATH_BIN/$GAME_ID"
 write_desktop 'APP_MAIN'
 
 # Build package
@@ -137,7 +127,7 @@ build_pkg 'PKG_MAIN'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
