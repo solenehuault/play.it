@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161215.2
+library_revision=20161216.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -83,13 +83,14 @@ build_pkg_arch() {
 		;;
 	esac
 	build_pkg_print
-	cd "$pkg_path"
-	local files="* .PKGINFO"
-	if [ -e '.INSTALL' ]; then
-		files="$files .INSTALL"
-	fi
-	tar $tar_options --file "$pkg_filename" $files
-	cd - > /dev/null
+	(
+		cd "$pkg_path"
+		local files="* .PKGINFO"
+		if [ -e '.INSTALL' ]; then
+			files="$files .INSTALL"
+		fi
+		tar $tar_options --file "$pkg_filename" $files
+	)
 	export ${pkg}_PKG="$pkg_filename"
 }
 
@@ -128,9 +129,10 @@ build_pkg_tar() {
 		;;
 	esac
 	build_pkg_print
-	cd "$pkg_path"
-	tar $tar_options --file "$pkg_filename" .
-	cd - > /dev/null
+	(
+		cd "$pkg_path"
+		tar $tar_options --file "$pkg_filename" .
+	)
 	export ${pkg}_PKG="$pkg_filename"
 }
 
@@ -558,12 +560,13 @@ organize_data_generic() {
 	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
-	cd "$archive_path"
-	for file in $archive_files; do
-		mkdir --parents "$pkg_path/${file%/*}"
-		mv "$file" "$pkg_path/$file"
-	done
-	cd - > /dev/null
+	(
+		cd "$archive_path"
+		for file in $archive_files; do
+			mkdir --parents "$pkg_path/${file%/*}"
+			mv "$file" "$pkg_path/$file"
+		done
+	)
 }
 
 # print a localized error message
@@ -1264,56 +1267,60 @@ write_bin_set_prefix_funcs() {
 	}
 	
 	init_prefix_dirs() {
-	  cd "\$1"
-	  shift 1
-	  for dir in "\$@"; do
-	    rm --force --recursive "\${PATH_PREFIX}/\${dir}"
-	    mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
-	    ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
-	  done
-	  cd - > /dev/null
+	  (
+	    cd "\$1"
+	    shift 1
+	    for dir in "\$@"; do
+	      rm --force --recursive "\${PATH_PREFIX}/\${dir}"
+	      mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
+	      ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+	    done
+	  )
 	}
 	
 	init_prefix_files() {
-	  cd "\$1"
-	  find . -type f | while read file; do
-	    local file_prefix="$(readlink -e "\$PATH_PREFIX/\$file")"
-	    local file_real="$(readlink -e "\$file")"
-	    if [ "\$file_real" != "\$file_prefix" ]; then
-	      rm --force "\$file_prefix"
-	      mkdir --parents "\${file_prefix%/*}"
-	      ln --symbolic "\$file_real" "\$file_prefix"
-	    fi
-	  done
-	  cd - > /dev/null
+	  (
+	    cd "\$1"
+	    find . -type f | while read file; do
+	      local file_prefix="$(readlink -e "\$PATH_PREFIX/\$file")"
+	      local file_real="$(readlink -e "\$file")"
+	      if [ "\$file_real" != "\$file_prefix" ]; then
+	        rm --force "\$file_prefix"
+	        mkdir --parents "\${file_prefix%/*}"
+	        ln --symbolic "\$file_real" "\$file_prefix"
+	      fi
+	    done
+	  )
 	}
 	
 	init_userdir_dirs() {
-	  cd "\$1"
-	  shift 1
-	  for dir in "\$@"; do
-	  if ! [ -e "\$dir" ]; then
-	    if [ -e "\${PATH_GAME}/\${dir}" ]; then
-	      mkdir --parents "\${dir%/*}"
-	      cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
-	    else
-	      mkdir --parents "\$dir"
+	  (
+	    cd "\$1"
+	    shift 1
+	    for dir in "\$@"; do
+	    if ! [ -e "\$dir" ]; then
+	      if [ -e "\${PATH_GAME}/\${dir}" ]; then
+	        mkdir --parents "\${dir%/*}"
+	        cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
+	      else
+	        mkdir --parents "\$dir"
+	      fi
 	    fi
-	  fi
-	  done
-	  cd - > /dev/null
+	    done
+	  )
 	}
 	
 	init_userdir_files() {
-	  cd "\$1"
-	  shift 1
-	  for file in "\$@"; do
-	  if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	    mkdir --parents "\${file%/*}"
-	    cp "\${PATH_GAME}/\${file}" "\$file"
-	  fi
-	  done
-	  cd - > /dev/null
+	  (
+	    cd "\$1"
+	    shift 1
+	    for file in "\$@"; do
+	    if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
+	      mkdir --parents "\${file%/*}"
+	      cp "\${PATH_GAME}/\${file}" "\$file"
+	    fi
+	    done
+	  )
 	}
 	
 	EOF
@@ -1354,7 +1361,7 @@ write_desktop() {
 
 # write package meta-data
 # USAGE: write_metadata $pkg
-# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_VERSION, $PACKAGE_TYPE
+# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_PROVIDES, $pkg_VERSION, $PACKAGE_TYPE
 # CALLS: testvar, liberror, write_metadata_arch, write_metadata_deb
 write_metadata() {
 	for pkg in $@; do
@@ -1378,6 +1385,7 @@ write_metadata() {
 				local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_ARCH)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_ARCH)"
 				local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_arch
 			;;
@@ -1385,6 +1393,7 @@ write_metadata() {
 				local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_DEB)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_DEB)"
 				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_deb
 			;;
@@ -1418,6 +1427,11 @@ write_metadata_arch() {
 	for conflict in $pkg_conflicts; do
 		cat >> "${target}" <<- EOF
 		conflict = $conflict
+		EOF
+	done
+	for provide in $pkg_provides; do
+		cat >> "${target}" <<- EOF
+		provide = $provide
 		EOF
 	done
 	local target="${pkg_path}/.INSTALL"
@@ -1460,6 +1474,7 @@ write_metadata_deb() {
 	Maintainer: $pkg_maint
 	Installed-Size: $pkg_size
 	Conflicts: $pkg_conflicts
+	Provides: $pkg_provides
 	Depends: $pkg_deps
 	Section: non-free/games
 	Description: $pkg_desc
