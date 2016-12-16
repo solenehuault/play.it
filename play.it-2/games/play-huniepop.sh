@@ -29,43 +29,36 @@ set -o errexit
 ###
 
 ###
-# prototype script using libplayit2.sh
+# HuniePop
+# build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161205.1
+script_version=20161216.1
 
 # Set game-specific variables
 
 GAME_ID='huniepop'
-GAME_ID_SHORT='huniepop'
 GAME_NAME='HuniePop'
 
 ARCHIVE_GOG='gog_huniepop_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='020cd6a015bd79a907f6c607102d797a'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='940000'
+ARCHIVE_GOG_VERSION='1.2.0-gog2.0.0.2'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./*'
 
-CACHE_DIRS=''
-CACHE_FILES=''
-CONFIG_DIRS=''
-CONFIG_FILES=''
-DATA_DIRS=''
-DATA_FILES=''
-
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./HuniePop.x86'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_VERSION='1.2.0-gog2.0.0.2'
 PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu | libglu1, lsb-release'
+PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu | libglu1'
 PKG_MAIN_DEPS_ARCH='lib32-glu lsb-release'
 PKG_MAIN_DESC="${GAME_NAME}\n
  package built from GOG.com installer\n
@@ -75,21 +68,24 @@ PKG_MAIN_DESC="${GAME_NAME}\n
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
-		echo '\n\033[1;31mError:\033[0m\nlibplayit2.sh not found.\n'
+		printf '\n\033[1;31mError:\033[0m\n'
+		printf 'libplayit2.sh not found.\n'
 		return 1
 	fi
 fi
 . "$PLAYIT_LIB2"
 
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	echo "\n\033[1;31mError:\033[0m\nwrong version of libplayit2.sh\ntarget version is: ${target_version}"
+	printf '\n\033[1;31mError:\033[0m\n'
+	printf 'wrong version of libplayit2.sh\n'
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -103,11 +99,8 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-if [ -n "$ARCHIVE" ]; then
-	file_checksum "$SOURCE_ARCHIVE" "$ARCHIVE"
-else
-	file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-fi
+PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
 # Extract game data
@@ -117,13 +110,7 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data
 
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-mkdir --parents "${PATH_ICON}"
-cd "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "./$GAME_ID.png"
-cd - > /dev/null
-
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
@@ -132,12 +119,22 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
 write_metadata 'PKG_MAIN'
 build_pkg 'PKG_MAIN'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 #print instructions
 
