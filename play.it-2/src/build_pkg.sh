@@ -46,13 +46,14 @@ build_pkg_arch() {
 		;;
 	esac
 	build_pkg_print
-	cd "$pkg_path"
-	local files="* .PKGINFO"
-	if [ -e '.INSTALL' ]; then
-		files="$files .INSTALL"
-	fi
-	tar $tar_options --file "$pkg_filename" $files
-	cd - > /dev/null
+	(
+		cd "$pkg_path"
+		local files="* .PKGINFO"
+		if [ -e '.INSTALL' ]; then
+			files="$files .INSTALL"
+		fi
+		tar $tar_options --file "$pkg_filename" $files
+	)
 	export ${pkg}_PKG="$pkg_filename"
 }
 
@@ -91,9 +92,10 @@ build_pkg_tar() {
 		;;
 	esac
 	build_pkg_print
-	cd "$pkg_path"
-	tar $tar_options --file "$pkg_filename" .
-	cd - > /dev/null
+	(
+		cd "$pkg_path"
+		tar $tar_options --file "$pkg_filename" .
+	)
 	export ${pkg}_PKG="$pkg_filename"
 }
 

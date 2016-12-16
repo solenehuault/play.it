@@ -118,56 +118,60 @@ write_bin_set_prefix_funcs() {
 	}
 	
 	init_prefix_dirs() {
-	  cd "\$1"
-	  shift 1
-	  for dir in "\$@"; do
-	    rm --force --recursive "\${PATH_PREFIX}/\${dir}"
-	    mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
-	    ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
-	  done
-	  cd - > /dev/null
+	  (
+	    cd "\$1"
+	    shift 1
+	    for dir in "\$@"; do
+	      rm --force --recursive "\${PATH_PREFIX}/\${dir}"
+	      mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
+	      ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+	    done
+	  )
 	}
 	
 	init_prefix_files() {
-	  cd "\$1"
-	  find . -type f | while read file; do
-	    local file_prefix="$(readlink -e "\$PATH_PREFIX/\$file")"
-	    local file_real="$(readlink -e "\$file")"
-	    if [ "\$file_real" != "\$file_prefix" ]; then
-	      rm --force "\$file_prefix"
-	      mkdir --parents "\${file_prefix%/*}"
-	      ln --symbolic "\$file_real" "\$file_prefix"
-	    fi
-	  done
-	  cd - > /dev/null
+	  (
+	    cd "\$1"
+	    find . -type f | while read file; do
+	      local file_prefix="$(readlink -e "\$PATH_PREFIX/\$file")"
+	      local file_real="$(readlink -e "\$file")"
+	      if [ "\$file_real" != "\$file_prefix" ]; then
+	        rm --force "\$file_prefix"
+	        mkdir --parents "\${file_prefix%/*}"
+	        ln --symbolic "\$file_real" "\$file_prefix"
+	      fi
+	    done
+	  )
 	}
 	
 	init_userdir_dirs() {
-	  cd "\$1"
-	  shift 1
-	  for dir in "\$@"; do
-	  if ! [ -e "\$dir" ]; then
-	    if [ -e "\${PATH_GAME}/\${dir}" ]; then
-	      mkdir --parents "\${dir%/*}"
-	      cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
-	    else
-	      mkdir --parents "\$dir"
+	  (
+	    cd "\$1"
+	    shift 1
+	    for dir in "\$@"; do
+	    if ! [ -e "\$dir" ]; then
+	      if [ -e "\${PATH_GAME}/\${dir}" ]; then
+	        mkdir --parents "\${dir%/*}"
+	        cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
+	      else
+	        mkdir --parents "\$dir"
+	      fi
 	    fi
-	  fi
-	  done
-	  cd - > /dev/null
+	    done
+	  )
 	}
 	
 	init_userdir_files() {
-	  cd "\$1"
-	  shift 1
-	  for file in "\$@"; do
-	  if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	    mkdir --parents "\${file%/*}"
-	    cp "\${PATH_GAME}/\${file}" "\$file"
-	  fi
-	  done
-	  cd - > /dev/null
+	  (
+	    cd "\$1"
+	    shift 1
+	    for file in "\$@"; do
+	    if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
+	      mkdir --parents "\${file%/*}"
+	      cp "\${PATH_GAME}/\${file}" "\$file"
+	    fi
+	    done
+	  )
 	}
 	
 	EOF

@@ -26,11 +26,12 @@ organize_data_generic() {
 	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
-	cd "$archive_path"
-	for file in $archive_files; do
-		mkdir --parents "$pkg_path/${file%/*}"
-		mv "$file" "$pkg_path/$file"
-	done
-	cd - > /dev/null
+	(
+		cd "$archive_path"
+		for file in $archive_files; do
+			mkdir --parents "$pkg_path/${file%/*}"
+			mv "$file" "$pkg_path/$file"
+		done
+	)
 }
 
