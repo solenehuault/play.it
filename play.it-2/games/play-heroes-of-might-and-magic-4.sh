@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.1
+script_version=20161217.2
 
 # Set game-specific variables
 
@@ -143,7 +143,7 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 write_bin 'APP_MAIN' 'APP_EDITOR'
 for file in "${PKG_MAIN_PATH}${PATH_BIN}"/*; do
-	sed -i 's|\trm "${WINEPREFIX}/dosdevices/z:"|&\n\twinetricks ddr=gdi|' "$file"
+	sed -i 's|\trm "${WINEPREFIX}/dosdevices/z:"|&\n\twinetricks ddr=gdi\n\twinetricks vd=1280x1024|' "$file"
 done
 write_desktop 'APP_MAIN' 'APP_EDITOR'
 
