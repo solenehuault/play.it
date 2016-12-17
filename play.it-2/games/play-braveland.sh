@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.2
+script_version=20161217.3
 
 # Set game-specific variables
 
@@ -56,8 +56,8 @@ ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
 ARCHIVE_GAME_MAIN_FILES='./*_Data'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='./Braveland Wizard.x86'
-APP_MAIN_EXE_64='./Braveland Wizard.x86_64'
+APP_MAIN_EXE_32='./Braveland.x86'
+APP_MAIN_EXE_64='./Braveland.x86_64'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
@@ -141,6 +141,13 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_32'
+APP_MAIN_EXE="$APP_MAIN_EXE_32"
+write_bin 'APP_MAIN'
+write_desktop 'APP_MAIN'
+
+PKG='PKG_64'
+APP_MAIN_EXE="$APP_MAIN_EXE_64"
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
