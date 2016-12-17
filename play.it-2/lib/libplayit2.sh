@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161216.1
+library_revision=20161217.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -586,13 +586,12 @@ print_error() {
 # USAGE: print_instructions $pkg[…]
 # NEEDED VARS: PKG
 print_instructions() {
-	local description="$(eval echo \$${PKG}_DESC | head --lines=1)"
 	case ${LANG%_*} in
 		('fr')
-			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$description"
+			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$GAME_NAME"
 		;;
 		('en'|*)
-			printf '\nInstall %s by running the following commands as root:\n' "$description"
+			printf '\nInstall %s by running the following commands as root:\n' "$GAME_NAME"
 		;;
 	esac
 	case $PACKAGE_TYPE in
@@ -1361,12 +1360,11 @@ write_desktop() {
 
 # write package meta-data
 # USAGE: write_metadata $pkg
-# NEEDED VARS: $pkg_ARCH, $pkg_CONFLICTS, $pkg_DEPS, $pkg_DESC, $pkg_ID, $pkg_PATH, $pkg_PROVIDES, $pkg_VERSION, $PACKAGE_TYPE
+# NEEDED VARS: $pkg_ARCH_ARCH, $pkg_ARCH_DEB, $pkg_CONFLICTS_ARCH, $pkg_CONFLICTS_DEB, $pkg_DEPS_ARCH, $pkg_DEPS_DEB, $pkg_DESC_ARCH, $pkg_DESC_DEB, $pkg_ID, $pkg_PATH, $pkg_PROVIDES_ARCH, $pkg_PROVIDES_DEB, $pkg_VERSION, $PACKAGE_TYPE
 # CALLS: testvar, liberror, write_metadata_arch, write_metadata_deb
 write_metadata() {
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
-		local pkg_desc="$(eval echo \$${pkg}_DESC)"
 		local pkg_id="$(eval echo \$${pkg}_ID)"
 		if [ -z "$pkg_id" ]; then
 			pkg_id="$GAME_ID"
@@ -1384,6 +1382,7 @@ write_metadata() {
 			('arch')
 				local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_ARCH)"
+				local pkg_desc="$(eval echo \$${pkg}_DESC_ARCH)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
 				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_ARCH)"
 				local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
@@ -1393,6 +1392,7 @@ write_metadata() {
 				local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_DEB)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+				local pkg_desc="$(eval echo \$${pkg}_DESC_DEB)"
 				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_DEB)"
 				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_deb
