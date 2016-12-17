@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161217.1
+library_revision=20161217.2
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -634,6 +634,8 @@ set_common_defaults() {
 	DEFAULT_MOVIES_SUPPORT='0'
 	DEFAULT_PACKAGE_TYPE='deb'
 	NO_ICON='0'
+	unset winecfg_desktop
+	unset winecfg_launcher
 }
 
 # set package paths
@@ -975,15 +977,23 @@ write_bin() {
 			app_id="$GAME_ID"
 		fi
 		local app_type="$(eval echo \$${app}_TYPE)"
-		local file="${PKG_PATH}${PATH_BIN}/${app_id}"
+		if [ "$winecfg_launcher" != 'done' ] && [ "$app_type" = 'wine' ]; then
+			winecfg_launcher='done'
+			write_bin_winecfg
+		fi
+		local file="${PKG_PATH}${PATH_BIN}/$app_id"
 		mkdir --parents "${file%/*}"
 		write_bin_header
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
 			local app_exe="$(eval echo \$${app}_EXE)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
-			chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
-			write_bin_set_exe
+			if [ -e "${PKG_PATH}${PATH_GAME}/$app_exe" ]; then
+				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
+			fi
+			if [ "$app_id" != "${GAME_ID}_winecfg" ]; then
+				write_bin_set_exe
+			fi
 			write_bin_set_prefix
 			write_bin_build_userdirs
 			write_bin_build_prefix
@@ -1003,6 +1013,20 @@ write_bin_header() {
 	set -o errexit
 	
 	EOF
+}
+
+# write winecfg launcher script
+# USAGE: write_bin_winecfg
+# NEEDED VARS: GAME_ID
+# CALLS: write_bin
+write_bin_winecfg() {
+	APP_WINECFG_ID="${GAME_ID}_winecfg"
+	APP_WINECFG_TYPE='wine'
+	APP_WINECFG_EXE='winecfg'
+	write_bin 'APP_WINECFG'
+	sed --in-place 's/# Run the game/# Run WINE configuration/' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|cd "${PATH_PREFIX}/${APP_EXE%/\*}"||' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|wine "${APP_EXE##\*/}" $APP_OPTIONS $@|winecfg|' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
 }
 
 # write launcher script - set common user-writables directories
@@ -1327,11 +1351,16 @@ write_bin_set_prefix_funcs() {
 
 # write menu entry
 # USAGE: write_desktop $app
-# NEEDED VARS: $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
+# NEEDED VARS: $app_TYPE, $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
 # CALLS: liberror
 write_desktop() {
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
+		local type="$(eval echo \$${app}_TYPE)"
+		if [ "$winecfg_desktop" != 'done' ] && [ "$type" = 'wine' ]; then
+			winecfg_desktop='done'
+			write_desktop_winecfg
+		fi
 		local id="$(eval echo \$${app}_ID)"
 		if [ -z "$id" ]; then
 			id="$GAME_ID"
@@ -1356,6 +1385,18 @@ write_desktop() {
 		Categories=$cat
 		EOF
 	done
+}
+
+# write winecfg launcher script
+# USAGE: write_desktop_winecfg
+# NEEDED VARS: GAME_ID
+# CALLS: write_desktop
+write_desktop_winecfg() {
+	APP_WINECFG_ID="${GAME_ID}_winecfg"
+	APP_WINECFG_NAME="$GAME_NAME - WINE configuration"
+	APP_WINECFG_CAT='Settings'
+	write_desktop 'APP_WINECFG'
+	sed --in-place 's/Icon=.\+/Icon=winecfg/' "${PKG_PATH}${PATH_DESK}/${APP_WINECFG_ID}.desktop"
 }
 
 # write package meta-data
