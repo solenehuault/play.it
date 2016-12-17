@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.1
+script_version=20161217.1
 
 # Set game-specific variables
 
@@ -61,9 +61,9 @@ PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='x86_64'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libnss3, libgtk2.0-0'
 PKG_MAIN_DEPS_ARCH='lib32-nss lib32-gtk2'
-PKG_MAIN_DESC="$GAME_NAME\n
- package built from GOG.com installer\n
+PKG_MAIN_DESC_DEB="$GAME_NAME\n
  ./play.it script version $script_version"
+PKG_MAIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
