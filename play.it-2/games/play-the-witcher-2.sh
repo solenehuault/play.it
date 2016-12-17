@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.2
+script_version=20161217.1
 
 # Set game-specific variables
 
@@ -67,40 +67,34 @@ APP_CONFIG_EXE='./configurator'
 APP_CONFIG_ICON='linux/icons/witcher2-configurator.png'
 APP_CONFIG_ICON_RES='256x256'
 
-PKG_MAIN_ARCH_DEB='i386'
-PKG_MAIN_ARCH_ARCH='x86_64'
-PKG_MAIN_DEPS_DEB='libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0, libudev1'
-PKG_MAIN_DEPS_ARCH='lib32-alsa-lib lib32-gtk2 lib32-sdl2_image lib32-freetype2 lib32-curl lib32-libtxc_dxtn'
-PKG_MAIN_DESC="$GAME_NAME\n
- package built from GOG.com installer\n
- ./play.it script version $script_version"
-
 PKG_PACK1_ID="${GAME_ID}-pack1"
 PKG_PACK1_ARCH_DEB='all'
 PKG_PACK1_ARCH_ARCH='any'
-PKG_PACK1_DESC="$GAME_NAME - pack0, part 1\n
- package built from GOG.com installer\n
+PKG_PACK1_DESC_DEB="$GAME_NAME - pack0, part 1\n
  ./play.it script version $script_version"
-PKG_MAIN_DEPS_DEB="$PKG_PACK1_ID, $PKG_MAIN_DEPS_DEB"
-PKG_MAIN_DEPS_ARCH="$PKG_PACK1_ID $PKG_MAIN_DEPS_ARCH"
+PKG_PACK1_DESC_ARCH="$GAME_NAME - pack0, part 1 - ./play.it script version $script_version"
 
 PKG_PACK2_ID="${GAME_ID}-pack2"
 PKG_PACK2_ARCH_DEB='all'
 PKG_PACK2_ARCH_ARCH='any'
-PKG_PACK2_DESC="$GAME_NAME - pack0, part 2\n
- package built from GOG.com installer\n
+PKG_PACK2_DESC_DEB="$GAME_NAME - pack0, part 2\n
  ./play.it script version $script_version"
-PKG_MAIN_DEPS_DEB="$PKG_PACK2_ID, $PKG_MAIN_DEPS_DEB"
-PKG_MAIN_DEPS_ARCH="$PKG_PACK2_ID $PKG_MAIN_DEPS_ARCH"
+PKG_PACK2_DESC_ARCH="$GAME_NAME - pack0, part 2 - ./play.it script version $script_version"
 
 PKG_MOVIES_ID="${GAME_ID}-movies"
 PKG_MOVIES_ARCH_DEB='all'
 PKG_MOVIES_ARCH_ARCH='any'
-PKG_MOVIES_DESC="$GAME_NAME - movies\n
- package built from GOG.com installer\n
+PKG_MOVIES_DESC_DEB="$GAME_NAME - movies\n
  ./play.it script version $script_version"
-PKG_MAIN_DEPS_DEB="$PKG_MOVIES_ID, $PKG_MAIN_DEPS_DEB"
-PKG_MAIN_DEPS_ARCH="$PKG_MOVIES_ID $PKG_MAIN_DEPS_ARCH"
+PKG_MOVIES_DESC_ARCH="$GAME_NAME - movies - ./play.it script version $script_version"
+
+PKG_MAIN_ARCH_DEB='i386'
+PKG_MAIN_ARCH_ARCH='x86_64'
+PKG_MAIN_DEPS_DEB="$PKG_PACK1_ID, $PKG_PACK2_ID, $PKG_MOVIES_ID, libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0, libudev1"
+PKG_MAIN_DEPS_ARCH="$PKG_PACK1_ID $PKG_PACK2_ID $PKG_MOVIES_ID lib32-alsa-lib lib32-gtk2 lib32-sdl2_image lib32-freetype2 lib32-curl lib32-libtxc_dxtn"
+PKG_MAIN_DESC_DEB="$GAME_NAME\n
+ ./play.it script version $script_version"
+PKG_MAIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
