@@ -11,15 +11,23 @@ write_bin() {
 			app_id="$GAME_ID"
 		fi
 		local app_type="$(eval echo \$${app}_TYPE)"
-		local file="${PKG_PATH}${PATH_BIN}/${app_id}"
+		if [ "$winecfg_launcher" != 'done' ] && [ "$app_type" = 'wine' ]; then
+			winecfg_launcher='done'
+			write_bin_winecfg
+		fi
+		local file="${PKG_PATH}${PATH_BIN}/$app_id"
 		mkdir --parents "${file%/*}"
 		write_bin_header
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
 			local app_exe="$(eval echo \$${app}_EXE)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
-			chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
-			write_bin_set_exe
+			if [ -e "${PKG_PATH}${PATH_GAME}/$app_exe" ]; then
+				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
+			fi
+			if [ "$app_id" != "${GAME_ID}_winecfg" ]; then
+				write_bin_set_exe
+			fi
 			write_bin_set_prefix
 			write_bin_build_userdirs
 			write_bin_build_prefix
@@ -39,5 +47,19 @@ write_bin_header() {
 	set -o errexit
 	
 	EOF
+}
+
+# write winecfg launcher script
+# USAGE: write_bin_winecfg
+# NEEDED VARS: GAME_ID
+# CALLS: write_bin
+write_bin_winecfg() {
+	APP_WINECFG_ID="${GAME_ID}_winecfg"
+	APP_WINECFG_TYPE='wine'
+	APP_WINECFG_EXE='winecfg'
+	write_bin 'APP_WINECFG'
+	sed --in-place 's/# Run the game/# Run WINE configuration/' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|cd "${PATH_PREFIX}/${APP_EXE%/\*}"||' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|wine "${APP_EXE##\*/}" $APP_OPTIONS $@|winecfg|' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
 }
 

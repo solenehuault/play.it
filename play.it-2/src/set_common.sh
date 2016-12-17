@@ -11,6 +11,8 @@ set_common_defaults() {
 	DEFAULT_MOVIES_SUPPORT='0'
 	DEFAULT_PACKAGE_TYPE='deb'
 	NO_ICON='0'
+	unset winecfg_desktop
+	unset winecfg_launcher
 }
 
 # set package paths
