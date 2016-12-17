@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.1
+script_version=20161217.2
 
 # Set game-specific variables
 
@@ -48,21 +48,43 @@ ARCHIVE_GOG_VERSION='1.3.2.18-gog2.1.0.8'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_32_PATH='data/noarch/game'
+ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
+ARCHIVE_GAME_64_PATH='data/noarch/game'
+ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
+ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
+ARCHIVE_GAME_MAIN_FILES='./*_Data'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='./Braveland.x86'
+APP_MAIN_EXE_32='./Braveland Wizard.x86'
+APP_MAIN_EXE_64='./Braveland Wizard.x86_64'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH_DEB='amd64'
-PKG_MAIN_ARCH_ARCH='x86_64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu | libglu1'
-PKG_MAIN_DEPS_ARCH='glu'
-PKG_MAIN_DESC_DEB="$GAME_NAME\n
+PKG_MAIN_ID="${GAME_ID}-common"
+PKG_MAIN_ARCH_DEB='all'
+PKG_MAIN_ARCH_ARCH='any'
+PKG_MAIN_DESC_DEB="$GAME_NAME - arch-independant data\n
  ./play.it script version $script_version"
-PKG_MAIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
+PKG_MAIN_DESC_ARCH="$GAME_NAME - arch-independant data - ./play.it script version $script_version"
+
+PKG_32_ARCH_DEB='i386'
+PKG_32_ARCH_ARCH='i686'
+PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu | libglu1"
+PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu"
+PKG_32_DESC_DEB="$GAME_NAME\n
+ ./play.it script version $script_version"
+PKG_32_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
+
+PKG_64_ARCH_DEB='amd64'
+PKG_64_ARCH_ARCH='x86_64'
+PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
+PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_64_DESC_DEB="$PKG_32_DESC_DEB"
+PKG_64_DESC_ARCH="$PKG_32_DESC_ARCH"
+
+PKG_32_CONFLICTS_DEB="${GAME_ID}:${PKG_64_ARCH_DEB}"
+PKG_64_CONFLICTS_DEB="${GAME_ID}:${PKG_32_ARCH_DEB}"
 
 # Load common functions
 
@@ -104,10 +126,16 @@ file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data
+PKG='PKG_32'
+organize_data_generic 'GAME_32' "$PATH_GAME"
+PKG='PKG_64'
+organize_data_generic 'GAME_64' "$PATH_GAME"
+PKG='PKG_MAIN'
+organize_data_generic 'GAME_MAIN' "$PATH_GAME"
+organize_data_generic 'DOC' "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -129,7 +157,9 @@ rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
 write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_32' 'PKG_64'
+build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 # Clean up
 
@@ -137,6 +167,9 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+printf '\n32-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+printf '\n64-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
 
 exit 0
