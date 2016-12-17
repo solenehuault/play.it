@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161215.4
+script_version=20161217.1
 
 # Set game-specific variables
 
@@ -62,23 +62,24 @@ APP_MAIN_ICON_RES='128x128'
 PKG_MAIN_ID="${GAME_ID}-common"
 PKG_MAIN_ARCH_DEB='all'
 PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DESC="$GAME_NAME - arch-independant data\n
- package built from GOG.com installer\n
+PKG_MAIN_DESC_DEB="$GAME_NAME - arch-independant data\n
  ./play.it script version $script_version"
+PKG_MAIN_DESC_ARCH="$GAME_NAME - arch-independant data - ./play.it script version $script_version"
 
 PKG_32_ARCH_DEB='i386'
 PKG_32_ARCH_ARCH='i686'
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
 PKG_32_DEPS_ARCH="$PKG_MAIN_ID libgl libxcursor"
-PKG_32_DESC="$GAME_NAME\n
- package built from GOG.com installer\n
+PKG_32_DESC_DEB="$GAME_NAME\n
  ./play.it script version $script_version"
+PKG_32_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 PKG_64_ARCH_DEB='amd64'
 PKG_64_ARCH_ARCH='x86_64'
 PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
 PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
-PKG_64_DESC="$PKG_32_DESC"
+PKG_64_DESC_DEB="$PKG_32_DESC_DEB"
+PKG_64_DESC_ARCH="$PKG_32_DESC_ARCH"
 
 PKG_32_CONFLICTS_DEB="${GAME_ID}:${PKG_64_ARCH_DEB}"
 PKG_64_CONFLICTS_DEB="${GAME_ID}:${PKG_32_ARCH_DEB}"
