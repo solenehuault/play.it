@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161217.2
+library_revision=20161217.3
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -1354,6 +1354,7 @@ write_bin_set_prefix_funcs() {
 # NEEDED VARS: $app_TYPE, $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
 # CALLS: liberror
 write_desktop() {
+	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
 		local type="$(eval echo \$${app}_TYPE)"
