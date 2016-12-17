@@ -2,13 +2,12 @@
 # USAGE: print_instructions $pkg[…]
 # NEEDED VARS: PKG
 print_instructions() {
-	local description="$(eval echo \$${PKG}_DESC | head --lines=1)"
 	case ${LANG%_*} in
 		('fr')
-			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$description"
+			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$GAME_NAME"
 		;;
 		('en'|*)
-			printf '\nInstall %s by running the following commands as root:\n' "$description"
+			printf '\nInstall %s by running the following commands as root:\n' "$GAME_NAME"
 		;;
 	esac
 	case $PACKAGE_TYPE in
