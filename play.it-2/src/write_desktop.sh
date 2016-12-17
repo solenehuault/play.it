@@ -3,6 +3,7 @@
 # NEEDED VARS: $app_TYPE, $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
 # CALLS: liberror
 write_desktop() {
+	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
 		local type="$(eval echo \$${app}_TYPE)"
