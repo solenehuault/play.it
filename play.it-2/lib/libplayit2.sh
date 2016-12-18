@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161217.3
+library_revision=20161218.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -970,6 +970,7 @@ tolower() {
 # CALLS: liberror, write_bin_header, write_bin_set_vars, write_bin_set_exe, write_bin_set_prefix, write_bin_build_userdirs, write_bin_build_prefix, write_bin_run
 write_bin() {
 	PKG_PATH="$(eval echo \$${PKG}_PATH)"
+	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_bin'
 		local app_id="$(eval echo \$${app}_ID)"
@@ -1025,8 +1026,8 @@ write_bin_winecfg() {
 	APP_WINECFG_EXE='winecfg'
 	write_bin 'APP_WINECFG'
 	sed --in-place 's/# Run the game/# Run WINE configuration/' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
-	sed --in-place 's|cd "${PATH_PREFIX}/${APP_EXE%/\*}"||' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
-	sed --in-place 's|wine "${APP_EXE##\*/}" $APP_OPTIONS $@|winecfg|' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|cd "$PATH_PREFIX"||' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|wine "$APP_EXE" $APP_OPTIONS $@|winecfg|' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
 }
 
 # write launcher script - set common user-writables directories
@@ -1132,11 +1133,11 @@ write_bin_run() {
 # CALLED BY: write_bin_run
 write_bin_run_dosbox() {
 	cat >> "$file" <<- EOF
-	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
+	cd "\$PATH_PREFIX"
 	dosbox -c "mount c .
 	imgmount d \$GAME_IMAGE -t iso -fs iso
 	c:
-	\${APP_EXE##*/} \$APP_OPTIONS \$@
+	\$APP_EXE \$APP_OPTIONS \$@
 	exit"
 	EOF
 }
@@ -1165,8 +1166,8 @@ write_bin_run_scummvm() {
 # CALLED BY: write_bin_run
 write_bin_run_wine() {
 	cat >> "$file" <<- EOF
-	cd "\${PATH_PREFIX}/\${APP_EXE%/*}"
-	wine "\${APP_EXE##*/}" \$APP_OPTIONS \$@
+	cd "\$PATH_PREFIX"
+	wine "\$APP_EXE" \$APP_OPTIONS \$@
 	EOF
 }
 
@@ -1507,26 +1508,40 @@ write_metadata_arch() {
 # USAGE: write_metadata_deb
 # CALLED BY: write_metadata
 write_metadata_deb() {
-	local target="${pkg_path}/DEBIAN/control"
+	local target="$pkg_path/DEBIAN/control"
 	mkdir --parents "${target%/*}"
-	cat > "${target}" <<- EOF
+	cat > "$target" <<- EOF
 	Package: $pkg_id
 	Version: $pkg_version
 	Architecture: $pkg_arch
 	Maintainer: $pkg_maint
 	Installed-Size: $pkg_size
-	Conflicts: $pkg_conflicts
-	Provides: $pkg_provides
-	Depends: $pkg_deps
+	EOF
+	if [ -n "$pkg_conflicts" ]; then
+		cat >> "$target" <<- EOF
+		Conflicts: $pkg_conflicts
+		EOF
+	fi
+	if [ -n "$pkg_provides" ]; then
+		cat >> "$target" <<- EOF
+		Provides: $pkg_provides
+		EOF
+	fi
+	if [ -n "$pkg_deps" ]; then
+		cat >> "$target" <<- EOF
+		Depends: $pkg_deps
+		EOF
+	fi
+	cat >> "$target" <<- EOF
 	Section: non-free/games
 	Description: $pkg_desc
 	EOF
 	if [ "$pkg_arch" = 'all' ]; then
-		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
+		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "$target"
 	fi
 	if [ -e "$postinst" ]; then
-		local target="${pkg_path}/DEBIAN/postinst"
-		cat >> "$target" <<- EOF
+		local target="$pkg_path/DEBIAN/postinst"
+		cat > "$target" <<- EOF
 		#!/bin/sh -e
 		EOF
 		cat "$postinst" >> "$target"
@@ -1536,8 +1551,8 @@ write_metadata_deb() {
 		chmod 755 "$target"
 	fi
 	if [ -e "$prerm" ]; then
-		local target="${pkg_path}/DEBIAN/prerm"
-		cat >> "$target" <<- EOF
+		local target="$pkg_path/DEBIAN/prerm"
+		cat > "$target" <<- EOF
 		#!/bin/sh -e
 		EOF
 		cat "$prerm" >> "$target"
