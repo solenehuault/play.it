@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161218.2
+script_version=20161218.3
 
 # Set game-specific variables
 
@@ -53,9 +53,12 @@ ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
 ARCHIVE_GAME_MAIN_PATH='.'
 ARCHIVE_GAME_MAIN_FILES='./*_Data'
 
+DATA_DIRS='./logs'
+
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='./LoversInADangerousSpacetime.x86'
 APP_MAIN_EXE_64='./LoversInADangerousSpacetime.x86_64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
