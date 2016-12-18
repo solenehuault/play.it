@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.1
+script_version=20161218.1
 
 # Set game-specific variables
 
@@ -50,11 +50,14 @@ ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./*.rtf ./*.txt'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES_MAIN='./*'
-ARCHIVE_GAME_FILES_PACK1='./CookedPC/pack0.dzip.split00'
-ARCHIVE_GAME_FILES_PACK2='./CookedPC/pack0.dzip.split01 ./CookedPC/pack0.dzip.split02'
-ARCHIVE_GAME_FILES_MOVIES='./CookedPC/movies'
+ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
+ARCHIVE_GAME_MAIN_FILES='./*'
+ARCHIVE_GAME_PACK1_PATH='data/noarch/game'
+ARCHIVE_GAME_PACK1_FILES='./CookedPC/pack0.dzip.split00'
+ARCHIVE_GAME_PACK2_PATH='data/noarch/game'
+ARCHIVE_GAME_PACK2_FILES='./CookedPC/pack0.dzip.split01 ./CookedPC/pack0.dzip.split02'
+ARCHIVE_GAME_MOVIES_PATH='data/noarch/game'
+ARCHIVE_GAME_MOVIES_FILES='./CookedPC/movies'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./witcher2'
@@ -64,8 +67,10 @@ APP_MAIN_ICON_RES='256x256'
 APP_CONFIG_ID="${GAME_ID}_config"
 APP_CONFIG_TYPE='native'
 APP_CONFIG_EXE='./configurator'
+APP_CONFIG_NAME="$GAME_NAME - configuration"
 APP_CONFIG_ICON='linux/icons/witcher2-configurator.png'
 APP_CONFIG_ICON_RES='256x256'
+APP_CONFIG_CAT='Settings'
 
 PKG_PACK1_ID="${GAME_ID}-pack1"
 PKG_PACK1_ARCH_DEB='all'
@@ -141,17 +146,18 @@ set_workdir 'PKG_MAIN' 'PKG_PACK1' 'PKG_PACK2' 'PKG_MOVIES'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_PACK1'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_PACK1"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data_generic 'GAME_PACK1' "$PATH_GAME"
+
 PKG='PKG_PACK2'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_PACK2"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data_generic 'GAME_PACK2' "$PATH_GAME"
+
 PKG='PKG_MOVIES'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_MOVIES"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data_generic 'GAME_MOVIES' "$PATH_GAME"
+
 PKG='PKG_MAIN'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_MAIN"
-organize_data
+organize_data_generic 'DOC1' "$PATH_DOC"
+organize_data_generic 'DOC2' "$PATH_DOC"
+organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -175,7 +181,7 @@ cat > "$prerm" << EOF
 rm "$PATH_ICON/$GAME_ID.png"
 rm "$PATH_ICON/$APP_CONFIG_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-rm "$PKG_GAME/CookedPC/pack0.dzip"
+rm "$PATH_GAME/CookedPC/pack0.dzip"
 EOF
 
 write_metadata 'PKG_MAIN'
