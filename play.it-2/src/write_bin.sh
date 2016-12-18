@@ -4,6 +4,7 @@
 # CALLS: liberror, write_bin_header, write_bin_set_vars, write_bin_set_exe, write_bin_set_prefix, write_bin_build_userdirs, write_bin_build_prefix, write_bin_run
 write_bin() {
 	PKG_PATH="$(eval echo \$${PKG}_PATH)"
+	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_bin'
 		local app_id="$(eval echo \$${app}_ID)"
@@ -59,7 +60,7 @@ write_bin_winecfg() {
 	APP_WINECFG_EXE='winecfg'
 	write_bin 'APP_WINECFG'
 	sed --in-place 's/# Run the game/# Run WINE configuration/' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
-	sed --in-place 's|cd "${PATH_PREFIX}/${APP_EXE%/\*}"||' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
-	sed --in-place 's|wine "${APP_EXE##\*/}" $APP_OPTIONS $@|winecfg|' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|cd "$PATH_PREFIX"||' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+	sed --in-place 's|wine "$APP_EXE" $APP_OPTIONS $@|winecfg|' "${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
 }
 
