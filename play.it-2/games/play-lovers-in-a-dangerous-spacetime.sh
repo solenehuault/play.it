@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.1
+script_version=20161218.1
 
 # Set game-specific variables
 
@@ -59,17 +59,17 @@ APP_MAIN_EXE_64='./LoversInADangerousSpacetime.x86_64'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_ARCH_DEB='all'
-PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DESC_DEB="$GAME_NAME - arch-independant data\n
+PKG_COMMON_ID="${GAME_ID}-common"
+PKG_COMMON_ARCH_DEB='all'
+PKG_COMMON_ARCH_ARCH='any'
+PKG_COMMON_DESC_DEB="$GAME_NAME - arch-independant data\n
  ./play.it script version $script_version"
-PKG_MAIN_DESC_ARCH="$GAME_NAME - arch-independant data - ./play.it script version $script_version"
+PKG_COMMON_DESC_ARCH="$GAME_NAME - arch-independant data - ./play.it script version $script_version"
 
 PKG_32_ARCH_DEB='i386'
 PKG_32_ARCH_ARCH='i686'
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID libgl libxcursor"
+PKG_32_DEPS_DEB="$PKG_COMMON_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
+PKG_32_DEPS_ARCH="$PKG_COMMON_ID libgl libxcursor"
 PKG_32_DESC_DEB="$GAME_NAME\n
  ./play.it script version $script_version"
 PKG_32_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
@@ -125,14 +125,14 @@ check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
+set_workdir 'PKG_COMMON' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_32'
 organize_data_generic 'GAME_32' "$PATH_GAME"
 PKG='PKG_64'
 organize_data_generic 'GAME_64' "$PATH_GAME"
-PKG='PKG_MAIN'
+PKG='PKG_COMMON'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
@@ -162,10 +162,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
+write_metadata 'PKG_COMMON'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+build_pkg 'PKG_COMMON' 'PKG_32' 'PKG_64'
 
 # Clean up
 
@@ -174,8 +174,8 @@ rm --recursive "$PLAYIT_WORKDIR"
 # Print instructions
 
 printf '\n32-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+print_instructions "$PKG_COMMON_PKG" "$PKG_32_PKG"
 printf '\n64-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+print_instructions "$PKG_COMMON_PKG" "$PKG_64_PKG"
 
 exit 0
