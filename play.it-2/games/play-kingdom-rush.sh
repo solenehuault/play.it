@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.1
+script_version=20161218.1
 
 # Set game-specific variables
 
@@ -48,9 +48,10 @@ ARCHIVE_GOG_VERSION='2.1-gog2.0.0.5'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES_BIN='./*.x86 ./*_Data/Mono/x86 ./*_Data/Plugins/x86'
-ARCHIVE_GAME_FILES_DATA='./*'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./*.x86 ./*_Data/Mono/x86 ./*_Data/Plugins/x86'
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./*'
 
 DATA_FILES='./slot*.data'
 
@@ -119,11 +120,10 @@ set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_BIN"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data_generic 'GAME_BIN' "$PATH_GAME"
 PKG='PKG_DATA'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA"
-organize_data
+organize_data_generic 'DOC' "$PATH_DOC"
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
