@@ -105,26 +105,40 @@ write_metadata_arch() {
 # USAGE: write_metadata_deb
 # CALLED BY: write_metadata
 write_metadata_deb() {
-	local target="${pkg_path}/DEBIAN/control"
+	local target="$pkg_path/DEBIAN/control"
 	mkdir --parents "${target%/*}"
-	cat > "${target}" <<- EOF
+	cat > "$target" <<- EOF
 	Package: $pkg_id
 	Version: $pkg_version
 	Architecture: $pkg_arch
 	Maintainer: $pkg_maint
 	Installed-Size: $pkg_size
-	Conflicts: $pkg_conflicts
-	Provides: $pkg_provides
-	Depends: $pkg_deps
+	EOF
+	if [ -n "$pkg_conflicts" ]; then
+		cat >> "$target" <<- EOF
+		Conflicts: $pkg_conflicts
+		EOF
+	fi
+	if [ -n "$pkg_provides" ]; then
+		cat >> "$target" <<- EOF
+		Provides: $pkg_provides
+		EOF
+	fi
+	if [ -n "$pkg_deps" ]; then
+		cat >> "$target" <<- EOF
+		Depends: $pkg_deps
+		EOF
+	fi
+	cat >> "$target" <<- EOF
 	Section: non-free/games
 	Description: $pkg_desc
 	EOF
 	if [ "$pkg_arch" = 'all' ]; then
-		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "${target}"
+		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "$target"
 	fi
 	if [ -e "$postinst" ]; then
-		local target="${pkg_path}/DEBIAN/postinst"
-		cat >> "$target" <<- EOF
+		local target="$pkg_path/DEBIAN/postinst"
+		cat > "$target" <<- EOF
 		#!/bin/sh -e
 		EOF
 		cat "$postinst" >> "$target"
@@ -134,8 +148,8 @@ write_metadata_deb() {
 		chmod 755 "$target"
 	fi
 	if [ -e "$prerm" ]; then
-		local target="${pkg_path}/DEBIAN/prerm"
-		cat >> "$target" <<- EOF
+		local target="$pkg_path/DEBIAN/prerm"
+		cat > "$target" <<- EOF
 		#!/bin/sh -e
 		EOF
 		cat "$prerm" >> "$target"
