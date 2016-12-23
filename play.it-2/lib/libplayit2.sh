@@ -33,8 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161218.1
-
+library_revision=20161223.1
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
@@ -163,7 +162,7 @@ check_deps() {
 			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
 		;;
 		('mojosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+			SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
 		;;
 		('zip')
 			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
@@ -266,7 +265,7 @@ extract_data_from() {
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
 			;;
 			('mojosetup')
-				unzip -d "$destination" "$file" 1>/dev/null 2>/dev/null || true
+				bsdtar --directory "$destination" --extract --file "$file"
 				fix_rights "$destination"
 			;;
 			('nix_stage1')
