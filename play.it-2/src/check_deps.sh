@@ -11,7 +11,7 @@ check_deps() {
 			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
 		;;
 		('mojosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+			SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
 		;;
 		('zip')
 			SCRIPT_DEPS="$SCRIPT_DEPS unzip"

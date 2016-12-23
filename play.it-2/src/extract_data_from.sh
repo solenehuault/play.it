@@ -16,7 +16,7 @@ extract_data_from() {
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
 			;;
 			('mojosetup')
-				unzip -d "$destination" "$file" 1>/dev/null 2>/dev/null || true
+				bsdtar --directory "$destination" --extract --file "$file"
 				fix_rights "$destination"
 			;;
 			('nix_stage1')
