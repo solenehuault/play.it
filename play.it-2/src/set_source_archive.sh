@@ -40,6 +40,9 @@ set_source_archive_vars() {
 			(*.zip)
 				ARCHIVE_TYPE='zip'
 			;;
+			(*.tar.gz)
+				ARCHIVE_TYPE='tar.gz'
+			;;
 			(*)
 				set_source_archive_error_no_type
 			;;
