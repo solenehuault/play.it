@@ -19,6 +19,9 @@ check_deps() {
 		('rar')
 			SCRIPT_DEPS="$SCRIPT_DEPS unar"
 		;;
+		('tar.gz')
+			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
+		;;
 	esac
 	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
