@@ -32,8 +32,8 @@ extract_data_from() {
 				fi
 				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file"
 			;;
-			('tar')
-				tar --extract --file "$file" --destination "$destination"
+			('tar'|'tar.gz')
+				tar --extract --file "$file" --directory "$destination"
 			;;
 			('zip')
 				unzip -d "$destination" "$file" 1>/dev/null
