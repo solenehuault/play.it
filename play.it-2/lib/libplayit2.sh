@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161223.1
+library_revision=20161224.1
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
@@ -170,6 +170,9 @@ check_deps() {
 		('rar')
 			SCRIPT_DEPS="$SCRIPT_DEPS unar"
 		;;
+		('tar.gz')
+			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
+		;;
 	esac
 	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
@@ -281,8 +284,8 @@ extract_data_from() {
 				fi
 				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file"
 			;;
-			('tar')
-				tar --extract --file "$file" --destination "$destination"
+			('tar'|'tar.gz')
+				tar --extract --file "$file" --directory "$destination"
 			;;
 			('zip')
 				unzip -d "$destination" "$file" 1>/dev/null
@@ -562,8 +565,10 @@ organize_data_generic() {
 	(
 		cd "$archive_path"
 		for file in $archive_files; do
-			mkdir --parents "$pkg_path/${file%/*}"
-			mv "$file" "$pkg_path/$file"
+			if [ -e "$file" ]; then
+				mkdir --parents "$pkg_path/${file%/*}"
+				mv "$file" "$pkg_path/$file"
+			fi
 		done
 	)
 }
@@ -735,6 +740,9 @@ set_source_archive_vars() {
 			;;
 			(*.zip)
 				ARCHIVE_TYPE='zip'
+			;;
+			(*.tar.gz)
+				ARCHIVE_TYPE='tar.gz'
 			;;
 			(*)
 				set_source_archive_error_no_type
