@@ -29,8 +29,10 @@ organize_data_generic() {
 	(
 		cd "$archive_path"
 		for file in $archive_files; do
-			mkdir --parents "$pkg_path/${file%/*}"
-			mv "$file" "$pkg_path/$file"
+			if [ -e "$file" ]; then
+				mkdir --parents "$pkg_path/${file%/*}"
+				mv "$file" "$pkg_path/$file"
+			fi
 		done
 	)
 }
