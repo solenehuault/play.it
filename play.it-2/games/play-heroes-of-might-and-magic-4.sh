@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.2
+script_version=20161225.1
 
 # Set game-specific variables
 
@@ -70,7 +70,7 @@ APP_EDITOR_TYPE='wine'
 APP_EDITOR_ID="${GAME_ID}_edit"
 APP_EDITOR_EXE='./campaign_editor.exe'
 APP_EDITOR_ICON='./campaign_editor.exe'
-APP_EDITOR_ICON_RES='16x16 32x32 48x48 64x64'
+APP_EDITOR_ICON_RES='48x48 64x64'
 APP_EDITOR_NAME="$GAME_NAME - campaign editor"
 
 PKG_MAIN_ARCH_DEB='i386'
