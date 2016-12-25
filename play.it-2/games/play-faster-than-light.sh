@@ -72,8 +72,11 @@ ARCHIVE_HUMBLE_GAME_DATA_PATH='FTL/data'
 ARCHIVE_GAME_DATA_FILES='./exe_icon.bmp ./resources'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='x86/bin/FTL'
-APP_MAIN_EXE_64='amd64/bin/FTL'
+APP_MAIN_32_EXE='x86/bin/FTL'
+APP_MAIN_32_LIBS='x86/lib'
+APP_MAIN_64_EXE='amd64/bin/FTL'
+APP_MAIN_64_LIBS='amd64/lib'
+
 APP_MAIN_ICON1='exe_icon.bmp'
 APP_MAIN_ICON1_RES='64x64'
 APP_MAIN_ICON2='resources/exe_icon.bmp'
@@ -103,7 +106,7 @@ PKG_BIN64_DESC_ARCH="$PKG_BIN32_DESC_ARCH"
 
 PKG_BIN32_CONFLICTS_DEB="${GAME_ID}:${PKG_BIN64_ARCH_DEB}"
 PKG_BIN64_CONFLICTS_DEB="${GAME_ID}:${PKG_BIN32_ARCH_DEB}"
- 
+
 # Load common functions
 
 target_version='2.0'
@@ -192,12 +195,14 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
+APP_MAIN_EXE="$APP_MAIN_32_EXE"
+APP_MAIN_LIBS="$APP_MAIN_32_LIBS"
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
+APP_MAIN_EXE="$APP_MAIN_64_EXE"
+APP_MAIN_LIBS="$APP_MAIN_64_LIBS"
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
