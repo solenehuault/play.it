@@ -1,17 +1,20 @@
 # set source archive for data extraction
 # USAGE: set_source_archive $archive[…]
 # NEEDED_VARS: SOURCE_ARCHIVE
-# CALLS: set_source_archive_vars, set_source_archive_error
+# CALLS: set_source_archive_vars set_source_archive_error
+# 	set_source_archive_print
 set_source_archive() {
 	for archive in "$@"; do
 		file="$(eval echo \$$archive)"
 		if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
 			ARCHIVE="$archive"
+			set_source_archive_print
 			set_source_archive_vars
 			return 0
 		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
 			SOURCE_ARCHIVE="$file"
 			ARCHIVE="$archive"
+			set_source_archive_print
 			set_source_archive_vars
 			return 0
 		fi
@@ -23,18 +26,17 @@ set_source_archive() {
 
 # set archive-related vars
 # USAGE: set_source_archive_vars
-# NEEDED_VARS: ARCHIVE, $ARCHIVE_MD5, $ARCHIVE_TYPE, $ARCHIVE_UNCOMPRESSED_SIZE
-# CALLS: set_source_archive_print, set_source_archive_error_no_type
-# CALLED BY: set_source_archive
+# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_UNCOMPRESSED_SIZE
+# CALLS: set_source_archive_error_no_type
+# CALLED BY: set_source_archive file_checksum
 set_source_archive_vars() {
-	set_source_archive_print
 	ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
 	if [ -z "$ARCHIVE_TYPE" ]; then
 		case "${SOURCE_ARCHIVE##*/}" in
 			(gog_*.sh)
 				ARCHIVE_TYPE='mojosetup'
 			;;
-			(setup_*.exe)
+			(setup_*.exe|patch_*.exe)
 				ARCHIVE_TYPE='innosetup'
 			;;
 			(*.zip)
@@ -56,7 +58,7 @@ set_source_archive_vars() {
 
 # print archive use message
 # USAGE: set_source_archive_print
-# CALLED BY: set_source_archive_vars
+# CALLED BY: set_source_archive
 set_source_archive_print() {
 	case ${LANG%_*} in
 		('fr')
