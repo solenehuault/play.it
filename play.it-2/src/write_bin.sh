@@ -26,7 +26,7 @@ write_bin() {
 		#!/bin/sh
 		set -o errexit
 		EOF
-		printf '\n' > "$file"
+		printf '\n' >> "$file"
 		
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
