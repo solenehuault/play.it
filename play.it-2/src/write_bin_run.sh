@@ -53,7 +53,7 @@ write_bin_run_dosbox() {
 
 	if [ "$GAME_IMAGE" ]; then
 		cat >> "$file" <<- EOF
-		imgmount d \$GAME_IMAGE -t iso -fs iso
+		imgmount d $GAME_IMAGE -t iso -fs iso
 		EOF
 	fi
 
