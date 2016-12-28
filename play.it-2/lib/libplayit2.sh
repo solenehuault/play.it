@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161228.1
+library_revision=20161228.2
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
@@ -1008,6 +1008,7 @@ write_bin() {
 			local app_exe="$(eval echo \$${app}_EXE)"
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
+			local app_prerun="$(eval echo \$${app}_PRERUN)"
 			if [ -e "${PKG_PATH}${PATH_GAME}/$app_exe" ]; then
 				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
 			fi
@@ -1156,6 +1157,12 @@ write_bin_run_dosbox() {
 	c:
 	EOF
 
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
 	if [ "$GAME_IMAGE" ]; then
 		cat >> "$file" <<- EOF
 		imgmount d \$GAME_IMAGE -t iso -fs iso
@@ -1174,6 +1181,15 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
+	EOF
+
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
 	"./\$APP_EXE" \$APP_OPTIONS \$@
 	EOF
 }
@@ -1182,6 +1198,12 @@ write_bin_run_native() {
 # USAGE: write_bin_run_scummvm
 # CALLED BY: write_bin_run
 write_bin_run_scummvm() {
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
 	cat >> "$file" <<- EOF
 	scummvm -p "\$PATH_PREFIX" \$APP_OPTIONS \$@ \$SCUMMVM_ID
 	EOF
@@ -1193,6 +1215,15 @@ write_bin_run_scummvm() {
 write_bin_run_wine() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
+	EOF
+
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
 	wine "\$APP_EXE" \$APP_OPTIONS \$@
 	EOF
 }

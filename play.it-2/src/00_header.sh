@@ -33,4 +33,4 @@
 ###
 
 library_version=2.0
-library_revision=20161228.1
+library_revision=20161228.2
