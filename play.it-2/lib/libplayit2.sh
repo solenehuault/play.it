@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161228.2
+library_revision=20161228.3
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
@@ -1165,7 +1165,7 @@ write_bin_run_dosbox() {
 
 	if [ "$GAME_IMAGE" ]; then
 		cat >> "$file" <<- EOF
-		imgmount d \$GAME_IMAGE -t iso -fs iso
+		imgmount d $GAME_IMAGE -t iso -fs iso
 		EOF
 	fi
 
