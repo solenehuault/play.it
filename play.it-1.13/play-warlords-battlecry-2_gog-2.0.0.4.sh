@@ -35,7 +35,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160324.1
+script_version=20161228.1
 
 # Set game-specific variables
 
@@ -69,7 +69,7 @@ APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./battlecry ii.exe'
-APP1_ICON='./battlecry ii.exe'
+APP1_ICON='./battlecry?ii.exe'
 APP1_ICON_RES='16x16 32x32 48x48'
 APP1_NAME="${GAME_NAME}"
 APP1_NAME_FR="${GAME_NAME}"
