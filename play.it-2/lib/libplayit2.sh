@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20161225.1
+library_revision=20161228.1
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
@@ -192,7 +192,7 @@ check_deps() {
 				check_deps_icon "$dep"
 			;;
 			(*)
-				if [ -z "$(which $dep 2>/dev/null)" ]; then
+				if ! which $dep >/dev/null 2>&1; then
 					check_deps_failed "$dep"
 				fi
 			;;
@@ -205,11 +205,11 @@ check_deps() {
 # CALLS: check_deps_failed
 # CALLED BY: check_deps
 check_deps_7z() {
-	if [ -n "$(which 7zr 2>/dev/null)" ]; then
+	if which 7zr >/dev/null 2>&1; then
 		extract_7z() { 7zr x -o"$2" -y "$1"; }
-	elif [ -n "$(which 7za 2>/dev/null)" ]; then
+	elif which 7za >/dev/null 2>&1; then
 		extract_7z() { 7za x -o"$2" -y "$1"; }
-	elif [ -n "$(which unar 2>/dev/null)" ]; then
+	elif which unar >/dev/null 2>&1; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
 		check_deps_failed 'p7zip'
@@ -702,17 +702,20 @@ set_common_paths_tar() {
 # set source archive for data extraction
 # USAGE: set_source_archive $archive[…]
 # NEEDED_VARS: SOURCE_ARCHIVE
-# CALLS: set_source_archive_vars, set_source_archive_error
+# CALLS: set_source_archive_vars set_source_archive_error
+# 	set_source_archive_print
 set_source_archive() {
 	for archive in "$@"; do
 		file="$(eval echo \$$archive)"
 		if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
 			ARCHIVE="$archive"
+			set_source_archive_print
 			set_source_archive_vars
 			return 0
 		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
 			SOURCE_ARCHIVE="$file"
 			ARCHIVE="$archive"
+			set_source_archive_print
 			set_source_archive_vars
 			return 0
 		fi
@@ -724,18 +727,17 @@ set_source_archive() {
 
 # set archive-related vars
 # USAGE: set_source_archive_vars
-# NEEDED_VARS: ARCHIVE, $ARCHIVE_MD5, $ARCHIVE_TYPE, $ARCHIVE_UNCOMPRESSED_SIZE
-# CALLS: set_source_archive_print, set_source_archive_error_no_type
-# CALLED BY: set_source_archive
+# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_UNCOMPRESSED_SIZE
+# CALLS: set_source_archive_error_no_type
+# CALLED BY: set_source_archive file_checksum
 set_source_archive_vars() {
-	set_source_archive_print
 	ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
 	if [ -z "$ARCHIVE_TYPE" ]; then
 		case "${SOURCE_ARCHIVE##*/}" in
 			(gog_*.sh)
 				ARCHIVE_TYPE='mojosetup'
 			;;
-			(setup_*.exe)
+			(setup_*.exe|patch_*.exe)
 				ARCHIVE_TYPE='innosetup'
 			;;
 			(*.zip)
@@ -757,7 +759,7 @@ set_source_archive_vars() {
 
 # print archive use message
 # USAGE: set_source_archive_print
-# CALLED BY: set_source_archive_vars
+# CALLED BY: set_source_archive
 set_source_archive_print() {
 	case ${LANG%_*} in
 		('fr')
@@ -999,7 +1001,7 @@ write_bin() {
 		#!/bin/sh
 		set -o errexit
 		EOF
-		printf '\n' > "$file"
+		printf '\n' >> "$file"
 		
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
@@ -1070,7 +1072,16 @@ write_bin_build_userdirs_wine() {
 	if ! [ -e "\$WINEPREFIX" ]; then
 	  mkdir --parents "\${WINEPREFIX%/*}"
 	  wineboot --init 2>/dev/null
-	  rm "\${WINEPREFIX}/dosdevices/z:"
+	EOF
+
+	if [ "$APP_WINETRICKS" ]; then
+		cat >> "$file" <<- EOF
+		  winetricks $APP_WINETRICKS
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
+	  rm "\$WINEPREFIX/dosdevices/z:"
 	fi
 	EOF
 }
@@ -1100,12 +1111,13 @@ write_bin_build_prefix() {
 
 # write launcher script - run the game, then clean the user-writable directories
 # USAGE: write_bin_run
-# CALLS: write_bin_run_dosbox, write_bin_run_native, write_bin_run_scummvm, write_bin_run_wine 
+# CALLS: write_bin_run_dosbox write_bin_run_native write_bin_run_scummvm
+# 	write_bin_run_wine
 write_bin_run() {
 	cat >> "$file" <<- EOF
 	# Run the game
-	
 	EOF
+
 	case $app_type in
 		('dosbox')
 			write_bin_run_dosbox
@@ -1120,17 +1132,16 @@ write_bin_run() {
 			write_bin_run_wine
 		;;
 	esac
+
 	if [ $app_type != 'scummvm' ]; then
 		cat >> "$file" <<- EOF
-		
-		sleep 5
 		clean_userdir "\$PATH_CACHE" \$CACHE_FILES
 		clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
 		clean_userdir "\$PATH_DATA" \$DATA_FILES
 		EOF
 	fi
+
 	cat >> "$file" <<- EOF
-	
 	exit 0
 	EOF
 }
@@ -1142,8 +1153,16 @@ write_bin_run_dosbox() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
 	dosbox -c "mount c .
-	imgmount d \$GAME_IMAGE -t iso -fs iso
 	c:
+	EOF
+
+	if [ "$GAME_IMAGE" ]; then
+		cat >> "$file" <<- EOF
+		imgmount d \$GAME_IMAGE -t iso -fs iso
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
 	\$APP_EXE \$APP_OPTIONS \$@
 	exit"
 	EOF
@@ -1164,7 +1183,7 @@ write_bin_run_native() {
 # CALLED BY: write_bin_run
 write_bin_run_scummvm() {
 	cat >> "$file" <<- EOF
-	scummvm -p "\${PATH_GAME}" \$@ \$SCUMMVM_ID
+	scummvm -p "\$PATH_PREFIX" \$APP_OPTIONS \$@ \$SCUMMVM_ID
 	EOF
 }
 
@@ -1315,12 +1334,12 @@ write_bin_set_prefix_funcs() {
 	  (
 	    cd "\$1"
 	    find . -type f | while read file; do
-	      local file_prefix="$(readlink -e "\$PATH_PREFIX/\$file")"
-	      local file_real="$(readlink -e "\$file")"
+	      local file_prefix="\$(readlink -e "\$PATH_PREFIX/\$file")"
+	      local file_real="\$(readlink -e "\$file")"
 	      if [ "\$file_real" != "\$file_prefix" ]; then
-	        rm --force "\$file_prefix"
-	        mkdir --parents "\${file_prefix%/*}"
-	        ln --symbolic "\$file_real" "\$file_prefix"
+	        rm --force "\$PATH_PREFIX/\$file"
+	        mkdir --parents "\$PATH_PREFIX/\${file%/*}"
+	        ln --symbolic "\$file_real" "\$PATH_PREFIX/\$file"
 	      fi
 	    done
 	  )
