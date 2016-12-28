@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161225.1
+script_version=20161227.1
 
 # Set game-specific variables
 
@@ -55,11 +55,19 @@ ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./*eula.txt'
 ARCHIVE_DOC2_PATH='app'
 ARCHIVE_DOC2_FILES='./*.chm ./*.pdf ./*.txt'
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./*.exe ./binkw32.dll ./drvmgt.dll ./mss32.dll ./mp3dec.asi ./data ./maps'
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.exe ./binkw32.dll ./drvmgt.dll ./mss32.dll ./mp3dec.asi data/*.dll'
+ARCHIVE_GAME_STORM_PATH='app'
+ARCHIVE_GAME_STORM_FILES='data/storm_override.h4r data/storm.aop'
+ARCHIVE_GAME_MUSIC_PATH='app'
+ARCHIVE_GAME_MUSIC_FILES='data/music.h4r'
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./data ./maps'
 
 DATA_DIRS='./games ./maps'
 DATA_FILES='./data/high_scores.dat ./*.log'
+
+APP_WINETRICKS='ddr=gdi vd=1280x1024'
 
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./heroes4.exe'
@@ -73,13 +81,34 @@ APP_EDITOR_ICON='./campaign_editor.exe'
 APP_EDITOR_ICON_RES='48x48 64x64'
 APP_EDITOR_NAME="$GAME_NAME - campaign editor"
 
-PKG_MAIN_ARCH_DEB='i386'
-PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DEPS_DEB='winetricks, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
-PKG_MAIN_DEPS_ARCH='winetricks wine'
-PKG_MAIN_DESC_DEB="$GAME_NAME\n
+PKG_STORM_ID="${GAME_ID}-storm"
+PKG_STORM_ARCH_DEB='all'
+PKG_STORM_ARCH_ARCH='any'
+PKG_STORM_DESC_DEB="$GAME_NAME - Gathering Storm\n
  ./play.it script version $script_version"
-PKG_MAIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
+PKG_STORM_DESC_ARCH="$GAME_NAME - Gathering Storm - ./play.it script version $script_version"
+
+PKG_MUSIC_ID="${GAME_ID}-music"
+PKG_MUSIC_ARCH_DEB='all'
+PKG_MUSIC_ARCH_ARCH='any'
+PKG_MUSIC_DESC_DEB="$GAME_NAME - music\n
+ ./play.it script version $script_version"
+PKG_MUSIC_DESC_ARCH="$GAME_NAME - music - ./play.it script version $script_version"
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_ARCH_DEB='all'
+PKG_DATA_ARCH_ARCH='any'
+PKG_DATA_DESC_DEB="$GAME_NAME - data\n
+ ./play.it script version $script_version"
+PKG_DATA_DESC_ARCH="$GAME_NAME - data - ./play.it script version $script_version"
+
+PKG_BIN_ARCH_DEB='i386'
+PKG_BIN_ARCH_ARCH='any'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, $PKG_MUSIC_ID, winetricks, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID $PKG_MUSIC_ID winetricks wine"
+PKG_BIN_DESC_DEB="$GAME_NAME\n
+ ./play.it script version $script_version"
+PKG_BIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
@@ -121,36 +150,51 @@ check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_STORM' 'PKG_MUSIC' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_STORM'
+organize_data_generic 'GAME_STORM' "$PATH_GAME"
+
+PKG='PKG_MUSIC'
+organize_data_generic 'GAME_MUSIC' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data_generic 'DOC1'      "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
 
 if [ "$NO_ICON" = '0' ]; then
-	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
-	extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-	sort_icons 'APP_MAIN'
-	rm --recursive "$PLAYIT_WORKDIR/icons"
-	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/$APP_EDITOR_ICON"
-	extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-	sort_icons 'APP_EDITOR'
-	rm --recursive "$PLAYIT_WORKDIR/icons"
+	(
+		cd "${PKG_BIN_PATH}${PATH_GAME}"
+
+		extract_icon_from "$APP_MAIN_ICON"
+		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
+		sort_icons 'APP_MAIN'
+		rm --recursive "$PLAYIT_WORKDIR/icons"
+
+		extract_icon_from "$APP_EDITOR_ICON"
+		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
+		sort_icons 'APP_EDITOR'
+		rm --recursive "$PLAYIT_WORKDIR/icons"
+	)
 fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN' 'APP_EDITOR'
-for file in "${PKG_MAIN_PATH}${PATH_BIN}"/*; do
-	sed -i 's|\trm "${WINEPREFIX}/dosdevices/z:"|&\n\twinetricks ddr=gdi\n\twinetricks vd=1280x1024|' "$file"
-done
+PKG='PKG_BIN'
+write_bin     'APP_MAIN' 'APP_EDITOR'
 write_desktop 'APP_MAIN' 'APP_EDITOR'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_BIN' 'PKG_STORM' 'PKG_MUSIC' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_STORM' 'PKG_MUSIC' 'PKG_DATA'
 
 # Clean up
 
@@ -158,6 +202,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_STORM_PKG" "$PKG_MUSIC_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
