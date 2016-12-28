@@ -45,6 +45,12 @@ write_bin_run_dosbox() {
 	c:
 	EOF
 
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
 	if [ "$GAME_IMAGE" ]; then
 		cat >> "$file" <<- EOF
 		imgmount d \$GAME_IMAGE -t iso -fs iso
@@ -63,6 +69,15 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
+	EOF
+
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
 	"./\$APP_EXE" \$APP_OPTIONS \$@
 	EOF
 }
@@ -71,6 +86,12 @@ write_bin_run_native() {
 # USAGE: write_bin_run_scummvm
 # CALLED BY: write_bin_run
 write_bin_run_scummvm() {
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
 	cat >> "$file" <<- EOF
 	scummvm -p "\$PATH_PREFIX" \$APP_OPTIONS \$@ \$SCUMMVM_ID
 	EOF
@@ -82,6 +103,15 @@ write_bin_run_scummvm() {
 write_bin_run_wine() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
+	EOF
+
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
 	wine "\$APP_EXE" \$APP_OPTIONS \$@
 	EOF
 }

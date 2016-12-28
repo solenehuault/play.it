@@ -33,6 +33,7 @@ write_bin() {
 			local app_exe="$(eval echo \$${app}_EXE)"
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
+			local app_prerun="$(eval echo \$${app}_PRERUN)"
 			if [ -e "${PKG_PATH}${PATH_GAME}/$app_exe" ]; then
 				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
 			fi
