@@ -31,7 +31,16 @@ write_bin_build_userdirs_wine() {
 	if ! [ -e "\$WINEPREFIX" ]; then
 	  mkdir --parents "\${WINEPREFIX%/*}"
 	  wineboot --init 2>/dev/null
-	  rm "\${WINEPREFIX}/dosdevices/z:"
+	EOF
+
+	if [ "$APP_WINETRICKS" ]; then
+		cat >> "$file" <<- EOF
+		  winetricks $APP_WINETRICKS
+		EOF
+	fi
+
+	cat >> "$file" <<- EOF
+	  rm "\$WINEPREFIX/dosdevices/z:"
 	fi
 	EOF
 }
