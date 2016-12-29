@@ -33,7 +33,8 @@
 ###
 
 library_version=2.0
-library_revision=20161228.3
+library_revision=20161229.1
+
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
 # NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
@@ -563,13 +564,15 @@ organize_data_generic() {
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
 	(
-		cd "$archive_path"
-		for file in $archive_files; do
-			if [ -e "$file" ]; then
-				mkdir --parents "$pkg_path/${file%/*}"
-				mv "$file" "$pkg_path/$file"
-			fi
-		done
+		if [ -e "$archive_path" ]; then
+			cd "$archive_path"
+			for file in $archive_files; do
+				if [ -e "$file" ]; then
+					mkdir --parents "$pkg_path/${file%/*}"
+					mv "$file" "$pkg_path/$file"
+				fi
+			done
+		fi
 	)
 }
 
@@ -624,6 +627,7 @@ print_instructions() {
 			liberror 'PACKAGE_TYPE' 'build_pkg'
 		;;
 	esac
+	printf '\n'
 }
 # set default values for common vars
 # USAGE: set_common_defaults
