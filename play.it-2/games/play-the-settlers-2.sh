@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161228.1
+script_version=20161229.1
 
 # Set game-specific variables
 
@@ -64,8 +64,10 @@ ARCHIVE_GAME_BIN_PATH='app'
 ARCHIVE_GAME_BIN_FILES='./dos4gw.exe ./s2edit.exe ./s2.exe ./setup.exe ./setup.ini video/smackply.exe'
 ARCHIVE_GAME_IMAGE_PATH='app'
 ARCHIVE_GAME_IMAGE_FILES='./settlers2.gog ./settlers2.inst'
-ARCHIVE_GAME_DATA_PATH='app'
-ARCHIVE_GAME_DATA_FILES='./data ./drivers ./gfx ./video ./gfw_high.ico ./goggame-1207658786.ico ./install.scr ./settler2.vmc'
+ARCHIVE_GAME_DATA1_PATH='app'
+ARCHIVE_GAME_DATA1_FILES='./data ./drivers ./gfx ./video ./gfw_high.ico ./goggame-1207658786.ico ./install.scr ./settler2.vmc save/mission.dat'
+ARCHIVE_GAME_DATA2_PATH='app/__support/save'
+ARCHIVE_GAME_DATA2_FILES='save/mission.dat'
 
 CONFIG_FILES='./setup.ini'
 DATA_DIRS='./data ./gfx ./save ./worlds'
@@ -175,9 +177,10 @@ PKG='PKG_IMAGE'
 organize_data_generic 'GAME_IMAGE' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC1'      "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
+organize_data_generic 'GAME_DATA1' "$PATH_GAME"
+organize_data_generic 'GAME_DATA2' "$PATH_GAME"
+organize_data_generic 'DOC1'       "$PATH_DOC"
+organize_data_generic 'DOC2'       "$PATH_DOC"
 
 sed -i 's/SETTLERS2.gog/settlers2.gog/' "${PKG_IMAGE_PATH}${PATH_GAME}/$GAME_IMAGE"
 
