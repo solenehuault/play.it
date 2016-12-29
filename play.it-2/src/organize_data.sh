@@ -27,13 +27,15 @@ organize_data_generic() {
 	local pkg_path="${PKG_PATH}${2}"
 	mkdir --parents "$pkg_path"
 	(
-		cd "$archive_path"
-		for file in $archive_files; do
-			if [ -e "$file" ]; then
-				mkdir --parents "$pkg_path/${file%/*}"
-				mv "$file" "$pkg_path/$file"
-			fi
-		done
+		if [ -e "$archive_path" ]; then
+			cd "$archive_path"
+			for file in $archive_files; do
+				if [ -e "$file" ]; then
+					mkdir --parents "$pkg_path/${file%/*}"
+					mv "$file" "$pkg_path/$file"
+				fi
+			done
+		fi
 	)
 }
 
