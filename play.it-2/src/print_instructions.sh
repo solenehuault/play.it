@@ -36,4 +36,5 @@ print_instructions() {
 			liberror 'PACKAGE_TYPE' 'build_pkg'
 		;;
 	esac
+	printf '\n'
 }
