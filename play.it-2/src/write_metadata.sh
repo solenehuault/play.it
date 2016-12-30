@@ -10,6 +10,8 @@ write_metadata() {
 
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
 
+		local pkg_arch
+		set_arch
 		local pkg_id="$(eval echo \$${pkg}_ID)"
 		local pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
 		local pkg_maint="$(whoami)@$(hostname)"
@@ -29,7 +31,6 @@ write_metadata() {
 
 		case $PACKAGE_TYPE in
 			('arch')
-				local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_ARCH)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
 				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_ARCH)"
@@ -37,7 +38,6 @@ write_metadata() {
 				write_metadata_arch
 			;;
 			('deb')
-				local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
 				local pkg_conflicts="$(eval echo \$${pkg}_CONFLICTS_DEB)"
 				local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
 				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_DEB)"

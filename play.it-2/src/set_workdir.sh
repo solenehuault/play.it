@@ -1,6 +1,6 @@
 # set working directories
 # USAGE: set_workdir $pkg[…]
-# CALLS: set_workdir_workdir, testvar, set_workdir_pkg
+# CALLS: set_workdir_workdir testvar set_workdir_pkg
 set_workdir() {
 	if [ $# = 1 ]; then
 		PKG="$1"
@@ -19,7 +19,7 @@ set_workdir() {
 
 # set gobal working directory
 # USAGE: set_workdir_workdir
-# NEEDED VARS: ARCHIVE, $ARCHIVE_UNCOMPRESSED_SIZE
+# NEEDED VARS: $ARCHIVE $ARCHIVE_UNCOMPRESSED_SIZE
 # CALLED BY: set_workdir
 set_workdir_workdir() {
 	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
@@ -43,31 +43,25 @@ set_workdir_workdir() {
 
 # set package-secific working directory
 # USAGE: set_workdir_pkg $pkg
-# NEEDED VARS: $pkg_ID, $pkg_VERSION, $pkg_ARCH, PLAYIT_WORKDIR
+# NEEDED VARS: $PKG_ID $PKG_VERSION $PKG_ARCH $PLAYIT_WORKDIR
 # CALLED BY: set_workdir
 set_workdir_pkg() {
 	local pkg_id="$(eval echo \$${pkg}_ID)"
-	if [ -z "$pkg_id" ]; then
+	if [ ! "$pkg_id" ]; then
 		pkg_id="$GAME_ID"
 	fi
+
 	local pkg_version="$(eval echo \$${pkg}_VERSION)"
-	if [ -z "$pkg_version" ]; then
+	if [ ! "$pkg_version" ]; then
 		pkg_version="$PKG_VERSION"
 	fi
-	if [ -z "$pkg_version" ]; then
+	if [ ! "$pkg_version" ]; then
 		pkg_version='1.0-1'
 	fi
-	case $PACKAGE_TYPE in
-		('arch')
-			local pkg_arch="$(eval echo \$${pkg}_ARCH_ARCH)"
-		;;
-		('deb')
-			local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
-		;;
-		('tar')
-			local pkg_arch="$(eval echo \$${pkg}_ARCH_DEB)"
-		;;
-	esac
+
+	local pkg_arch
+	set_arch
+
 	local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 	export ${pkg}_PATH="$pkg_path"
 }
