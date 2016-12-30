@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.1
+script_version=20161230.2
 
 # Set game-specific variables
 
@@ -70,24 +70,17 @@ APP_MAIN_ICON='./Dragonfall_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
 PKG_DATA_BERLIN_ID="${GAME_ID}-data-berlin"
-PKG_DATA_BERLIN_ARCH_DEB='all'
-PKG_DATA_BERLIN_ARCH_ARCH='any'
 PKG_DATA_BERLIN_DESCRIPTION='data - Berlin'
 
 PKG_DATA_SEATTLE_ID="${GAME_ID}-data-seattle"
-PKG_DATA_SEATTLE_ARCH_DEB='all'
-PKG_DATA_SEATTLE_ARCH_ARCH='any'
 PKG_DATA_SEATTLE_DESCRIPTION='data - Seattle'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_ARCH_DEB='all'
-PKG_DATA_ARCH_ARCH='any'
 PKG_DATA_DEPS_DEB="$PKG_DATA_BERLIN_ID, $PKG_DATA_SEATTLE_ID"
 PKG_DATA_DEPS_ARCH="$PKG_DATA_BERLIN_ID $PKG_DATA_SEATTLE_ID"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_BIN_ARCH_DEB='i386'
-PKG_BIN_ARCH_ARCH='x86_64'
+PKG_BIN_ARCH='32on64'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libqtgui4, libqt4-network, libxcursor1, libxrandr2"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-qt4 lib32-libxcursor lib32-libxrandr"
 
