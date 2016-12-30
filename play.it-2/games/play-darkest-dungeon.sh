@@ -34,17 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161223.1
+script_version=20161230.1
 
 # Set game-specific variables
 
 GAME_ID='darkest-dungeon'
 GAME_NAME='Darkest Dungeon'
 
-ARCHIVE_GOG='gog_darkest_dungeon_2.6.0.6.sh'
-ARCHIVE_GOG_MD5='38b4feb26883534120bb0ec198afa9d8'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='880000'
-ARCHIVE_GOG_VERSION='15015-gog2.6.0.6'
+ARCHIVE_GOG='gog_darkest_dungeon_2.7.0.7.sh'
+ARCHIVE_GOG_MD5='22deb2c91a659725f1dbc5d8021ee1e8'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='2000000'
+ARCHIVE_GOG_VERSION='16707-gog2.7.0.7'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -62,48 +62,39 @@ ARCHIVE_GAME_DATA_FILES='./*'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='darkest.bin.x86'
 APP_MAIN_EXE_64='darkest.bin.x86_64'
-APP_MAIN_ICON='Icon.bmp'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON1='Icon.bmp'
+APP_MAIN_ICON1_RES='128x128'
+APP_MAIN_ICON2='data/noarch/support/icon.png'
+APP_MAIN_ICON2_RES='256x256'
 
 PKG_AUDIO_ID="${GAME_ID}-audio"
 PKG_AUDIO_ARCH_DEB='all'
 PKG_AUDIO_ARCH_ARCH='any'
-PKG_AUDIO_DESC_DEB="$GAME_NAME - audio\n
- ./play.it script version $script_version"
-PKG_AUDIO_DESC_ARCH="$GAME_NAME - audio - ./play.it script version $script_version"
+PKG_AUDIO_DESCRIPTION='audio'
 
 PKG_VIDEO_ID="${GAME_ID}-video"
 PKG_VIDEO_ARCH_DEB='all'
 PKG_VIDEO_ARCH_ARCH='any'
-PKG_VIDEO_DESC_DEB="$GAME_NAME - video\n
- ./play.it script version $script_version"
-PKG_VIDEO_DESC_ARCH="$GAME_NAME - video - ./play.it script version $script_version"
+PKG_VIDEO_DESCRIPTION='video'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_ARCH_DEB='all'
 PKG_DATA_ARCH_ARCH='any'
-PKG_DATA_DESC_DEB="$GAME_NAME - arch-independant data\n
- ./play.it script version $script_version"
-PKG_DATA_DESC_ARCH="$GAME_NAME - arch-independant data - ./play.it script version $script_version"
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH_DEB='i386'
 PKG_BIN32_ARCH_ARCH='i686'
 PKG_BIN32_DEPS_DEB="$PKG_AUDIO_ID, $PKG_VIDEO_ID, $PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0"
 PKG_BIN32_DEPS_ARCH="$PKG_AUDIO_ID $PKG_VIDEO_ID $PKG_DATA_ID sdl2"
-PKG_BIN32_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_BIN32_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 PKG_BIN64_ARCH_DEB='amd64'
 PKG_BIN64_ARCH_ARCH='x86_64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
 PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
-PKG_BIN64_DESC_DEB="$PKG_BIN32_DESC_DEB"
-PKG_BIN64_DESC_ARCH="$PKG_BIN32_DESC_ARCH"
 
 PKG_BIN32_CONFLICTS_DEB="${GAME_ID}:${PKG_BIN64_ARCH_DEB}"
 PKG_BIN64_CONFLICTS_DEB="${GAME_ID}:${PKG_BIN32_ARCH_DEB}"
- 
+
 # Load common functions
 
 target_version='2.0'
@@ -139,7 +130,6 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
@@ -147,6 +137,13 @@ check_deps
 
 set_workdir 'PKG_AUDIO' 'PKG_VIDEO' 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
 extract_data_from "$SOURCE_ARCHIVE"
+
+(
+	cd "$PLAYIT_WORKDIR/gamedata"
+	rm --force --recursive 'localization/ps4' 'localization/psv'
+	rm --force --recursive 'shaders_ps4' 'shaders_psv'
+	rm --force --recursive 'video_ps4' 'video_psv'
+)
 
 PKG='PKG_BIN32'
 organize_data_generic 'GAME_BIN32' "$PATH_GAME"
@@ -161,10 +158,14 @@ organize_data_generic 'GAME_DATA' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
 if [ "$NO_ICON" = '0' ]; then
-	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
+	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON1"
 	mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
-	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
+	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON1%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 fi
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps"
+mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON2" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -191,9 +192,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
+printf '\n'
+printf '32-bit:'
 print_instructions "$PKG_AUDIO_PKG" "$PKG_VIDEO_PKG" "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
-printf '\n64-bit:'
+printf '64-bit:'
 print_instructions "$PKG_AUDIO_PKG" "$PKG_VIDEO_PKG" "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0
