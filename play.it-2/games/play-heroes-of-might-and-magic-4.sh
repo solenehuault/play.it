@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161227.1
+script_version=20161230.1
 
 # Set game-specific variables
 
@@ -84,31 +84,22 @@ APP_EDITOR_NAME="$GAME_NAME - campaign editor"
 PKG_STORM_ID="${GAME_ID}-storm"
 PKG_STORM_ARCH_DEB='all'
 PKG_STORM_ARCH_ARCH='any'
-PKG_STORM_DESC_DEB="$GAME_NAME - Gathering Storm\n
- ./play.it script version $script_version"
-PKG_STORM_DESC_ARCH="$GAME_NAME - Gathering Storm - ./play.it script version $script_version"
+PKG_STORM_DESCRIPTION='Gathering Storm'
 
 PKG_MUSIC_ID="${GAME_ID}-music"
 PKG_MUSIC_ARCH_DEB='all'
 PKG_MUSIC_ARCH_ARCH='any'
-PKG_MUSIC_DESC_DEB="$GAME_NAME - music\n
- ./play.it script version $script_version"
-PKG_MUSIC_DESC_ARCH="$GAME_NAME - music - ./play.it script version $script_version"
+PKG_MUSIC_DESCRIPTION='music'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_ARCH_DEB='all'
 PKG_DATA_ARCH_ARCH='any'
-PKG_DATA_DESC_DEB="$GAME_NAME - data\n
- ./play.it script version $script_version"
-PKG_DATA_DESC_ARCH="$GAME_NAME - data - ./play.it script version $script_version"
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH_DEB='i386'
 PKG_BIN_ARCH_ARCH='any'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, $PKG_MUSIC_ID, winetricks, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID $PKG_MUSIC_ID winetricks wine"
-PKG_BIN_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_BIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
