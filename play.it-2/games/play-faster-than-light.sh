@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161224.2
+script_version=20161230.1
 
 # Set game-specific variables
 
@@ -85,24 +85,17 @@ APP_MAIN_ICON2_RES='32x32'
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_ARCH_DEB='all'
 PKG_DATA_ARCH_ARCH='any'
-PKG_DATA_DESC_DEB="$GAME_NAME - arch-independant data\n
- ./play.it script version $script_version"
-PKG_DATA_DESC_ARCH="$GAME_NAME - arch-independant data - ./play.it script version $script_version"
+PKG_DATA_DESCRIPTION='arch-independant data'
 
 PKG_BIN32_ARCH_DEB='i386'
 PKG_BIN32_ARCH_ARCH='i686'
 PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libsdl1.2debian"
 PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID libgl sdl"
-PKG_BIN32_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_BIN32_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 PKG_BIN64_ARCH_DEB='amd64'
 PKG_BIN64_ARCH_ARCH='x86_64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
 PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
-PKG_BIN64_DESC_DEB="$PKG_BIN32_DESC_DEB"
-PKG_BIN64_DESC_ARCH="$PKG_BIN32_DESC_ARCH"
 
 PKG_BIN32_CONFLICTS_DEB="${GAME_ID}:${PKG_BIN64_ARCH_DEB}"
 PKG_BIN64_CONFLICTS_DEB="${GAME_ID}:${PKG_BIN32_ARCH_DEB}"
