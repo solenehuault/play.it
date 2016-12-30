@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161217.1
+script_version=20161230.1
 
 # Set game-specific variables
 
@@ -65,9 +65,6 @@ PKG_MAIN_ARCH_DEB='i386'
 PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
 PKG_MAIN_DEPS_ARCH='wine'
-PKG_MAIN_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_MAIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
