@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.1
+script_version=20161230.2
 
 # Set game-specific variables
 
@@ -61,8 +61,6 @@ APP_MAIN_EXE='hospital.exe'
 APP_MAIN_ICON='app/goggame-1207659026.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
 
-PKG_MAIN_ARCH_DEB='all'
-PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB='dosbox'
 PKG_MAIN_DEPS_ARCH='dosbox'
 
