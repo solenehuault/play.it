@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161218.1
+script_version=20161230.1
 
 # Set game-specific variables
 
@@ -63,17 +63,12 @@ APP_MAIN_ICON_RES='128x128'
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_ARCH_DEB='all'
 PKG_DATA_ARCH_ARCH='any'
-PKG_DATA_DESC_DEB="$GAME_NAME - data\n
- ./play.it script version $script_version"
-PKG_DATA_DESC_ARCH="$GAME_NAME - data - ./play.it script version $script_version"
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH_DEB='i386'
 PKG_BIN_ARCH_ARCH='x86_64'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-libxcursor"
-PKG_BIN_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_BIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
