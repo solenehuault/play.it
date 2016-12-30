@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161229.1
+script_version=20161230.1
 
 # Set game-specific variables
 
@@ -96,24 +96,17 @@ APP_SETUP_CAT='Settings'
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_ARCH_DEB='all'
 PKG_DATA_ARCH_ARCH='any'
-PKG_DATA_DESC_DEB="$GAME_NAME - data\n
- ./play.it script version $script_version"
-PKG_DATA_DESC_ARCH="$GAME_NAME - data - ./play.it script version $script_version"
+PKG_DATA_DESCRIPTION='data'
 
 PKG_IMAGE_ID="${GAME_ID}-image"
 PKG_IMAGE_ARCH_DEB='all'
 PKG_IMAGE_ARCH_ARCH='any'
-PKG_IMAGE_DESC_DEB="$GAME_NAME - disk image\n
- ./play.it script version $script_version"
-PKG_IMAGE_DESC_ARCH="$GAME_NAME - disk image - ./play.it script version $script_version"
+PKG_IMAGE_DESCRIPTION='disk image'
 
 PKG_BIN_ARCH_DEB='all'
 PKG_BIN_ARCH_ARCH='any'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, $PKG_IMAGE_ID, dosbox"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID $PKG_IMAGE_ID dosbox"
-PKG_BIN_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_BIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
