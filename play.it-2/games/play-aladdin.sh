@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161226.1
+script_version=20161230.1
 
 # Set game-specific variables
 
@@ -62,9 +62,6 @@ PKG_MAIN_ARCH_DEB='all'
 PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB='dosbox'
 PKG_MAIN_DEPS_ARCH='dosbox'
-PKG_MAIN_DESC_DEB="$GAME_NAME\n
- ./play.it script version $script_version"
-PKG_MAIN_DESC_ARCH="$GAME_NAME - ./play.it script version $script_version"
 
 # Load common functions
 
