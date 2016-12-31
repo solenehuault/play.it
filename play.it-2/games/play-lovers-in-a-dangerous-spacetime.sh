@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.2
+script_version=20161231.1
 
 # Set game-specific variables
 
@@ -62,15 +62,13 @@ APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_COMMON_ID="${GAME_ID}-common"
-PKG_COMMON_ARCH_DEB='all'
-PKG_COMMON_ARCH_ARCH='any'
-PKG_COMMON_DESCRIPTION='arch-independant data'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_COMMON_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
-PKG_32_DEPS_ARCH="$PKG_COMMON_ID libgl libxcursor"
+PKG_32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
+PKG_32_DEPS_ARCH="$PKG_DATA_ID libgl libxcursor"
 
 PKG_64_ARCH='64'
 PKG_64_CONFLICTS_DEB="$GAME_ID"
@@ -112,22 +110,22 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
 check_deps
 
 # Extract game data
 
-set_workdir 'PKG_COMMON' 'PKG_32' 'PKG_64'
+set_workdir 'PKG_DATA' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_32'
 organize_data_generic 'GAME_32' "$PATH_GAME"
+
 PKG='PKG_64'
 organize_data_generic 'GAME_64' "$PATH_GAME"
-PKG='PKG_COMMON'
+
+PKG='PKG_DATA'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -135,15 +133,17 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_32'
 APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 PKG='PKG_64'
 APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
+
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -155,10 +155,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_COMMON'
+write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_COMMON' 'PKG_32' 'PKG_64'
+build_pkg      'PKG_32' 'PKG_64' 'PKG_DATA'
 
 # Clean up
 
@@ -166,9 +166,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
-print_instructions "$PKG_COMMON_PKG" "$PKG_32_PKG"
-printf '\n64-bit:'
-print_instructions "$PKG_COMMON_PKG" "$PKG_64_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_64_PKG"
 
 exit 0
