@@ -1,14 +1,13 @@
 # extract data from given archive
 # USAGE: extract_data $archive[…]
-# NEEDED_VARS: PLAYIT_WORKDIR, ARCHIVE, $ARCHIVE_TYPE, ARCHIVE_PASSWD
-# CALLS: liberror, extract_7z (declared by check_deps_7z)
+# NEEDED_VARS: $PLAYIT_WORKDIR $ARCHIVE $ARCHIVE_TYPE $ARCHIVE_PASSWD
+# CALLS: liberror extract_7z (declared by check_deps_7z)
 extract_data_from() {
 	for file in "$@"; do
 		extract_data_from_print
 		local destination="${PLAYIT_WORKDIR}/gamedata"
 		mkdir --parents "$destination"
-		archive_type="$(eval echo \$${ARCHIVE}_TYPE)"
-		case $archive_type in
+		case "$(eval echo \$${ARCHIVE}_TYPE)" in
 			('7z')
 				extract_7z "$file" "$destination"
 			;;
@@ -18,6 +17,9 @@ extract_data_from() {
 			('mojosetup')
 				bsdtar --directory "$destination" --extract --file "$file"
 				fix_rights "$destination"
+			;;
+			('mojosetup_unzip')
+				unzip -d "$destination" "$file" 1>/dev/null 2>&1 || true
 			;;
 			('nix_stage1')
 				local input_blocksize=$(head --lines=514 "$file" | wc --bytes | tr --delete ' ')
