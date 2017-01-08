@@ -18,9 +18,6 @@ for app in $@; do
 		('deb')
 			sort_icons_deb
 		;;
-		('tar')
-			sort_icons_tar
-		;;
 		(*)
 			liberror 'PACKAGE_TYPE' 'sort_icons'
 		;;
@@ -52,20 +49,6 @@ sort_icons_deb() {
 		mkdir -p "${pkg_path}${path_icon}"
 		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
 			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
-		done
-	done
-}
-
-# create icons tree for .tar archive
-# USAGE: sort_icons_tar
-# NEEDED VARS: PLAYIT_WORKDIR, PATH_ICON_BASE
-# CALLED BY: sort_icons
-sort_icons_tar() {
-	local icon_path="${pkg_path}${PATH_ICON_BASE}"
-	mkdir --parents "$icon_path"
-	for res in $icon_res; do
-		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-			mv "${file}" "${icon_path}/${app_id}_${res}.png"
 		done
 	done
 }
