@@ -27,9 +27,6 @@ set_common_paths() {
 		('deb')
 			set_common_paths_deb
 		;;
-		('tar')
-			set_common_paths_tar
-		;;
 		(*)
 			liberror 'PACKAGE_TYPE' 'set_common_paths'
 		;;
@@ -58,17 +55,5 @@ set_common_paths_deb() {
 	PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
 	PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
 	PATH_ICON_BASE='/usr/local/share/icons/hicolor'
-}
-
-# set .tar archive paths
-# USAGE: set_common_paths_tar
-# NEEDED VARS: INSTALL_PREFIX
-# CALLED BY: set_common_paths
-set_common_paths_tar() {
-	PATH_BIN="${INSTALL_PREFIX}/bin"
-	PATH_DESK="$INSTALL_PREFIX"
-	PATH_DOC="${INSTALL_PREFIX}/doc"
-	PATH_GAME="${INSTALL_PREFIX}/data"
-	PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
 }
 
