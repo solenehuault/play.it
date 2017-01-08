@@ -33,20 +33,6 @@ set_arch() {
 			esac
 		;;
 
-		('tar')
-			case "$(eval echo \$${pkg}_ARCH)" in
-				('64')
-					pkg_arch='x86_64'
-				;;
-				('32'|'32on64')
-					pkg_arch='x86'
-				;;
-				(*)
-					pkg_arch='any'
-				;;
-			esac
-		;;
-
 	esac
 }
 
