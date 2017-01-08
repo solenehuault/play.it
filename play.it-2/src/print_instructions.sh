@@ -26,15 +26,10 @@ print_instructions() {
 			printf '\n'
 			printf 'apt-get install -f\n'
 		;;
-		('tar')
-			command='tar -C / -xvf'
-			for pkg in $@; do
-				printf 'tar -C / -xvf %s\n' "$pkg"
-			done
-		;;
 		(*)
 			liberror 'PACKAGE_TYPE' 'build_pkg'
 		;;
 	esac
 	printf '\n'
 }
+
