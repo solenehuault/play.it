@@ -13,9 +13,6 @@ build_pkg() {
 			('deb')
 				build_pkg_deb
 			;;
-			('tar')
-				build_pkg_tar
-			;;
 			(*)
 				liberror 'PACKAGE_TYPE' 'build_pkg'
 			;;
@@ -67,35 +64,6 @@ build_pkg_deb() {
 	local dpkg_options="-Z$COMPRESSION_METHOD"
 	build_pkg_print
 	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
-	export ${pkg}_PKG="$pkg_filename"
-}
-
-# build .tar archive
-# USAGE: build_pkg_tar
-# CALLS: build_pkg_print
-# CALLED BY: build_pkg
-build_pkg_tar() {
-	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
-	local tar_options='--create --group=root --owner=root'
-	case $COMPRESSION_METHOD in
-		('gzip')
-			tar_options="$tar_options --gzip"
-			pkg_filename="${pkg_filename}.gz"
-		;;
-		('xz')
-			tar_options="$tar_options --xz"
-			pkg_filename="${pkg_filename}.xz"
-		;;
-		('none') ;;
-		(*)
-			liberror 'PACKAGE_TYPE' 'build_pkg'
-		;;
-	esac
-	build_pkg_print
-	(
-		cd "$pkg_path"
-		tar $tar_options --file "$pkg_filename" .
-	)
 	export ${pkg}_PKG="$pkg_filename"
 }
 
