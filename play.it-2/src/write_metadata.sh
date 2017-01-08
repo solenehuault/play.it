@@ -44,9 +44,6 @@ write_metadata() {
 				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_deb
 			;;
-			('tar')
-				return 0
-			;;
 		esac
 
 	done
