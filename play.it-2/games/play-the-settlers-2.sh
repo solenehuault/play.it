@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.2
+script_version=20170108.1
 
 # Set game-specific variables
 
@@ -171,12 +171,7 @@ organize_data_generic 'DOC2'       "$PATH_DOC"
 
 sed -i 's/SETTLERS2.gog/settlers2.gog/' "${PKG_IMAGE_PATH}${PATH_GAME}/$GAME_IMAGE"
 
-if [ "$NO_ICON" = '0' ]; then
-	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
-	extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-	sort_icons 'APP_MAIN'
-	rm --recursive "$PLAYIT_WORKDIR/icons"
-fi
+extract_and_sort_icons_from 'APP_MAIN'
 rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
