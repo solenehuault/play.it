@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170101.1
+library_revision=20170108.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -49,9 +49,6 @@ build_pkg() {
 			;;
 			('deb')
 				build_pkg_deb
-			;;
-			('tar')
-				build_pkg_tar
 			;;
 			(*)
 				liberror 'PACKAGE_TYPE' 'build_pkg'
@@ -104,35 +101,6 @@ build_pkg_deb() {
 	local dpkg_options="-Z$COMPRESSION_METHOD"
 	build_pkg_print
 	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
-	export ${pkg}_PKG="$pkg_filename"
-}
-
-# build .tar archive
-# USAGE: build_pkg_tar
-# CALLS: build_pkg_print
-# CALLED BY: build_pkg
-build_pkg_tar() {
-	local pkg_filename="${PWD}/${pkg_path##*/}.tar"
-	local tar_options='--create --group=root --owner=root'
-	case $COMPRESSION_METHOD in
-		('gzip')
-			tar_options="$tar_options --gzip"
-			pkg_filename="${pkg_filename}.gz"
-		;;
-		('xz')
-			tar_options="$tar_options --xz"
-			pkg_filename="${pkg_filename}.xz"
-		;;
-		('none') ;;
-		(*)
-			liberror 'PACKAGE_TYPE' 'build_pkg'
-		;;
-	esac
-	build_pkg_print
-	(
-		cd "$pkg_path"
-		tar $tar_options --file "$pkg_filename" .
-	)
 	export ${pkg}_PKG="$pkg_filename"
 }
 
@@ -273,6 +241,7 @@ extract_data_from() {
 			;;
 			('mojosetup_unzip')
 				unzip -d "$destination" "$file" 1>/dev/null 2>&1 || true
+				fix_rights "$destination"
 			;;
 			('nix_stage1')
 				local input_blocksize=$(head --lines=514 "$file" | wc --bytes | tr --delete ' ')
@@ -619,18 +588,13 @@ print_instructions() {
 			printf '\n'
 			printf 'apt-get install -f\n'
 		;;
-		('tar')
-			command='tar -C / -xvf'
-			for pkg in $@; do
-				printf 'tar -C / -xvf %s\n' "$pkg"
-			done
-		;;
 		(*)
 			liberror 'PACKAGE_TYPE' 'build_pkg'
 		;;
 	esac
 	printf '\n'
 }
+
 # set package distribution-specific architecture
 # USAGE: set_arch
 # NEEDED VARS: $PACKAGE_TYPE
@@ -662,20 +626,6 @@ set_arch() {
 				;;
 				(*)
 					pkg_arch='all'
-				;;
-			esac
-		;;
-
-		('tar')
-			case "$(eval echo \$${pkg}_ARCH)" in
-				('64')
-					pkg_arch='x86_64'
-				;;
-				('32'|'32on64')
-					pkg_arch='x86'
-				;;
-				(*)
-					pkg_arch='any'
 				;;
 			esac
 		;;
@@ -712,9 +662,6 @@ set_common_paths() {
 		('deb')
 			set_common_paths_deb
 		;;
-		('tar')
-			set_common_paths_tar
-		;;
 		(*)
 			liberror 'PACKAGE_TYPE' 'set_common_paths'
 		;;
@@ -743,18 +690,6 @@ set_common_paths_deb() {
 	PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
 	PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
 	PATH_ICON_BASE='/usr/local/share/icons/hicolor'
-}
-
-# set .tar archive paths
-# USAGE: set_common_paths_tar
-# NEEDED VARS: INSTALL_PREFIX
-# CALLED BY: set_common_paths
-set_common_paths_tar() {
-	PATH_BIN="${INSTALL_PREFIX}/bin"
-	PATH_DESK="$INSTALL_PREFIX"
-	PATH_DOC="${INSTALL_PREFIX}/doc"
-	PATH_GAME="${INSTALL_PREFIX}/data"
-	PATH_ICON_BASE="${INSTALL_PREFIX}/icons"
 }
 
 # set source archive for data extraction
@@ -949,9 +884,6 @@ for app in $@; do
 		('deb')
 			sort_icons_deb
 		;;
-		('tar')
-			sort_icons_tar
-		;;
 		(*)
 			liberror 'PACKAGE_TYPE' 'sort_icons'
 		;;
@@ -983,20 +915,6 @@ sort_icons_deb() {
 		mkdir -p "${pkg_path}${path_icon}"
 		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
 			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
-		done
-	done
-}
-
-# create icons tree for .tar archive
-# USAGE: sort_icons_tar
-# NEEDED VARS: PLAYIT_WORKDIR, PATH_ICON_BASE
-# CALLED BY: sort_icons
-sort_icons_tar() {
-	local icon_path="${pkg_path}${PATH_ICON_BASE}"
-	mkdir --parents "$icon_path"
-	for res in $icon_res; do
-		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
-			mv "${file}" "${icon_path}/${app_id}_${res}.png"
 		done
 	done
 }
@@ -1557,9 +1475,6 @@ write_metadata() {
 				local pkg_provides="$(eval echo \$${pkg}_PROVIDES_DEB)"
 				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 				write_metadata_deb
-			;;
-			('tar')
-				return 0
 			;;
 		esac
 
