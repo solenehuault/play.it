@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170108.2
+library_revision=20170110.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -273,7 +273,7 @@ extract_data_from() {
 # USAGE: extract_data_from_print
 # CALLED BY: extract_data_from
 extract_data_from_print() {
-	local file="$(basename $file)"
+	local file="$(basename "$file")"
 	case ${LANG%_*} in
 		('fr')
 			printf 'Extraction des données de %s\n' "$file"
