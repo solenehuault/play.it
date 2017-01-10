@@ -52,7 +52,7 @@ extract_data_from() {
 # USAGE: extract_data_from_print
 # CALLED BY: extract_data_from
 extract_data_from_print() {
-	local file="$(basename $file)"
+	local file="$(basename "$file")"
 	case ${LANG%_*} in
 		('fr')
 			printf 'Extraction des données de %s\n' "$file"
