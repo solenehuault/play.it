@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170108.1
+script_version=20170111.1
 
 # Set game-specific variables
 
@@ -50,8 +50,14 @@ ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./gog_eula.txt ./eula.txt'
 ARCHIVE_DOC2_PATH='app'
 ARCHIVE_DOC2_FILES='./readme.txt ./*.pdf'
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./555 ./smk ./wavs ./*.555 ./*.emp ./*.eng ./*.inf ./*.map ./*.sg2 ./c3.exe ./c3_model.txt ./caesar3.ini ./mission1.pak ./smackw32.dll'
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.inf ./c3.exe ./caesar3.ini ./smackw32.dll'
+ARCHIVE_GAME_MOVIES_PATH='app'
+ARCHIVE_GAME_MOVIES_FILES='./smk'
+ARCHIVE_GAME_SOUNDS_PATH='app'
+ARCHIVE_GAME_SOUNDS_FILES='./wavs'
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./555 ./*.555 ./*.emp ./*.eng ./*.map ./*.sg2 ./c3_model.txt ./mission1.pak'
 
 CONFIG_FILES='./caesar3.ini'
 DATA_FILES='./c3_model.txt ./status.txt ./*.sav'
@@ -61,9 +67,18 @@ APP_MAIN_EXE='./c3.exe'
 APP_MAIN_ICON='./c3.exe'
 APP_MAIN_ICON_RES='16x16 32x32'
 
-PKG_MAIN_ARCH='32on64'
-PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
-PKG_MAIN_DEPS_ARCH='wine'
+PKG_MOVIES_ID="${GAME_ID}-movies"
+PKG_MOVIES_DESCRIPTION='movies'
+
+PKG_SOUNDS_ID="${GAME_ID}-sounds"
+PKG_SOUNDS_DESCRIPTION='sounds'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32on64'
+PKG_BIN_DEPS_DEB="$PKG_MOVIES_ID, $PKG_SOUNDS_ID, $PKG_DATA_ID, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
+PKG_BIN_DEPS_ARCH="$PKG_MOVIES_ID $PKG_SOUNDS_ID $PKG_DATA_ID wine"
 
 # Load common functions
 
@@ -105,24 +120,37 @@ check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_MOVIES' 'PKG_SOUNDS' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN' "$PATH_GAME"
 
+PKG='PKG_MOVIES'
+organize_data_generic 'GAME_MOVIES' "$PATH_GAME"
+
+PKG='PKG_SOUNDS'
+organize_data_generic 'GAME_SOUNDS' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data_generic 'DOC1'      "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
+
+PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_BIN' 'PKG_MOVIES' 'PKG_SOUNDS' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_MOVIES' 'PKG_SOUNDS' 'PKG_DATA'
 
 # Clean up
 
@@ -130,6 +158,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_MOVIES_PKG" "$PKG_SOUNDS_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
