@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.2
+script_version=20170116.1
 
 # Set game-specific variables
 
@@ -58,7 +58,7 @@ ARCHIVE_DOC1_FILES='./*eula.txt'
 ARCHIVE_DOC2_PATH='app'
 ARCHIVE_DOC2_FILES='./eula ./*.cnt ./*.hlp ./*.pdf ./*.txt'
 ARCHIVE_GAME_BIN_PATH='app'
-ARCHIVE_GAME_BIN_FILES='./binkw32.dll ./h3ccmped.exe ./h3maped.exe ./heroes3.exe ./ifc20.dll ./ifc21.dll ./mcp.dll ./mp3dec.asi ./mss32.dll ./smackw32.dll'
+ARCHIVE_GAME_BIN_FILES='./*.exe ./binkw32.dll ./ifc20.dll ./ifc21.dll ./mcp.dll ./mp3dec.asi ./mss32.dll ./smackw32.dll'
 ARCHIVE_GAME_DATA_PATH='app'
 ARCHIVE_GAME_DATA_FILES='./data ./maps'
 ARCHIVE_GAME_MUSIC_PATH='app'
