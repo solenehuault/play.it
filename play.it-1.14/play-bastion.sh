@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161001.1
+script_version=20170203.1
 
 # Set game-specific variables
 
@@ -233,7 +233,7 @@ file="${PKG3_DIR}/DEBIAN/prerm"
 cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON}/${GAME_ID}.png"
-rmdir --fail-on-non-empty --verbose "${PATH_ICON}"
+rmdir --ignore-fail-on-non-empty --verbose "${PATH_ICON}"
 exit 0
 EOF
 chmod 755 "${file}"
