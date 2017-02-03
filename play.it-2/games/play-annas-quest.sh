@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170101.1
+script_version=20170203.1
 
 # Set game-specific variables
 
@@ -62,7 +62,7 @@ APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
 PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="libavcodec56 | libavcodec-extra-56,libavformat56, libavfilter5, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libglvnd0 | libglx0, libx11-6, libxext6, libglvnd0 | libglx0, libxcb1, libxau6, libxdmcp6"
+PKG_MAIN_DEPS_DEB='libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libx11-6, libxext6, libxcb1, libxau6, libxdmcp6'
 PKG_MAIN_DEPS_ARCH="ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp"
 
 # Load common functions
