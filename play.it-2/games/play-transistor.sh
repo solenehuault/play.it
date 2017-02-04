@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170123.1
+script_version=20170204.1
 
 # Set game-specific variables
 
@@ -60,7 +60,7 @@ DATA_DIRS='./logs'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='Transistor.bin.x86'
 APP_MAIN_EXE_64='Transistor.bin.x86_64'
-APP_MAIN_ICON='*data/noarch/game/Transistor.bmp'
+APP_MAIN_ICON='Transistor.bmp'
 APP_MAIN_ICON_RES='256x256'
 
 PKG_MAIN_ID="${GAME_ID}-common"
@@ -127,6 +127,13 @@ PKG='PKG_MAIN'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
+if [ "$NO_ICON" = '0' ]; then
+	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+	extract_icon_from "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+	mkdir --parents "${PKG_MAIN_PATH}${PATH_ICON}"
+	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_MAIN_PATH}${PATH_ICON}/$GAME_ID.png"
+fi
+
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
@@ -143,20 +150,8 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
-EOF
-
-cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-EOF
-
-write_metadata 'PKG_MAIN'
-rm "$postinst" "$prerm"
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata 'PKG_MAIN' 'PKG_32' 'PKG_64'
+build_pkg      'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 # Clean up
 
