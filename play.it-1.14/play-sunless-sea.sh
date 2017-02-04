@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170204.1
 
 # Set game-specific variables
 
@@ -46,17 +46,20 @@ GAME_NAME='Sunless Sea'
 
 GAME_ARCHIVE1='gog_sunless_sea_2.8.0.11.sh'
 GAME_ARCHIVE1_MD5='1cf6bb7a440ce796abf8e7afcb6f7a54'
-GAME_ARCHIVE1_VERSION='2.2.2.3129'
-GAME_ARCHIVE1_REVISION='gog2.8.0.11'
+GAME_ARCHIVE1_VERSION='2.2.2.3129-gog2.8.0.11'
 GAME_ARCHIVE1_FULLSIZE='700000'
 GAME_ARCHIVE1_TYPE='mojo'
 
 GAME_ARCHIVE2='Sunless_Sea_Setup_V2.2.2.3129_LINUX.zip'
 GAME_ARCHIVE2_MD5='bdb37932e56fd0655a2e4263631e2582'
-GAME_ARCHIVE2_VERSION='2.2.2.3129'
-GAME_ARCHIVE2_REVISION='humble170131'
+GAME_ARCHIVE2_VERSION='2.2.2.3129-humble170131'
 GAME_ARCHIVE2_FULLSIZE='700000'
 GAME_ARCHIVE2_TYPE='zip'
+
+GAME_ARCHIVE3='gog_sunless_sea_zubmariner_2.5.0.6.sh'
+GAME_ARCHIVE3_MD5='692cd0dac832d5254bd38d7e1a05b918'
+GAME_ARCHIVE3_VERSION='2.2.2.3130-gog2.5.0.6'
+GAME_ARCHIVE3_TYPE='mojo'
 
 GAME_ARCHIVE1_INSTALLER_PATH='data/noarch/game'
 GAME_ARCHIVE1_INSTALLER_DOC='../docs/* ./README.linux'
@@ -158,13 +161,12 @@ check_deps_hard ${SCRIPT_DEPS_HARD}
 
 printf '\n'
 set_target '2' 'gog.com & humblebundle.com'
+set_target_optional 'DLC_ARCHIVE' "$GAME_ARCHIVE3"
 case "${GAME_ARCHIVE##*/}" in
 	"${GAME_ARCHIVE1}")
 		ARCHIVE_TYPE="$GAME_ARCHIVE1_TYPE"
 		GAME_ARCHIVE_MD5="${GAME_ARCHIVE1_MD5}"
 		GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE1_FULLSIZE}"
-		PKG_VERSION="${GAME_ARCHIVE1_VERSION}"
-		PKG_REVISION="${GAME_ARCHIVE1_REVISION}"
 		PKG_DESC="${GAME_ARCHIVE1_PKG_DESC}"
 		PKG3_DESC="${GAME_ARCHIVE1_PKG3_DESC}"
 		INSTALLER_PATH="${GAME_ARCHIVE1_INSTALLER_PATH}"
@@ -172,13 +174,17 @@ case "${GAME_ARCHIVE##*/}" in
 		INSTALLER_GAME_PKG1="${GAME_ARCHIVE1_INSTALLER_GAME_PKG1}"
 		INSTALLER_GAME_PKG2="${GAME_ARCHIVE1_INSTALLER_GAME_PKG2}"
 		INSTALLER_GAME_PKG3="${GAME_ARCHIVE1_INSTALLER_GAME_PKG3}"
+		if [ -n "$DLC_ARCHIVE" ]; then
+			PKG_VERSION="$GAME_ARCHIVE3_VERSION"
+		else
+			PKG_VERSION="$GAME_ARCHIVE1_VERSION"
+		fi
 	;;
 	"${GAME_ARCHIVE2}")
 		ARCHIVE_TYPE="$GAME_ARCHIVE2_TYPE"
 		GAME_ARCHIVE_MD5="${GAME_ARCHIVE2_MD5}"
 		GAME_ARCHIVE_FULLSIZE="${GAME_ARCHIVE2_FULLSIZE}"
 		PKG_VERSION="${GAME_ARCHIVE2_VERSION}"
-		PKG_REVISION="${GAME_ARCHIVE2_REVISION}"
 		PKG_DESC="${GAME_ARCHIVE2_PKG_DESC}"
 		PKG3_DESC="${GAME_ARCHIVE2_PKG3_DESC}"
 		INSTALLER_PATH="${GAME_ARCHIVE2_INSTALLER_PATH}"
@@ -188,13 +194,10 @@ case "${GAME_ARCHIVE##*/}" in
 		INSTALLER_GAME_PKG3="${GAME_ARCHIVE2_INSTALLER_GAME_PKG3}"
 	;;
 esac
-PKG1_VERSION="${PKG_VERSION}"
-PKG2_VERSION="${PKG_VERSION}"
-PKG3_VERSION="${PKG_VERSION}"
 PKG1_DESC="${PKG_DESC}"
 PKG2_DESC="${PKG_DESC}"
-PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
-PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
+PKG1_DEPS="$PKG3_ID (= $PKG_VERSION), $PKG1_DEPS"
+PKG2_DEPS="$PKG3_ID (= $PKG_VERSION), $PKG2_DEPS"
 printf '\n'
 
 PATH_BIN="${PKG_PREFIX}/games"
@@ -203,15 +206,21 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG3_DIR' "${PKG3_ID}_${PKG3_VERSION}-${PKG_REVISION}_${PKG3_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)"    "$(( $GAME_ARCHIVE_FULLSIZE * 2 ))"
+game_mkdir 'PKG1_DIR'   "${PKG1_ID}_${PKG_VERSION}_${PKG1_ARCH}" "$(( $GAME_ARCHIVE_FULLSIZE * 2 ))"
+game_mkdir 'PKG2_DIR'   "${PKG2_ID}_${PKG_VERSION}_${PKG2_ARCH}" "$(( $GAME_ARCHIVE_FULLSIZE * 2 ))"
+game_mkdir 'PKG3_DIR'   "${PKG3_ID}_${PKG_VERSION}_${PKG3_ARCH}" "$(( $GAME_ARCHIVE_FULLSIZE * 2 ))"
 
 # Check target files integrity
 
-if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE_MD5}"
+if [ "$GAME_ARCHIVE_CHECKSUM" = 'md5sum' ]; then
+	printf '%s…\n' "$(l10n 'checksum_multiple')"
+	print wait
+	checksum "$GAME_ARCHIVE" 'quiet' "$GAME_ARCHIVE_MD5"
+	if [ -n "$DLC_ARCHIVE" ]; then
+		checksum "$DLC_ARCHIVE" 'quiet' "$GAME_ARCHIVE3_MD5"
+	fi
+	print done
 fi
 
 # Extract game data
@@ -221,10 +230,14 @@ rm -rf "${PKG3_DIR}"
 mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}"
 print wait
 
-extract_data "${ARCHIVE_TYPE}" "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+extract_data "$ARCHIVE_TYPE" "$GAME_ARCHIVE" "$PKG_TMPDIR" 'quiet'
 if [ "${GAME_ARCHIVE##*/}" = "$GAME_ARCHIVE2" ]; then
-	extract_data 'mojo' "${PKG_TMPDIR}"/*.sh "${PKG_TMPDIR}" 'fix_rights,quiet'
+	extract_data 'mojo' "$PKG_TMPDIR"/*.sh "$PKG_TMPDIR" 'quiet'
 fi
+if [ -n "$DLC_ARCHIVE" ]; then
+	extract_data "$GAME_ARCHIVE3_TYPE" "$DLC_ARCHIVE" "$PKG_TMPDIR" 'quiet,force'
+fi
+fix_rights "$PKG_TMPDIR"
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
@@ -270,9 +283,9 @@ printf '\n'
 printf '%s…\n' "$(l10n 'build_pkgs')"
 print wait
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" 'arch'
-write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}" 'arch'
-write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}"
+write_pkg_debian "$PKG1_DIR" "$PKG1_ID" "$PKG_VERSION" "$PKG1_ARCH" "$PKG1_CONFLICTS" "$PKG1_DEPS" "$PKG1_RECS" "$PKG1_DESC" 'arch'
+write_pkg_debian "$PKG2_DIR" "$PKG2_ID" "$PKG_VERSION" "$PKG2_ARCH" "$PKG2_CONFLICTS" "$PKG2_DEPS" "$PKG2_RECS" "$PKG2_DESC" 'arch'
+write_pkg_debian "$PKG3_DIR" "$PKG3_ID" "$PKG_VERSION" "$PKG3_ARCH" "$PKG3_CONFLICTS" "$PKG3_DEPS" "$PKG3_RECS" "$PKG3_DESC"
 
 file="${PKG3_DIR}/DEBIAN/postinst"
 cat > "${file}" << EOF
