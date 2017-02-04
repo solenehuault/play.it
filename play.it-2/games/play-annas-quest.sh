@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170204.1
 
 # Set game-specific variables
 
@@ -48,7 +48,7 @@ ARCHIVE_GOG_VERSION='1.0.0202-gog2.1.0.3'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
-ARCHIVE_DOC2_PATH='data/noarch/game/documents/licences'
+ARCHIVE_DOC2_PATH='data/noarch/game/documents/licenses'
 ARCHIVE_DOC2_FILES='./*'
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./anna ./characters ./config.ini ./data.vis ./libs64 ./lua ./scenes ./videos'
