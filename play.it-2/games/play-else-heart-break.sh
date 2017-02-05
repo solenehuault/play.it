@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,38 @@ set -o errexit
 ###
 
 ###
-# Anna's Quest
+# else Heart.Break()
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170205.1
 
 # Set game-specific variables
 
-GAME_ID='annas-quest'
-GAME_NAME='Anna’s Quest'
+GAME_ID='else-heart-break'
+GAME_NAME='else Heart.Break()'
 
-ARCHIVE_GOG='gog_anna_s_quest_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='cb4cf167a13413b6df8238397393298a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1100000'
-ARCHIVE_GOG_VERSION='1.0.0202-gog2.1.0.3'
+ARCHIVE_HUMBLE='ElseHeartbreakLinux.tgz'
+ARCHIVE_HUMBLE_MD5='7030450cadac6234676967ae41f2a732'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='1500000'
+ARCHIVE_HUMBLE_VERSION='1.0.9-humble162901'
+ARCHIVE_HUMBLE_TYPE='tar.gz'
 
-ARCHIVE_DOC1_PATH='data/noarch/docs'
-ARCHIVE_DOC1_FILES='./*'
-ARCHIVE_DOC2_PATH='data/noarch/game/documents/licenses'
-ARCHIVE_DOC2_FILES='./*'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./anna ./characters ./config.ini ./data.vis ./libs64 ./lua ./scenes ./videos'
+ARCHIVE_GAME_PATH='ElseHeartbreakLinux'
+ARCHIVE_GAME_FILES='./*'
 
-CONFIG_FILES='./config.ini'
+DATA_DIRS='./logs ElseHeartbreak_Data/Saves ElseHeartbreak_Data/InitData'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='anna'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_EXE='ElseHeartbreak'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
+APP_MAIN_ICON='ElseHeartbreak_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128x128'
 
 PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libx11-6, libxext6, libxcb1, libxau6, libxdmcp6'
-PKG_MAIN_DEPS_ARCH="ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp"
+PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libnss3, libgtk2.0-0"
+PKG_MAIN_DEPS_ARCH="nss gtk2 glu"
 
 # Load common functions
 
@@ -97,35 +94,39 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG'
+set_source_archive 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
 check_deps
 
 # Extract game data
 
 set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
-
 organize_data
-
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_MAIN'
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
 
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_MAIN'
 build_pkg 'PKG_MAIN'
 
 # Clean up

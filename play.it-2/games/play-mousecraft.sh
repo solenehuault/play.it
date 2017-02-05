@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,53 @@ set -o errexit
 ###
 
 ###
-# Anna's Quest
+# MouseCraft
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170203.1
 
 # Set game-specific variables
 
-GAME_ID='annas-quest'
-GAME_NAME='Anna’s Quest'
+GAME_ID='mousecraft'
+GAME_NAME='MouseCraft'
 
-ARCHIVE_GOG='gog_anna_s_quest_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='cb4cf167a13413b6df8238397393298a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1100000'
-ARCHIVE_GOG_VERSION='1.0.0202-gog2.1.0.3'
+ARCHIVE_GOG='gog_mousecraft_2.1.0.7.sh'
+ARCHIVE_GOG_MD5='5d99353d6ef0db693cc3a492cfb8ae4c'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='870000'
+ARCHIVE_GOG_VERSION='1.20-gog2.1.0.7'
 
-ARCHIVE_DOC1_PATH='data/noarch/docs'
-ARCHIVE_DOC1_FILES='./*'
-ARCHIVE_DOC2_PATH='data/noarch/game/documents/licenses'
-ARCHIVE_DOC2_FILES='./*'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./anna ./characters ./config.ini ./data.vis ./libs64 ./lua ./scenes ./videos'
+ARCHIVE_DOC_PATH='data/noarch/docs'
+ARCHIVE_DOC_FILES='./*'
+ARCHIVE_GAME_32_PATH='data/noarch/game'
+ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
+ARCHIVE_GAME_64_PATH='data/noarch/game'
+ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
+ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
+ARCHIVE_GAME_MAIN_FILES='./*_Data'
 
-CONFIG_FILES='./config.ini'
+DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='anna'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_EXE_32='./MouseCraft.x86'
+APP_MAIN_EXE_64='./MouseCraft.x86_64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
+APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libx11-6, libxext6, libxcb1, libxau6, libxdmcp6'
-PKG_MAIN_DEPS_ARCH="ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp"
+PKG_MAIN_ID="${GAME_ID}-common"
+PKG_MAIN_DESCRIPTION='arch-independant data'
+
+PKG_32_ARCH='32'
+PKG_32_CONFLICTS_DEB="$GAME_ID"
+PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
+PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu"
+
+PKG_64_ARCH='64'
+PKG_64_CONFLICTS_DEB="$GAME_ID"
+PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
+PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
 
 # Load common functions
 
@@ -100,33 +112,52 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data
-
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+PKG='PKG_32'
+organize_data_generic 'GAME_32' "$PATH_GAME"
+PKG='PKG_64'
+organize_data_generic 'GAME_64' "$PATH_GAME"
+PKG='PKG_MAIN'
+organize_data_generic 'GAME_MAIN' "$PATH_GAME"
+organize_data_generic 'DOC' "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_MAIN'
+PKG='PKG_32'
+APP_MAIN_EXE="$APP_MAIN_EXE_32"
+write_bin 'APP_MAIN'
+write_desktop 'APP_MAIN'
+
+PKG='PKG_64'
+APP_MAIN_EXE="$APP_MAIN_EXE_64"
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
 
-build_pkg 'PKG_MAIN'
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_MAIN'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_32' 'PKG_64'
+build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 # Clean up
 
@@ -134,6 +165,9 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+printf '\n32-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+printf '\n64-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
 
 exit 0

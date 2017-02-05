@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170110.1
+library_revision=20170205.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -1173,6 +1173,13 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
+	rm --force "\$APP_EXE"
+	if [ -e "\$PATH_DATA/\$APP_EXE" ]; then
+	  source_dir="\$PATH_DATA"
+	else
+	  source_dir="\$PATH_GAME"
+	fi
+	cp "\$source_dir/\$APP_EXE" .
 	EOF
 
 	if [ "$app_prerun" ]; then
@@ -1257,7 +1264,7 @@ write_bin_set_exe() {
 	cat >> "$file" <<- EOF
 	# Set executable file
 	APP_EXE="$app_exe"
-	APP_OPTIONS='$app_options'
+	APP_OPTIONS="$app_options"
 	export LD_LIBRARY_PATH="$app_libs:\$LD_LIBRARY_PATH"
 	
 	EOF

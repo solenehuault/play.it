@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,42 @@ set -o errexit
 ###
 
 ###
-# Anna's Quest
+# Never Alone
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170205.2
 
 # Set game-specific variables
 
-GAME_ID='annas-quest'
-GAME_NAME='Anna’s Quest'
+GAME_ID='never-alone'
+GAME_NAME='Never Alone'
 
-ARCHIVE_GOG='gog_anna_s_quest_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='cb4cf167a13413b6df8238397393298a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1100000'
-ARCHIVE_GOG_VERSION='1.0.0202-gog2.1.0.3'
+ARCHIVE_HUMBLE='NeverAlone_ArcticCollection_Linux.1.04.tar.gz'
+ARCHIVE_HUMBLE_MD5='3da062abaaa9e3e6ff97d4c82c8ea3c3'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='4900000'
+ARCHIVE_HUMBLE_VERSION='1.04-humble161008'
 
-ARCHIVE_DOC1_PATH='data/noarch/docs'
-ARCHIVE_DOC1_FILES='./*'
-ARCHIVE_DOC2_PATH='data/noarch/game/documents/licenses'
-ARCHIVE_DOC2_FILES='./*'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./anna ./characters ./config.ini ./data.vis ./libs64 ./lua ./scenes ./videos'
-
-CONFIG_FILES='./config.ini'
+ARCHIVE_GAME_PATH='NeverAlone_ArcticCollection_Linux.1.04'
+ARCHIVE_GAME_FILES_BIN='./Never_Alone.x64 ./Never_Alone_Data/*/x86_64'
+ARCHIVE_GAME_FILES_VIDEOS='./Never_Alone_Data/StreamingAssets/Videos'
+ARCHIVE_GAME_FILES_DATA='./Never_Alone_Data'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='anna'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_EXE='Never_Alone.x64'
+APP_MAIN_ICON='Never_Alone_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libx11-6, libxext6, libxcb1, libxau6, libxdmcp6'
-PKG_MAIN_DEPS_ARCH="ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp"
+PKG_VIDEOS_ID="$GAME_ID-videos"
+PKG_VIDEOS_DESCRIPTION='videos'
+
+PKG_DATA_ID="$GAME_ID-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_VIDEOS_ID, $PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
+PKG_BIN_DEPS_ARCH="$PKG_VIDEOS_ID $PKG_DATA_ID glu libxcursor"
 
 # Load common functions
 
@@ -97,36 +98,55 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG'
+set_source_archive 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
 check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA' 'PKG_VIDEOS'
 extract_data_from "$SOURCE_ARCHIVE"
+fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-organize_data
+PKG='PKG_BIN'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_BIN"
+organize_data_generic 'GAME' "$PATH_GAME"
 
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+PKG='PKG_VIDEOS'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_VIDEOS"
+organize_data_generic 'GAME' "$PATH_GAME"
+
+PKG='PKG_DATA'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA"
+organize_data_generic 'GAME' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_MAIN'
-write_bin 'APP_MAIN'
+PKG='PKG_BIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+EOF
 
-build_pkg 'PKG_MAIN'
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN' 'PKG_VIDEOS'
+build_pkg      'PKG_BIN' 'PKG_VIDEOS' 'PKG_DATA'
 
 # Clean up
 
@@ -134,6 +154,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_VIDEOS_PKG" "$PKG_BIN_PKG"
 
 exit 0
