@@ -69,6 +69,13 @@ write_bin_run_dosbox() {
 write_bin_run_native() {
 	cat >> "$file" <<- EOF
 	cd "\$PATH_PREFIX"
+	rm --force "\$APP_EXE"
+	if [ -e "\$PATH_DATA/\$APP_EXE" ]; then
+	  source_dir="\$PATH_DATA"
+	else
+	  source_dir="\$PATH_GAME"
+	fi
+	cp "\$source_dir/\$APP_EXE" .
 	EOF
 
 	if [ "$app_prerun" ]; then
