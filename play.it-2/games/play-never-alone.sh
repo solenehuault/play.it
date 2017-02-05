@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.1
+script_version=20170205.2
 
 # Set game-specific variables
 
@@ -47,16 +47,24 @@ ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='4900000'
 ARCHIVE_HUMBLE_VERSION='1.04-humble161008'
 
 ARCHIVE_GAME_PATH='NeverAlone_ArcticCollection_Linux.1.04'
-ARCHIVE_GAME_FILES='./Never_Alone*'
+ARCHIVE_GAME_FILES_BIN='./Never_Alone.x64 ./Never_Alone_Data/*/x86_64'
+ARCHIVE_GAME_FILES_VIDEOS='./Never_Alone_Data/StreamingAssets/Videos'
+ARCHIVE_GAME_FILES_DATA='./Never_Alone_Data'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Never_Alone.x64'
 APP_MAIN_ICON='Never_Alone_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
-PKG_MAIN_DEPS_ARCH="glu libxcursor"
+PKG_VIDEOS_ID="$GAME_ID-videos"
+PKG_VIDEOS_DESCRIPTION='videos'
+
+PKG_DATA_ID="$GAME_ID-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_VIDEOS_ID, $PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
+PKG_BIN_DEPS_ARCH="$PKG_VIDEOS_ID $PKG_DATA_ID glu libxcursor"
 
 # Load common functions
 
@@ -99,24 +107,35 @@ check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA' 'PKG_VIDEOS'
 extract_data_from "$SOURCE_ARCHIVE"
-
 fix_rights "$PLAYIT_WORKDIR/gamedata"
-organize_data
+
+PKG='PKG_BIN'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_BIN"
+organize_data_generic 'GAME' "$PATH_GAME"
+
+PKG='PKG_VIDEOS'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_VIDEOS"
+organize_data_generic 'GAME' "$PATH_GAME"
+
+PKG='PKG_DATA'
+ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA"
+organize_data_generic 'GAME' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+PKG='PKG_BIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
@@ -124,8 +143,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN' 'PKG_VIDEOS'
+build_pkg      'PKG_BIN' 'PKG_VIDEOS' 'PKG_DATA'
 
 # Clean up
 
@@ -133,6 +154,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_VIDEOS_PKG" "$PKG_BIN_PKG"
 
 exit 0
