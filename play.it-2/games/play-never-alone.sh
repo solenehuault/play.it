@@ -34,22 +34,20 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170205.1
 
 # Set game-specific variables
 
 GAME_ID='never-alone'
 GAME_NAME='Never Alone'
 
-ARCHIVE_HUMBLE='NeverAlone_ArcticCollection.v1.0.tar.gz'
-ARCHIVE_HUMBLE_MD5='fe1ca15db6cfe6c1db877e33ace378fa'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='5000000'
-ARCHIVE_HUMBLE_VERSION='1.0-humble1'
+ARCHIVE_HUMBLE='NeverAlone_ArcticCollection_Linux.1.04.tar.gz'
+ARCHIVE_HUMBLE_MD5='3da062abaaa9e3e6ff97d4c82c8ea3c3'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='4900000'
+ARCHIVE_HUMBLE_VERSION='1.04-humble161008'
 
-ARCHIVE_GAME_PATH='NeverAlone_ArcticCollection'
-ARCHIVE_GAME_FILES='./*'
-
-DATA_DIRS='./logs'
+ARCHIVE_GAME_PATH='NeverAlone_ArcticCollection_Linux.1.04'
+ARCHIVE_GAME_FILES='./Never_Alone*'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Never_Alone.x64'
