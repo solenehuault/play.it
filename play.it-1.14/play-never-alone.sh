@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160911.2
+script_version=20170205.1
 
 # Set game-specific variables
 
@@ -44,13 +44,13 @@ GAME_ID='never-alone'
 GAME_ID_SHORT='never-alone'
 GAME_NAME='Never Alone'
 
-GAME_ARCHIVE1='NeverAlone_ArcticCollection.v1.0.tar.gz'
-GAME_ARCHIVE1_MD5='fe1ca15db6cfe6c1db877e33ace378fa'
-GAME_ARCHIVE_FULLSIZE='5000000'
-PKG_REVISION='humble1'
+GAME_ARCHIVE1='NeverAlone_ArcticCollection_LinuxLinux.1.04.tar.gz'
+GAME_ARCHIVE1_MD5='3da062abaaa9e3e6ff97d4c82c8ea3c3'
+GAME_ARCHIVE_FULLSIZE='4900000'
+PKG_REVISION='humble161008'
 
-INSTALLER_PATH='*'
-INSTALLER_GAME='./*'
+INSTALLER_PATH='NeverAlone_ArcticCollection_Linux.1.04'
+INSTALLER_GAME='./Never_Alone*'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./Never_Alone.x64'
@@ -62,7 +62,7 @@ APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH='amd64'
-PKG1_VERSION='1.0'
+PKG1_VERSION='1.04'
 PKG1_CONFLICTS=''
 PKG1_RECS=''
 PKG1_DEPS='libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1'
