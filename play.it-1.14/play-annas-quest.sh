@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170206.1
 
 # Set game-specific variables
 
@@ -192,7 +192,7 @@ print done
 write_bin_native_prefix_common "${PKG_MAIN_DIR}${PATH_BIN}/$APP_COMMON_ID"
 write_bin_native_prefix        "${PKG_MAIN_DIR}${PATH_BIN}/$GAME_ID" "$APP_MAIN_EXE" '' "$APP_MAIN_LIBS" '' "$GAME_NAME"
 
-write_desktop "$GAME_ID" "$GAME_NAME" "$GAME_NAME" "${PKG_MAIN_DIR}${PATH_DESK}/$APP_MAIN_ID.desktop" "$APP_MAIN_CAT"
+write_desktop "$GAME_ID" "$GAME_NAME" "$GAME_NAME" "${PKG_MAIN_DIR}${PATH_DESK}/$GAME_ID.desktop" "$APP_MAIN_CAT"
 printf '\n'
 
 # Build packages
