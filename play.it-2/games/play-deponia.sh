@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170206.1
 
 # Set game-specific variables
 
@@ -63,6 +63,7 @@ ARCHIVE_GAME_MAIN_FILES='./*'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Deponia'
+APP_MAIN_LIBS='libs64'
 APP_GOG_ICON='data/noarch/support/icon.png'
 APP_GOG_ICON_RES='256x256'
 
