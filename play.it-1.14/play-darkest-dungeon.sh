@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170107.1
+script_version=20170107.2
 
 # Set game-specific variables
 
@@ -222,6 +222,9 @@ extract_data "$ARCHIVE_TYPE" "$GAME_ARCHIVE" "$PKG_TMPDIR" 'fix_rights,quiet'
 
 (
 	cd "$PKG_TMPDIR/$ARCHIVE_GAME_DATA_PATH"
+	rm --force --recursive 'localization/ps4' 'localization/psv'
+	rm --force --recursive 'shaders_ps4' 'shaders_psv'
+	rm --force --recursive 'video_ps4' 'video_psv'
 	for file in $ARCHIVE_GAME_DATA_FILES; do
 		mkdir -p   "${PKG_DATA_DIR}${PATH_GAME}/${file%/*}"
 		mv "$file" "${PKG_DATA_DIR}${PATH_GAME}/$file"
