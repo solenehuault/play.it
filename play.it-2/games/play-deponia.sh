@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170206.1
+script_version=20170208.1
 
 # Set game-specific variables
 
@@ -59,7 +59,7 @@ ARCHIVE_GOG_DOC_FILES='./documents ./version.txt'
 
 ARCHIVE_HUMBLE_GAME_MAIN_PATH='Deponia'
 ARCHIVE_GOG_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./*'
+ARCHIVE_GAME_MAIN_FILES='./characters ./config.ini ./data.vis ./Deponia ./lua ./scenes ./videos libs64/libavcodec.so.56 libs64/libavdevice.so.56 libs64/libavfilter.so.5 libs64/libavformat.so.56 libs64/libavutil.so.54 libs64/libswresample.so.1 libs64/libswscale.so.3 libs64/libz.so.1'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Deponia'
