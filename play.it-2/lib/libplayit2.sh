@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170205.1
+library_revision=20170208.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -1377,15 +1377,15 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_dirs() {
 	  (
-	    cd "\$1"
+	    local dest="\$1"
 	    shift 1
+	    cd "\$PATH_GAME"
 	    for dir in "\$@"; do
-	    if ! [ -e "\$dir" ]; then
-	      if [ -e "\${PATH_GAME}/\${dir}" ]; then
-	        mkdir --parents "\${dir%/*}"
-	        cp --recursive "\${PATH_GAME}/\${dir}" "\$dir"
+	    if ! [ -e "\$dest/\$dir" ]; then
+	      if [ -e "\$dir" ]; then
+	        cp --parents --recursive "\$dir" "\$dest"
 	      else
-	        mkdir --parents "\$dir"
+	        mkdir --parents "\$dest/\$dir"
 	      fi
 	    fi
 	    done
@@ -1394,13 +1394,13 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_files() {
 	  (
-	    cd "\$1"
+	    local dest="\$1"
 	    shift 1
+	    cd "\$PATH_GAME"
 	    for file in "\$@"; do
-	    if ! [ -e "\$file" ] && [ -e "\${PATH_GAME}/\${file}" ]; then
-	      mkdir --parents "\${file%/*}"
-	      cp "\${PATH_GAME}/\${file}" "\$file"
-	    fi
+	      if ! [ -e "\$dest/\$file" ] && [ -e "\$file" ]; then
+	        cp --parents "\$file" "\$dest"
+	      fi
 	    done
 	  )
 	}
