@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170208.1
 
 # Set game-specific variables
 
@@ -49,9 +49,9 @@ ARCHIVE_GOG_VERSION='3.0.0442-gog2.0.0.1'
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
-ARCHIVE_DOC2_FILES='./version.txt'
+ARCHIVE_DOC2_FILES='./documents/* ./version.txt'
 ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_FILES='./characters ./config.ini ./data.vis ./harvey ./libs64 ./lua ./scenes ./videos'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='harvey'
