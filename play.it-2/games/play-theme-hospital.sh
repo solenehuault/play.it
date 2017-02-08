@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170108.1
+script_version=20170208.1
 
 # Set game-specific variables
 
@@ -51,14 +51,14 @@ ARCHIVE_DOC1_FILES='./*.txt ./*.pdf'
 ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./eula.txt ./gog_eula.txt'
 ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./anims ./cfg ./connect.bat ./data ./datam ./dos4gw.exe ./hospital.cfg ./hospital.exe ./intro ./levels ./modem.ini ./qdata ./qdatam ./save ./sound'
+ARCHIVE_GAME_FILES='./anims ./cfg ./connect.bat ./data ./datam ./dos4gw.exe ./goggame-1207659026.ico ./hospital.cfg ./hospital.exe ./intro ./levels ./modem.ini ./qdata ./qdatam ./save ./sound'
 
 CONFIG_FILES='./*.ini ./*.cfg'
 DATA_DIRS='./save'
 
 APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='hospital.exe'
-APP_MAIN_ICON='app/goggame-1207659026.ico'
+APP_MAIN_ICON='goggame-1207659026.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
 
 PKG_MAIN_DEPS_DEB='dosbox'
@@ -110,6 +110,7 @@ extract_data_from "$SOURCE_ARCHIVE"
 organize_data
 
 extract_and_sort_icons_from 'APP_MAIN'
+rm "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
