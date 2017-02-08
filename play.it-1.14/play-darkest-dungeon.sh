@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170107.2
+script_version=20170208.1
 
 # Set game-specific variables
 
@@ -70,6 +70,7 @@ APP_MAIN_ICON1='Icon.bmp'
 APP_MAIN_ICON1_RES='128x128'
 APP_MAIN_ICON2='data/noarch/support/icon.png'
 APP_MAIN_ICON2_RES='256x256'
+APP_MAIN_CAT='Game'
 
 PKG_AUDIO_ID="${GAME_ID}-audio"
 PKG_AUDIO_ARCH='all'
