@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,44 +29,51 @@ set -o errexit
 ###
 
 ###
-# Edna & Harvey: Harvey’s New Eyes
+# GreedCorp
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170208.2
+script_version=20170204.1
 
 # Set game-specific variables
 
-GAME_ID='edna-and-harvey-harveys-new-eyes'
-GAME_NAME='Edna & Harvey: Harvey’s New Eyes'
+GAME_ID='greedcorp'
+GAME_NAME='GreedCorp'
 
-ARCHIVE_GOG='gog_edna_harvey_harvey_s_new_eyes_2.0.0.1.sh'
-ARCHIVE_GOG_MD5='fa6f7fd271fe63bbe71e3190e0596546'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='990000'
-ARCHIVE_GOG_VERSION='3.0.0442-gog2.0.0.1'
+ARCHIVE_HUMBLE='greedcorp_linux.tar.gz'
+ARCHIVE_HUMBLE_MD5='c1cffb847bf65caf8abd4c589813884a'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='210000'
+ARCHIVE_HUMBLE_VERSION='1.0-humble'
 
-ARCHIVE_DOC1_PATH='data/noarch/docs'
-ARCHIVE_DOC1_FILES='./*'
-ARCHIVE_DOC2_PATH='data/noarch/game'
-ARCHIVE_DOC2_FILES='./documents/* ./version.txt'
-ARCHIVE_GAME_BIN_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN_FILES='./harvey ./libs64'
-ARCHIVE_GAME_DATA_PATH='data/noarch/game'
-ARCHIVE_GAME_DATA_FILES='./characters ./config.ini ./data.vis ./lua ./scenes ./videos'
+ARCHIVE_GAME_32_PATH='GreedCorp'
+ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
+ARCHIVE_GAME_64_PATH='GreedCorp'
+ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
+ARCHIVE_GAME_MAIN_PATH='GreedCorp'
+ARCHIVE_GAME_MAIN_FILES='./*_Data'
+
+DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='harvey'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_EXE_32='GreedCorp.x86'
+APP_MAIN_EXE_64='./GreedCorp.x86_64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
+APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128x128'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_BIN_ARCH='64'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libopenal1, zlib1g, libgl1-mesa-glx | libgl1"
-PKG_BIN_DEPS_ARCH="$PKG_DATA_ID openal zlib libgl"
+PKG_32_ARCH='32'
+PKG_32_CONFLICTS_DEB="$GAME_ID"
+PKG_32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1"
+PKG_32_DEPS_ARCH="$PKG_DATA_ID libgl"
+
+PKG_64_ARCH='64'
+PKG_64_CONFLICTS_DEB="$GAME_ID"
+PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
+PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
 
 # Load common functions
 
@@ -100,41 +107,58 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG'
+set_source_archive 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
 check_deps
 
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
+set_workdir 'PKG_DATA' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN'  "$PATH_GAME"
+PKG='PKG_32'
+organize_data_generic 'GAME_32' "$PATH_GAME"
+
+PKG='PKG_64'
+organize_data_generic 'GAME_64' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'DOC1'      "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
-
-PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
-mkdir --parents "$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN'
+PKG='PKG_32'
+APP_MAIN_EXE="$APP_MAIN_EXE_32"
+write_bin     'APP_MAIN'
+write_desktop 'APP_MAIN'
+
+PKG='PKG_64'
+APP_MAIN_EXE="$APP_MAIN_EXE_64"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_32' 'PKG_64'
+build_pkg      'PKG_32' 'PKG_64' 'PKG_DATA'
 
 # Clean up
 
@@ -142,6 +166,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_64_PKG"
 
 exit 0

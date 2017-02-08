@@ -71,13 +71,15 @@ build_pkg_deb() {
 # USAGE: build_pkg_print
 # CALLED BY: build_pkg_deb, build_pkg_tar
 build_pkg_print() {
+	local string
 	case ${LANG%_*} in
 		('fr')
-			printf 'Construction de %s\n' "$pkg_filename"
+			string='Construction de %s\n'
 		;;
 		('en'|*)
-			printf 'Building %s\n' "$pkg_filename"
+			string='Building %s\n'
 		;;
 	esac
+	printf "$string" "${pkg_filename##*/}"
 }
 
