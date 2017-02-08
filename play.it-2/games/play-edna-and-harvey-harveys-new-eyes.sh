@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170208.1
+script_version=20170208.2
 
 # Set game-specific variables
 
@@ -50,8 +50,10 @@ ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./documents/* ./version.txt'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./characters ./config.ini ./data.vis ./harvey ./libs64 ./lua ./scenes ./videos'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./harvey ./libs64'
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./characters ./config.ini ./data.vis ./lua ./scenes ./videos'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='harvey'
@@ -59,9 +61,12 @@ APP_MAIN_LIBS='libs64'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libopenal1, zlib1g, libgl1-mesa-glx | libgl1'
-PKG_MAIN_DEPS_ARCH='openal zlib libgl'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libopenal1, zlib1g, libgl1-mesa-glx | libgl1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID openal zlib libgl"
 
 # Load common functions
 
@@ -98,33 +103,38 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN'  "$PATH_GAME"
 
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+PKG='PKG_DATA'
+organize_data_generic 'DOC1'      "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
+
+PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
+mkdir --parents "$PATH_ICON"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_MAIN'
-write_bin 'APP_MAIN'
+PKG='PKG_BIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_BIN' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -132,6 +142,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
