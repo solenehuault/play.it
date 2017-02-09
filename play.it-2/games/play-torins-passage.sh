@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.1
+script_version=20170209.1
 
 # Set game-specific variables
 
@@ -49,13 +49,14 @@ ARCHIVE_GOG_VERSION='1.0-gog2.0.0.7'
 ARCHIVE_DOC_PATH='app'
 ARCHIVE_DOC_FILES='./torin.txt ./*.pdf'
 ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./*.exe ./*.drv ./*.shp ./*.hlp ./*.scr ./install.txt ./movie ./patches ./*.000 ./*.aud ./*.cfg ./*.sfx ./*.err ./*.bat ./version ./torinhr.ico'
+ARCHIVE_GAME_FILES='./*.exe ./*.drv ./*.shp ./*.hlp ./*.scr ./install.txt ./movie ./patches ./*.000 ./*.aud ./resource.cfg ./*.sfx ./*.err ./version ./torinhr.ico'
 
 DATA_FILES='./version ./AUTOSAVE.* ./TORINSG.*'
-CONFIG_FILES='./TORIN.PRF'
+CONFIG_FILES='./resource.cfg ./TORIN.PRF'
 
 APP_MAIN_TYPE='dosbox'
-APP_MAIN_EXE='torin.bat'
+APP_MAIN_EXE='sierrah.exe'
+APP_MAIN_OPTIONS='resource.cfg'
 APP_MAIN_ICON='torinhr.ico'
 APP_MAIN_ICON_RES='16x16 24x24 32x32 256x256'
 
