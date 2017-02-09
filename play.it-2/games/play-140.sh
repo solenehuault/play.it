@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170902.1
+script_version=20170902.2
 
 # Set game-specific variables
 
@@ -68,8 +68,6 @@ APP_MAIN_ICON_RES='128x128'
 
 PKG_MAIN_ID="${GAME_ID}-common"
 PKG_MAIN_VERSION='1.0-humble1389820765'
-PKG_MAIN_ARCH_DEB='all'
-PKG_MAIN_ARCH_ARCH='any'
 PKG_MAIN_DEPS_DEB=''
 PKG_MAIN_DEPS_ARCH=''
 PKG_MAIN_DESC="${GAME_NAME} - arch-independant data\n
@@ -77,8 +75,7 @@ PKG_MAIN_DESC="${GAME_NAME} - arch-independant data\n
  ./play.it script version ${script_version}"
 
 PKG_32_VERSION="${PKG_MAIN_VERSION}"
-PKG_32_ARCH_DEB='i386'
-PKG_32_ARCH_ARCH='i686'
+PKG_32_ARCH='32'
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libasound2-plugins, libxcursor1"
 PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu alsa-lib libxcursor"
 PKG_32_DESC="${GAME_NAME}\n
@@ -86,8 +83,7 @@ PKG_32_DESC="${GAME_NAME}\n
  ./play.it script version ${script_version}"
 
 PKG_64_VERSION="${PKG_MAIN_VERSION}"
-PKG_64_ARCH_DEB='amd64'
-PKG_64_ARCH_ARCH='x86_64'
+PKG_64_ARCH='64'
 PKG_64_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libasound2-plugins, libxcursor1"
 PKG_64_DEPS_ARCH="$PKG_MAIN_ID glu alsa-lib libxcursor"
 PKG_64_DESC="${GAME_NAME}\n
