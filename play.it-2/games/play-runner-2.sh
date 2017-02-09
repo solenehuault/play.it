@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170209.1
 
 # Set game-specific variables
 
@@ -61,9 +61,9 @@ APP_MAIN_EXE='runner2'
 APP_MAIN_ICON='./Runner2.png'
 APP_MAIN_ICON_RES='48x48'
 
-PKG_DEPS_DEB='libc6, libstdc++6, libgcc1, zlib1g, libsdl1.2debian, libgl1-mesa-glx | libgl1'
-PKG_DEPS_ARCH_64='zlib sdl libgl'
-PKG_DEPS_ARCH_32='lib32-zlib lib32-sdl lib32-libgl'
+PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgcc1, zlib1g, libsdl1.2debian, libgl1-mesa-glx | libgl1'
+PKG_MAIN_DEPS_ARCH_64='zlib sdl libgl'
+PKG_MAIN_DEPS_ARCH_32='lib32-zlib lib32-sdl lib32-libgl'
 
 # Load common functions
 
@@ -105,23 +105,22 @@ check_deps
 
 case "$ARCHIVE" in
 	('ARCHIVE_HUMBLE_32')
-		PKG_ARCH='32on64'
-		PKG_DEPS_ARCH="$PKG_DEPS_ARCH_32"
+		PKG_MAIN_ARCH='32on64'
+		PKG_MAIN_DEPS_ARCH="$PKG_DEPS_ARCH_32"
 	;;
 	('ARCHIVE_HUMBLE_64')
-		PKG_ARCH='64'
-		PKG_DEPS_ARCH="$PKG_DEPS_ARCH_64"
+		PKG_MAIN_ARCH='64'
+		PKG_MAIN_DEPS_ARCH="$PKG_DEPS_ARCH_64"
 	;;
 esac
 
 # Extract game data
 
-set_workdir 'PKG_DATA'
+set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-PKG='PKG_DATA'
 organize_data
 
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
@@ -166,8 +165,8 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_DATA'
-build_pkg 'PKG_DATA'
+write_metadata 'PKG_MAIN'
+build_pkg      'PKG_MAIN'
 
 # Clean up
 
@@ -175,6 +174,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_DATA_PKG"
+print_instructions "$PKG_MAIN_PKG"
 
 exit 0
