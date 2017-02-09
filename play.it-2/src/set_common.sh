@@ -9,10 +9,26 @@ set_common_defaults() {
 	DEFAULT_INSTALL_PREFIX='/usr/local'
 	DEFAULT_ICON_CHOICE='original'
 	DEFAULT_MOVIES_SUPPORT='0'
-	DEFAULT_PACKAGE_TYPE='deb'
 	NO_ICON='0'
 	unset winecfg_desktop
 	unset winecfg_launcher
+	
+	unset DEFAULT_PACKAGE_TYPE
+	# Try to detect the host distribution through lsb_release
+	if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
+		case "$(lsb_release -si)" in
+			('Debian')
+				DEFAULT_PACKAGE_TYPE='deb'
+			;;
+			('Arch')
+				DEFAULT_PACKAGE_TYPE='arch'
+			;;
+		esac
+	fi
+	# Fall back on deb format by default
+	if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
+		DEFAULT_PACKAGE_TYPE='deb'
+	fi
 }
 
 # set package paths
