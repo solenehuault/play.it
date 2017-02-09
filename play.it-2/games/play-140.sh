@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161213.1
+script_version=20170902.1
 
 # Set game-specific variables
 
@@ -94,9 +94,6 @@ PKG_64_DESC="${GAME_NAME}\n
  package built from HUMBLE.com installer\n
  ./play.it script version ${script_version}"
 
-PKG_32_CONFLICTS_DEB="${PKG_64_ID}:${PKG_64_ARCH_DEB}"
-PKG_64_CONFLICTS_DEB="${PKG_32_ID}:${PKG_32_ARCH_DEB}"
- 
 # Load common functions
 
 target_version='2.0'
