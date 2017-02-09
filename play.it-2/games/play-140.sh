@@ -174,4 +174,12 @@ build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 rm --recursive "${PLAYIT_WORKDIR}"
 
+# Print instructions
+
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+
 exit 0
