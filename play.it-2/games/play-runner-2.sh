@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170209.2
 
 # Set game-specific variables
 
@@ -53,17 +53,22 @@ ARCHIVE_HUMBLE_64_VERSION='1.0-humble1388171186'
 
 ARCHIVE_DOC_PATH='runner2-1.0'
 ARCHIVE_DOC_FILES='./README*'
-ARCHIVE_GAME_PATH='runner2-1.0/runner2'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='runner2-1.0/runner2'
+ARCHIVE_GAME_BIN_FILES='./runner2 ./*.so'
+ARCHIVE_GAME_DATA_PATH='runner2-1.0/runner2'
+ARCHIVE_GAME_DATA_FILES='./Effects ./Fonts ./Gameplay ./Graphics ./Menus ./Models ./package.toc ./Runner2.png ./Shaders ./Sounds ./Textures'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='runner2'
 APP_MAIN_ICON='./Runner2.png'
 APP_MAIN_ICON_RES='48x48'
 
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgcc1, zlib1g, libsdl1.2debian, libgl1-mesa-glx | libgl1'
-PKG_MAIN_DEPS_ARCH_64='zlib sdl libgl'
-PKG_MAIN_DEPS_ARCH_32='lib32-zlib lib32-sdl lib32-libgl'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgcc1, zlib1g, libsdl1.2debian, libgl1-mesa-glx | libgl1"
+PKG_BIN_DEPS_ARCH_64="$PKG_DATA_ID zlib sdl libgl"
+PKG_BIN_DEPS_ARCH_32="$PKG_DATA_ID lib32-zlib lib32-sdl lib32-libgl"
 
 # Load common functions
 
@@ -105,68 +110,82 @@ check_deps
 
 case "$ARCHIVE" in
 	('ARCHIVE_HUMBLE_32')
-		PKG_MAIN_ARCH='32on64'
-		PKG_MAIN_DEPS_ARCH="$PKG_DEPS_ARCH_32"
+		PKG_BIN_ARCH='32on64'
+		PKG_BIN_DEPS_ARCH="$PKG_BIN_DEPS_ARCH_32"
 	;;
 	('ARCHIVE_HUMBLE_64')
-		PKG_MAIN_ARCH='64'
-		PKG_MAIN_DEPS_ARCH="$PKG_DEPS_ARCH_64"
+		PKG_BIN_ARCH='64'
+		PKG_BIN_DEPS_ARCH="$PKG_BIN_DEPS_ARCH_64"
 	;;
 esac
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-organize_data
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN' "$PATH_GAME"
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
-case "$ARCHIVE" in
-	('ARCHIVE_HUMBLE_32')
-		cat > "$postinst" <<- EOF
-		mkdir --parents "$PATH_ICON"
-		ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
-		ln --symbolic 'libfmodevent-4.44.08.so' "$PATH_GAME/libfmodevent.so"
-		ln --symbolic 'libfmodex-4.44.08.so' "$PATH_GAME/libfmodex.so"
-		EOF
-		
-		cat > "$prerm" <<- EOF
-		rm "$PATH_ICON/$GAME_ID.png"
-		rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-		rm "$PATH_GAME/libfmodex.so" "$PATH_GAME/libfmodevent.so"
-		EOF
-	;;
-	('ARCHIVE_HUMBLE_64')
-		cat > "$postinst" <<- EOF
-		mkdir --parents "$PATH_ICON"
-		ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
-		ln --symbolic 'libfmodevent64-4.44.07.so' "$PATH_GAME/libfmodevent64.so"
-		ln --symbolic 'libfmodex64-4.44.07.so' "$PATH_GAME/libfmodex64.so"
-		EOF
-		
-		cat > "$prerm" <<- EOF
-		rm "$PATH_ICON/$GAME_ID.png"
-		rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-		rm "$PATH_GAME/libfmodex64.so" "$PATH_GAME/libfmodevent64.so"
-		EOF
-	;;
-esac
+PKG='PKG_DATA'
+organize_data_generic 'DOC'       "$PATH_DOC"
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+PKG='PKG_BIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg      'PKG_MAIN'
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_DATA'
+
+case "$PKG_BIN_ARCH" in
+	
+	('32on64')
+		cat > "$postinst" <<- EOF
+		ln --symbolic 'libfmodevent-4.44.08.so' "$PATH_GAME/libfmodevent.so"
+		ln --symbolic 'libfmodex-4.44.08.so' "$PATH_GAME/libfmodex.so"
+		EOF
+		
+		cat > "$prerm" <<- EOF
+		rm "$PATH_GAME/libfmodex.so" "$PATH_GAME/libfmodevent.so"
+		EOF
+	;;
+	
+	('64')
+		cat > "$postinst" <<- EOF
+		ln --symbolic 'libfmodevent64-4.44.07.so' "$PATH_GAME/libfmodevent64.so"
+		ln --symbolic 'libfmodex64-4.44.07.so' "$PATH_GAME/libfmodex64.so"
+		EOF
+		
+		cat > "$prerm" <<- EOF
+		rm "$PATH_GAME/libfmodex64.so" "$PATH_GAME/libfmodevent64.so"
+		EOF
+	;;
+	
+esac
+
+write_metadata 'PKG_BIN'
+
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -174,6 +193,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
