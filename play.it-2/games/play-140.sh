@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170902.4
+script_version=20170902.5
 
 # Set game-specific variables
 
@@ -164,7 +164,7 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
