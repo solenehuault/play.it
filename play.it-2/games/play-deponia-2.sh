@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170209.1
 
 # Set game-specific variables
 
@@ -46,18 +46,27 @@ ARCHIVE_GOG_MD5='7aa1251741a532e4b9f908a3af0d8f2a'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='3200000'
 ARCHIVE_GOG_VERSION='3.3.2351-gog2.1.0.3'
 
-ARCHIVE_DOC1_PATH='data/noarch/docs'
-ARCHIVE_DOC1_FILES='./*'
-ARCHIVE_DOC2_PATH='data/noarch/game'
-ARCHIVE_DOC2_FILES='./documents ./version.txt'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_HUMBLE='Deponia2_DEB_Full_3.2.2342_Multi_Daedalic_ESD.tar.gz'
+ARCHIVE_HUMBLE_MD5='e7a71d5b8a83b2c2393095256b03553b'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='3100000'
+ARCHIVE_HUMBLE_VERSION='3.2.2342-humble'
+
+ARCHIVE_DOC_PATH_GOG='data/noarch/game'
+ARCHIVE_DOC_PATH_HUMBLE='Chaos on Deponia'
+ARCHIVE_DOC_FILES='./documents ./version.txt'
+
+ARCHIVE_DOC2_PATH_GOG='data/noarch/docs'
+ARCHIVE_DOC2_FILES_GOG='./*'
+
+ARCHIVE_GAME_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_PATH_HUMBLE='Chaos on Deponia'
+ARCHIVE_GAME_FILES='./characters ./config.ini ./data.vis ./Deponia2 ./libs64 ./lua ./scenes ./videos'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Deponia2'
 APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
+APP_MAIN_ICON_GOG_RES='256x256'
 
 PKG_MAIN_ARCH='64'
 PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
@@ -95,21 +104,47 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG'
+set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+
+case "$ARCHIVE" in
+	
+	('ARCHIVE_GOG')
+		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
+		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
+		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_GOG"
+		APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
+		APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
+	;;
+	
+	('ARCHIVE_HUMBLE')
+		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_HUMBLE"
+		unset ARCHIVE_DOC2_PATH
+		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_HUMBLE"
+		unset APP_MAIN_ICON
+		unset APP_MAIN_ICON_RES
+	;;
+	
+esac
+
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
 check_deps
 
 # Extract game data
 
 set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
+if [ "$ARCHIVE_TYPE" = 'tar' ]; then
+	fix_rights "$PLAYIT_WORKDIR/gamedata"
+fi
 organize_data
 
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+if [ "$APP_MAIN_ICON" ]; then
+	PATH_ICON="${PKG_MAIN_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
+	mkdir --parents "$PATH_ICON"
+	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
