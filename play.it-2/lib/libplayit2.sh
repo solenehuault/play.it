@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170208.1
+library_revision=20170209.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -108,14 +108,16 @@ build_pkg_deb() {
 # USAGE: build_pkg_print
 # CALLED BY: build_pkg_deb, build_pkg_tar
 build_pkg_print() {
+	local string
 	case ${LANG%_*} in
 		('fr')
-			printf 'Construction de %s\n' "$pkg_filename"
+			string='Construction de %s\n'
 		;;
 		('en'|*)
-			printf 'Building %s\n' "$pkg_filename"
+			string='Building %s\n'
 		;;
 	esac
+	printf "$string" "${pkg_filename##*/}"
 }
 
 # check script dependencies
@@ -721,10 +723,26 @@ set_common_defaults() {
 	DEFAULT_INSTALL_PREFIX='/usr/local'
 	DEFAULT_ICON_CHOICE='original'
 	DEFAULT_MOVIES_SUPPORT='0'
-	DEFAULT_PACKAGE_TYPE='deb'
 	NO_ICON='0'
 	unset winecfg_desktop
 	unset winecfg_launcher
+	
+	unset DEFAULT_PACKAGE_TYPE
+	# Try to detect the host distribution through lsb_release
+	if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
+		case "$(lsb_release -si)" in
+			('Debian')
+				DEFAULT_PACKAGE_TYPE='deb'
+			;;
+			('Arch')
+				DEFAULT_PACKAGE_TYPE='arch'
+			;;
+		esac
+	fi
+	# Fall back on deb format by default
+	if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
+		DEFAULT_PACKAGE_TYPE='deb'
+	fi
 }
 
 # set package paths
@@ -1380,14 +1398,12 @@ write_bin_set_prefix_funcs() {
 	    local dest="\$1"
 	    shift 1
 	    cd "\$PATH_GAME"
-	    for dir in "\$@"; do
-	    if ! [ -e "\$dest/\$dir" ]; then
+	    for dir in \$@; do
 	      if [ -e "\$dir" ]; then
 	        cp --parents --recursive "\$dir" "\$dest"
 	      else
 	        mkdir --parents "\$dest/\$dir"
 	      fi
-	    fi
 	    done
 	  )
 	}
@@ -1397,8 +1413,8 @@ write_bin_set_prefix_funcs() {
 	    local dest="\$1"
 	    shift 1
 	    cd "\$PATH_GAME"
-	    for file in "\$@"; do
-	      if ! [ -e "\$dest/\$file" ] && [ -e "\$file" ]; then
+	    for file in \$@; do
+	      if [ -e "\$file" ]; then
 	        cp --parents "\$file" "\$dest"
 	      fi
 	    done
