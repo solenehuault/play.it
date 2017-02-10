@@ -1,5 +1,6 @@
 # set archive for data extraction
 # USAGE: set_archive $name $archive[…]
+# NEEDED_VARS: SOURCE_ARCHIVE
 set_archive() {
 	local name=$1
 	shift 1
@@ -7,6 +8,9 @@ set_archive() {
 		file="$(eval echo \$$archive)"
 		if [ -f "$file" ]; then
 			export $name="$file"
+			return 0
+		elif [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+			export $name="${SOURCE_ARCHIVE%/*}/$file"
 			return 0
 		fi
 	done
