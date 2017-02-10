@@ -1,3 +1,18 @@
+# set archive for data extraction
+# USAGE: set_archive $name $archive[…]
+set_archive() {
+	local name=$1
+	shift 1
+	for archive in "$@"; do
+		file="$(eval echo \$$archive)"
+		if [ -f "$file" ]; then
+			export $name="$file"
+			return 0
+		fi
+	done
+	unset $name
+}
+
 # set source archive for data extraction
 # USAGE: set_source_archive $archive[…]
 # NEEDED_VARS: SOURCE_ARCHIVE
