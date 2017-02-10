@@ -5,12 +5,11 @@ set_archive() {
 	local name=$1
 	shift 1
 	for archive in "$@"; do
-		file="$(eval echo \$$archive)"
-		if [ -f "$file" ]; then
-			export $name="$file"
+		if [ -f "$archive" ]; then
+			export $name="$archive"
 			return 0
-		elif [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
-			export $name="${SOURCE_ARCHIVE%/*}/$file"
+		elif [ -f "${SOURCE_ARCHIVE%/*}/$archive" ]; then
+			export $name="${SOURCE_ARCHIVE%/*}/$archive"
 			return 0
 		fi
 	done
