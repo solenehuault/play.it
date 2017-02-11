@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170201.1
+script_version=20170211.1
 
 # Set game-specific variables
 
@@ -58,8 +58,8 @@ APP_MAIN_ICON='Beatbuddy_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
 PKG_MAIN_ARCH='32on64'
-PKG_MAIN_DEPS_DEB="libglu1-mesa | libglu1"
-PKG_MAIN_DEPS_ARCH="lib32-glu"
+PKG_MAIN_DEPS_DEB="libglu1-mesa | libglu1, libxcursor1, libasound2-plugins"
+PKG_MAIN_DEPS_ARCH="lib32-glu lib32-libxcursor lib32-alsa-plugins"
 
 # Load common functions
 
