@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170211.4
+script_version=20170211.5
 
 # Set game-specific variables
 
@@ -49,7 +49,7 @@ ARCHIVE_GOG_VERSION='17449-gog2.8.0.8'
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
-ARCHIVE_DOC2_FILES='./README.linux ./svn_revision.txt'
+ARCHIVE_DOC2_FILES='./README.linux'
 ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
 ARCHIVE_GAME_BIN32_FILES='./lib ./darkest.bin.x86'
 ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
@@ -147,8 +147,9 @@ organize_data_generic 'GAME_AUDIO' "$PATH_GAME"
 PKG='PKG_VIDEO'
 organize_data_generic 'GAME_VIDEO' "$PATH_GAME"
 PKG='PKG_DATA'
+organize_data_generic 'DOC1'      "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
 organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
 
 if [ "$NO_ICON" = '0' ]; then
 	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
