@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170211.3
+script_version=20170211.4
 
 # Set game-specific variables
 
@@ -132,7 +132,7 @@ set_workdir 'PKG_AUDIO' 'PKG_VIDEO' 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 (
-	cd "$PLAYIT_WORKDIR/gamedata"
+	cd "$PLAYIT_WORKDIR/gamedata/data/noarch/game"
 	rm --force --recursive 'localization/ps4' 'localization/psv'
 	rm --force --recursive 'shaders_ps4' 'shaders_psv'
 	rm --force --recursive 'video_ps4' 'video_psv'
