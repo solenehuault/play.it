@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170211.2
+script_version=20170211.3
 
 # Set game-specific variables
 
@@ -46,8 +46,10 @@ ARCHIVE_GOG_MD5='b7c7ba6c41bc119c98ff16df674b8fc4'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='2100000'
 ARCHIVE_GOG_VERSION='17449-gog2.8.0.8'
 
-ARCHIVE_DOC_PATH='data/noarch/docs'
-ARCHIVE_DOC_FILES='./*'
+ARCHIVE_DOC1_PATH='data/noarch/docs'
+ARCHIVE_DOC1_FILES='./*'
+ARCHIVE_DOC2_PATH='data/noarch/game'
+ARCHIVE_DOC2_FILES='./README.linux ./svn_revision.txt'
 ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
 ARCHIVE_GAME_BIN32_FILES='./lib ./darkest.bin.x86'
 ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
