@@ -75,7 +75,8 @@ write_bin_run_native() {
 	else
 	  source_dir="\$PATH_GAME"
 	fi
-	cp "\$source_dir/\$APP_EXE" .
+	mkdir --parents "\$(dirname \$APP_EXE)"
+	cp "\$source_dir/\$APP_EXE" "\$APP_EXE"
 	EOF
 
 	if [ "$app_prerun" ]; then
