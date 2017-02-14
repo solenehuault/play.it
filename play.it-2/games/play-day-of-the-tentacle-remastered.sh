@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2017, Antoine Le Gonidec
+# Copyright (c) 2015-2016, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,48 +29,38 @@ set -o errexit
 ###
 
 ###
-# Deponia 2 - Chaos on Deponia
+# Day of the Tentacle Remastered
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170206.1
 
 # Set game-specific variables
 
-GAME_ID='deponia-2'
-GAME_NAME='Deponia 2 - Chaos on Deponia'
+GAME_ID='day-of-the-tentacle-remastered'
+GAME_NAME='Day of the Tentacle Remastered'
 
-ARCHIVE_GOG='gog_deponia_2_chaos_on_deponia_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='7aa1251741a532e4b9f908a3af0d8f2a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='3200000'
-ARCHIVE_GOG_VERSION='3.3.2351-gog2.1.0.3'
+ARCHIVE_GOG='gog_day_of_the_tentacle_remastered_2.1.0.2.sh'
+ARCHIVE_GOG_MD5='612c59c5cbdbf4d73322b46527a2d502'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='2700000'
+ARCHIVE_GOG_VERSION='1.4.1-gog2.1.0.2'
 
-ARCHIVE_HUMBLE='Deponia2_DEB_Full_3.2.2342_Multi_Daedalic_ESD.tar.gz'
-ARCHIVE_HUMBLE_MD5='e7a71d5b8a83b2c2393095256b03553b'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='3100000'
-ARCHIVE_HUMBLE_VERSION='3.2.2342-humble'
-
-ARCHIVE_DOC_PATH_GOG='data/noarch/game'
-ARCHIVE_DOC_PATH_HUMBLE='Chaos on Deponia'
-ARCHIVE_DOC_FILES='./documents ./version.txt'
-
-ARCHIVE_DOC2_PATH_GOG='data/noarch/docs'
-ARCHIVE_DOC2_FILES_GOG='./*'
-
-ARCHIVE_GAME_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_PATH_HUMBLE='Chaos on Deponia'
-ARCHIVE_GAME_FILES='./characters ./config.ini ./data.vis ./Deponia2 ./libs64 ./lua ./scenes ./videos'
+ARCHIVE_DOC1_PATH='data/noarch/docs'
+ARCHIVE_DOC1_FILES='./*'
+ARCHIVE_DOC2_PATH='data/noarch/game/'
+ARCHIVE_DOC2_FILES='./readme.txt'
+ARCHIVE_GAME_PATH='data/noarch/game'
+ARCHIVE_GAME_FILES='./*'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='Deponia2'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
-APP_MAIN_ICON_GOG_RES='256x256'
+APP_MAIN_EXE='Dott'
+APP_MAIN_ICON='data/noarch/support/icon.png'
+APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
-PKG_MAIN_DEPS_ARCH="libgl openal ffmpeg ffmpeg2.8"
+PKG_MAIN_ARCH='32on64'
+PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1"
+PKG_MAIN_DEPS_ARCH="lib32-libgl"
 
 # Load common functions
 
@@ -104,58 +94,35 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-
-case "$ARCHIVE" in
-	
-	('ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
-		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
-		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_GOG"
-		APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
-		APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
-	;;
-	
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_HUMBLE"
-		unset ARCHIVE_DOC2_PATH
-		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_HUMBLE"
-		unset APP_MAIN_ICON
-		unset APP_MAIN_ICON_RES
-	;;
-	
-esac
-
+set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
 # Extract game data
 
 set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "$ARCHIVE_TYPE" = 'tar' ]; then
-	fix_rights "$PLAYIT_WORKDIR/gamedata"
-fi
+
 organize_data
 
-if [ "$APP_MAIN_ICON" ]; then
-	PATH_ICON="${PKG_MAIN_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
-	mkdir --parents "$PATH_ICON"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
-fi
+mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_MAIN'
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
 write_metadata 'PKG_MAIN'
+
 build_pkg 'PKG_MAIN'
 
 # Clean up

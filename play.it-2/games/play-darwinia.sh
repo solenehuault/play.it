@@ -29,48 +29,52 @@ set -o errexit
 ###
 
 ###
-# Deponia 2 - Chaos on Deponia
+# Darwinia
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20110206.1
 
 # Set game-specific variables
 
-GAME_ID='deponia-2'
-GAME_NAME='Deponia 2 - Chaos on Deponia'
+GAME_ID='darwinia'
+GAME_NAME='Darwinia'
 
-ARCHIVE_GOG='gog_deponia_2_chaos_on_deponia_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='7aa1251741a532e4b9f908a3af0d8f2a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='3200000'
-ARCHIVE_GOG_VERSION='3.3.2351-gog2.1.0.3'
+ARCHIVE_GOG='gog_darwinia_2.0.0.5.sh'
+ARCHIVE_GOG_MD5='ef55064ab82a64324e295f2ea96239d6'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='45000'
+ARCHIVE_GOG_VERSION='1.4.2-gog2.0.0.5'
 
-ARCHIVE_HUMBLE='Deponia2_DEB_Full_3.2.2342_Multi_Daedalic_ESD.tar.gz'
-ARCHIVE_HUMBLE_MD5='e7a71d5b8a83b2c2393095256b03553b'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='3100000'
-ARCHIVE_HUMBLE_VERSION='3.2.2342-humble'
-
-ARCHIVE_DOC_PATH_GOG='data/noarch/game'
-ARCHIVE_DOC_PATH_HUMBLE='Chaos on Deponia'
-ARCHIVE_DOC_FILES='./documents ./version.txt'
-
-ARCHIVE_DOC2_PATH_GOG='data/noarch/docs'
-ARCHIVE_DOC2_FILES_GOG='./*'
-
-ARCHIVE_GAME_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_PATH_HUMBLE='Chaos on Deponia'
-ARCHIVE_GAME_FILES='./characters ./config.ini ./data.vis ./Deponia2 ./libs64 ./lua ./scenes ./videos'
+ARCHIVE_DOC_PATH='data/noarch/docs'
+ARCHIVE_DOC_FILES='./*'
+ARCHIVE_DOC_PATH='data/noarch/game'
+ARCHIVE_DOC_FILES='./*.txt'
+ARCHIVE_GAME_32_PATH='data/noarch/game'
+ARCHIVE_GAME_32_FILES='./*.x86 ./lib'
+ARCHIVE_GAME_64_PATH='data/noarch/game'
+ARCHIVE_GAME_64_FILES='./*.x86_64 ./lib64'
+ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
+ARCHIVE_GAME_MAIN_FILES='./*'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='Deponia2'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
-APP_MAIN_ICON_GOG_RES='256x256'
+APP_MAIN_EXE_32='darwinia.bin.x86'
+APP_MAIN_EXE_64='darwinia.bin.x86_64'
+APP_MAIN_ICON='darwinian.png'
+APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
-PKG_MAIN_DEPS_ARCH="libgl openal ffmpeg ffmpeg2.8"
+PKG_MAIN_ID="${GAME_ID}-common"
+PKG_MAIN_DESCRIPTION='arch-independant data'
+
+PKG_32_ARCH='32'
+PKG_32_CONFLICTS_DEB="$GAME_ID"
+PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libogg0, libsdl1.2debian, libvorbis0a"
+PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu libogg sdl libvorbis"
+
+PKG_64_ARCH='64'
+PKG_64_CONFLICTS_DEB="$GAME_ID"
+PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
+PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
 
 # Load common functions
 
@@ -104,59 +108,55 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-
-case "$ARCHIVE" in
-	
-	('ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
-		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
-		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_GOG"
-		APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
-		APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
-	;;
-	
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_HUMBLE"
-		unset ARCHIVE_DOC2_PATH
-		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_HUMBLE"
-		unset APP_MAIN_ICON
-		unset APP_MAIN_ICON_RES
-	;;
-	
-esac
-
+set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
+PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "$ARCHIVE_TYPE" = 'tar' ]; then
-	fix_rights "$PLAYIT_WORKDIR/gamedata"
-fi
-organize_data
 
-if [ "$APP_MAIN_ICON" ]; then
-	PATH_ICON="${PKG_MAIN_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
-	mkdir --parents "$PATH_ICON"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
-fi
+PKG='PKG_32'
+organize_data_generic 'GAME_32' "$PATH_GAME"
+PKG='PKG_64'
+organize_data_generic 'GAME_64' "$PATH_GAME"
+PKG='PKG_MAIN'
+organize_data_generic 'GAME_MAIN' "$PATH_GAME"
+organize_data_generic 'DOC' "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_32'
+APP_MAIN_EXE="$APP_MAIN_EXE_32"
+write_bin 'APP_MAIN'
+write_desktop 'APP_MAIN'
+
+PKG='PKG_64'
+APP_MAIN_EXE="$APP_MAIN_EXE_64"
 write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
 write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_32' 'PKG_64'
+build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
 
 # Clean up
 
@@ -164,6 +164,9 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+printf '\n32-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
+printf '\n64-bit:'
+print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
 
 exit 0

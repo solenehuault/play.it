@@ -1,20 +1,40 @@
+# set archive for data extraction
+# USAGE: set_archive $name $archive[…]
+# NEEDED_VARS: SOURCE_ARCHIVE
+# CALLS: set_archive_print
+set_archive() {
+	local name=$1
+	shift 1
+	for archive in "$@"; do
+		if [ -f "$archive" ]; then
+			export $name="$archive"
+			set_archive_print "$archive"
+			return 0
+		elif [ -f "${SOURCE_ARCHIVE%/*}/$archive" ]; then
+			export $name="${SOURCE_ARCHIVE%/*}/$archive"
+			set_archive_print "${SOURCE_ARCHIVE%/*}/$archive"
+			return 0
+		fi
+	done
+	unset $name
+}
+
 # set source archive for data extraction
 # USAGE: set_source_archive $archive[…]
 # NEEDED_VARS: SOURCE_ARCHIVE
-# CALLS: set_source_archive_vars set_source_archive_error
-# 	set_source_archive_print
+# CALLS: set_source_archive_vars set_source_archive_error set_archive_print
 set_source_archive() {
 	for archive in "$@"; do
 		file="$(eval echo \$$archive)"
 		if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
 			ARCHIVE="$archive"
-			set_source_archive_print
+			set_archive_print "$SOURCE_ARCHIVE"
 			set_source_archive_vars
 			return 0
 		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
 			SOURCE_ARCHIVE="$file"
 			ARCHIVE="$archive"
-			set_source_archive_print
+			set_archive_print "$SOURCE_ARCHIVE"
 			set_source_archive_vars
 			return 0
 		fi
@@ -57,17 +77,19 @@ set_source_archive_vars() {
 }
 
 # print archive use message
-# USAGE: set_source_archive_print
-# CALLED BY: set_source_archive
-set_source_archive_print() {
+# USAGE: set_archive_print $file
+# CALLED BY: set_archive set_source_archive
+set_archive_print() {
+	local string
 	case ${LANG%_*} in
 		('fr')
-			printf 'Utilisation de %s\n' "$SOURCE_ARCHIVE"
+			string='Utilisation de %s\n'
 		;;
 		('en'|*)
-			printf 'Using %s\n' "$SOURCE_ARCHIVE"
+			string='Using %s\n'
 		;;
 	esac
+	printf "$string" "$1"
 }
 
 # display an error message telling the target archive has not been found

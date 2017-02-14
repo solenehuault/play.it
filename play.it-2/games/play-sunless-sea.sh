@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 set -o errexit
 
 ###
@@ -29,52 +29,67 @@ set -o errexit
 ###
 
 ###
-# 140
+# Sunless Sea + Zubmariner
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170902.5
+script_version=20170210.1
 
 # Set game-specific variables
 
-GAME_ID='140-game'
-GAME_NAME='140'
+GAME_ID='sunless-sea'
+GAME_NAME='Sunless Sea'
 
-ARCHIVE_GOG='gog_140_2.0.0.1.sh'
-ARCHIVE_GOG_MD5='49ec4cff5fa682517e640a2d0eb282c8'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='110000'
-ARCHIVE_GOG_VERSION='2.0-gog2.0.0.1'
+ARCHIVE_GOG='gog_sunless_sea_2.8.0.11.sh'
+ARCHIVE_GOG_MD5='1cf6bb7a440ce796abf8e7afcb6f7a54'
+ARCHIVE_GOG_VERSION='2.2.2.3129-gog2.8.0.11'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='700000'
 
-ARCHIVE_HUMBLE='140_Linux_1389820765.zip'
-ARCHIVE_HUMBLE_MD5='e78c09a2a9f47d89a4bb1e4e97911e79'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='92000'
-ARCHIVE_HUMBLE_VERSION='1.0-humble1389820765'
+ARCHIVE_HUMBLE='Sunless_Sea_Setup_V2.2.2.3129_LINUX.zip'
+ARCHIVE_HUMBLE_MD5='bdb37932e56fd0655a2e4263631e2582'
+ARCHIVE_HUMBLE_VERSION='2.2.2.3129-humble170131'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='700000'
+
+ARCHIVE_DLC1_GOG='gog_sunless_sea_zubmariner_2.5.0.6.sh'
+ARCHIVE_DLC1_GOG_MD5='692cd0dac832d5254bd38d7e1a05b918'
+ARCHIVE_DLC1_GOG_VERSION='2.2.2.3130-gog2.5.0.6'
+
+ARCHIVE_DOC_PATH_GOG='data/noarch/game'
+ARCHIVE_DOC_PATH_HUMBLE='data/noarch'
+ARCHIVE_DOC_FILES='./README.linux'
+
+ARCHIVE_DOC2_PATH_GOG='data/noarch/docs'
+ARCHIVE_DOC2_FILES_GOG='./*'
 
 ARCHIVE_GAME_BIN32_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_BIN32_PATH_HUMBLE='.'
-ARCHIVE_GAME_BIN32_FILES='./140.x86 140_Data/*/x86'
+ARCHIVE_GAME_BIN32_PATH_HUMBLE1='data/x86'
+ARCHIVE_GAME_BIN32_PATH_HUMBLE2='data/noarch'
+ARCHIVE_GAME_BIN32_FILES='./*.x86 ./*_Data/*/x86'
 
 ARCHIVE_GAME_BIN64_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_BIN64_PATH_HUMBLE='.'
-ARCHIVE_GAME_BIN64_FILES='./140.x86_64 140_Data/*/x86_64'
+ARCHIVE_GAME_BIN64_PATH_HUMBLE1='data/x86_64'
+ARCHIVE_GAME_BIN64_PATH_HUMBLE2='data/noarch'
+ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./*_Data/*/x86_64'
 
 ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_DATA_PATH_HUMBLE='.'
-ARCHIVE_GAME_DATA_FILES='./140_Data'
+ARCHIVE_GAME_DATA_PATH_HUMBLE='data/noarch'
+ARCHIVE_GAME_DATA_FILES='./*'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='140.x86'
-APP_MAIN_EXE_64='140.x86_64'
-APP_MAIN_ICON='140_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_EXE_BIN32='./Sunless Sea.x86'
+APP_MAIN_EXE_BIN64='./Sunless Sea.x86_64'
+APP_MAIN_ICON1='Sunless Sea_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON1_RES='128x128'
+APP_MAIN_ICON2='./Icon.png'
+APP_MAIN_ICON2_RES='256x256'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DESCRITPION='data'
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID glu alsa-lib libxcursor"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libglu1-mesa | libglu1, libxcursor1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID glu libxcursor"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
@@ -113,67 +128,102 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
+	set_archive 'ARCHIVE_DLC1' "$ARCHIVE_DLC1_GOG"
+fi
+check_deps
+set_common_paths
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+if [ "$ARCHIVE_DLC1" ]; then
+	ARCHIVE_REAL="$ARCHIVE"
+	unset ARCHIVE
+	file_checksum "$ARCHIVE_DLC1" 'ARCHIVE_DLC1_GOG'
+	PKG_VERSION="$ARCHIVE_DLC1_GOG_VERSION"
+	ARCHIVE="$ARCHIVE_REAL"
+	unset ARCHIVE_REAL
+fi
+check_deps
+
 case "$ARCHIVE" in
-	
 	('ARCHIVE_GOG')
+		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
+		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
+		ARCHIVE_DOC2_FILES="$ARCHIVE_DOC2_FILES_GOG"
 		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_GOG"
 		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_GOG"
 		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_GOG"
 	;;
-	
 	('ARCHIVE_HUMBLE')
-		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE"
-		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE"
+		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_HUMBLE"
+		unset ARCHIVE_DOC2_PATH
+		unset ARCHIVE_DOC2_FILES
+		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE1"
+		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE1"
 		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_HUMBLE"
 	;;
-	
 esac
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
 
 # Extract game data
 
 set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
+if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
+	ARCHIVE_HUMBLE_TYPE='mojosetup'
+	archive="$PLAYIT_WORKDIR/gamedata/Sunless Sea.sh"
+	extract_data_from "$archive"
+	rm "$archive"
+fi
+if [ "$ARCHIVE_DLC1" ]; then
+	extract_data_from "$ARCHIVE_DLC1"
+fi
 
 PKG='PKG_BIN32'
 organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
+	ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE2"
+	organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+fi
 
 PKG='PKG_BIN64'
 organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
+	ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE2"
+	organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+fi
 
 PKG='PKG_DATA'
 organize_data_generic 'GAME_DATA' "$PATH_GAME"
 organize_data_generic 'DOC'       "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
 PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
+APP_MAIN_EXE="$APP_MAIN_EXE_BIN32"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
+APP_MAIN_EXE="$APP_MAIN_EXE_BIN64"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
 cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+mkdir --parents "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
+mkdir --parents "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON1" "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON2" "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+rm "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps/$GAME_ID.png"
+rm "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps"
 EOF
 
 write_metadata 'PKG_DATA'
@@ -183,7 +233,7 @@ build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 

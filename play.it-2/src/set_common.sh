@@ -13,11 +13,10 @@ set_common_defaults() {
 	unset winecfg_desktop
 	unset winecfg_launcher
 	
-	unset DEFAULT_PACKAGE_TYPE
 	# Try to detect the host distribution through lsb_release
 	if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
 		case "$(lsb_release -si)" in
-			('Debian')
+			('Debian'|'Ubuntu')
 				DEFAULT_PACKAGE_TYPE='deb'
 			;;
 			('Arch')

@@ -34,20 +34,22 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.2
+script_version=20170211.5
 
 # Set game-specific variables
 
 GAME_ID='darkest-dungeon'
 GAME_NAME='Darkest Dungeon'
 
-ARCHIVE_GOG='gog_darkest_dungeon_2.7.0.7.sh'
-ARCHIVE_GOG_MD5='22deb2c91a659725f1dbc5d8021ee1e8'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2000000'
-ARCHIVE_GOG_VERSION='16707-gog2.7.0.7'
+ARCHIVE_GOG='gog_darkest_dungeon_2.8.0.8.sh'
+ARCHIVE_GOG_MD5='b7c7ba6c41bc119c98ff16df674b8fc4'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='2100000'
+ARCHIVE_GOG_VERSION='17449-gog2.8.0.8'
 
-ARCHIVE_DOC_PATH='data/noarch/docs'
-ARCHIVE_DOC_FILES='./*'
+ARCHIVE_DOC1_PATH='data/noarch/docs'
+ARCHIVE_DOC1_FILES='./*'
+ARCHIVE_DOC2_PATH='data/noarch/game'
+ARCHIVE_DOC2_FILES='./README.linux'
 ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
 ARCHIVE_GAME_BIN32_FILES='./lib ./darkest.bin.x86'
 ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
@@ -130,7 +132,7 @@ set_workdir 'PKG_AUDIO' 'PKG_VIDEO' 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 (
-	cd "$PLAYIT_WORKDIR/gamedata"
+	cd "$PLAYIT_WORKDIR/gamedata/data/noarch/game"
 	rm --force --recursive 'localization/ps4' 'localization/psv'
 	rm --force --recursive 'shaders_ps4' 'shaders_psv'
 	rm --force --recursive 'video_ps4' 'video_psv'
@@ -145,8 +147,9 @@ organize_data_generic 'GAME_AUDIO' "$PATH_GAME"
 PKG='PKG_VIDEO'
 organize_data_generic 'GAME_VIDEO' "$PATH_GAME"
 PKG='PKG_DATA'
+organize_data_generic 'DOC1'      "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
 organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
 
 if [ "$NO_ICON" = '0' ]; then
 	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"

@@ -29,48 +29,50 @@ set -o errexit
 ###
 
 ###
-# Deponia 2 - Chaos on Deponia
+# Emperor: Rise of the Middle Kingdom
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170210.1
 
 # Set game-specific variables
 
-GAME_ID='deponia-2'
-GAME_NAME='Deponia 2 - Chaos on Deponia'
+GAME_ID='emperor-rise-of-the-middle-kingdom'
+GAME_NAME='Emperor: Rise of the Middle Kingdom'
 
-ARCHIVE_GOG='gog_deponia_2_chaos_on_deponia_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='7aa1251741a532e4b9f908a3af0d8f2a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='3200000'
-ARCHIVE_GOG_VERSION='3.3.2351-gog2.1.0.3'
+ARCHIVE_GOG='setup_emperor_rise_of_the_middle_kingdom_2.0.0.2.exe'
+ARCHIVE_GOG_MD5='5e50e84c028a85eafe5dd5f2aa277fea'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='820000'
+ARCHIVE_GOG_VERSION='1.0.1.0-gog2.0.0.2'
 
-ARCHIVE_HUMBLE='Deponia2_DEB_Full_3.2.2342_Multi_Daedalic_ESD.tar.gz'
-ARCHIVE_HUMBLE_MD5='e7a71d5b8a83b2c2393095256b03553b'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='3100000'
-ARCHIVE_HUMBLE_VERSION='3.2.2342-humble'
+ARCHIVE_DOC_PATH='app'
+ARCHIVE_DOC_FILES='./*.txt ./*.pdf'
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.exe ./binkw32.dll ./ijl10.dll ./mss32.dll ./sierrapt.dll'
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./*.cfg ./*.eng ./*.inf ./audio ./binks ./campaigns ./cities ./data ./dragon.ico ./emperor.ini ./model ./mp3dec.asi ./mssds3dh.m3d ./mssrsx.m3d ./res ./save'
 
-ARCHIVE_DOC_PATH_GOG='data/noarch/game'
-ARCHIVE_DOC_PATH_HUMBLE='Chaos on Deponia'
-ARCHIVE_DOC_FILES='./documents ./version.txt'
+CONFIG_FILES='./*.cfg ./*.ini'
+DATA_DIRS='./save'
 
-ARCHIVE_DOC2_PATH_GOG='data/noarch/docs'
-ARCHIVE_DOC2_FILES_GOG='./*'
+APP_MAIN_TYPE='wine'
+APP_MAIN_EXE='emperor.exe'
+APP_MAIN_ICON1='emperor.exe'
+APP_MAIN_ICON2='dragon.ico'
+APP_MAIN_ICON_RES='16x16 32x32'
 
-ARCHIVE_GAME_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_PATH_HUMBLE='Chaos on Deponia'
-ARCHIVE_GAME_FILES='./characters ./config.ini ./data.vis ./Deponia2 ./libs64 ./lua ./scenes ./videos'
+APP_EDIT_ID="${GAME_ID}_editor"
+APP_EDIT_NAME="$GAME_NAME - Editor"
+APP_EDIT_TYPE='wine'
+APP_EDIT_EXE='emperoredit.exe'
 
-APP_MAIN_TYPE='native'
-APP_MAIN_EXE='Deponia2'
-APP_MAIN_LIBS='libs64'
-APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
-APP_MAIN_ICON_GOG_RES='256x256'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
-PKG_MAIN_DEPS_ARCH="libgl openal ffmpeg ffmpeg2.8"
+PKG_BIN_ARCH='32on64'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID wine"
 
 # Load common functions
 
@@ -104,59 +106,59 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-
-case "$ARCHIVE" in
-	
-	('ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
-		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
-		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_GOG"
-		APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
-		APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
-	;;
-	
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_HUMBLE"
-		unset ARCHIVE_DOC2_PATH
-		ARCHIVE_GAME_PATH="$ARCHIVE_GAME_PATH_HUMBLE"
-		unset APP_MAIN_ICON
-		unset APP_MAIN_ICON_RES
-	;;
-	
-esac
-
+set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "$ARCHIVE_TYPE" = 'tar' ]; then
-	fix_rights "$PLAYIT_WORKDIR/gamedata"
-fi
-organize_data
 
-if [ "$APP_MAIN_ICON" ]; then
-	PATH_ICON="${PKG_MAIN_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
-	mkdir --parents "$PATH_ICON"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data_generic 'DOC'       "$PATH_DOC"
+
+if [ "$NO_ICON" = '0' ]; then
+	extract_icon_from "${PKG_BIN_PATH}${PATH_GAME}/$APP_MAIN_ICON1"
+	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON2"
+	extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
+	rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON2"
+	rm "$PLAYIT_WORKDIR/icons/$APP_MAIN_ICON1"*32x32*.png
+	sort_icons 'APP_MAIN'
+	rm --recursive "$PLAYIT_WORKDIR/icons"
 fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_bin     'APP_MAIN' 'APP_EDIT'
+write_desktop 'APP_MAIN' 'APP_EDIT'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+cat > "$postinst" << EOF
+for res in $APP_MAIN_ICON_RES; do
+	ln --symbolic "$GAME_ID.png" "$PATH_ICON_BASE/\$res/apps/$APP_EDIT_ID.png"
+done
+EOF
+
+cat > "$prerm" << EOF
+for res in $APP_MAIN_ICON_RES; do
+	rm "$PATH_ICON_BASE/\$res/apps/$APP_EDIT_ID.png"
+done
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -164,6 +166,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
