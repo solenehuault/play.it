@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170214.2
+script_version=20170214.3
 
 # Set game-specific variables
 
@@ -121,15 +121,12 @@ set_source_archive 'ARCHIVE_HUMBLE'
 set_archive 'ICONS_PACK' "$ARCHIVE_ICONS"
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
+file_checksum "$SOURCE_ARCHIVE"
 if [ "$ICONS_PACK" ]; then
 	ARCHIVE_REAL="$ARCHIVE"
-	unset ARCHIVE
-	file_checksum "$ICONS_PACK" 'ARCHIVE_ICONS'
+	ARCHIVE='ARCHIVE_ICONS'
+	file_checksum "$ICONS_PACK"
 	ARCHIVE="$ARCHIVE_REAL"
-	unset ARCHIVE_REAL
-	archive="$ARCHIVE"
-	set_source_archive_vars
 fi
 
 # Extract game data
