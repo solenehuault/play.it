@@ -34,9 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170214.1
 
 # Set game-specific variables
+
+SCRIPT_DEPS='find'
 
 GAME_ID='the-swapper'
 GAME_NAME='The Swapper'
@@ -114,6 +116,8 @@ file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
 
 set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
+
+find "$PLAYIT_WORKDIR/gamedata" -name '*:com.dropbox.attributes:$DATA' -delete
 
 PKG='PKG_32'
 organize_data_generic 'GAME_32' "$PATH_GAME"
