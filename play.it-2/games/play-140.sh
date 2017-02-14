@@ -29,48 +29,56 @@ set -o errexit
 ###
 
 ###
-# Deponia
+# 140
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170208.1
+script_version=20170902.4
 
 # Set game-specific variables
 
-GAME_ID='deponia'
-GAME_NAME='Deponia'
+GAME_ID='140-game'
+GAME_NAME='140'
 
-ARCHIVE_GOG='gog_deponia_2.1.0.3.sh'
-ARCHIVE_GOG_MD5='a3a21ba1c1ee68c9be2c755bd79e1b30'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1800000'
-ARCHIVE_GOG_VERSION='3.3.1357-gog2.1.0.3'
+ARCHIVE_GOG='gog_140_2.0.0.1.sh'
+ARCHIVE_GOG_MD5='49ec4cff5fa682517e640a2d0eb282c8'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='110000'
+ARCHIVE_GOG_VERSION='2.0-gog2.0.0.1'
 
-ARCHIVE_HUMBLE='Deponia_3.3.1358_Full_DEB_Multi_Daedalic_ESD.tar.gz'
-ARCHIVE_HUMBLE_MD5='8ff4e21bbb4abcdc4059845acf7c7f04'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='1700000'
-ARCHIVE_HUMBLE_VERSION='3.3.1358-humble160511'
+ARCHIVE_HUMBLE='140_Linux_1389820765.zip'
+ARCHIVE_HUMBLE_MD5='e78c09a2a9f47d89a4bb1e4e97911e79'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='92000'
+ARCHIVE_HUMBLE_VERSION='1.0-humble1389820765'
 
-ARCHIVE_HUMBLE_DOC_PATH='Deponia'
-ARCHIVE_HUMBLE_DOC_FILES='./documents ./version.txt ./readme.txt'
+ARCHIVE_GAME_BIN32_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN32_PATH_HUMBLE='.'
+ARCHIVE_GAME_BIN32_FILES='./140.x86 140_Data/*/x86'
 
-ARCHIVE_GOG_DOC_PATH='data/noarch/docs'
-ARCHIVE_GOG_DOC_FILES='./documents ./version.txt'
+ARCHIVE_GAME_BIN64_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN64_PATH_HUMBLE='.'
+ARCHIVE_GAME_BIN64_FILES='./140.x86_64 140_Data/*/x86_64'
 
-ARCHIVE_HUMBLE_GAME_MAIN_PATH='Deponia'
-ARCHIVE_GOG_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./characters ./config.ini ./data.vis ./Deponia ./lua ./scenes ./videos libs64/libavcodec.so.56 libs64/libavdevice.so.56 libs64/libavfilter.so.5 libs64/libavformat.so.56 libs64/libavutil.so.54 libs64/libswresample.so.1 libs64/libswscale.so.3 libs64/libz.so.1'
+ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_DATA_PATH_HUMBLE='.'
+ARCHIVE_GAME_DATA_FILES='./140_Data'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='Deponia'
-APP_MAIN_LIBS='libs64'
-APP_GOG_ICON='data/noarch/support/icon.png'
-APP_GOG_ICON_RES='256x256'
+APP_MAIN_EXE_32='140.x86'
+APP_MAIN_EXE_64='140.x86_64'
+APP_MAIN_ICON='140_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_CONFLICTS_DEB="$GAME_ID"
-PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
-PKG_MAIN_DEPS_ARCH="libgl openal ffmpeg ffmpeg2.8"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRITPION='data'
+
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID glu alsa-lib libxcursor"
+
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
 
 # Load common functions
 
@@ -105,64 +113,84 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
-
 case "$ARCHIVE" in
+	
 	('ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_GOG_DOC_PATH"
-		ARCHIVE_DOC_FILES="$ARCHIVE_GOG_DOC_FILES"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GOG_GAME_MAIN_PATH"
-		APP_MAIN_ICON="$APP_GOG_ICON"
-		APP_MAIN_ICON_RES="$APP_GOG_ICON_RES"
+		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_GOG"
+		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_GOG"
+		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_GOG"
 	;;
+	
 	('ARCHIVE_HUMBLE')
-		ARCHIVE_DOC_PATH="$ARCHIVE_HUMBLE_DOC_PATH"
-		ARCHIVE_DOC_FILES="$ARCHIVE_HUMBLE_DOC_FILES"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_HUMBLE_GAME_MAIN_PATH"
+		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE"
+		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE"
+		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_HUMBLE"
 	;;
+	
 esac
-
+check_deps
 set_common_paths
-
-if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then 
-	PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-fi
-
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
-fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-PKG='PKG_MAIN'
-organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
+PKG='PKG_BIN32'
+organize_data_generic 'GAME_BIN32' "$PATH_GAME"
 
-if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then 
-	mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
-fi
+PKG='PKG_BIN64'
+organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data_generic 'DOC'       "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+PKG='PKG_BIN32'
+APP_MAIN_EXE="$APP_MAIN_EXE_32"
+write_bin     'APP_MAIN'
+write_desktop 'APP_MAIN'
+
+PKG='PKG_BIN64'
+APP_MAIN_EXE="$APP_MAIN_EXE_64"
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
+
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN32' 'PKG_BIN64'
+build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 
 # Clean up
 
-rm --recursive "$PLAYIT_WORKDIR"
+rm --recursive "${PLAYIT_WORKDIR}"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0

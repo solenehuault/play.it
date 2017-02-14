@@ -151,14 +151,12 @@ write_bin_set_prefix_funcs() {
 	    local dest="\$1"
 	    shift 1
 	    cd "\$PATH_GAME"
-	    for dir in "\$@"; do
-	    if ! [ -e "\$dest/\$dir" ]; then
+	    for dir in \$@; do
 	      if [ -e "\$dir" ]; then
 	        cp --parents --recursive "\$dir" "\$dest"
 	      else
 	        mkdir --parents "\$dest/\$dir"
 	      fi
-	    fi
 	    done
 	  )
 	}
@@ -168,8 +166,8 @@ write_bin_set_prefix_funcs() {
 	    local dest="\$1"
 	    shift 1
 	    cd "\$PATH_GAME"
-	    for file in "\$@"; do
-	      if ! [ -e "\$dest/\$file" ] && [ -e "\$file" ]; then
+	    for file in \$@; do
+	      if [ -e "\$file" ]; then
 	        cp --parents "\$file" "\$dest"
 	      fi
 	    done
