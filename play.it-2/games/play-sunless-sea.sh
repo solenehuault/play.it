@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170210.1
+script_version=20170214.1
 
 # Set game-specific variables
 
@@ -133,14 +133,13 @@ if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
 fi
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+file_checksum "$SOURCE_ARCHIVE"
 if [ "$ARCHIVE_DLC1" ]; then
 	ARCHIVE_REAL="$ARCHIVE"
-	unset ARCHIVE
-	file_checksum "$ARCHIVE_DLC1" 'ARCHIVE_DLC1_GOG'
+	ARCHIVE='ARCHIVE_DLC1_GOG'
+	file_checksum "$ARCHIVE_DLC1"
 	PKG_VERSION="$ARCHIVE_DLC1_GOG_VERSION"
 	ARCHIVE="$ARCHIVE_REAL"
-	unset ARCHIVE_REAL
 fi
 check_deps
 
