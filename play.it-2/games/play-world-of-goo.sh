@@ -34,9 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170214.1
 
 # Set game-specific variables
+
+SCRIPT_DEPS='find'
 
 GAME_ID='world-of-goo'
 GAME_NAME='World of Goo'
@@ -121,9 +123,26 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_32'
 organize_data_generic 'GAME_32' "$PATH_GAME"
+(
+	cd "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_32_PATH"
+	find res -name '*.binltl' | while read file; do
+		cp --parents "$file" "${PKG_32_PATH}${PATH_GAME}"
+		rm "$file"
+	done
+)
+
 PKG='PKG_64'
 organize_data_generic 'GAME_64' "$PATH_GAME"
+(
+	cd "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_64_PATH"
+	find res -name '*.binltl64' | while read file; do
+		cp --parents "$file" "${PKG_64_PATH}${PATH_GAME}"
+		rm "$file"
+	done
+)
+
 PKG='PKG_MAIN'
+find "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_MAIN_PATH/res" -type d -empty -delete
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 organize_data_generic 'DOC' "$PATH_DOC"
 
