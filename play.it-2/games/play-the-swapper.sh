@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170214.1
+script_version=20170214.3
 
 # Set game-specific variables
 
@@ -49,14 +49,24 @@ ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='980000'
 ARCHIVE_HUMBLE_VERSION='1.24-humble140404'
 ARCHIVE_HUMBLE_TYPE='mojosetup'
 
+ARCHIVE_ICONS='the-swapper_icons.tar.gz'
+ARCHIVE_ICONS_MD5='cddcf271fb6eb10fba870aa91c30c410'
+ARCHIVE_ICONS_TYPE='tar.gz'
+
 ARCHIVE_DOC_PATH='data/noarch'
 ARCHIVE_DOC_FILES='./README* ./Licences'
+
 ARCHIVE_GAME_32_PATH='data/noarch'
 ARCHIVE_GAME_32_FILES='./TheSwapper.bin.x86 ./lib'
+
 ARCHIVE_GAME_64_PATH='data/noarch'
 ARCHIVE_GAME_64_FILES='./TheSwapper.bin.x86_64 ./lib64'
+
 ARCHIVE_GAME_MAIN_PATH='data/noarch'
 ARCHIVE_GAME_MAIN_FILES='./*'
+
+ARCHIVE_ICONS_PATH='.'
+ARCHIVE_ICONS_FILES='./16x16 ./32x32 ./48x48 ./128x128'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='TheSwapper.bin.x86'
@@ -108,24 +118,40 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_HUMBLE'
+set_archive 'ICONS_PACK' "$ARCHIVE_ICONS"
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
+file_checksum "$SOURCE_ARCHIVE"
+if [ "$ICONS_PACK" ]; then
+	ARCHIVE_REAL="$ARCHIVE"
+	ARCHIVE='ARCHIVE_ICONS'
+	file_checksum "$ICONS_PACK"
+	ARCHIVE="$ARCHIVE_REAL"
+fi
 
 # Extract game data
 
 set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
+if [ "$ICONS_PACK" ]; then
+	ARCHIVE='ARCHIVE_ICONS'
+	extract_data_from "$ICONS_PACK"
+fi
 
 find "$PLAYIT_WORKDIR/gamedata" -name '*:com.dropbox.attributes:$DATA' -delete
 
 PKG='PKG_32'
 organize_data_generic 'GAME_32' "$PATH_GAME"
+
 PKG='PKG_64'
 organize_data_generic 'GAME_64' "$PATH_GAME"
+
 PKG='PKG_MAIN'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
+organize_data_generic 'DOC'       "$PATH_DOC"
+if [ "$ICONS_PACK" ]; then
+	organize_data_generic 'ICONS' "$PATH_ICON_BASE"
+fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

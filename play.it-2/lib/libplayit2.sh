@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170210.1
+library_revision=20170214.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -361,18 +361,16 @@ fetch_args_set_var() {
 }
 
 # check integrity of target file
-# USAGE: file_checksum $file $archive_name[…]
+# USAGE: file_checksum $file
 # NEEDED VARS: CHECKSUM_METHOD
 # CALLS: file_checksum_md5, file_checksum_none, liberror
 file_checksum() {
-	local source_file="$1"
-	shift 1
 	case $CHECKSUM_METHOD in
 		('md5')
-			file_checksum_md5 $@
+			file_checksum_md5 "$1"
 		;;
 		('none')
-			file_checksum_none
+			return 0
 		;;
 		(*)
 			liberror 'CHECKSUM_METHOD' 'file_checksum'
@@ -381,75 +379,55 @@ file_checksum() {
 }
 
 # check integrity of target file against MD5 control sum
-# USAGE: file_checksum_md5 $archive_name[…]
-# NEEDED VARS: $archive_MD5
-# CALLS: file_checksum_print, file_checksum_error, set_source_archive_vars
+# USAGE: file_checksum_md5 $file
+# NEEDED VARS: ARCHIVE ARCHIVE_MD5
+# CALLS: file_checksum_print, file_checksum_error
 # CALLED BY: file_checksum
 file_checksum_md5() {
-	file_checksum_print
-	FILE_MD5="$(md5sum "$source_file" | cut --delimiter=' ' --fields=1)"
-	if [ -n "$ARCHIVE" ]; then
-		local archive_md5=$(eval echo \$${ARCHIVE}_MD5)
-		if [ "$FILE_MD5" = "$archive_md5" ]; then
-			return 0
-		fi
-	else
-		for archive in $@; do
-			local archive_md5=$(eval echo \$${archive}_MD5)
-			if [ "$FILE_MD5" = "$archive_md5" ]; then
-				if [ -z "$ARCHIVE" ]; then
-					ARCHIVE="$archive"
-					set_source_archive_vars
-				fi
-				return 0
-			fi
-		done
+	file_checksum_print "$(basename "$1")"
+	FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
+	if [ "$FILE_MD5" = "$(eval echo \$${ARCHIVE}_MD5)" ]; then
+		return 0
 	fi
-	file_checksum_error
+	file_checksum_error "$1"
 	return 1
 }
 
-# set source archive if not already set by script arguments
-# USAGE: file_checksum_none
-# NEEDED_VARS: ARCHIVE, ARCHIVE_DEFAULT
-# CALLS: set_source_archive_vars
-# CALLED BY: file_checksum
-file_checksum_none() {
-	if [ -z "$ARCHIVE" ]; then
-		ARCHIVE="$ARCHIVE_DEFAULT"
-		set_source_archive_vars
-	fi
-}
-
 # print integrity check message
-# USAGE: file_checksum_print
+# USAGE: file_checksum_print $file_name
 # CALLED BY: file_checksum_md5
 file_checksum_print() {
+	local string
 	case ${LANG%_*} in
-		(fr)
-			printf 'Contrôle de l’intégrité de %s\n' "$(basename "$source_file")"
+		('fr')
+			string='Contrôle de l’intégrité de %s\n'
 		;;
-		(en|*)
-			printf 'Checking %s integrity\n' "$(basename "$source_file")"
+		('en'|*)
+			string='Checking integrity of %s\n'
 		;;
 	esac
+	printf "$string" "$1"
 }
 
 # print integrity check error message
-# USAGE: file_checksum_error
+# USAGE: file_checksum_error $file
 # CALLED BY: file_checksum_md5
 file_checksum_error() {
 	print_error
+	local string1
+	local string2
 	case ${LANG%_*} in
 		('fr')
-			printf 'Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n' "$source_file"
-			printf 'Utilisez --checksum=none pour forcer son utilisation.\n'
+			string1='Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n'
+			string2='Utilisez --checksum=none pour forcer son utilisation.\n'
 		;;
 		('en'|*)
-			printf 'Hashsum mismatch. %s is not the expected file.\n' "$source_file"
-			printf 'Use --checksum=none to force its use.\n'
+			string1='Hashsum mismatch. %s is not the expected file.\n'
+			string2='Use --checksum=none to force its use.\n'
 		;;
 	esac
+	printf "$string1" "$1"
+	printf "$string2"
 }
 
 # set defaults rights on files (755 for dirs & 644 for regular files)
@@ -853,11 +831,10 @@ set_common_defaults() {
 	unset winecfg_desktop
 	unset winecfg_launcher
 	
-	unset DEFAULT_PACKAGE_TYPE
 	# Try to detect the host distribution through lsb_release
 	if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
 		case "$(lsb_release -si)" in
-			('Debian')
+			('Debian'|'Ubuntu')
 				DEFAULT_PACKAGE_TYPE='deb'
 			;;
 			('Arch')
@@ -1219,7 +1196,8 @@ write_bin_run_native() {
 	else
 	  source_dir="\$PATH_GAME"
 	fi
-	cp "\$source_dir/\$APP_EXE" .
+	mkdir --parents "\$(dirname \$APP_EXE)"
+	cp "\$source_dir/\$APP_EXE" "\$APP_EXE"
 	EOF
 
 	if [ "$app_prerun" ]; then
