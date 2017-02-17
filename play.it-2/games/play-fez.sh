@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170206.1
+script_version=20170217.1
 
 # Set game-specific variables
 
@@ -127,6 +127,13 @@ organize_data_generic 'GAME_64' "$PATH_GAME"
 PKG='PKG_DATA'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
 
+if [ "$NO_ICON" = '0' ]; then
+	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+	mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
+fi
+
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
@@ -143,21 +150,7 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
-cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
-EOF
-
-cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-EOF
-
-write_metadata 'PKG_DATA'
-rm "$postinst" "$prerm"
-write_metadata 'PKG_32' 'PKG_64'
+write_metadata 'PKG_32' 'PKG_64' 'PKG_DATA'
 build_pkg      'PKG_32' 'PKG_64' 'PKG_DATA'
 
 # Clean up
