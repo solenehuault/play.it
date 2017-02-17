@@ -34,17 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170217.1
+script_version=20170217.2
 
 # Set game-specific variables
 
 GAME_ID='fez'
 GAME_NAME='Fez'
 
-ARCHIVE_HUMBLE='fez-06242014-bin'
-ARCHIVE_HUMBLE_MD5='b4178a11a0afff13cf264d852bf773df'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='420000'
-ARCHIVE_HUMBLE_VERSION='1.11-humble160822'
+ARCHIVE_HUMBLE='fez-11282016-bin'
+ARCHIVE_HUMBLE_MD5='333d2e5f55adbd251b09e01d4da213c6'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='440000'
+ARCHIVE_HUMBLE_VERSION='1.12-humble161128'
 ARCHIVE_HUMBLE_TYPE='mojosetup'
 
 ARCHIVE_DOC_PATH='data'
@@ -67,8 +67,8 @@ PKG_DATA_DESCRIPTION='data'
 
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libopenal1, libsdl2-2.0-0"
-PKG_32_DEPS_ARCH="$PKG_DATA_ID openal sdl2"
+PKG_32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libopenal1, libsdl2-2.0-0, libvorbisfile3"
+PKG_32_DEPS_ARCH="$PKG_DATA_ID openal sdl2 libvorbis"
 
 PKG_64_ARCH='64'
 PKG_64_CONFLICTS_DEB="$GAME_ID"
