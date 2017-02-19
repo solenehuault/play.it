@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170219.1
+script_version=20170219.2
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Legend of Grimrock'
 
 ARCHIVE_GOG='gog_legend_of_grimrock_2.1.0.5.sh'
 ARCHIVE_GOG_MD5='b63089766247484f5d2b214d924425f6'
-ARCHIVE_GOG_VERSION='150707-gog2.1.0.5'
+ARCHIVE_GOG_VERSION='1.3.7-gog2.1.0.5'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='690000'
 
 ARCHIVE_DOC1_PATH='data/noarch/game'
