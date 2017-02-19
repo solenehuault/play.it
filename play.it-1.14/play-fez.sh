@@ -35,7 +35,7 @@ set -e
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160910.1
+script_version=20170219.1
 
 # Set game-specific variables
 
@@ -43,13 +43,13 @@ SCRIPT_DEPS_HARD='fakeroot realpath unzip'
 SCRIPT_DEPS_SOFT='convert'
 
 GAME_ID='fez'
-GAME_ID_SHORT='fez'
 GAME_NAME='Fez'
 
-GAME_ARCHIVE1='fez-06242014-bin'
-GAME_ARCHIVE1_MD5='b4178a11a0afff13cf264d852bf773df'
-GAME_ARCHIVE_FULLSIZE='420000'
-PKG_REVISION='humble160822'
+ARCHIVE_HUMBLE='fez-11282016-bin'
+ARCHIVE_HUMBLE_MD5='333d2e5f55adbd251b09e01d4da213c6'
+ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='440000'
+ARCHIVE_HUMBLE_VERSION='1.12-humble161128'
+ARCHIVE_HUMBLE_TYPE='mojo'
 
 INSTALLER_PATH='data/'
 INSTALLER_DOC='./Linux.README'
@@ -67,7 +67,6 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
-PKG_VERSION='1.11'
 PKG_DEPS='libc6, libstdc++6, libopenal1, libsdl2-2.0-0'
 PKG_DESC="${GAME_NAME}
  package built from HumbleBundle.com installer
@@ -75,33 +74,23 @@ PKG_DESC="${GAME_NAME}
 
 PKG1_ID="${PKG_ID}"
 PKG1_ARCH='i386'
-PKG1_VERSION="${PKG_VERSION}"
 PKG1_DEPS="${PKG_DEPS}"
-PKG1_RECS=''
 PKG1_DESC="${PKG_DESC}"
 
 PKG2_ID="${PKG_ID}"
 PKG2_ARCH='amd64'
-PKG2_VERSION="${PKG_VERSION}"
 PKG2_DEPS="${PKG_DEPS}"
-PKG2_RECS=''
 PKG2_DESC="${PKG_DESC}"
 
 PKG3_ID="${GAME_ID}-common"
 PKG3_ARCH='all'
-PKG3_VERSION="${PKG_VERSION}"
-PKG3_CONFLICTS=''
 PKG3_DEPS=''
-PKG3_RECS=''
 PKG3_DESC="${GAME_NAME} - arch-independant data
  package built from HumbleBundle.com installer
  ./play.it script version ${script_version}"
 
-PKG1_CONFLICTS="${PKG2_ID}:${PKG2_ARCH}"
-PKG2_CONFLICTS="${PKG1_ID}:${PKG1_ARCH}"
-
-PKG1_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
-PKG2_DEPS="${PKG3_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG2_DEPS}"
+PKG1_DEPS="$PKG3_ID, $PKG1_DEPS"
+PKG2_DEPS="$PKG3_ID, $PKG2_DEPS"
 
 # Load common functions
 
@@ -148,7 +137,12 @@ check_deps_hard ${SCRIPT_DEPS_HARD}
 check_deps_soft ${SCRIPT_DEPS_SOFT}
 
 printf '\n'
+GAME_ARCHIVE1="$ARCHIVE_HUMBLE"
 set_target '1' 'humblebundle.com'
+ARCHIVE_MD5="$ARCHIVE_HUMBLE_MD5"
+ARCHIVE_TYPE="$ARCHIVE_HUMBLE_TYPE"
+ARCHIVE_UNCOMPRESSED_SIZE="$ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE"
+PKG_VERSION="$ARCHIVE_HUMBLE_VERSION"
 printf '\n'
 
 PATH_BIN="${PKG_PREFIX}/games"
@@ -157,15 +151,15 @@ PATH_DOC="${PKG_PREFIX}/share/doc/${GAME_ID}"
 PATH_GAME="${PKG_PREFIX}/share/games/${GAME_ID}"
 PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG3_DIR' "${PKG3_ID}_${PKG3_VERSION}-${PKG_REVISION}_${PKG3_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID}.XXXXX)"          "$(( $ARCHIVE_UNCOMPRESSED_SIZE * 2 ))"
+game_mkdir 'PKG1_DIR'   "${PKG1_ID}_${PKG_VERSION}_${PKG1_ARCH}" "$(( $ARCHIVE_UNCOMPRESSED_SIZE * 2 ))"
+game_mkdir 'PKG2_DIR'   "${PKG2_ID}_${PKG_VERSION}_${PKG2_ARCH}" "$(( $ARCHIVE_UNCOMPRESSED_SIZE * 2 ))"
+game_mkdir 'PKG3_DIR'   "${PKG3_ID}_${PKG_VERSION}_${PKG3_ARCH}" "$(( $ARCHIVE_UNCOMPRESSED_SIZE * 2 ))"
 
 # Check target files integrity
 
 if [ "${GAME_ARCHIVE_CHECKSUM}" = 'md5sum' ]; then
-	checksum "${GAME_ARCHIVE}" 'defaults' "${GAME_ARCHIVE1_MD5}"
+	checksum "$GAME_ARCHIVE" 'defaults' "$ARCHIVE_MD5"
 fi
 
 # Extract game data
@@ -176,7 +170,7 @@ rm -rf "${PKG3_DIR}"
 mkdir -p "${PKG3_DIR}/DEBIAN" "${PKG3_DIR}${PATH_DOC}" "${PKG3_DIR}${PATH_GAME}" "${PKG3_DIR}${PATH_ICON}"
 print wait
 
-extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'fix_rights,quiet'
+extract_data "$ARCHIVE_TYPE" "$GAME_ARCHIVE" "$PKG_TMPDIR" 'fix_rights,quiet'
 
 cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
 for file in ${INSTALLER_DOC}; do
@@ -223,9 +217,9 @@ printf '\n'
 printf '%s…\n' "$(l10n 'build_pkgs')"
 print wait
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}" 'arch'
-write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}" 'arch'
-write_pkg_debian "${PKG3_DIR}" "${PKG3_ID}" "${PKG3_VERSION}-${PKG_REVISION}" "${PKG3_ARCH}" "${PKG3_CONFLICTS}" "${PKG3_DEPS}" "${PKG3_RECS}" "${PKG3_DESC}"
+write_pkg_debian "$PKG1_DIR" "$PKG1_ID" "$PKG_VERSION" "$PKG1_ARCH" '' "$PKG1_DEPS" '' "$PKG1_DESC" 'arch'
+write_pkg_debian "$PKG2_DIR" "$PKG2_ID" "$PKG_VERSION" "$PKG2_ARCH" '' "$PKG2_DEPS" '' "$PKG2_DESC" 'arch'
+write_pkg_debian "$PKG3_DIR" "$PKG3_ID" "$PKG_VERSION" "$PKG3_ARCH" '' "$PKG3_DEPS" '' "$PKG3_DESC"
 
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG1_ARCH}"
 build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet' "${PKG2_ARCH}"
