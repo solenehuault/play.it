@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170220.1
+script_version=20170220.2
 
 # Set game-specific variables
 
@@ -51,19 +51,19 @@ ARCHIVE_HUMBLE_MD5='e225afb660090b9aa8281574b658accf'
 ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='190000'
 ARCHIVE_HUMBLE_VERSION='1.50-humble170131'
 
-ARCHIVE_GOG_DOC_PATH='data/noarch/docs'
-ARCHIVE_GOG_DOC_FILES='./*'
+ARCHIVE_DOC_PATH='data/noarch/docs'
+ARCHIVE_DOC_FILES='./*'
 
-ARCHIVE_HUMBLE_GAME_32_PATH='RaceTheSunLINUX_1.50'
-ARCHIVE_GOG_GAME_32_PATH='data/noarch/game'
+ARCHIVE_GAME_32_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_32_PATH_HUMBLE='RaceTheSunLINUX_1.50'
 ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
 
-ARCHIVE_HUMBLE_GAME_64_PATH='RaceTheSunLINUX_1.50'
-ARCHIVE_GOG_GAME_64_PATH='data/noarch/game'
+ARCHIVE_GAME_64_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_64_PATH_HUMBLE='RaceTheSunLINUX_1.50'
 ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
 
-ARCHIVE_HUMBLE_GAME_MAIN_PATH='RaceTheSunLINUX_1.50'
-ARCHIVE_GOG_GAME_MAIN_PATH='data/noarch/game'
+ARCHIVE_GAME_MAIN_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_MAIN_PATH_HUMBLE='RaceTheSunLINUX_1.50'
 ARCHIVE_GAME_MAIN_FILES='./*_Data'
 
 DATA_DIRS='./logs'
@@ -125,21 +125,19 @@ check_deps
 
 case "$ARCHIVE" in
 	('ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_GOG_DOC_PATH"
-		ARCHIVE_GAME_32_PATH="$ARCHIVE_GOG_GAME_32_PATH"
-		ARCHIVE_GAME_64_PATH="$ARCHIVE_GOG_GAME_64_PATH"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GOG_GAME_MAIN_PATH"
+		ARCHIVE_GAME_32_PATH="$ARCHIVE_GAME_32_PATH_GOG"
+		ARCHIVE_GAME_64_PATH="$ARCHIVE_GAME_64_PATH_GOG"
+		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GAME_MAIN_PATH_GOG"
 	;;
 	('ARCHIVE_HUMBLE')
-		ARCHIVE_GAME_32_PATH="$ARCHIVE_HUMBLE_GAME_32_PATH"
-		ARCHIVE_GAME_64_PATH="$ARCHIVE_HUMBLE_GAME_64_PATH"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_HUMBLE_GAME_MAIN_PATH"
+		ARCHIVE_GAME_32_PATH="$ARCHIVE_GAME_32_PATH_HUMBLE"
+		ARCHIVE_GAME_64_PATH="$ARCHIVE_GAME_64_PATH_HUMBLE"
+		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GAME_MAIN_PATH_HUMBLE"
 	;;
 esac
 
 set_common_paths
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
@@ -152,7 +150,7 @@ PKG='PKG_64'
 organize_data_generic 'GAME_64' "$PATH_GAME"
 PKG='PKG_MAIN'
 organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
+organize_data_generic 'DOC'       "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -160,15 +158,17 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_32'
 APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 PKG='PKG_64'
 APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
+
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -183,7 +183,7 @@ EOF
 write_metadata 'PKG_MAIN'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+build_pkg      'PKG_32' 'PKG_64' 'PKG_MAIN'
 
 # Clean up
 
