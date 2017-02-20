@@ -34,17 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170220.1
 
 # Set game-specific variables
 
 GAME_ID='race-the-sun'
 GAME_NAME='Race The Sun'
 
-ARCHIVE_GOG='gog_race_the_sun_2.3.0.7.sh'
-ARCHIVE_GOG_MD5='f541a1487b2e5a8b85f479da4d42ae2e'
+ARCHIVE_GOG='gog_race_the_sun_2.4.0.8.sh'
+ARCHIVE_GOG_MD5='e3f4e66a5fafe966000ab4e0dcfb7aeb'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='200000'
-ARCHIVE_GOG_VERSION='1.50-gog2.3.0.7'
+ARCHIVE_GOG_VERSION='1.51-gog2.4.0.8'
 
 ARCHIVE_HUMBLE='RaceTheSunLINUX_1.50.zip'
 ARCHIVE_HUMBLE_MD5='e225afb660090b9aa8281574b658accf'
