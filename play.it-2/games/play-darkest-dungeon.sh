@@ -34,17 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170219.1
+script_version=20170222.1
 
 # Set game-specific variables
 
 GAME_ID='darkest-dungeon'
 GAME_NAME='Darkest Dungeon'
 
-ARCHIVE_GOG='gog_darkest_dungeon_2.8.0.8.sh'
-ARCHIVE_GOG_MD5='b7c7ba6c41bc119c98ff16df674b8fc4'
+ARCHIVE_GOG='gog_darkest_dungeon_2.9.0.9.sh'
+ARCHIVE_GOG_MD5='08dfaf6995965a1f16db4ec237d7bbb3'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='2100000'
-ARCHIVE_GOG_VERSION='17449-gog2.8.0.8'
+ARCHIVE_GOG_VERSION='17549-gog2.9.0.9'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
