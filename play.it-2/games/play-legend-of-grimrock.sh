@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 set -o errexit
 
 ###
@@ -29,64 +29,54 @@ set -o errexit
 ###
 
 ###
-# Race The Sun
+# Legend of Grimrock
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170220.2
+script_version=20170219.2
 
 # Set game-specific variables
 
-GAME_ID='race-the-sun'
-GAME_NAME='Race The Sun'
+GAME_ID='legend-of-grimrock'
+GAME_NAME='Legend of Grimrock'
 
-ARCHIVE_GOG='gog_race_the_sun_2.4.0.8.sh'
-ARCHIVE_GOG_MD5='e3f4e66a5fafe966000ab4e0dcfb7aeb'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='200000'
-ARCHIVE_GOG_VERSION='1.51-gog2.4.0.8'
+ARCHIVE_GOG='gog_legend_of_grimrock_2.1.0.5.sh'
+ARCHIVE_GOG_MD5='b63089766247484f5d2b214d924425f6'
+ARCHIVE_GOG_VERSION='1.3.7-gog2.1.0.5'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='690000'
 
-ARCHIVE_HUMBLE='RaceTheSunLINUX_1.50.zip'
-ARCHIVE_HUMBLE_MD5='e225afb660090b9aa8281574b658accf'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='190000'
-ARCHIVE_HUMBLE_VERSION='1.50-humble170131'
+ARCHIVE_DOC1_PATH='data/noarch/game'
+ARCHIVE_DOC1_FILES='./README.linux'
 
-ARCHIVE_DOC_PATH='data/noarch/docs'
-ARCHIVE_DOC_FILES='./*'
+ARCHIVE_DOC2_PATH='data/noarch/docs'
+ARCHIVE_DOC2_FILES='./*'
 
-ARCHIVE_GAME_32_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_32_PATH_HUMBLE='RaceTheSunLINUX_1.50'
-ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
+ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN32_FILES='./*.x86 ./lib'
 
-ARCHIVE_GAME_64_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_64_PATH_HUMBLE='RaceTheSunLINUX_1.50'
-ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
+ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./lib64'
 
-ARCHIVE_GAME_MAIN_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_MAIN_PATH_HUMBLE='RaceTheSunLINUX_1.50'
-ARCHIVE_GAME_MAIN_FILES='./*_Data'
-
-DATA_DIRS='./logs'
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./grimrock.dat ./grimrock.png'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='RaceTheSun.x86'
-APP_MAIN_EXE_64='RaceTheSun.x86_64'
-APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
-APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_EXE_BIN32='Grimrock.bin.x86'
+APP_MAIN_EXE_BIN64='Grimrock.bin.x86_64'
+APP_MAIN_ICON='grimrock.png'
+APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_DESCRIPTION='arch-independant data'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_32_ARCH='32'
-PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libglu1-mesa | libglu1, libxcursor1, libxrandr2"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu libxcursor libxrandr"
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libopenal1, libsdl2-2.0-0, libfreeimage3, libminizip1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID libgl openal sdl2 freeimage minizip"
 
-PKG_64_ARCH='64'
-PKG_64_CONFLICTS_DEB="$GAME_ID"
-PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
 
 # Load common functions
 
@@ -120,49 +110,39 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
+set_source_archive 'ARCHIVE_GOG'
 check_deps
-
-case "$ARCHIVE" in
-	('ARCHIVE_GOG')
-		ARCHIVE_GAME_32_PATH="$ARCHIVE_GAME_32_PATH_GOG"
-		ARCHIVE_GAME_64_PATH="$ARCHIVE_GAME_64_PATH_GOG"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GAME_MAIN_PATH_GOG"
-	;;
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_GAME_32_PATH="$ARCHIVE_GAME_32_PATH_HUMBLE"
-		ARCHIVE_GAME_64_PATH="$ARCHIVE_GAME_64_PATH_HUMBLE"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GAME_MAIN_PATH_HUMBLE"
-	;;
-esac
-
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
+check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
+set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_32'
-organize_data_generic 'GAME_32' "$PATH_GAME"
-PKG='PKG_64'
-organize_data_generic 'GAME_64' "$PATH_GAME"
-PKG='PKG_MAIN'
-organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC'       "$PATH_DOC"
+PKG='PKG_BIN32'
+organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+
+PKG='PKG_BIN64'
+organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data_generic 'DOC1'      "$PATH_DOC"
+organize_data_generic 'DOC2'      "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
+PKG='PKG_BIN32'
+APP_MAIN_EXE="$APP_MAIN_EXE_BIN32"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
-PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
+PKG='PKG_BIN64'
+APP_MAIN_EXE="$APP_MAIN_EXE_BIN64"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
@@ -172,18 +152,18 @@ PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
+rm "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
+write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg      'PKG_32' 'PKG_64' 'PKG_MAIN'
+write_metadata 'PKG_BIN32' 'PKG_BIN64'
+build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 
 # Clean up
 
@@ -191,9 +171,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
-printf '\n64-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0

@@ -34,17 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170211.5
+script_version=20170222.1
 
 # Set game-specific variables
 
 GAME_ID='darkest-dungeon'
 GAME_NAME='Darkest Dungeon'
 
-ARCHIVE_GOG='gog_darkest_dungeon_2.8.0.8.sh'
-ARCHIVE_GOG_MD5='b7c7ba6c41bc119c98ff16df674b8fc4'
+ARCHIVE_GOG='gog_darkest_dungeon_2.9.0.9.sh'
+ARCHIVE_GOG_MD5='08dfaf6995965a1f16db4ec237d7bbb3'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='2100000'
-ARCHIVE_GOG_VERSION='17449-gog2.8.0.8'
+ARCHIVE_GOG_VERSION='17549-gog2.9.0.9'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
@@ -64,10 +64,8 @@ ARCHIVE_GAME_DATA_FILES='./*'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='darkest.bin.x86'
 APP_MAIN_EXE_64='darkest.bin.x86_64'
-APP_MAIN_ICON1='Icon.bmp'
-APP_MAIN_ICON1_RES='128x128'
-APP_MAIN_ICON2='data/noarch/support/icon.png'
-APP_MAIN_ICON2_RES='256x256'
+APP_MAIN_ICON='Icon.bmp'
+APP_MAIN_ICON_RES='128x128'
 
 PKG_AUDIO_ID="${GAME_ID}-audio"
 PKG_AUDIO_DESCRIPTION='audio'
@@ -152,14 +150,11 @@ organize_data_generic 'DOC2'      "$PATH_DOC"
 organize_data_generic 'GAME_DATA' "$PATH_GAME"
 
 if [ "$NO_ICON" = '0' ]; then
-	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
-	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON1"
+	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 	mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
-	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON1%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
+	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 fi
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps"
-mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON2" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
