@@ -8,7 +8,10 @@ extract_icon_from() {
 		mkdir --parents "$destination"
 		case ${file##*.} in
 			('exe')
-				wrestool --extract --type=14 --output="$destination" "$file"
+				if [ "$WRESTOOL_NAME" ]; then
+					WRESTOOL_OPTIONS="--name=$WRESTOOL_NAME"
+				fi
+				wrestool --extract --type=14 $WRESTOOL_OPTIONS --output="$destination" "$file"
 			;;
 			('ico')
 				icotool --extract --output="$destination" "$file" 2>/dev/null
