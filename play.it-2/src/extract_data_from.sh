@@ -33,7 +33,7 @@ extract_data_from() {
 				if [ -n "$ARCHIVE_PASSWD" ]; then
 					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
 				fi
-				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file"
+				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file" 1>/dev/null
 			;;
 			('tar'|'tar.gz')
 				tar --extract --file "$file" --directory "$destination"
