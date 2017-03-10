@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170214.1
+library_revision=20170310.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -256,7 +256,7 @@ extract_data_from() {
 				if [ -n "$ARCHIVE_PASSWD" ]; then
 					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
 				fi
-				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file"
+				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file" 1>/dev/null
 			;;
 			('tar'|'tar.gz')
 				tar --extract --file "$file" --directory "$destination"
@@ -452,7 +452,10 @@ extract_icon_from() {
 		mkdir --parents "$destination"
 		case ${file##*.} in
 			('exe')
-				wrestool --extract --type=14 --output="$destination" "$file"
+				if [ "$WRESTOOL_NAME" ]; then
+					WRESTOOL_OPTIONS="--name=$WRESTOOL_NAME"
+				fi
+				wrestool --extract --type=14 $WRESTOOL_OPTIONS --output="$destination" "$file"
 			;;
 			('ico')
 				icotool --extract --output="$destination" "$file" 2>/dev/null
@@ -565,10 +568,10 @@ liberror() {
 
 # put files from archive in the right package directories (alias)
 # USAGE: organize_data
-# CALLS: organize_data_doc, organize_data_game
+# CALLS: organize_data_generic
 organize_data() {
 	if [ -n "${ARCHIVE_DOC_PATH}" ]; then
-		organize_data_generic 'DOC' "$PATH_DOC"
+		organize_data_generic 'DOC'  "$PATH_DOC"
 	fi
 	if [ -n "${ARCHIVE_DOC1_PATH}" ]; then
 		organize_data_generic 'DOC1' "$PATH_DOC"
@@ -583,25 +586,23 @@ organize_data() {
 
 # put files from archive in the right package directories (generic function)
 # USAGE: organize_data_generic $id $path
-# NEEDED VARS: PKG, $PKG_PATH, PLAYIT_WORKDIR
-# CALLED BY: organize_data_doc organize_data_game
+# NEEDED VARS: $PKG, $PKG_PATH, $PLAYIT_WORKDIR
+# CALLED BY: organize_data
 organize_data_generic() {
-	PKG_PATH="$(eval echo \$${PKG}_PATH)"
-	local archive_path="${PLAYIT_WORKDIR}/gamedata/$(eval echo \$ARCHIVE_${1}_PATH)"
-	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
-	local pkg_path="${PKG_PATH}${2}"
-	mkdir --parents "$pkg_path"
-	(
-		if [ -e "$archive_path" ]; then
-			cd "$archive_path"
-			for file in $archive_files; do
+	local archive_path="$(eval echo \$ARCHIVE_${1}_PATH)"
+	if [ "$archive_path" ] && [ -e "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
+		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
+		mkdir --parents "$pkg_path"
+		(
+			cd "$PLAYIT_WORKDIR/gamedata/$archive_path"
+			for file in $(eval echo \$ARCHIVE_${1}_FILES); do
 				if [ -e "$file" ]; then
-					mkdir --parents "$pkg_path/${file%/*}"
-					mv "$file" "$pkg_path/$file"
+					cp --recursive --link --parents "$file" "$pkg_path"
+					rm --recursive "$file"
 				fi
 			done
-		fi
-	)
+		)
+	fi
 }
 
 # print a localized error message
