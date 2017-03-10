@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170310.1
+script_version=20170310.2
 
 # Set game-specific variables
 
@@ -221,6 +221,12 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 PKG='PKG_BIN'
 write_bin     'APP_MAIN' 'APP_HOF' 'APP_EDIT' 'APP_HOFEDIT'
 write_desktop 'APP_MAIN' 'APP_HOF' 'APP_EDIT' 'APP_HOFEDIT'
+
+(
+	cd "${PKG_BIN_PATH}${PATH_BIN}"
+	sed -i 's|cd "$PATH_PREFIX"|cd "$PATH_PREFIX/${APP_EXE%/*}"|'                     "$GAME_ID" "$APP_HOF_ID" "$APP_EDIT_ID" "$APP_HOFEDIT_ID"
+	sed -i 's|wine "$APP_EXE" $APP_OPTIONS $@|wine "${APP_EXE##*/}" $APP_OPTIONS $@|' "$GAME_ID" "$APP_HOF_ID" "$APP_EDIT_ID" "$APP_HOFEDIT_ID"
+)
 
 # Build package
 
