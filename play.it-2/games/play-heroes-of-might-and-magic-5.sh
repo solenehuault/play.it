@@ -86,6 +86,7 @@ APP_EDIT_ID="${GAME_ID}_edit"
 APP_EDIT_TYPE='wine'
 APP_EDIT_EXE='bin/h5_mapeditor.exe'
 APP_EDIT_ICON='bin/h5_mapeditor.exe'
+APP_EDIT_ICON_ID='128'
 APP_EDIT_ICON_RES='32x32'
 APP_EDIT_NAME="$GAME_NAME - Map Editor"
 
@@ -93,6 +94,7 @@ APP_HOFEDIT_ID="${GAME_ID}_hofedit"
 APP_HOFEDIT_TYPE='wine'
 APP_HOFEDIT_EXE='bina1/h5_mapeditor.exe'
 APP_HOFEDIT_ICON='bina1/h5_mapeditor.exe'
+APP_HOFEDIT_ICON_ID='128'
 APP_HOFEDIT_ICON_RES='32x32'
 APP_HOFEDIT_NAME="$GAME_NAME - Hammers of Fate - Map Editor"
 
@@ -198,11 +200,13 @@ if [ "$NO_ICON" = '0' ]; then
 		sort_icons 'APP_HOF'
 		rm --recursive "$PLAYIT_WORKDIR/icons"
 
+		WRESTOOL_NAME="$APP_EDIT_ICON_ID"
 		extract_icon_from "$APP_EDIT_ICON"
 		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
 		sort_icons 'APP_EDIT'
 		rm --recursive "$PLAYIT_WORKDIR/icons"
 
+		WRESTOOL_NAME="$APP_HOFEDIT_ICON_ID"
 		extract_icon_from "$APP_HOFEDIT_ICON"
 		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
 		sort_icons 'APP_HOFEDIT'
