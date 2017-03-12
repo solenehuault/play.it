@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -69,12 +69,12 @@ PKG_MAIN_DESCRIPTION='arch-independant data'
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libgcc1, libsdl2-2.0-0, libasound2-plugins"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID gcc sdl2 alsa-lib"
+PKG_32_DEPS_ARCH="$PKG_MAIN_ID lib32-gcc-libs lib32-sdl2 lib32-alsa-lib"
 
 PKG_64_ARCH='64'
 PKG_64_CONFLICTS_DEB="$GAME_ID"
 PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_64_DEPS_ARCH="$PKG_MAIN_ID gcc-libs sdl2 alsa-lib"
 
 # Load common functions
 
