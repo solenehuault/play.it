@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170902.5
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -74,11 +74,11 @@ PKG_DATA_DESCRITPION='data'
 
 PKG_BIN32_ARCH='32'
 PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID glu alsa-lib libxcursor"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-alsa-lib lib32-libxcursor"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glu alsa-lib libxcursor"
 
 # Load common functions
 
