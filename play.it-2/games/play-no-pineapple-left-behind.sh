@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -70,12 +70,12 @@ PKG_MAIN_DESCRIPTION='arch-independant data'
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libgl1-mesa-glx | libgl1, libc6, libxcursor1"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID libgl glibc libxcursor"
+PKG_32_DEPS_ARCH="$PKG_MAIN_ID lib32-libgl lib32-glibc lib32-libxcursor"
 
 PKG_64_ARCH='64'
 PKG_64_CONFLICTS_DEB="$GAME_ID"
 PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_64_DEPS_ARCH="$PKG_MAIN_ID libgl glibc libxcursor"
 
 # Load common functions
 
