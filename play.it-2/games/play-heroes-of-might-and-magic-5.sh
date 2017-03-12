@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170310.2
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -109,7 +109,7 @@ PKG_L10N_DESCRIPTION_FR='French localization'
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_BIN_ARCH='32on64'
+PKG_BIN_ARCH='32'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, $PKG_L10N_ID, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID $PKG_L10N_ID wine"
 
