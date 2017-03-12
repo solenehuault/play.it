@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -56,7 +56,7 @@ APP_MAIN_EXE='UNDERTALE'
 APP_MAIN_ICON='assets/icon.png'
 APP_MAIN_ICON_RES='64x64'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libglu1-mesa | libglu1, libopenal1, libxrandr2, libssl1.0.0"
 PKG_MAIN_DEPS_ARCH="lib32-glu lib32-openal lib32-libxrandr lib32-openssl"
 
