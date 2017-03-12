@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170214.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -70,12 +70,12 @@ PKG_MAIN_DESCRIPTION='arch-independant data'
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
 PKG_32_DEPS_DEB="$PKG_MAIN_ID, libglu1-mesa | libglu1, libogg0, libsdl1.2debian, libsdl-mixer1.2"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu libogg sdl sdl2_mixer"
+PKG_32_DEPS_ARCH="$PKG_MAIN_ID lib32-glu lib32-libogg lib32-sdl lib32-sdl2_mixer"
 
 PKG_64_ARCH='64'
 PKG_64_CONFLICTS_DEB="$GAME_ID"
 PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_64_DEPS_ARCH="$PKG_MAIN_ID glu libogg sdl sdl2_mixer"
 
 # Load common functions
 
