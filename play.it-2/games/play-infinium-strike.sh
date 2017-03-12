@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170302.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -69,7 +69,7 @@ APP_MAIN_ICON_RES='128x128'
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='arch-independant data'
 
-PKG_BIN_ARCH='32on64'
+PKG_BIN_ARCH='32'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa | libgl1"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-libgl"
 
