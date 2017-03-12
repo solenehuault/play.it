@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170206.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -57,7 +57,7 @@ APP_MAIN_EXE='OctodadDadliestCatch'
 APP_MAIN_ICON='./icon_512x512.png'
 APP_MAIN_ICON_RES='512x512'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgl1-mesa-glx | libgl1'
 PKG_MAIN_DEPS_ARCH='lib32-libgl'
 
