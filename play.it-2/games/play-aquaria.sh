@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -61,7 +61,7 @@ APP_MAIN_EXE='aquaria'
 APP_MAIN_ICON='aquaria.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl1.2debian, libopenal1, xdg-utils'
 PKG_MAIN_DEPS_ARCH='lib32-sdl lib32-openal xdg-utils'
 
