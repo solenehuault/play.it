@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170207.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -56,7 +56,7 @@ APP_MAIN_EXE='BaldursGate'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0'
 PKG_MAIN_DEPS_ARCH='lib32-libgl lib32-openal lib32-json-c lib32-openssl'
 
