@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170108.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -62,7 +62,7 @@ APP_MAIN_EXE='./anox.exe'
 APP_MAIN_ICON='./anox.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
 PKG_MAIN_DEPS_ARCH='wine'
 
