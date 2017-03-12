@@ -7,11 +7,8 @@ set_arch() {
 
 		('arch')
 			case "$(eval echo \$${pkg}_ARCH)" in
-				('64'|'32on64')
+				('32'|'64')
 					pkg_arch='x86_64'
-				;;
-				('32')
-					pkg_arch='i686'
 				;;
 				(*)
 					pkg_arch='any'
@@ -21,11 +18,11 @@ set_arch() {
 
 		('deb')
 			case "$(eval echo \$${pkg}_ARCH)" in
+				('32')
+					pkg_arch='i386'
+				;;
 				('64')
 					pkg_arch='amd64'
-				;;
-				('32'|'32on64')
-					pkg_arch='i386'
 				;;
 				(*)
 					pkg_arch='all'
