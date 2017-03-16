@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170203.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -61,7 +61,7 @@ APP_MAIN_EXE='NecroDancer'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB="libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2, libvorbis0a"
 PKG_MAIN_DEPS_ARCH="lib32-glibc lib32-libogg lib32-libvorbis lib32-libx11 lib32-libxau lib32-libxcb lib32-libxdmcp lib32-libxext lib32-libgl lib32-openal"
 

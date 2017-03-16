@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.2
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -110,7 +110,7 @@ check_deps
 
 case "$ARCHIVE" in
 	('ARCHIVE_HUMBLE_32')
-		PKG_BIN_ARCH='32on64'
+		PKG_BIN_ARCH='32'
 		PKG_BIN_DEPS_ARCH="$PKG_BIN_DEPS_ARCH_32"
 	;;
 	('ARCHIVE_HUMBLE_64')

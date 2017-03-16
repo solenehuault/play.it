@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 set -o errexit
 
 ###
@@ -29,7 +29,7 @@ set -o errexit
 ###
 
 ###
-# Legend of Grimrock
+# Dark Reign 2
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -38,45 +38,40 @@ script_version=20170312.1
 
 # Set game-specific variables
 
-GAME_ID='legend-of-grimrock'
-GAME_NAME='Legend of Grimrock'
+GAME_ID='dark-reign-2'
+GAME_NAME='Dark Reign 2'
 
-ARCHIVE_GOG='gog_legend_of_grimrock_2.1.0.5.sh'
-ARCHIVE_GOG_MD5='b63089766247484f5d2b214d924425f6'
-ARCHIVE_GOG_VERSION='1.3.7-gog2.1.0.5'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='690000'
+ARCHIVE_GOG='setup_dark_reign2_2.0.0.11.exe'
+ARCHIVE_GOG_MD5='9a3d10825507b73c4db178f9caea2406'
+ARCHIVE_GOG_VERSION='1.3.882-gog2.0.0.11'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='450000'
 
-ARCHIVE_DOC1_PATH='data/noarch/game'
-ARCHIVE_DOC1_FILES='./README.linux'
+ARCHIVE_DOC_PATH='app'
+ARCHIVE_DOC_FILES='./customer_support.htm ./manual.pdf ./readme.rtf ./*.txt'
 
-ARCHIVE_DOC2_PATH='data/noarch/docs'
-ARCHIVE_DOC2_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./dr2.exe ./launcher.exe ./binkw32.dll ./getinfo.dll ./libogg-0.dll ./libvorbis-0.dll ./libvorbisfile-3.dll ./mss32.dll ./msvcp90.dll ./msvcr90.dll ./winmm.dll ./anet.inf ./library'
 
-ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN32_FILES='./*.x86 ./lib'
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./missions ./mods ./music ./packs ./sides ./worlds'
 
-ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./lib64'
+CONFIG_FILES='./settings.cfg'
+DATA_DIRS='./mods ./users'
+DATA_FILES='./dr2.log'
 
-ARCHIVE_GAME_DATA_PATH='data/noarch/game'
-ARCHIVE_GAME_DATA_FILES='./grimrock.dat ./grimrock.png'
+APP_WINETRICKS='win98'
 
-APP_MAIN_TYPE='native'
-APP_MAIN_EXE_BIN32='Grimrock.bin.x86'
-APP_MAIN_EXE_BIN64='Grimrock.bin.x86_64'
-APP_MAIN_ICON='grimrock.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_TYPE='wine'
+APP_MAIN_EXE='./launcher.exe'
+APP_MAIN_ICON='./dr2.exe'
+APP_MAIN_ICON_RES='16x16 32x32'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libopenal1, libsdl2-2.0-0, libfreeimage3, libminizip1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl lib32-openal lib32-sdl2 freeimage minizip"
-
-PKG_BIN64_ARCH='64'
-PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID libgl openal sdl2 freeimage minizip"
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, winetricks, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID winetricks wine"
 
 # Load common functions
 
@@ -118,52 +113,48 @@ check_deps
 
 # Extract game data
 
-set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_BIN32'
-organize_data_generic 'GAME_BIN32' "$PATH_GAME"
-
-PKG='PKG_BIN64'
-organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_DATA'
 organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC1'      "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
+organize_data_generic 'DOC'       "$PATH_DOC"
+
+if [ "$NO_ICON" = '0' ]; then
+	(
+		cd "${PKG_BIN_PATH}${PATH_GAME}"
+		extract_icon_from "$APP_MAIN_ICON"
+		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
+		sort_icons 'APP_MAIN'
+		rm --recursive "$PLAYIT_WORKDIR/icons"
+	)
+fi
+
+cat > "${PKG_BIN_PATH}${PATH_GAME}/dr2-cdkey.reg" << EOF
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\WON\CDKeys]
+"DarkReign2"=hex:56,c1,0c,ed,bb,61,40,19,99,3d,cd,6c,78,51,4c,5e
+
+EOF
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN32"
+PKG='PKG_BIN'
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
-PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN64"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+sed -i 's/wine "$APP_EXE" $APP_OPTIONS $@/regedit dr2-cdkey.reg\n&/' "${PKG_BIN_PATH}${PATH_BIN}/$GAME_ID"
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
-cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
-EOF
-
-cat > "$prerm" << EOF
-rm "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-EOF
-
-write_metadata 'PKG_DATA'
-rm "$postinst" "$prerm"
-write_metadata 'PKG_BIN32' 'PKG_BIN64'
-build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+write_metadata 'PKG_BIN' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -171,10 +162,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n'
-printf '32-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
-printf '64-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

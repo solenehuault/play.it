@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 set -o errexit
 
 ###
@@ -29,7 +29,7 @@ set -o errexit
 ###
 
 ###
-# Legend of Grimrock
+# Infinium Strike
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -38,45 +38,40 @@ script_version=20170312.1
 
 # Set game-specific variables
 
-GAME_ID='legend-of-grimrock'
-GAME_NAME='Legend of Grimrock'
+GAME_ID='infinium-strike'
+GAME_NAME='Infinium Strike'
 
-ARCHIVE_GOG='gog_legend_of_grimrock_2.1.0.5.sh'
-ARCHIVE_GOG_MD5='b63089766247484f5d2b214d924425f6'
-ARCHIVE_GOG_VERSION='1.3.7-gog2.1.0.5'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='690000'
+ARCHIVE_GOG='gog_infinium_strike_2.1.0.2.sh'
+ARCHIVE_GOG_MD5='57725aad8ba419d80788412f8f33f030'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='2500000'
+ARCHIVE_GOG_VERSION='1.0.5-gog2.1.0.2'
 
-ARCHIVE_DOC1_PATH='data/noarch/game'
-ARCHIVE_DOC1_FILES='./README.linux'
+ARCHIVE_DOC1_PATH='data/noarch/docs'
+ARCHIVE_DOC1_FILES='./*'
 
-ARCHIVE_DOC2_PATH='data/noarch/docs'
-ARCHIVE_DOC2_FILES='./*'
+ARCHIVE_DOC2_PATH='data/noarch/game'
+ARCHIVE_DOC2_FILES='./InfiniumStrikeReadMe.txt'
 
-ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN32_FILES='./*.x86 ./lib'
-
-ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./lib64'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./InfiniumStrike.x86 ./InfiniumStrike_Data/Mono ./InfiniumStrike_Data/Plugins'
 
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
-ARCHIVE_GAME_DATA_FILES='./grimrock.dat ./grimrock.png'
+ARCHIVE_GAME_DATA_FILES='./InfiniumStrike_Data'
+
+DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_BIN32='Grimrock.bin.x86'
-APP_MAIN_EXE_BIN64='Grimrock.bin.x86_64'
-APP_MAIN_ICON='grimrock.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_EXE='InfiniumStrike.x86'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
+APP_MAIN_ICON='InfiniumStrike_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128x128'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DESCRIPTION='data'
+PKG_DATA_DESCRIPTION='arch-independant data'
 
-PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libopenal1, libsdl2-2.0-0, libfreeimage3, libminizip1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl lib32-openal lib32-sdl2 freeimage minizip"
-
-PKG_BIN64_ARCH='64'
-PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID libgl openal sdl2 freeimage minizip"
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa | libgl1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-libgl"
 
 # Load common functions
 
@@ -114,35 +109,26 @@ set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
-check_deps
 
 # Extract game data
 
-set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+set_workdir 'PKG_DATA' 'PKG_BIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_BIN32'
-organize_data_generic 'GAME_BIN32' "$PATH_GAME"
-
-PKG='PKG_BIN64'
-organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+rm --recursive "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_BIN_PATH/InfiniumStrike_Data/Mono/x86_64"
+rm --recursive "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_BIN_PATH/InfiniumStrike_Data/Plugins/x86_64"
 
 PKG='PKG_DATA'
 organize_data_generic 'GAME_DATA' "$PATH_GAME"
 organize_data_generic 'DOC1'      "$PATH_DOC"
 organize_data_generic 'DOC2'      "$PATH_DOC"
+PKG='PKG_BIN'
+organize_data_generic 'GAME_BIN'  "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN32"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN64"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
@@ -156,14 +142,14 @@ ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
-rm "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_BIN32' 'PKG_BIN64'
-build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -171,10 +157,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n'
-printf '32-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
-printf '64-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

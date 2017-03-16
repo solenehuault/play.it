@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161230.2
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -58,7 +58,7 @@ APP_MAIN_EXE='bin/trine1_linux_launcher_32bit'
 APP_MAIN_ICON='trine1.png'
 APP_MAIN_ICON_RES='64x64'
 
-PKG_MAIN_ARCH='32on64'
+PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu1-mesa-glx | libglu1, libgtk2.0-0, libpng12-0, libasound2-plugins, libopenal1, libvorbisfile3'
 PKG_MAIN_DEPS_ARCH='lib32-glu lib32-gtk2 lib32-libpng12 lib32-alsa-lib lib32-openal lib32-libvorbis'
 

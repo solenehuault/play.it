@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170204.1
+script_version=20170312.1
 
 # Set game-specific variables
 
@@ -68,12 +68,12 @@ PKG_DATA_DESCRIPTION='data'
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
 PKG_32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1"
-PKG_32_DEPS_ARCH="$PKG_DATA_ID libgl"
+PKG_32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl"
 
 PKG_64_ARCH='64'
 PKG_64_CONFLICTS_DEB="$GAME_ID"
 PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_64_DEPS_ARCH="$PKG_DATA_ID libgl"
 
 # Load common functions
 
