@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170312.2
+library_revision=20170316.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -63,12 +63,7 @@ build_pkg() {
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_arch() {
-	local pkg_filename
-	if [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
-		pkg_filename="${PWD}/lib32-${pkg_path##*/}.pkg.tar"
-	else
-		pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
-	fi
+	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
 	local tar_options='--create --group=root --owner=root'
 	case $COMPRESSION_METHOD in
 		('gzip')
@@ -957,7 +952,12 @@ set_workdir_pkg() {
 	local pkg_arch
 	set_arch
 
-	local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
+		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
+	else
+		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+	fi
+
 	export ${pkg}_PATH="$pkg_path"
 }
 
