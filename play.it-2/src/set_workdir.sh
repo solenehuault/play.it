@@ -62,7 +62,12 @@ set_workdir_pkg() {
 	local pkg_arch
 	set_arch
 
-	local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
+		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
+	else
+		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+	fi
+
 	export ${pkg}_PATH="$pkg_path"
 }
 

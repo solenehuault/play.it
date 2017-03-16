@@ -26,12 +26,7 @@ build_pkg() {
 # CALLS: build_pkg_print
 # CALLED BY: build_pkg
 build_pkg_arch() {
-	local pkg_filename
-	if [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
-		pkg_filename="${PWD}/lib32-${pkg_path##*/}.pkg.tar"
-	else
-		pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
-	fi
+	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
 	local tar_options='--create --group=root --owner=root'
 	case $COMPRESSION_METHOD in
 		('gzip')
