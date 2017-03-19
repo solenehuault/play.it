@@ -34,14 +34,13 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20161213.1
+script_version=20170318.1
 
 # Set game-specific variables
 
 SCRIPT_DEPS_HARD='fakeroot realpath unzip'
 
 GAME_ID='pillars-of-eternity'
-GAME_ID_SHORT='poe'
 GAME_NAME='Pillars of Eternity'
 
 GAME_ARCHIVE1='gog_pillars_of_eternity_2.15.0.19.sh'
@@ -53,12 +52,15 @@ GAME_DLC_ARCHIVE2_MD5='3653fc2a98ef578335f89b607f0b7968'
 GAME_DLC_ARCHIVE3='gog_pillars_of_eternity_preorder_item_and_pet_dlc_2.0.0.2.sh'
 GAME_DLC_ARCHIVE3_MD5='b86ad866acb62937d2127407e4beab19'
 GAME_ARCHIVE_FULLSIZE='15000000'
-PKG_REVISION='gog2.15.0.19'
+PKG_VERSION='3.05.1186-gog2.15.0.19'
 
-INSTALLER_PATH='data/noarch/game'
-INSTALLER_DOC='../docs/*'
-INSTALLER_GAME_PKG1='./*'
-INSTALLER_GAME_PKG2='./PillarsOfEternity_Data/assetbundles/st_*'
+ARCHIVE_DOC_PATH='data/noarch/docs'
+ARCHIVE_DOC_FILES='./*'
+
+ARCHIVE_GAME_PATH='data/noarch/game'
+ARCHIVE_GAME_FILES_BIN='./PillarsOfEternity ./PillarsOfEternity_Data/Mono ./PillarsOfEternity_Data/Plugins'
+ARCHIVE_GAME_FILES_AREAS='./PillarsOfEternity_Data/assetbundles/st_ar_*'
+ARCHIVE_GAME_FILES_DATA='./PillarsOfEternity_Data ./PillarsOfEternity.png'
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./PillarsOfEternity'
@@ -67,33 +69,27 @@ APP1_ICON1_RES='512x512'
 APP1_ICON2='./PillarsOfEternity_Data/Resources/UnityPlayer.png'
 APP1_ICON2_RES='128x128'
 APP1_NAME="${GAME_NAME}"
-APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
-PKG_ARCH='amd64'
-PKG_VERSION='3.05.1186'
-
-PKG1_ID="${GAME_ID}"
-PKG1_ARCH="${PKG_ARCH}"
-PKG1_VERSION="${PKG_VERSION}"
-PKG1_CONFLICTS="${GAME_ID}-px1 (<< ${PKG_VERSION}), ${GAME_ID}-px2 (<< ${PKG_VERSION})"
-PKG1_DEPS='libglu1-mesa | libglu1, libxcursor1, libxrandr2'
-PKG1_RECS=''
-PKG1_DESC="${GAME_NAME}
+PKG_AREAS_ID="${GAME_ID}-areas"
+PKG_AREAS_ARCH='all'
+PKG_AREAS_DESC="${GAME_NAME} - areas
  package built from GOG.com installer
  ./play.it script version ${script_version}"
 
-PKG2_ID="${GAME_ID}-data"
-PKG2_ARCH="${PKG_ARCH}"
-PKG2_VERSION="${PKG_VERSION}"
-PKG2_CONFLICTS=''
-PKG2_DEPS=''
-PKG2_RECS=''
-PKG2_DESC="${GAME_NAME} - data
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_ARCH='all'
+PKG_DATA_DESC="${GAME_NAME} - data
  package built from GOG.com installer
  ./play.it script version ${script_version}"
 
-PKG1_DEPS="${PKG2_ID} (= ${PKG_VERSION}-${PKG_REVISION}), ${PKG1_DEPS}"
+PKG_BIN_ID="${GAME_ID}"
+PKG_BIN_ARCH='amd64'
+PKG_BIN_DEPS="$PKG_AREAS_ID, $PKG_DATA_ID, libglu1-mesa | libglu1, libxcursor1, libxrandr2"
+PKG_BIN_DESC="${GAME_NAME}
+ package built from GOG.com installer
+ ./play.it script version ${script_version}"
+
 
 # Load common functions
 
@@ -136,9 +132,10 @@ set_prefix
 
 check_deps_hard ${SCRIPT_DEPS_HARD}
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG2_DIR' "${PKG2_ID}_${PKG2_VERSION}-${PKG_REVISION}_${PKG2_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR'    "$(mktemp -u ${GAME_ID}.XXXXX)"                    "$(($GAME_ARCHIVE_FULLSIZE*2))"
+game_mkdir 'PKG_BIN_DIR'   "${PKG_BIN_ID}_${PKG_VERSION}_${PKG_BIN_ARCH}"     "$(($GAME_ARCHIVE_FULLSIZE*2))"
+game_mkdir 'PKG_AREAS_DIR' "${PKG_AREAS_ID}_${PKG_VERSION}_${PKG_AREAS_ARCH}" "$(($GAME_ARCHIVE_FULLSIZE*2))"
+game_mkdir 'PKG_DATA_DIR'  "${PKG_DATA_ID}_${PKG_VERSION}_${PKG_DATA_ARCH}"   "$(($GAME_ARCHIVE_FULLSIZE*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DESK='/usr/local/share/applications'
@@ -170,10 +167,7 @@ fi
 
 # Extract game data
 
-build_pkg_dirs '1' "${PATH_BIN}" "${PATH_DESK}" "${PATH_DOC}" "${PATH_GAME}" "${PATH_ICON}"
-mkdir -p "${PKG2_DIR}${PATH_GAME}/PillarsOfEternity_Data/assetbundles" "${PKG2_DIR}/DEBIAN"
-
-printf '\n%s…\n' "$(l10n 'extract_data_generic')"
+printf '%s…\n' "$(l10n 'extract_data_generic')"
 print wait
 
 extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
@@ -181,36 +175,47 @@ extract_data 'mojo' "${GAME_ARCHIVE}" "${PKG_TMPDIR}" 'quiet'
 [ -n "${DLC1_ARCHIVE}" ] && extract_data 'mojo' "${DLC1_ARCHIVE}" "${PKG_TMPDIR}" 'force,quiet'
 [ -n "${DLC2_ARCHIVE}" ] && extract_data 'mojo' "${DLC2_ARCHIVE}" "${PKG_TMPDIR}" 'force,quiet'
 [ -n "${DLC3_ARCHIVE}" ] && extract_data 'mojo' "${DLC3_ARCHIVE}" "${PKG_TMPDIR}" 'force,quiet'
+fix_rights "$PKG_TMPDIR"
 
-cd "${PKG_TMPDIR}/${INSTALLER_PATH}"
-for file in ${INSTALLER_DOC}; do
-	mv "${file}" "${PKG1_DIR}${PATH_DOC}"
-done
+(
+	cd "$PKG_TMPDIR/$ARCHIVE_DOC_PATH"
+	mkdir --parents "${PKG_DATA_DIR}${PATH_DOC}"
+	for file in $ARCHIVE_DOC_FILES; do
+		cp --recursive --parents --link "$file" "${PKG_DATA_DIR}${PATH_DOC}"
+		rm --recursive "$file"
+	done
+)
 
-for file in ${INSTALLER_GAME_PKG2}; do
-	mv "${file}" "${PKG2_DIR}${PATH_GAME}/PillarsOfEternity_Data/assetbundles"
-done
+(
+	cd "$PKG_TMPDIR/$ARCHIVE_GAME_PATH"
+	mkdir --parents "${PKG_BIN_DIR}${PATH_GAME}"
+	for file in $ARCHIVE_GAME_FILES_BIN; do
+		cp --recursive --parents --link "$file" "${PKG_BIN_DIR}${PATH_GAME}"
+		rm --recursive "$file"
+	done
+	mkdir --parents "${PKG_AREAS_DIR}${PATH_GAME}"
+	for file in $ARCHIVE_GAME_FILES_AREAS; do
+		cp --recursive --parents --link "$file" "${PKG_AREAS_DIR}${PATH_GAME}"
+		rm --recursive "$file"
+	done
+	mkdir --parents "${PKG_DATA_DIR}${PATH_GAME}"
+	for file in $ARCHIVE_GAME_FILES_DATA; do
+		cp --recursive --parents --link "$file" "${PKG_DATA_DIR}${PATH_GAME}"
+		rm --recursive "$file"
+	done
+)
 
-for file in ${INSTALLER_GAME_PKG1}; do
-	mv "${file}" "${PKG1_DIR}${PATH_GAME}"
-done
-cd - > /dev/null
-
-fix_rights "${PKG1_DIR}${PATH_DOC}" "${PKG1_DIR}${PATH_GAME}" "${PKG2_DIR}${PATH_GAME}"
-
-chmod 755 "${PKG1_DIR}${PATH_GAME}/${APP1_EXE}"
-
-PATH_ICON1="${PATH_ICON_BASE}/${APP1_ICON1_RES}/apps"
-PATH_ICON2="${PATH_ICON_BASE}/${APP1_ICON2_RES}/apps"
-mkdir -p "${PKG1_DIR}${PATH_ICON1}" "${PKG1_DIR}${PATH_ICON2}"
+chmod 755 "${PKG_BIN_DIR}${PATH_GAME}/${APP1_EXE}"
 
 rm -rf "${PKG_TMPDIR}"
 print done
 
 # Write launchers
 
-write_bin_native "${PKG1_DIR}${PATH_BIN}/${APP1_ID}" "${APP1_EXE}" '' '' '' "${APP1_NAME}"
-write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID}.desktop" "${APP1_CAT}"
+mkdir --parents "${PKG_BIN_DIR}${PATH_BIN}"
+mkdir --parents "${PKG_BIN_DIR}${PATH_DESK}"
+write_bin_native "${PKG_BIN_DIR}${PATH_BIN}/${APP1_ID}" "$APP1_EXE" '' '' '' "$APP1_NAME"
+write_desktop "$APP1_ID" "APP1_NAME" "$APP1_NAME" "${PKG_BIN_DIR}${PATH_DESK}/${APP1_ID}.desktop" "$APP1_CAT"
 printf '\n'
 
 # Build packages
@@ -218,32 +223,44 @@ printf '\n'
 printf '%s…\n' "$(l10n 'build_pkgs')"
 print wait
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
-write_pkg_debian "${PKG2_DIR}" "${PKG2_ID}" "${PKG2_VERSION}-${PKG_REVISION}" "${PKG2_ARCH}" "${PKG2_CONFLICTS}" "${PKG2_DEPS}" "${PKG2_RECS}" "${PKG2_DESC}"
+mkdir --parents "$PKG_BIN_DIR/DEBIAN"
+mkdir --parents "$PKG_AREAS_DIR/DEBIAN"
+mkdir --parents "$PKG_DATA_DIR/DEBIAN"
+write_pkg_debian "$PKG_BIN_DIR"   "$PKG_BIN_ID"   "$PKG_VERSION" "$PKG_BIN_ARCH"   '' "$PKG_BIN_DEPS" '' "$PKG_BIN_DESC"
+write_pkg_debian "$PKG_AREAS_DIR" "$PKG_AREAS_ID" "$PKG_VERSION" "$PKG_AREAS_ARCH" '' ''              '' "$PKG_AREAS_DESC"
+write_pkg_debian "$PKG_DATA_DIR"  "$PKG_DATA_ID"  "$PKG_VERSION" "$PKG_DATA_ARCH"  '' ''              '' "$PKG_DATA_DESC"
 
-file="${PKG1_DIR}/DEBIAN/postinst"
+PATH_ICON1="$PATH_ICON_BASE/$APP1_ICON1_RES/apps"
+PATH_ICON2="$PATH_ICON_BASE/$APP1_ICON2_RES/apps"
+
+file="$PKG_DATA_DIR/DEBIAN/postinst"
 cat > "${file}" << EOF
 #!/bin/sh -e
+mkdir --parents "$PATH_ICON1"
+mkdir --parents "$PATH_ICON2"
 ln -s "${PATH_GAME}/${APP1_ICON1}" "${PATH_ICON1}/${GAME_ID}.png"
 ln -s "${PATH_GAME}/${APP1_ICON2}" "${PATH_ICON2}/${GAME_ID}.png"
 exit 0
 EOF
 chmod 755 "${file}"
 
-file="${PKG1_DIR}/DEBIAN/prerm"
+file="$PKG_DATA_DIR/DEBIAN/prerm"
 cat > "${file}" << EOF
 #!/bin/sh -e
 rm "${PATH_ICON1}/${GAME_ID}.png"
 rm "${PATH_ICON2}/${GAME_ID}.png"
+rmdir --ignore-fail-on-non-empty "$PATH_ICON1"
+rmdir --ignore-fail-on-non-empty "$PATH_ICON2"
 exit 0
 EOF
 chmod 755 "${file}"
 
-build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}" 'quiet'
-build_pkg "${PKG2_DIR}" "${PKG2_DESC}" "${PKG_COMPRESSION}" 'quiet'
+build_pkg "$PKG_BIN_DIR"   "$PKG_BIN_DESC"   "$PKG_COMPRESSION" 'quiet'
+build_pkg "$PKG_AREAS_DIR" "$PKG_AREAS_DESC" "$PKG_COMPRESSION" 'quiet'
+build_pkg "$PKG_DATA_DIR"  "$PKG_DATA_DESC"  "$PKG_COMPRESSION" 'quiet'
 print done
 
-print_instructions "${PKG1_DESC}" "${PKG2_DIR}" "${PKG1_DIR}"
+print_instructions "$PKG_BIN_DESC" "$PKG_DATA_DIR" "$PKG_AREAS_DIR" "$PKG_BIN_DIR"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
 
 exit 0
