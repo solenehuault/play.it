@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.1
+script_version=20170323.1
 
 # Set game-specific variables
 
@@ -54,7 +54,7 @@ ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./beyondzo.mg1 ./goggame-*.ico ./*.exe ./data'
 
 APP_MAIN_TYPE='dosbox'
-APP_MAIN_EXE='frotz data\beyondzo.dat'
+APP_MAIN_EXE='frotz data\\beyondzo.dat'
 APP_MAIN_ICON='goggame-1207661533.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
 
