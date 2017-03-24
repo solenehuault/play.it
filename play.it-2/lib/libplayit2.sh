@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170323.1
+library_revision=20170324.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -1570,7 +1570,7 @@ write_metadata_arch() {
 
 	for provide in $pkg_provides; do
 		cat >> "${target}" <<- EOF
-		provide = $provide
+		provides = $provide
 		EOF
 	done
 
