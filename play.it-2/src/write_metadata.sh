@@ -90,7 +90,7 @@ write_metadata_arch() {
 
 	for provide in $pkg_provides; do
 		cat >> "${target}" <<- EOF
-		provide = $provide
+		provides = $provide
 		EOF
 	done
 
