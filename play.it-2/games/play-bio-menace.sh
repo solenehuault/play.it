@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.1
+script_version=20170324.1
 
 # Set game-specific variables
 
@@ -51,7 +51,7 @@ ARCHIVE_DOC1_FILES='./*.pdf ./*.txt'
 ARCHIVE_DOC2_PATH='data/noarch/data'
 ARCHIVE_DOC2_FILES='./*.txt'
 ARCHIVE_GAME_PATH='data/noarch/data'
-ARCHIVE_GAME_FILES='./*.BM* ./*.EXE ./BIOPATCH.ZIP ./BMENACE.conf'
+ARCHIVE_GAME_FILES='./*.bm* ./*.exe ./biopatch.zip ./bmenace.conf'
 
 CONFIG_FILES='./*.conf ./config.*'
 DATA_FILES='./SAVEGAM*'
@@ -107,6 +107,8 @@ check_deps
 
 set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
+tolower "$PLAYIT_WORKDIR/gamedata"
+
 organize_data
 
 mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
