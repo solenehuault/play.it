@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170316.1
+library_revision=20170323.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -1373,7 +1373,7 @@ write_bin_set_prefix_funcs() {
 	  (
 	    cd "\$1"
 	    shift 1
-	    for dir in "\$@"; do
+	    for dir in \$@; do
 	      rm --force --recursive "\${PATH_PREFIX}/\${dir}"
 	      mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
 	      ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"

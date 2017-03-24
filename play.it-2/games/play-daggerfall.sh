@@ -29,59 +29,42 @@ set -o errexit
 ###
 
 ###
-# Torment: Tides of Numenera
+# The Elder Scrolls II: Daggerfall
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170320.1
+script_version=20170206.1
 
 # Set game-specific variables
 
-GAME_ID='torment-tides-of-numenera'
-GAME_NAME='Torment: Tides of Numenera'
+GAME_ID='daggerfall'
+GAME_NAME='The Elder Scrolls II: Daggerfall'
 
-ARCHIVE_GOG='gog_torment_tides_of_numenera_2.0.0.1.sh'
-ARCHIVE_GOG_MD5='46268b10cfcf0442030088fec0c9b1c7'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='9200000'
-ARCHIVE_GOG_VERSION='1.0.1-gog2.0.0.1'
+ARCHIVE_GOG='setup_tes_daggerfall_2.0.0.4.exe'
+ARCHIVE_GOG_MD5='68f1eb4f257d8da4c4eab2104770c49b'
+ARCHIVE_GOG_UNCOMPRESSED_SIZE='580000'
+ARCHIVE_GOG_VERSION='1.07.213-gog2.0.0.4'
 
-ARCHIVE_DOC_PATH='data/noarch/docs'
-ARCHIVE_DOC_FILES='./*'
+ARCHIVE_DOC1_PATH='app'
+ARCHIVE_DOC1_FILES='./*.pdf'
+ARCHIVE_DOC2_PATH='tmp'
+ARCHIVE_DOC2_FILES='./gog_eula.txt'
+ARCHIVE_GAME_PATH='app'
+ARCHIVE_GAME_FILES='./arena2 ./*.cfg ./*.exe ./dagger.ico ./data ./*.bnk ./*.txt ./*.386 ./install.scr ./pics ./save* ./setup.ini ./test*'
 
-ARCHIVE_GAME_BIN_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN_FILES='./TidesOfNumenera ./TidesOfNumenera_Data/Mono/x86_64 ./TidesOfNumenera_Data/Plugins'
+CONFIG_FILES='./*.cfg'
+DATA_DIRS='./save*'
+DATA_FILES='arena2/copyfile.dat arena2/mapsave.sav'
 
-ARCHIVE_GAME_AUDIO_PATH='data/noarch/game'
-ARCHIVE_GAME_AUDIO_FILES='./TidesOfNumenera_Data/StreamingAssets/Audio'
+APP_MAIN_TYPE='dosbox'
+APP_MAIN_EXE='fall.exe'
+APP_MAIN_OPTIONS='z.cfg'
+APP_MAIN_ICON='dagger.ico'
+APP_MAIN_ICON_RES='32x32'
 
-ARCHIVE_GAME_RESOURCES_PATH='data/noarch/game'
-ARCHIVE_GAME_RESOURCES_FILES='./TidesOfNumenera_Data/resources.assets*'
-
-ARCHIVE_GAME_DATA_PATH='data/noarch/game'
-ARCHIVE_GAME_DATA_FILES='./TidesOfNumenera_Data'
-
-DATA_DIRS='./logs'
-
-APP_MAIN_TYPE='native'
-APP_MAIN_EXE='TidesOfNumenera'
-APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
-APP_MAIN_PRERUN='export LANG="en_US.UTF-8"'
-APP_MAIN_ICON='TidesOfNumenera_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
-
-PKG_AUDIO_ID="${GAME_ID}-audio"
-PKG_AUDIO_DESCRIPTION='audio'
-
-PKG_RESOURCES_ID="${GAME_ID}-resources"
-PKG_RESOURCES_DESCRIPTION='resources'
-
-PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DESCRIPTION='arch-independant data'
-
-PKG_BIN_ARCH='64'
-PKG_BIN_DEPS_DEB="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa | libgl1, libsdl2-2.0-0"
-PKG_BIN_DEPS_ARCH="$PKG_AUDIO_ID $PKG_RESOURCES_ID $PKG_DATA_ID libgl sdl2"
+PKG_MAIN_DEPS_DEB='dosbox'
+PKG_MAIN_DEPS_ARCH='dosbox'
 
 # Load common functions
 
@@ -118,48 +101,29 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE"
+file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+check_deps
 
 # Extract game data
 
-set_workdir 'PKG_AUDIO' 'PKG_RESOURCES' 'PKG_DATA' 'PKG_BIN'
+set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_AUDIO'
-organize_data_generic 'GAME_AUDIO'     "$PATH_GAME"
-PKG='PKG_RESOURCES'
-organize_data_generic 'GAME_RESOURCES' "$PATH_GAME"
-PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA'      "$PATH_GAME"
-organize_data_generic 'DOC'            "$PATH_DOC"
-PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN'       "$PATH_GAME"
+organize_data
+
+extract_and_sort_icons_from 'APP_MAIN'
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin     'APP_MAIN'
+write_bin 'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
-cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
-EOF
-
-cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-EOF
-
-write_metadata 'PKG_DATA'
-rm "$postinst" "$prerm"
-write_metadata 'PKG_BIN' 'PKG_AUDIO' 'PKG_RESOURCES'
-build_pkg      'PKG_BIN' 'PKG_AUDIO' 'PKG_RESOURCES' 'PKG_DATA'
+write_metadata 'PKG_MAIN'
+build_pkg 'PKG_MAIN'
 
 # Clean up
 
@@ -167,6 +131,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_AUDIO_PKG" "$PKG_RESOURCES_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions "$PKG_MAIN_PKG"
 
 exit 0

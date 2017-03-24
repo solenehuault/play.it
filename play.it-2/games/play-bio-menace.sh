@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.1
+script_version=20170324.2
 
 # Set game-specific variables
 
@@ -51,15 +51,28 @@ ARCHIVE_DOC1_FILES='./*.pdf ./*.txt'
 ARCHIVE_DOC2_PATH='data/noarch/data'
 ARCHIVE_DOC2_FILES='./*.txt'
 ARCHIVE_GAME_PATH='data/noarch/data'
-ARCHIVE_GAME_FILES='./*.BM* ./*.EXE ./BIOPATCH.ZIP ./BMENACE.conf'
+ARCHIVE_GAME_FILES='./*.bm* ./*.exe ./biopatch.zip ./bmenace.conf'
 
 CONFIG_FILES='./*.conf ./config.*'
 DATA_FILES='./SAVEGAM*'
 
-APP_MAIN_TYPE='dosbox'
-APP_MAIN_EXE='bmenace1.exe'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_1_ID="${GAME_ID}-1"
+APP_1_NAME="$GAME_NAME - 1"
+APP_1_TYPE='dosbox'
+APP_1_EXE='bmenace1.exe'
+
+APP_2_ID="${GAME_ID}-2"
+APP_2_NAME="$GAME_NAME - 2"
+APP_2_TYPE='dosbox'
+APP_2_EXE='bmenace2.exe'
+
+APP_3_ID="${GAME_ID}-3"
+APP_3_NAME="$GAME_NAME - 3"
+APP_3_TYPE='dosbox'
+APP_3_EXE='bmenace3.exe'
+
+APP_ICON='data/noarch/support/icon.png'
+APP_ICON_RES='256x256'
 
 PKG_MAIN_DEPS_DEB='dosbox'
 PKG_MAIN_DEPS_ARCH='dosbox'
@@ -99,7 +112,6 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
 check_deps
 
@@ -107,19 +119,39 @@ check_deps
 
 set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
+tolower "$PLAYIT_WORKDIR/gamedata"
+
 organize_data
 
+PATH_ICON="$PATH_ICON_BASE/$APP_ICON_RES/apps"
 mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_bin 'APP_1'
+write_bin 'APP_2'
+write_bin 'APP_3'
+
+write_desktop 'APP_1'
+write_desktop 'APP_2'
+write_desktop 'APP_3'
 
 # Build package
+
+cat > "$postinst" << EOF
+ln --symbolic ./$GAME_ID.png "$PATH_ICON/$APP_1_ID.png"
+ln --symbolic ./$GAME_ID.png "$PATH_ICON/$APP_2_ID.png"
+ln --symbolic ./$GAME_ID.png "$PATH_ICON/$APP_3_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$APP_1_ID.png"
+rm "$PATH_ICON/$APP_2_ID.png"
+rm "$PATH_ICON/$APP_3_ID.png"
+EOF
 
 write_metadata 'PKG_MAIN'
 build_pkg 'PKG_MAIN'
