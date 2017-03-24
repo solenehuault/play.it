@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170207.1
+script_version=20170324.1
 
 # Set game-specific variables
 
@@ -48,6 +48,8 @@ ARCHIVE_GOG_VERSION='1.0-gog2.1.0.24'
 
 ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./*.tim ./*.drv ./*.exe ./install* ./resource* ./goggame-1207664023.ico'
+
+CONFIG_FILES='./resource.cfg'
 
 APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='tim.exe'

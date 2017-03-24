@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170324.1
 
 # Set game-specific variables
 
@@ -47,7 +47,7 @@ ARCHIVE_GOG_UNCOMPRESSED_SIZE='11000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.1'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
-ARCHIVE_DOC_FILES='./*.DOC ./*.txt'
+ARCHIVE_DOC_FILES='./*.doc ./*.txt'
 ARCHIVE_GAME_PATH='data/noarch/data'
 ARCHIVE_GAME_FILES='./*'
 
@@ -103,6 +103,7 @@ check_deps
 
 set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
+tolower "$PLAYIT_WORKDIR/gamedata"
 
 organize_data
 
