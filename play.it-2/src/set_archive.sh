@@ -40,7 +40,7 @@ set_source_archive() {
 		fi
 	done
 	if [ -z "$SOURCE_ARCHIVE" ]; then
-		set_source_archive_error_not_found
+		set_source_archive_error_not_found "$@"
 	fi
 }
 
@@ -97,14 +97,30 @@ set_archive_print() {
 # CALLED BY: set_source_archive
 set_source_archive_error_not_found() {
 	print_error
-	case ${LANG%_*} in
-		('fr')
-			printf 'La cible de ce script est introuvable\n'
-		;;
-		('en'|*)
-			printf 'The script target could not be found\n'
-		;;
-	esac
+	local string
+	if [ "$#" = 1 ]; then
+		case ${LANG%_*} in
+			('fr')
+				string='Le fichier suivant est introuvable :\n'
+			;;
+			('en'|*)
+				string='The following file could not be found:'
+			;;
+		esac
+	else
+		case ${LANG%_*} in
+			('fr')
+				string='Aucun des fichiers suivant n’est présent :\n'
+			;;
+			('en'|*)
+				string='None of the following files could be found:\n'
+			;;
+		esac
+	fi
+	printf "$string"
+	for archive in "$@"; do
+		printf '%s\n' "$(eval echo \$$archive)"
+	done
 	return 1
 }
 
