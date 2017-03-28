@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170328.1
+script_version=20170328.2
 
 # Set game-specific variables
 
@@ -63,7 +63,7 @@ APP_MAIN_ICON1_RES='512x512'
 APP_MAIN_ICON2='./PillarsOfEternity_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON2_RES='128x128'
 
-PKG_AREA_ID="${GAME_ID}-area"
+PKG_AREA_ID="${GAME_ID}-areas"
 PKG_AREA_DESCRIPTION='area'
 
 PKG_DATA_ID="${GAME_ID}-data"
