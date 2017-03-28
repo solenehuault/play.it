@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170328.5
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -46,6 +46,12 @@ ARCHIVE_GOG_MD5='2000052541abb1ef8a644049734e8526'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='15000000'
 ARCHIVE_GOG_VERSION='3.05.1186-gog2.15.0.19'
 ARCHIVE_GOG_TYPE='mojosetup_unzip'
+ARCHIVE_GOG_DLC1='gog_pillars_of_eternity_kickstarter_item_dlc_2.0.0.2.sh'
+ARCHIVE_GOG_DLC1_MD5='b4c29ae17c87956471f2d76d8931a4e5'
+ARCHIVE_GOG_DLC2='gog_pillars_of_eternity_kickstarter_pet_dlc_2.0.0.2.sh'
+ARCHIVE_GOG_DLC2_MD5='3653fc2a98ef578335f89b607f0b7968'
+ARCHIVE_GOG_DLC3='gog_pillars_of_eternity_preorder_item_and_pet_dlc_2.0.0.2.sh'
+ARCHIVE_GOG_DLC3_MD5='b86ad866acb62937d2127407e4beab19'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -106,15 +112,38 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG'
+set_archive 'ARCHIVE_DLC1' "$ARCHIVE_GOG_DLC1"
+set_archive 'ARCHIVE_DLC2' "$ARCHIVE_GOG_DLC2"
+set_archive 'ARCHIVE_DLC3' "$ARCHIVE_GOG_DLC3"
 check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
+ARCHIVE_OLD="$ARCHIVE"
+if [ "$ARCHIVE_DLC1" ]; then
+	ARCHIVE='ARCHIVE_GOG_DLC1' file_checksum "$ARCHIVE_DLC1"
+fi
+if [ "$ARCHIVE_DLC2" ]; then
+	ARCHIVE='ARCHIVE_GOG_DLC2' file_checksum "$ARCHIVE_DLC2"
+fi
+if [ "$ARCHIVE_DLC3" ]; then
+	ARCHIVE='ARCHIVE_GOG_DLC3' file_checksum "$ARCHIVE_DLC3"
+fi
+ARCHIVE="$ARCHIVE_OLD"
 check_deps
 
 # Extract game data
 
 set_workdir 'PKG_BIN' 'PKG_AREA' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
+if [ "$ARCHIVE_DLC1" ]; then
+	extract_data_from "$ARCHIVE_DLC1"
+fi
+if [ "$ARCHIVE_DLC2" ]; then
+	extract_data_from "$ARCHIVE_DLC2"
+fi
+if [ "$ARCHIVE_DLC3" ]; then
+	extract_data_from "$ARCHIVE_DLC3"
+fi
 
 PKG='PKG_BIN'
 organize_data_generic 'GAME_BIN' "$PATH_GAME"
