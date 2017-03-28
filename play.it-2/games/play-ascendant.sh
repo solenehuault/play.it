@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170328.1
+script_version=20170328.2
 
 # Set game-specific variables
 
@@ -59,8 +59,7 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='Ascendant.x86'
 APP_MAIN_EXE_64='Ascendant_64.x86_64'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
-APP_MAIN_ICON_32='Ascendant_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_64='Ascendant_64_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
 PKG_32_ARCH='32'
@@ -138,7 +137,7 @@ write_desktop 'APP_MAIN'
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON_32 "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
@@ -146,22 +145,7 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_32'
-rm "$postinst" "$prerm"
-
-cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON_64 "$PATH_ICON/$GAME_ID.png"
-EOF
-
-cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-EOF
-
-write_metadata 'PKG_64'
-rm "$postinst" "$prerm"
-
+write_metadata 'PKG_32' 'PKG_64'
 build_pkg 'PKG_32' 'PKG_64'
 
 # Clean up
