@@ -34,17 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170320.1
+script_version=20170329.2
 
 # Set game-specific variables
 
 GAME_ID='torment-tides-of-numenera'
 GAME_NAME='Torment: Tides of Numenera'
 
-ARCHIVE_GOG='gog_torment_tides_of_numenera_2.0.0.1.sh'
-ARCHIVE_GOG_MD5='46268b10cfcf0442030088fec0c9b1c7'
+ARCHIVE_GOG='gog_torment_tides_of_numenera_2.1.0.2.sh'
+ARCHIVE_GOG_MD5='775daada251fa3b54785812e8134b898'
 ARCHIVE_GOG_UNCOMPRESSED_SIZE='9200000'
-ARCHIVE_GOG_VERSION='1.0.1-gog2.0.0.1'
+ARCHIVE_GOG_VERSION='1.0.2-gog2.1.0.2'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -126,14 +126,14 @@ set_workdir 'PKG_AUDIO' 'PKG_RESOURCES' 'PKG_DATA' 'PKG_BIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_AUDIO'
-organize_data_generic 'GAME_AUDIO'     "$PATH_GAME"
+organize_data 'GAME_AUDIO'     "$PATH_GAME"
 PKG='PKG_RESOURCES'
-organize_data_generic 'GAME_RESOURCES' "$PATH_GAME"
+organize_data 'GAME_RESOURCES' "$PATH_GAME"
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA'      "$PATH_GAME"
-organize_data_generic 'DOC'            "$PATH_DOC"
+organize_data 'GAME_DATA'      "$PATH_GAME"
+organize_data 'DOC'            "$PATH_DOC"
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN'       "$PATH_GAME"
+organize_data 'GAME_BIN'       "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

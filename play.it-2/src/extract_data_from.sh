@@ -19,7 +19,7 @@ extract_data_from() {
 				fix_rights "$destination"
 			;;
 			('mojosetup_unzip')
-				unzip -d "$destination" "$file" 1>/dev/null 2>&1 || true
+				unzip -o -d "$destination" "$file" 1>/dev/null 2>&1 || true
 				fix_rights "$destination"
 			;;
 			('nix_stage1')

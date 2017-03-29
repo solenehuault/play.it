@@ -34,12 +34,17 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170312.1
+script_version=20170329.2
 
 # Set game-specific variables
 
 GAME_ID='sunless-sea'
 GAME_NAME='Sunless Sea'
+
+ARCHIVE_ZUBMARINER_GOG='gog_sunless_sea_zubmariner_2.5.0.6.sh'
+ARCHIVE_ZUBMARINER_GOG_MD5='692cd0dac832d5254bd38d7e1a05b918'
+ARCHIVE_ZUBMARINER_GOG_VERSION='2.2.2.3130-gog2.5.0.6'
+ARCHIVE_ZUBMARINER_GOG_UNCOMPRESSED_SIZE='870000'
 
 ARCHIVE_GOG='gog_sunless_sea_2.8.0.11.sh'
 ARCHIVE_GOG_MD5='1cf6bb7a440ce796abf8e7afcb6f7a54'
@@ -50,10 +55,6 @@ ARCHIVE_HUMBLE='Sunless_Sea_Setup_V2.2.2.3129_LINUX.zip'
 ARCHIVE_HUMBLE_MD5='bdb37932e56fd0655a2e4263631e2582'
 ARCHIVE_HUMBLE_VERSION='2.2.2.3129-humble170131'
 ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='700000'
-
-ARCHIVE_DLC1_GOG='gog_sunless_sea_zubmariner_2.5.0.6.sh'
-ARCHIVE_DLC1_GOG_MD5='692cd0dac832d5254bd38d7e1a05b918'
-ARCHIVE_DLC1_GOG_VERSION='2.2.2.3130-gog2.5.0.6'
 
 ARCHIVE_DOC_PATH_GOG='data/noarch/game'
 ARCHIVE_DOC_PATH_HUMBLE='data/noarch'
@@ -127,24 +128,14 @@ fetch_args "$@"
 
 # Set source archive
 
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
-	set_archive 'ARCHIVE_DLC1' "$ARCHIVE_DLC1_GOG"
-fi
+set_source_archive 'ARCHIVE_ZUBMARINER_GOG' 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
-if [ "$ARCHIVE_DLC1" ]; then
-	ARCHIVE_REAL="$ARCHIVE"
-	ARCHIVE='ARCHIVE_DLC1_GOG'
-	file_checksum "$ARCHIVE_DLC1"
-	PKG_VERSION="$ARCHIVE_DLC1_GOG_VERSION"
-	ARCHIVE="$ARCHIVE_REAL"
-fi
 check_deps
 
 case "$ARCHIVE" in
-	('ARCHIVE_GOG')
+	('ARCHIVE_ZUBMARINER_GOG'|'ARCHIVE_GOG')
 		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
 		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
 		ARCHIVE_DOC2_FILES="$ARCHIVE_DOC2_FILES_GOG"
@@ -172,28 +163,25 @@ if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	extract_data_from "$archive"
 	rm "$archive"
 fi
-if [ "$ARCHIVE_DLC1" ]; then
-	extract_data_from "$ARCHIVE_DLC1"
-fi
 
 PKG='PKG_BIN32'
-organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+organize_data 'GAME_BIN32' "$PATH_GAME"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE2"
-	organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+	organize_data 'GAME_BIN32' "$PATH_GAME"
 fi
 
 PKG='PKG_BIN64'
-organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+organize_data 'GAME_BIN64' "$PATH_GAME"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE2"
-	organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+	organize_data 'GAME_BIN64' "$PATH_GAME"
 fi
 
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC'       "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

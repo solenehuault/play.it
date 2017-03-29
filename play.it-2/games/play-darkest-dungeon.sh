@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170315.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -137,17 +137,17 @@ extract_data_from "$SOURCE_ARCHIVE"
 )
 
 PKG='PKG_BIN32'
-organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+organize_data 'GAME_BIN32' "$PATH_GAME"
 PKG='PKG_BIN64'
-organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+organize_data 'GAME_BIN64' "$PATH_GAME"
 PKG='PKG_AUDIO'
-organize_data_generic 'GAME_AUDIO' "$PATH_GAME"
+organize_data 'GAME_AUDIO' "$PATH_GAME"
 PKG='PKG_VIDEO'
-organize_data_generic 'GAME_VIDEO' "$PATH_GAME"
+organize_data 'GAME_VIDEO' "$PATH_GAME"
 PKG='PKG_DATA'
-organize_data_generic 'DOC1'      "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 if [ "$NO_ICON" = '0' ]; then
 	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"

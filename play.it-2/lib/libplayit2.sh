@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170326.1
+library_revision=20170329.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -242,7 +242,7 @@ extract_data_from() {
 				fix_rights "$destination"
 			;;
 			('mojosetup_unzip')
-				unzip -d "$destination" "$file" 1>/dev/null 2>&1 || true
+				unzip -o -d "$destination" "$file" 1>/dev/null 2>&1 || true
 				fix_rights "$destination"
 			;;
 			('nix_stage1')
@@ -566,36 +566,18 @@ liberror() {
 	return 1
 }
 
-# put files from archive in the right package directories (alias)
-# USAGE: organize_data
-# CALLS: organize_data_generic
-organize_data() {
-	if [ -n "${ARCHIVE_DOC_PATH}" ]; then
-		organize_data_generic 'DOC'  "$PATH_DOC"
-	fi
-	if [ -n "${ARCHIVE_DOC1_PATH}" ]; then
-		organize_data_generic 'DOC1' "$PATH_DOC"
-	fi
-	if [ -n "${ARCHIVE_DOC2_PATH}" ]; then
-		organize_data_generic 'DOC2' "$PATH_DOC"
-	fi
-	if [ -n "${ARCHIVE_GAME_PATH}" ]; then
-		organize_data_generic 'GAME' "$PATH_GAME"
-	fi
-}
-
-# put files from archive in the right package directories (generic function)
-# USAGE: organize_data_generic $id $path
+# put files from archive in the right package directories
+# USAGE: organize_data $id $path
 # NEEDED VARS: $PKG, $PKG_PATH, $PLAYIT_WORKDIR
-# CALLED BY: organize_data
-organize_data_generic() {
-	local archive_path="$(eval echo \$ARCHIVE_${1}_PATH)"
+organize_data() {
+	local archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
+	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
 	if [ "$archive_path" ] && [ -e "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
 		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
 		mkdir --parents "$pkg_path"
 		(
 			cd "$PLAYIT_WORKDIR/gamedata/$archive_path"
-			for file in $(eval echo \$ARCHIVE_${1}_FILES); do
+			for file in $archive_files; do
 				if [ -e "$file" ]; then
 					cp --recursive --link --parents "$file" "$pkg_path"
 					rm --recursive "$file"
@@ -1241,7 +1223,7 @@ write_bin_run_scummvm() {
 	fi
 
 	cat >> "$file" <<- EOF
-	scummvm -p "\$PATH_PREFIX" \$APP_OPTIONS \$@ \$SCUMMVM_ID
+	scummvm -p "\$PATH_GAME" \$APP_OPTIONS \$@ \$SCUMMVM_ID
 	EOF
 }
 

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170108.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -158,16 +158,16 @@ set_workdir 'PKG_BIN' 'PKG_DATA' 'PKG_IMAGE'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN' "$PATH_GAME"
+organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_IMAGE'
-organize_data_generic 'GAME_IMAGE' "$PATH_GAME"
+organize_data 'GAME_IMAGE' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA1' "$PATH_GAME"
-organize_data_generic 'GAME_DATA2' "$PATH_GAME"
-organize_data_generic 'DOC1'       "$PATH_DOC"
-organize_data_generic 'DOC2'       "$PATH_DOC"
+organize_data 'GAME_DATA1' "$PATH_GAME"
+organize_data 'GAME_DATA2' "$PATH_GAME"
+organize_data 'DOC1'       "$PATH_DOC"
+organize_data 'DOC2'       "$PATH_DOC"
 
 sed -i 's/SETTLERS2.gog/settlers2.gog/' "${PKG_IMAGE_PATH}${PATH_GAME}/$GAME_IMAGE"
 

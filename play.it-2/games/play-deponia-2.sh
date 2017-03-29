@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170209.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -138,7 +138,10 @@ extract_data_from "$SOURCE_ARCHIVE"
 if [ "$ARCHIVE_TYPE" = 'tar' ]; then
 	fix_rights "$PLAYIT_WORKDIR/gamedata"
 fi
-organize_data
+
+organize_data 'DOC'  "$PATH_DOC"
+organize_data 'DOC2' "$PATH_DOC"
+organize_data 'GAME' "$PATH_GAME"
 
 if [ "$APP_MAIN_ICON" ]; then
 	PATH_ICON="${PKG_MAIN_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
