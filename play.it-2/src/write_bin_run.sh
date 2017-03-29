@@ -101,7 +101,7 @@ write_bin_run_scummvm() {
 	fi
 
 	cat >> "$file" <<- EOF
-	scummvm -p "\$PATH_PREFIX" \$APP_OPTIONS \$@ \$SCUMMVM_ID
+	scummvm -p "\$PATH_GAME" \$APP_OPTIONS \$@ \$SCUMMVM_ID
 	EOF
 }
 
