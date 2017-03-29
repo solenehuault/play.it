@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170329.2
 
 # Set game-specific variables
 
@@ -126,14 +126,14 @@ set_workdir 'PKG_AUDIO' 'PKG_RESOURCES' 'PKG_DATA' 'PKG_BIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_AUDIO'
-organize_data_generic 'GAME_AUDIO'     "$PATH_GAME"
+organize_data 'GAME_AUDIO'     "$PATH_GAME"
 PKG='PKG_RESOURCES'
-organize_data_generic 'GAME_RESOURCES' "$PATH_GAME"
+organize_data 'GAME_RESOURCES' "$PATH_GAME"
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA'      "$PATH_GAME"
-organize_data_generic 'DOC'            "$PATH_DOC"
+organize_data 'GAME_DATA'      "$PATH_GAME"
+organize_data 'DOC'            "$PATH_DOC"
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN'       "$PATH_GAME"
+organize_data 'GAME_BIN'       "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

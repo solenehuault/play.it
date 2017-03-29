@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.2
+script_version=20170329.3
 
 # Set game-specific variables
 
@@ -154,14 +154,14 @@ extract_data_from "$SOURCE_ARCHIVE"
 )
 
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN' "$PATH_GAME"
+organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_AREA'
-organize_data_generic 'GAME_AREA' "$PATH_GAME"
+organize_data 'GAME_AREA' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'DOC'       "$PATH_DOC"
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

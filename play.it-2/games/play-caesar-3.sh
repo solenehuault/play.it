@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170312.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -124,18 +124,18 @@ set_workdir 'PKG_BIN' 'PKG_MOVIES' 'PKG_SOUNDS' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN' "$PATH_GAME"
+organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_MOVIES'
-organize_data_generic 'GAME_MOVIES' "$PATH_GAME"
+organize_data 'GAME_MOVIES' "$PATH_GAME"
 
 PKG='PKG_SOUNDS'
-organize_data_generic 'GAME_SOUNDS' "$PATH_GAME"
+organize_data 'GAME_SOUNDS' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC1'      "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
 
 PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'

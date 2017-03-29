@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170205.2
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -113,15 +113,15 @@ fix_rights "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
 ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_BIN"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data 'GAME' "$PATH_GAME"
 
 PKG='PKG_VIDEOS'
 ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_VIDEOS"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data 'GAME' "$PATH_GAME"
 
 PKG='PKG_DATA'
 ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA"
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data 'GAME' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

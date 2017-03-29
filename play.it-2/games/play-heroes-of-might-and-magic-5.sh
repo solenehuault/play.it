@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170312.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -176,15 +176,15 @@ extract_data_from "$SOURCE_ARCHIVE"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN'  "$PATH_GAME"
+organize_data 'GAME_BIN'  "$PATH_GAME"
 
 PKG='PKG_L10N'
-organize_data_generic 'DOC_L10N'  "$PATH_DOC"
-organize_data_generic 'GAME_L10N' "$PATH_GAME"
+organize_data 'DOC_L10N'  "$PATH_DOC"
+organize_data 'GAME_L10N' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'DOC_DATA'  "$PATH_DOC"
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC_DATA'  "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 if [ "$NO_ICON" = '0' ]; then
 	(

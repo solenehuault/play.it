@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170308.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -102,7 +102,8 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 rm "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_PATH/PillarsOfEternity_Data/assetbundles/prefabs/objectbundle/px1_cre_blight_ice_terror.unity3d"
 
-organize_data
+organize_data 'DOC'  "$PATH_DOC"
+organize_data 'GAME' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

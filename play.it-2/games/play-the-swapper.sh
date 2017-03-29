@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170312.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -141,16 +141,16 @@ fi
 find "$PLAYIT_WORKDIR/gamedata" -name '*:com.dropbox.attributes:$DATA' -delete
 
 PKG='PKG_32'
-organize_data_generic 'GAME_32' "$PATH_GAME"
+organize_data 'GAME_32' "$PATH_GAME"
 
 PKG='PKG_64'
-organize_data_generic 'GAME_64' "$PATH_GAME"
+organize_data 'GAME_64' "$PATH_GAME"
 
 PKG='PKG_MAIN'
-organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC'       "$PATH_DOC"
+organize_data 'GAME_MAIN' "$PATH_GAME"
+organize_data 'DOC'       "$PATH_DOC"
 if [ "$ICONS_PACK" ]; then
-	organize_data_generic 'ICONS' "$PATH_ICON_BASE"
+	organize_data 'ICONS' "$PATH_ICON_BASE"
 fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"

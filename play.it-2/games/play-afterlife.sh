@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170328.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -140,13 +140,13 @@ set_workdir 'PKG_MAIN' 'PKG_L10N'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_L10N'
-organize_data_generic 'DOC_L10N' "$PATH_DOC"
-organize_data_generic 'GAME_L10N' "$PATH_GAME"
+organize_data 'DOC_L10N' "$PATH_DOC"
+organize_data 'GAME_L10N' "$PATH_GAME"
 
 PKG='PKG_MAIN'
-organize_data_generic 'DOC1_MAIN' "$PATH_DOC"
-organize_data_generic 'DOC2_MAIN' "$PATH_DOC"
-organize_data_generic 'GAME_MAIN' "$PATH_GAME"
+organize_data 'DOC1_MAIN' "$PATH_DOC"
+organize_data 'DOC2_MAIN' "$PATH_DOC"
+organize_data 'GAME_MAIN' "$PATH_GAME"
 
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 

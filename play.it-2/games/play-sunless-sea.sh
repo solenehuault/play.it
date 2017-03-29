@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170329.2
 
 # Set game-specific variables
 
@@ -165,23 +165,23 @@ if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 fi
 
 PKG='PKG_BIN32'
-organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+organize_data 'GAME_BIN32' "$PATH_GAME"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE2"
-	organize_data_generic 'GAME_BIN32' "$PATH_GAME"
+	organize_data 'GAME_BIN32' "$PATH_GAME"
 fi
 
 PKG='PKG_BIN64'
-organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+organize_data 'GAME_BIN64' "$PATH_GAME"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE2"
-	organize_data_generic 'GAME_BIN64' "$PATH_GAME"
+	organize_data 'GAME_BIN64' "$PATH_GAME"
 fi
 
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC'       "$PATH_DOC"
-organize_data_generic 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

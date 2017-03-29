@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170208.1
+script_version=20170329.1
 
 # Set game-specific variables
 
@@ -137,8 +137,8 @@ extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_MAIN'
-organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
+organize_data 'GAME_MAIN' "$PATH_GAME"
+organize_data 'DOC' "$PATH_DOC"
 
 if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then 
 	mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
