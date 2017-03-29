@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.4
+script_version=20170329.5
 
 # Set game-specific variables
 
@@ -51,7 +51,7 @@ ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./*.txt ./licenses'
 ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./Braid.bin.x86 ./data ./Icon.png ./lib/libCgGL.so ./lib/libCg.so ./lib/libfltk.so.1.3 ./launcher.bin.x86'
+ARCHIVE_GAME_FILES='./Braid.bin.x86 ./data ./Icon.png ./lib/libCgGL.so ./lib/libCg.so ./launcher.bin.x86'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Braid.bin.x86'
@@ -60,7 +60,7 @@ APP_MAIN_ICON_RES='256x256'
 APP_MAIN_LIBS='./lib'
 
 PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1, libxft2'
+PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1, libxft2, libfltk1.3'
 PKG_MAIN_DEPS_ARCH='lib32-sdl2 lib32-libgl lib32-glibc'
 
 # Load common functions
