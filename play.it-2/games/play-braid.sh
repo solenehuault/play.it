@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.2
+script_version=20170329.3
 
 # Set game-specific variables
 
@@ -60,7 +60,7 @@ APP_MAIN_ICON_RES='256x256'
 APP_MAIN_LIBS='./lib'
 
 PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1'
+PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1, libxft2'
 PKG_MAIN_DEPS_ARCH='lib32-sdl2 lib32-libgl lib32-glibc'
 
 # Load common functions
