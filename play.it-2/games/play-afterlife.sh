@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170206.1
+script_version=20170328.1
 
 # Set game-specific variables
 
@@ -71,6 +71,8 @@ APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
 PKG_L10N_ID="${GAME_ID}-l10n"
+PKG_L10N_CONFLICTS_DEB="$PKG_L10N_ID"
+PKG_L10N_CONFLICTS_ARCH="$PKG_L10N_ID"
 PKG_L10N_PROVIDES_DEB="$PKG_L10N_ID"
 PKG_L10N_PROVIDES_ARCH="$PKG_L10N_ID"
 PKG_L10N_ID_EN="${GAME_ID}-l10n-en"
