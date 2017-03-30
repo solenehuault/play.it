@@ -122,7 +122,7 @@ extract_data_from "$PLAYIT_WORKDIR/$GAME_ID.r00"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_MAIN'
-organize_data_generic 'GAME' "$PATH_GAME"
+organize_data 'GAME' "$PATH_GAME"
 
 if [ "$NO_ICON" = '0' ]; then
 	(
