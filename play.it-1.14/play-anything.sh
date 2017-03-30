@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.4
+# library version 1.14.3
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -745,8 +745,8 @@ init_dosprefix
 # Launching the game
 cd "\${DOSPREFIX}"
 dosbox -c "mount c .
-imgmount d \${GAME_IMAGE} -t iso -fs iso
 c:
+imgmount d \${GAME_IMAGE} -t iso -fs iso
 \${GAME_EXE##*/} \${GAME_EXE_OPTIONS} \$@
 exit"
 sleep 1
