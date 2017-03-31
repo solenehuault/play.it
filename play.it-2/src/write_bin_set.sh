@@ -62,28 +62,28 @@ write_bin_set_prefix() {
 # CALLED BY: write_bin_set_prefix
 # CALLS: write_bin_set_prefix_wine
 write_bin_set_prefix_vars() {
-	cat >> "$file" <<- EOF
+	cat >> "$file" <<- 'EOF'
 	# Set prefix-specific variables
 	
-	if [ ! -w "\$XDG_CACHE_HOME" ]; then
-	  XDG_CACHE_HOME="\${HOME}/.cache"
+	if [ ! -w "$XDG_CACHE_HOME" ]; then
+	  XDG_CACHE_HOME="$HOME/.cache"
 	fi
-	if [ ! -w "\$XDG_CONFIG_HOME" ]; then
-	  XDG_CONFIG_HOME="\${HOME}/.config"
+	if [ ! -w "$XDG_CONFIG_HOME" ]; then
+	  XDG_CONFIG_HOME="$HOME/.config"
 	fi
-	if [ ! -w "\$XDG_DATA_HOME" ]; then
-	  XDG_DATA_HOME="\${HOME}/.local/share"
+	if [ ! -w "$XDG_DATA_HOME" ]; then
+	  XDG_DATA_HOME="$HOME/.local/share"
 	fi
 	
-	PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
-	PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
-	PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
+	PATH_CACHE="$XDG_CACHE_HOME/$PREFIX_ID"
+	PATH_CONFIG="$XDG_CONFIG_HOME/$PREFIX_ID"
+	PATH_DATA="$XDG_DATA_HOME/games/$PREFIX_ID"
 	EOF
 	if [ "$app_type" = 'wine' ] ; then
 		write_bin_set_prefix_vars_wine
 	else
-		cat >> "$file" <<- EOF
-		PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+		cat >> "$file" <<- 'EOF'
+		PATH_PREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
 		EOF
 	fi
 }
@@ -92,9 +92,9 @@ write_bin_set_prefix_vars() {
 # USAGE: write_bin_set_prefix_vars_wine
 # CALLED BY: write_bin_set_prefix_vars
 write_bin_set_prefix_vars_wine() {
-	cat >> "$file" <<- EOF
-	WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
-	PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
+	cat >> "$file" <<- 'EOF'
+	WINEPREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
+	PATH_PREFIX="$WINEPREFIX/drive_c/$GAME_ID"
 	WINEARCH='win32'
 	WINEDEBUG='-all'
 	WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
@@ -106,41 +106,41 @@ write_bin_set_prefix_vars_wine() {
 # USAGE: write_bin_set_prefix_funcs
 # CALLED BY: write_bin_set_prefix
 write_bin_set_prefix_funcs() {
-	cat >> "$file" <<- EOF
+	cat >> "$file" <<- 'EOF'
 	clean_userdir() {
-	  local target="\$1"
+	  local target="$1"
 	  shift 1
-	  for file in "\$@"; do
-	  if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
-	    mkdir --parents "\${target}/\${file%/*}"
-	    mv "\${file}" "\${target}/\${file}"
-	    ln --symbolic "\${target}/\${file}" "\${file}"
+	  for file in "$@"; do
+	  if [ -f "$file" ] && [ ! -f "$target/$file" ]; then
+	    mkdir --parents "$target/${file%/*}"
+	    mv "$file" "$target/$file"
+	    ln --symbolic "$target/$file" "$file"
 	  fi
 	  done
 	}
 	
 	init_prefix_dirs() {
 	  (
-	    cd "\$1"
+	    cd "$1"
 	    shift 1
-	    for dir in \$@; do
-	      rm --force --recursive "\${PATH_PREFIX}/\${dir}"
-	      mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
-	      ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+	    for dir in $@; do
+	      rm --force --recursive "$PATH_PREFIX/$dir"
+	      mkdir --parents "$PATH_PREFIX/\${dir%/*}"
+	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
 	    done
 	  )
 	}
 	
 	init_prefix_files() {
 	  (
-	    cd "\$1"
+	    cd "$1"
 	    find . -type f | while read file; do
-	      local file_prefix="\$(readlink -e "\$PATH_PREFIX/\$file")"
-	      local file_real="\$(readlink -e "\$file")"
-	      if [ "\$file_real" != "\$file_prefix" ]; then
-	        rm --force "\$PATH_PREFIX/\$file"
-	        mkdir --parents "\$PATH_PREFIX/\${file%/*}"
-	        ln --symbolic "\$file_real" "\$PATH_PREFIX/\$file"
+	      local file_prefix="$(readlink -e "$PATH_PREFIX/$file")"
+	      local file_real="$(readlink -e "$file")"
+	      if [ "$file_real" != "$file_prefix" ]; then
+	        rm --force "$PATH_PREFIX/$file"
+	        mkdir --parents "$PATH_PREFIX/${file%/*}"
+	        ln --symbolic "$file_real" "$PATH_PREFIX/$file"
 	      fi
 	    done
 	  )
@@ -148,14 +148,14 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_dirs() {
 	  (
-	    local dest="\$1"
+	    local dest="$1"
 	    shift 1
-	    cd "\$PATH_GAME"
-	    for dir in \$@; do
-	      if [ -e "\$dir" ]; then
-	        cp --parents --recursive "\$dir" "\$dest"
+	    cd "$PATH_GAME"
+	    for dir in $@; do
+	      if [ -e "$dir" ]; then
+	        cp --parents --recursive "$dir" "$dest"
 	      else
-	        mkdir --parents "\$dest/\$dir"
+	        mkdir --parents "$dest/$dir"
 	      fi
 	    done
 	  )
@@ -163,12 +163,12 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_files() {
 	  (
-	    local dest="\$1"
+	    local dest="$1"
 	    shift 1
-	    cd "\$PATH_GAME"
-	    for file in \$@; do
-	      if [ -e "\$file" ]; then
-	        cp --parents "\$file" "\$dest"
+	    cd "$PATH_GAME"
+	    for file in $@; do
+	      if [ -e "$file" ]; then
+	        cp --parents "$file" "$dest"
 	      fi
 	    done
 	  )
