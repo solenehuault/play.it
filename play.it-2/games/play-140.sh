@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170331.1
 
 # Set game-specific variables
 
@@ -130,8 +130,7 @@ case "$ARCHIVE" in
 esac
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
