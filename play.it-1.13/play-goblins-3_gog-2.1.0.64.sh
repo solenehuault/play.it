@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160409.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -217,7 +217,7 @@ case ${GAME_LANG} in
 	fr) LAUNCHER_OPTIONS='--language=fr' ;;
 	en|*) LAUNCHER_OPTIONS='' ;;
 esac
-write_bin_scummvm "${PKG1_DIR}${PATH_BIN}/${APP1_ID_PKG2}" "${APP1_SCUMMID}" "${LAUNCHER_OPTIONS}" '' "${APP1_NAME_PKG2}"
+write_bin_scummvm "${PKG2_DIR}${PATH_BIN}/${APP1_ID_PKG2}" "${APP1_SCUMMID}" "${LAUNCHER_OPTIONS}" '' "${APP1_NAME_PKG2}"
 
 write_desktop "${APP1_ID_PKG1}" "${APP1_NAME_PKG1}" "${APP1_NAME_FR_PKG1}" "${PKG1_DIR}${PATH_DESK}/${APP1_ID_PKG1}.desktop" "${APP1_CAT}" 'scummvm'
 write_desktop "${APP1_ID_PKG2}" "${APP1_NAME_PKG2}" "${APP1_NAME_FR_PKG2}" "${PKG2_DIR}${PATH_DESK}/${APP1_ID_PKG2}.desktop" "${APP1_CAT}" 'scummvm'
