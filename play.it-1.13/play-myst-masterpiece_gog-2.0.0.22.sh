@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160501.1
+script_version=20170405.1
 
 # Setting game-specific variables
 
@@ -67,7 +67,7 @@ APP1_CAT='Game'
 
 PKG_ID="${GAME_ID}"
 PKG_VERSION='1.0'
-PKG_DEPS='scummvm-data, libasound2, libc6, libgcc1, libgl1-mesa-glx | libgl1, libjpeg62-turbo, libsdl2-2.0-0, libstdc++6, zlib1g'
+PKG_DEPS='scummvm-data, libasound2, libc6, libgcc1, libgl1-mesa-glx | libgl1, libjpeg62-turbo | libjpeg62, libsdl2-2.0-0, libstdc++6, zlib1g'
 PKG_DESC="${GAME_NAME}
  package built from GOG.com installer
  ./play.it script version ${script_version}"
