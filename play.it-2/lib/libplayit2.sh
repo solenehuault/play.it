@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170329.1
+library_revision=20170405.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -718,7 +718,7 @@ set_source_archive() {
 
 # set archive-related vars
 # USAGE: set_source_archive_vars
-# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_UNCOMPRESSED_SIZE
+# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_SIZE
 # CALLS: set_source_archive_error_no_type
 # CALLED BY: set_source_archive file_checksum
 set_source_archive_vars() {
@@ -744,7 +744,7 @@ set_source_archive_vars() {
 		eval ${archive}_TYPE=$ARCHIVE_TYPE
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
-	ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+	ARCHIVE_SIZE="$(eval echo \$${archive}_SIZE)"
 	PKG_VERSION="$(eval echo \$${archive}_VERSION)"
 }
 
@@ -907,11 +907,11 @@ set_workdir() {
 
 # set gobal working directory
 # USAGE: set_workdir_workdir
-# NEEDED VARS: $ARCHIVE $ARCHIVE_UNCOMPRESSED_SIZE
+# NEEDED VARS: $ARCHIVE $ARCHIVE_SIZE
 # CALLED BY: set_workdir
 set_workdir_workdir() {
 	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
-	local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
+	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
 	local needed_space=$(($archive_size * 2))
 	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
 	if [ $free_space_tmp -ge $needed_space ]; then
@@ -1053,23 +1053,23 @@ write_bin_winecfg() {
 # write launcher script - set common user-writables directories
 # USAGE: write_bin_build_userdirs
 write_bin_build_userdirs() {
-	cat >> "$file" <<- EOF
+	cat >> "$file" <<- 'EOF'
 	# Build user-writable directories
 	
-	if [ ! -e "\$PATH_CACHE" ]; then
-	  mkdir --parents "\$PATH_CACHE"
-	  init_userdir_dirs "\$PATH_CACHE" \$CACHE_DIRS
-	  init_userdir_files "\$PATH_CACHE" \$CACHE_FILES
+	if [ ! -e "$PATH_CACHE" ]; then
+	  mkdir --parents "$PATH_CACHE"
+	  init_userdir_dirs "$PATH_CACHE" $CACHE_DIRS
+	  init_userdir_files "$PATH_CACHE" $CACHE_FILES
 	fi
-	if [ ! -e "\$PATH_CONFIG" ]; then
-	  mkdir --parents "\$PATH_CONFIG"
-	  init_userdir_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
-	  init_userdir_files "\$PATH_CONFIG" \$CONFIG_FILES
+	if [ ! -e "$PATH_CONFIG" ]; then
+	  mkdir --parents "$PATH_CONFIG"
+	  init_userdir_dirs "$PATH_CONFIG" $CONFIG_DIRS
+	  init_userdir_files "$PATH_CONFIG" $CONFIG_FILES
 	fi
-	if [ ! -e "\$PATH_DATA" ]; then
-	  mkdir --parents "\$PATH_DATA"
-	  init_userdir_dirs "\$PATH_DATA" \$DATA_DIRS
-	  init_userdir_files "\$PATH_DATA" \$DATA_FILES
+	if [ ! -e "$PATH_DATA" ]; then
+	  mkdir --parents "$PATH_DATA"
+	  init_userdir_dirs "$PATH_DATA" $DATA_DIRS
+	  init_userdir_files "$PATH_DATA" $DATA_FILES
 	fi
 	
 	EOF
@@ -1078,10 +1078,10 @@ write_bin_build_userdirs() {
 # write launcher script - set WINE-specific user-writables directories
 # USAGE: write_bin_build_userdirs_wine
 write_bin_build_userdirs_wine() {
-	cat >> "$file" <<- EOF
+	cat >> "$file" <<- 'EOF'
 	export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
-	if ! [ -e "\$WINEPREFIX" ]; then
-	  mkdir --parents "\${WINEPREFIX%/*}"
+	if ! [ -e "$WINEPREFIX" ]; then
+	  mkdir --parents "${WINEPREFIX%/*}"
 	  wineboot --init 2>/dev/null
 	EOF
 
@@ -1091,8 +1091,8 @@ write_bin_build_userdirs_wine() {
 		EOF
 	fi
 
-	cat >> "$file" <<- EOF
-	  rm "\$WINEPREFIX/dosdevices/z:"
+	cat >> "$file" <<- 'EOF'
+	  rm "$WINEPREFIX/dosdevices/z:"
 	fi
 	EOF
 }
@@ -1105,17 +1105,17 @@ write_bin_build_prefix() {
 	
 	EOF
 	[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
-	cat >> "$file" <<- EOF
-	if [ ! -e "\$PATH_PREFIX" ]; then
-	  mkdir --parents "\$PATH_PREFIX"
-	  cp --force --recursive --symbolic-link --update "\${PATH_GAME}"/* "\${PATH_PREFIX}"
+	cat >> "$file" <<- 'EOF'
+	if [ ! -e "$PATH_PREFIX" ]; then
+	  mkdir --parents "$PATH_PREFIX"
+	  cp --force --recursive --symbolic-link --update "$PATH_GAME"/* "$PATH_PREFIX"
 	fi
-	init_prefix_files "\$PATH_CACHE"
-	init_prefix_files "\$PATH_CONFIG"
-	init_prefix_files "\$PATH_DATA"
-	init_prefix_dirs "\$PATH_CACHE" \$CACHE_DIRS
-	init_prefix_dirs "\$PATH_CONFIG" \$CONFIG_DIRS
-	init_prefix_dirs "\$PATH_DATA" \$DATA_DIRS
+	init_prefix_files "$PATH_CACHE"
+	init_prefix_files "$PATH_CONFIG"
+	init_prefix_files "$PATH_DATA"
+	init_prefix_dirs "$PATH_CACHE" $CACHE_DIRS
+	init_prefix_dirs "$PATH_CONFIG" $CONFIG_DIRS
+	init_prefix_dirs "$PATH_DATA" $DATA_DIRS
 	
 	EOF
 }
@@ -1145,10 +1145,10 @@ write_bin_run() {
 	esac
 
 	if [ $app_type != 'scummvm' ]; then
-		cat >> "$file" <<- EOF
-		clean_userdir "\$PATH_CACHE" \$CACHE_FILES
-		clean_userdir "\$PATH_CONFIG" \$CONFIG_FILES
-		clean_userdir "\$PATH_DATA" \$DATA_FILES
+		cat >> "$file" <<- 'EOF'
+		clean_userdir "$PATH_CACHE" $CACHE_FILES
+		clean_userdir "$PATH_CONFIG" $CONFIG_FILES
+		clean_userdir "$PATH_DATA" $DATA_FILES
 		EOF
 	fi
 
@@ -1161,8 +1161,8 @@ write_bin_run() {
 # USAGE: write_bin_run_dosbox
 # CALLED BY: write_bin_run
 write_bin_run_dosbox() {
-	cat >> "$file" <<- EOF
-	cd "\$PATH_PREFIX"
+	cat >> "$file" <<- 'EOF'
+	cd "$PATH_PREFIX"
 	dosbox -c "mount c .
 	c:
 	EOF
@@ -1179,8 +1179,8 @@ write_bin_run_dosbox() {
 		EOF
 	fi
 
-	cat >> "$file" <<- EOF
-	\$APP_EXE \$APP_OPTIONS \$@
+	cat >> "$file" <<- 'EOF'
+	$APP_EXE $APP_OPTIONS $@
 	exit"
 	EOF
 }
@@ -1189,16 +1189,16 @@ write_bin_run_dosbox() {
 # USAGE: write_bin_run_native
 # CALLED BY: write_bin_run
 write_bin_run_native() {
-	cat >> "$file" <<- EOF
-	cd "\$PATH_PREFIX"
-	rm --force "\$APP_EXE"
-	if [ -e "\$PATH_DATA/\$APP_EXE" ]; then
-	  source_dir="\$PATH_DATA"
+	cat >> "$file" <<- 'EOF'
+	cd "$PATH_PREFIX"
+	rm --force "$APP_EXE"
+	if [ -e "$PATH_DATA/$APP_EXE" ]; then
+	  source_dir="$PATH_DATA"
 	else
-	  source_dir="\$PATH_GAME"
+	  source_dir="$PATH_GAME"
 	fi
-	mkdir --parents "\$(dirname \$APP_EXE)"
-	cp "\$source_dir/\$APP_EXE" "\$APP_EXE"
+	mkdir --parents "$(dirname $APP_EXE)"
+	cp "$source_dir/$APP_EXE" "$APP_EXE"
 	EOF
 
 	if [ "$app_prerun" ]; then
@@ -1207,8 +1207,8 @@ write_bin_run_native() {
 		EOF
 	fi
 
-	cat >> "$file" <<- EOF
-	"./\$APP_EXE" \$APP_OPTIONS \$@
+	cat >> "$file" <<- 'EOF'
+	"./$APP_EXE" $APP_OPTIONS $@
 	EOF
 }
 
@@ -1222,8 +1222,8 @@ write_bin_run_scummvm() {
 		EOF
 	fi
 
-	cat >> "$file" <<- EOF
-	scummvm -p "\$PATH_GAME" \$APP_OPTIONS \$@ \$SCUMMVM_ID
+	cat >> "$file" <<- 'EOF'
+	scummvm -p "$PATH_GAME" $APP_OPTIONS $@ $SCUMMVM_ID
 	EOF
 }
 
@@ -1231,8 +1231,8 @@ write_bin_run_scummvm() {
 # USAGE: write_bin_run_wine
 # CALLED BY: write_bin_run
 write_bin_run_wine() {
-	cat >> "$file" <<- EOF
-	cd "\$PATH_PREFIX"
+	cat >> "$file" <<- 'EOF'
+	cd "$PATH_PREFIX"
 	EOF
 
 	if [ "$app_prerun" ]; then
@@ -1241,8 +1241,8 @@ write_bin_run_wine() {
 		EOF
 	fi
 
-	cat >> "$file" <<- EOF
-	wine "\$APP_EXE" \$APP_OPTIONS \$@
+	cat >> "$file" <<- 'EOF'
+	wine "$APP_EXE" $APP_OPTIONS $@
 	EOF
 }
 
@@ -1310,28 +1310,28 @@ write_bin_set_prefix() {
 # CALLED BY: write_bin_set_prefix
 # CALLS: write_bin_set_prefix_wine
 write_bin_set_prefix_vars() {
-	cat >> "$file" <<- EOF
+	cat >> "$file" <<- 'EOF'
 	# Set prefix-specific variables
 	
-	if [ ! -w "\$XDG_CACHE_HOME" ]; then
-	  XDG_CACHE_HOME="\${HOME}/.cache"
+	if [ ! -w "$XDG_CACHE_HOME" ]; then
+	  XDG_CACHE_HOME="$HOME/.cache"
 	fi
-	if [ ! -w "\$XDG_CONFIG_HOME" ]; then
-	  XDG_CONFIG_HOME="\${HOME}/.config"
+	if [ ! -w "$XDG_CONFIG_HOME" ]; then
+	  XDG_CONFIG_HOME="$HOME/.config"
 	fi
-	if [ ! -w "\$XDG_DATA_HOME" ]; then
-	  XDG_DATA_HOME="\${HOME}/.local/share"
+	if [ ! -w "$XDG_DATA_HOME" ]; then
+	  XDG_DATA_HOME="$HOME/.local/share"
 	fi
 	
-	PATH_CACHE="\${XDG_CACHE_HOME}/\${PREFIX_ID}"
-	PATH_CONFIG="\${XDG_CONFIG_HOME}/\${PREFIX_ID}"
-	PATH_DATA="\${XDG_DATA_HOME}/games/\${PREFIX_ID}"
+	PATH_CACHE="$XDG_CACHE_HOME/$PREFIX_ID"
+	PATH_CONFIG="$XDG_CONFIG_HOME/$PREFIX_ID"
+	PATH_DATA="$XDG_DATA_HOME/games/$PREFIX_ID"
 	EOF
 	if [ "$app_type" = 'wine' ] ; then
 		write_bin_set_prefix_vars_wine
 	else
-		cat >> "$file" <<- EOF
-		PATH_PREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
+		cat >> "$file" <<- 'EOF'
+		PATH_PREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
 		EOF
 	fi
 }
@@ -1340,9 +1340,9 @@ write_bin_set_prefix_vars() {
 # USAGE: write_bin_set_prefix_vars_wine
 # CALLED BY: write_bin_set_prefix_vars
 write_bin_set_prefix_vars_wine() {
-	cat >> "$file" <<- EOF
-	WINEPREFIX="\${XDG_DATA_HOME}/play.it/prefixes/\${PREFIX_ID}"
-	PATH_PREFIX="\${WINEPREFIX}/drive_c/\${GAME_ID}"
+	cat >> "$file" <<- 'EOF'
+	WINEPREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
+	PATH_PREFIX="$WINEPREFIX/drive_c/$GAME_ID"
 	WINEARCH='win32'
 	WINEDEBUG='-all'
 	WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
@@ -1354,41 +1354,41 @@ write_bin_set_prefix_vars_wine() {
 # USAGE: write_bin_set_prefix_funcs
 # CALLED BY: write_bin_set_prefix
 write_bin_set_prefix_funcs() {
-	cat >> "$file" <<- EOF
+	cat >> "$file" <<- 'EOF'
 	clean_userdir() {
-	  local target="\$1"
+	  local target="$1"
 	  shift 1
-	  for file in "\$@"; do
-	  if [ -f "\${file}" ] && [ ! -f "\${target}/\${file}" ]; then
-	    mkdir --parents "\${target}/\${file%/*}"
-	    mv "\${file}" "\${target}/\${file}"
-	    ln --symbolic "\${target}/\${file}" "\${file}"
+	  for file in "$@"; do
+	  if [ -f "$file" ] && [ ! -f "$target/$file" ]; then
+	    mkdir --parents "$target/${file%/*}"
+	    mv "$file" "$target/$file"
+	    ln --symbolic "$target/$file" "$file"
 	  fi
 	  done
 	}
 	
 	init_prefix_dirs() {
 	  (
-	    cd "\$1"
+	    cd "$1"
 	    shift 1
-	    for dir in \$@; do
-	      rm --force --recursive "\${PATH_PREFIX}/\${dir}"
-	      mkdir --parents "\${PATH_PREFIX}/\${dir%/*}"
-	      ln --symbolic "\$(readlink -e "\${dir}")" "\${PATH_PREFIX}/\${dir}"
+	    for dir in $@; do
+	      rm --force --recursive "$PATH_PREFIX/$dir"
+	      mkdir --parents "$PATH_PREFIX/\${dir%/*}"
+	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
 	    done
 	  )
 	}
 	
 	init_prefix_files() {
 	  (
-	    cd "\$1"
+	    cd "$1"
 	    find . -type f | while read file; do
-	      local file_prefix="\$(readlink -e "\$PATH_PREFIX/\$file")"
-	      local file_real="\$(readlink -e "\$file")"
-	      if [ "\$file_real" != "\$file_prefix" ]; then
-	        rm --force "\$PATH_PREFIX/\$file"
-	        mkdir --parents "\$PATH_PREFIX/\${file%/*}"
-	        ln --symbolic "\$file_real" "\$PATH_PREFIX/\$file"
+	      local file_prefix="$(readlink -e "$PATH_PREFIX/$file")"
+	      local file_real="$(readlink -e "$file")"
+	      if [ "$file_real" != "$file_prefix" ]; then
+	        rm --force "$PATH_PREFIX/$file"
+	        mkdir --parents "$PATH_PREFIX/${file%/*}"
+	        ln --symbolic "$file_real" "$PATH_PREFIX/$file"
 	      fi
 	    done
 	  )
@@ -1396,14 +1396,14 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_dirs() {
 	  (
-	    local dest="\$1"
+	    local dest="$1"
 	    shift 1
-	    cd "\$PATH_GAME"
-	    for dir in \$@; do
-	      if [ -e "\$dir" ]; then
-	        cp --parents --recursive "\$dir" "\$dest"
+	    cd "$PATH_GAME"
+	    for dir in $@; do
+	      if [ -e "$dir" ]; then
+	        cp --parents --recursive "$dir" "$dest"
 	      else
-	        mkdir --parents "\$dest/\$dir"
+	        mkdir --parents "$dest/$dir"
 	      fi
 	    done
 	  )
@@ -1411,12 +1411,12 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_files() {
 	  (
-	    local dest="\$1"
+	    local dest="$1"
 	    shift 1
-	    cd "\$PATH_GAME"
-	    for file in \$@; do
-	      if [ -e "\$file" ]; then
-	        cp --parents "\$file" "\$dest"
+	    cd "$PATH_GAME"
+	    for file in $@; do
+	      if [ -e "$file" ]; then
+	        cp --parents "$file" "$dest"
 	      fi
 	    done
 	  )
