@@ -46,7 +46,7 @@ set_source_archive() {
 
 # set archive-related vars
 # USAGE: set_source_archive_vars
-# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_UNCOMPRESSED_SIZE
+# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_SIZE
 # CALLS: set_source_archive_error_no_type
 # CALLED BY: set_source_archive file_checksum
 set_source_archive_vars() {
@@ -72,7 +72,7 @@ set_source_archive_vars() {
 		eval ${archive}_TYPE=$ARCHIVE_TYPE
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
-	ARCHIVE_UNCOMPRESSED_SIZE="$(eval echo \$${archive}_UNCOMPRESSED_SIZE)"
+	ARCHIVE_SIZE="$(eval echo \$${archive}_SIZE)"
 	PKG_VERSION="$(eval echo \$${archive}_VERSION)"
 }
 

@@ -19,11 +19,11 @@ set_workdir() {
 
 # set gobal working directory
 # USAGE: set_workdir_workdir
-# NEEDED VARS: $ARCHIVE $ARCHIVE_UNCOMPRESSED_SIZE
+# NEEDED VARS: $ARCHIVE $ARCHIVE_SIZE
 # CALLED BY: set_workdir
 set_workdir_workdir() {
 	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
-	local archive_size=$(eval echo \$${ARCHIVE}_UNCOMPRESSED_SIZE)
+	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
 	local needed_space=$(($archive_size * 2))
 	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
 	if [ $free_space_tmp -ge $needed_space ]; then
