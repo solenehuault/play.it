@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170405.2
 
 # Set game-specific variables
 
@@ -53,12 +53,16 @@ ARCHIVE_GOG_FR_SIZE='250000'
 
 ARCHIVE_DOC1_MAIN_PATH='data/noarch/docs'
 ARCHIVE_DOC1_MAIN_FILES='./*.pdf'
-ARCHIVE_DOC_L10N_PATH='data/noarch/docs'
-ARCHIVE_DOC_L10N_FILES='./*.txt'
+
 ARCHIVE_DOC2_MAIN_PATH='data/noarch/data'
 ARCHIVE_DOC2_MAIN_FILES='./*.txt'
+
+ARCHIVE_DOC_L10N_PATH='data/noarch/docs'
+ARCHIVE_DOC_L10N_FILES='./*.txt'
+
 ARCHIVE_GAME_MAIN_PATH='data/noarch/data'
-ARCHIVE_GAME_MAIN_FILES='./*.ini alife/*.ini alife/install.bat alife/dos4gw.exe alife/uvconfig.exe'
+ARCHIVE_GAME_MAIN_FILES='./*.ini ./alife/*.ini ./alife/install.bat ./alife/dos4gw.exe ./alife/uvconfig.exe'
+
 ARCHIVE_GAME_L10N_PATH='data/noarch/data'
 ARCHIVE_GAME_L10N_FILES='./*'
 
@@ -71,14 +75,11 @@ APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
 PKG_L10N_ID="${GAME_ID}-l10n"
-PKG_L10N_CONFLICTS_DEB="$PKG_L10N_ID"
-PKG_L10N_CONFLICTS_ARCH="$PKG_L10N_ID"
-PKG_L10N_PROVIDES_DEB="$PKG_L10N_ID"
-PKG_L10N_PROVIDES_ARCH="$PKG_L10N_ID"
+PKG_L10N_PROVIDE="$PKG_L10N_ID"
 PKG_L10N_ID_EN="${GAME_ID}-l10n-en"
 PKG_L10N_ID_FR="${GAME_ID}-l10n-fr"
-PKG_L10N_DESCRIPTION_EN="English files"
-PKG_L10N_DESCRIPTION_FR="French files"
+PKG_L10N_DESCRIPTION_EN='English localization'
+PKG_L10N_DESCRIPTION_FR='French localization'
 
 PKG_MAIN_DEPS_DEB="$PKG_L10N_ID, dosbox"
 PKG_MAIN_DEPS_ARCH="$PKG_L10N_ID dosbox"
@@ -87,10 +88,10 @@ PKG_MAIN_DEPS_ARCH="$PKG_L10N_ID dosbox"
 
 target_version='2.0'
 
-if [ -z "${PLAYIT_LIB2}" ]; then
-	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="${HOME}/.local/share"
-	if [ -e "${XDG_DATA_HOME}/play.it/libplayit2.sh" ]; then
-		PLAYIT_LIB2="${XDG_DATA_HOME}/play.it/libplayit2.sh"
+if [ -z "$PLAYIT_LIB2" ]; then
+	[ -n "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+	if [ -e "$XDG_DATA_HOME/play.it/libplayit2.sh" ]; then
+		PLAYIT_LIB2="$XDG_DATA_HOME/play.it/libplayit2.sh"
 	elif [ -e './libplayit2.sh' ]; then
 		PLAYIT_LIB2='./libplayit2.sh'
 	else
@@ -104,7 +105,7 @@ fi
 if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
 	printf '\n\033[1;31mError:\033[0m\n'
 	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "${target_version}"
+	printf 'target version is: %s\n' "$target_version"
 	return 1
 fi
 
@@ -128,11 +129,9 @@ case "$ARCHIVE" in
 		PKG_L10N_DESCRIPTION="$PKG_L10N_DESCRIPTION_FR"
 	;;
 esac
-
 check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
-check_deps
 
 # Extract game data
 
@@ -140,7 +139,7 @@ set_workdir 'PKG_MAIN' 'PKG_L10N'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_L10N'
-organize_data 'DOC_L10N' "$PATH_DOC"
+organize_data 'DOC_L10N'  "$PATH_DOC"
 organize_data 'GAME_L10N' "$PATH_GAME"
 
 PKG='PKG_MAIN'
@@ -157,15 +156,15 @@ rm --recursive "${PLAYIT_WORKDIR}/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-sed -i 's|$APP_EXE $APP_OPTIONS $@|cd ${APP_EXE%/*}\n${APP_EXE##*/} $APP_OPTIONS $@|' "${PKG_MAIN_PATH}${PATH_BIN}/${GAME_ID}"
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
+
+sed -i 's|$APP_EXE $APP_OPTIONS $@|cd ${APP_EXE%/*}\n${APP_EXE##*/} $APP_OPTIONS $@|' "${PKG_MAIN_PATH}${PATH_BIN}/${GAME_ID}"
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-write_metadata 'PKG_L10N'
-build_pkg 'PKG_L10N' 'PKG_MAIN'
+write_metadata 'PKG_MAIN' 'PKG_L10N'
+build_pkg      'PKG_MAIN' 'PKG_L10N'
 
 # Clean up
 
