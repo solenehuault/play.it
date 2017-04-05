@@ -25,19 +25,18 @@ set_workdir_workdir() {
 	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
 	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
 	local needed_space=$(($archive_size * 2))
+	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
+	local free_space_run=$(df --output=avail /run/user/$(id -u) | tail --lines=1)
 	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
-	if [ $free_space_tmp -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="/tmp/play.it/${workdir_name}"
+	local free_space_cache=$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)
+	if [ $free_space_run -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="/run/user/$(id -u)/play.it/$workdir_name"
+	elif [ $free_space_tmp -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="/tmp/play.it/$workdir_name"
+	elif [ $free_space_cache -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="$XDG_CACHE_HOME/play.it/$workdir_name"
 	else
-		if [ ! -w "$XDG_CACHE_HOME" ]; then
-			XDG_CACHE_HOME="${HOME}/.cache"
-		fi
-		local free_space_cache="$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)"
-		if [ $free_space_cache -ge $needed_space ]; then
-			export PLAYIT_WORKDIR="${XDG_CACHE_HOME}/play.it/${workdir_name}"
-		else
-			export PLAYIT_WORKDIR="${PWD}/play.it/${workdir_name}"
-		fi
+		export PLAYIT_WORKDIR="$PWD/play.it/$workdir_name"
 	fi
 }
 
