@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.2
+script_version=20170405.3
 
 # Set game-specific variables
 
@@ -137,6 +137,7 @@ file_checksum "$SOURCE_ARCHIVE"
 
 set_workdir 'PKG_MAIN' 'PKG_L10N'
 extract_data_from "$SOURCE_ARCHIVE"
+tolower "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_L10N'
 organize_data 'DOC_L10N'  "$PATH_DOC"
@@ -152,7 +153,7 @@ PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
 mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
-rm --recursive "${PLAYIT_WORKDIR}/gamedata"
+rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
