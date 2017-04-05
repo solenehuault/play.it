@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -44,7 +44,7 @@ GAME_IMAGE='.'
 
 ARCHIVE_GOG='setup_tes_arena_2.0.0.5.exe'
 ARCHIVE_GOG_MD5='ca5a894aa852f9dbb3ede787e51ec828'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='130000'
+ARCHIVE_GOG_SIZE='130000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.5'
 
 ARCHIVE_DOC1_PATH='app'

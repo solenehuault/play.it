@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -44,7 +44,7 @@ GAME_NAME='Skullgirls'
 ARCHIVE_HUMBLE='Skullgirls-1.0.1.sh'
 ARCHIVE_HUMBLE_MD5='bf110f7d29bfd4b9e075584e41fef402'
 ARCHIVE_HUMBLE_TYPE='mojosetup'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='4200000'
+ARCHIVE_HUMBLE_SIZE='4200000'
 ARCHIVE_HUMBLE_VERSION='1.0.1-humble152310'
 
 ARCHIVE_GAME_DATA_PATH='data/noarch'

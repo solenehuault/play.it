@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -45,7 +45,7 @@ GAME_NAME='The Swapper'
 
 ARCHIVE_HUMBLE='the-swapper-linux-1.24_1409159048.sh'
 ARCHIVE_HUMBLE_MD5='4f9627d245388edc320f61fae7cbd29f'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='980000'
+ARCHIVE_HUMBLE_SIZE='980000'
 ARCHIVE_HUMBLE_VERSION='1.24-humble140404'
 ARCHIVE_HUMBLE_TYPE='mojosetup'
 

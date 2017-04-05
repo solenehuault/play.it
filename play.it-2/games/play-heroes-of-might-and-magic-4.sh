@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -44,12 +44,12 @@ GAME_NAME='Heroes of Might and Magic IV'
 ARCHIVE_GOG_EN='setup_homm4_complete_2.0.0.12.exe'
 ARCHIVE_GOG_EN_MD5='74de66eb408bb2916dd0227781ba96dc'
 ARCHIVE_GOG_EN_VERSION='3.0-gog2.0.0.12'
-ARCHIVE_GOG_EN_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_GOG_EN_SIZE='1100000'
 
 ARCHIVE_GOG_FR='setup_homm4_complete_french_2.1.0.14.exe'
 ARCHIVE_GOG_FR_MD5='2af96eb28226e563bbbcd62771f3a319'
 ARCHIVE_GOG_FR_VERSION='3.0-gog2.1.0.14'
-ARCHIVE_GOG_FR_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_GOG_FR_SIZE='1100000'
 
 ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./*eula.txt'

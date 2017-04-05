@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='GreedCorp'
 
 ARCHIVE_HUMBLE='greedcorp_linux.tar.gz'
 ARCHIVE_HUMBLE_MD5='c1cffb847bf65caf8abd4c589813884a'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='210000'
+ARCHIVE_HUMBLE_SIZE='210000'
 ARCHIVE_HUMBLE_VERSION='1.0-humble'
 
 ARCHIVE_GAME_32_PATH='GreedCorp'

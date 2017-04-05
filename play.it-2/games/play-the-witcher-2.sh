@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='The Witcher 2: Assassins Of Kings'
 
 ARCHIVE_GOG='gog_the_witcher_2_assassins_of_kings_enhanced_edition_2.2.0.8.sh'
 ARCHIVE_GOG_MD5='3fff5123677a7be2023ecdb6af3b82b6'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='24000000'
+ARCHIVE_GOG_SIZE='24000000'
 ARCHIVE_GOG_VERSION='1release3-gog2.2.0.8'
 ARCHIVE_GOG_TYPE='mojosetup_unzip'
 

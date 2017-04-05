@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Anachronox'
 
 ARCHIVE_GOG='setup_anachronox_2.0.0.28.exe'
 ARCHIVE_GOG_MD5='a9e148972e51a4980a2531d12a85dfc0'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_GOG_SIZE='1100000'
 ARCHIVE_GOG_VERSION='1.02build46-gog2.0.0.28'
 
 DATA_DIRS='anoxdata/logs anoxdata/save'

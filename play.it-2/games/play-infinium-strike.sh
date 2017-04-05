@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Infinium Strike'
 
 ARCHIVE_GOG='gog_infinium_strike_2.1.0.2.sh'
 ARCHIVE_GOG_MD5='57725aad8ba419d80788412f8f33f030'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2500000'
+ARCHIVE_GOG_SIZE='2500000'
 ARCHIVE_GOG_VERSION='1.0.5-gog2.1.0.2'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

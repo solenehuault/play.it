@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Darkest Dungeon'
 
 ARCHIVE_GOG='gog_darkest_dungeon_2.10.0.10.sh'
 ARCHIVE_GOG_MD5='f8fa42b354731886f9b69e1d0e78b3b7'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2000000'
+ARCHIVE_GOG_SIZE='2000000'
 ARCHIVE_GOG_VERSION='17687-gog2.10.0.10'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

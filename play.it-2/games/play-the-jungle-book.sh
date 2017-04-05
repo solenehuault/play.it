@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='The Jungle Book'
 
 ARCHIVE_GOG='gog_disney_s_the_jungle_book_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='bcb57f4ff5cb1662ba3d4a9e34f263ad'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='15000'
+ARCHIVE_GOG_SIZE='15000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.2'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

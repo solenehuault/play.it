@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Botanicula'
 
 ARCHIVE_GOG='gog_botanicula_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='7b92a379f8d2749e2f97c43ecc540c3c'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='760000'
+ARCHIVE_GOG_SIZE='760000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.2'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

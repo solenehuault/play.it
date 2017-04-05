@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -46,12 +46,12 @@ ARCHIVE_GOG_EN_MD5='263d58f8cc026dd861e9bbcadecba318'
 ARCHIVE_GOG_EN_PATCH='patch_heroes_of_might_and_magic_3_complete_2.0.1.17.exe'
 ARCHIVE_GOG_EN_PATCH_MD5='815b9c097cd57d0e269beb4cc718dad3'
 ARCHIVE_GOG_EN_PATCH_VERSION='3.0-gog2.0.1.17'
-ARCHIVE_GOG_EN_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_GOG_EN_SIZE='1100000'
 
 ARCHIVE_GOG_FR='setup_homm3_complete_french_2.1.0.20.exe'
 ARCHIVE_GOG_FR_MD5='ca8e4726acd7b5bc13c782d59c5a459b'
 ARCHIVE_GOG_FR_VERSION='3.0-gog2.1.0.20'
-ARCHIVE_GOG_FR_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_GOG_FR_SIZE='1100000'
 
 ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./*eula.txt'

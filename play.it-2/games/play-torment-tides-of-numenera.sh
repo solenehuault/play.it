@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.2
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Torment: Tides of Numenera'
 
 ARCHIVE_GOG='gog_torment_tides_of_numenera_2.1.0.2.sh'
 ARCHIVE_GOG_MD5='775daada251fa3b54785812e8134b898'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='9200000'
+ARCHIVE_GOG_SIZE='9200000'
 ARCHIVE_GOG_VERSION='1.0.2-gog2.1.0.2'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

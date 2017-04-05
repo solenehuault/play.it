@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='War§ow'
 
 ARCHIVE_GOG='gog_warsow_2.1.0.3.sh'
 ARCHIVE_GOG_MD5='028efe7a5f4dfd8851c2146431c7ca4a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='490000'
+ARCHIVE_GOG_SIZE='490000'
 ARCHIVE_GOG_VERSION='2.1-gog2.1.0.3'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

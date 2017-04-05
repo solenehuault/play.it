@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Braveland Wizard'
 
 ARCHIVE_GOG='gog_braveland_wizard_2.1.0.4.sh'
 ARCHIVE_GOG_MD5='14346dc8d6e7ad410dd1b179763aa94e'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='450000'
+ARCHIVE_GOG_SIZE='450000'
 ARCHIVE_GOG_VERSION='1.1.1.11-gog2.1.0.4'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

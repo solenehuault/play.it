@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Race The Sun - Sunrise'
 
 ARCHIVE_GOG='gog_race_the_sun_sunrise_dlc_2.0.0.1.sh'
 ARCHIVE_GOG_MD5='5af9dee7941f63c310d83ac771d26884'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1100'
+ARCHIVE_GOG_SIZE='1100'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.1'
 
 ARCHIVE_GAME_PATH='data/noarch/game'

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Bastion'
 
 ARCHIVE_HUMBLE='Bastion-HIB-2012-06-20.sh'
 ARCHIVE_HUMBLE_MD5='aa6ccaead3b4b8a5fbd156f4019e8c8b'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_HUMBLE_SIZE='1100000'
 ARCHIVE_HUMBLE_VERSION='1.2.20120620-humble120620'
 ARCHIVE_HUMBLE_TYPE='nix_stage1'
 

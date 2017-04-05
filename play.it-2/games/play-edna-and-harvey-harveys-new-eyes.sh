@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Edna & Harvey: Harvey’s New Eyes'
 
 ARCHIVE_GOG='gog_edna_harvey_harvey_s_new_eyes_2.0.0.1.sh'
 ARCHIVE_GOG_MD5='fa6f7fd271fe63bbe71e3190e0596546'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='990000'
+ARCHIVE_GOG_SIZE='990000'
 ARCHIVE_GOG_VERSION='3.0.0442-gog2.0.0.1'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

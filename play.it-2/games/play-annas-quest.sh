@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Anna’s Quest'
 
 ARCHIVE_GOG='gog_anna_s_quest_2.1.0.3.sh'
 ARCHIVE_GOG_MD5='cb4cf167a13413b6df8238397393298a'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1100000'
+ARCHIVE_GOG_SIZE='1100000'
 ARCHIVE_GOG_VERSION='1.0.0202-gog2.1.0.3'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

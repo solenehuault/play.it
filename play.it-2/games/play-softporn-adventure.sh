@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Softporn Adventure'
 
 ARCHIVE_GOG='gog_softporn_adventure_2.0.0.1.sh'
 ARCHIVE_GOG_MD5='1e51094f928757140c5a0dacc70773c0'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='11000'
+ARCHIVE_GOG_SIZE='11000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.1'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

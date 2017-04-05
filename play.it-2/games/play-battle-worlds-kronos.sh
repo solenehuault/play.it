@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Battle Worlds: Kronos'
 
 ARCHIVE_GOG='gog_battle_worlds_kronos_2.1.0.6.sh'
 ARCHIVE_GOG_MD5='4d7f9e05524ff6b85139df903dbcb74b'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1300000'
+ARCHIVE_GOG_SIZE='1300000'
 ARCHIVE_GOG_VERSION='1.4.3-gog2.1.0.6'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

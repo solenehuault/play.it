@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
 
 ARCHIVE_GOG='gog_baldur_s_gate_2_enhanced_edition_2.6.0.10.sh'
 ARCHIVE_GOG_MD5='cd4d65cade256285a4490b48a0448e20'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2700000'
+ARCHIVE_GOG_SIZE='2700000'
 ARCHIVE_GOG_VERSION='2.3.67.3-gog2.6.0.10'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
