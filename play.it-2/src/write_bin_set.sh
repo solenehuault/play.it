@@ -125,7 +125,7 @@ write_bin_set_prefix_funcs() {
 	    shift 1
 	    for dir in $@; do
 	      rm --force --recursive "$PATH_PREFIX/$dir"
-	      mkdir --parents "$PATH_PREFIX/\${dir%/*}"
+	      mkdir --parents "$PATH_PREFIX/${dir%/*}"
 	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
 	    done
 	  )
