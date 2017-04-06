@@ -134,6 +134,7 @@ write_metadata_deb() {
 		cat >> "$target" <<- EOF
 		Conflicts: $pkg_provide
 		Provides: $pkg_provide
+		Replaces: $pkg_provide
 		EOF
 	fi
 
