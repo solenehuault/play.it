@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.2
+script_version=20170406.1
 
 # Set game-specific variables
 
@@ -64,6 +64,7 @@ ARCHIVE_GAME_DATA_PATH_HUMBLE='.'
 ARCHIVE_GAME_DATA_FILES='./140_Data'
 
 APP_MAIN_TYPE='native'
+APP_MAIN_PRERUN='pulseaudio --start'
 APP_MAIN_EXE_32='140.x86'
 APP_MAIN_EXE_64='140.x86_64'
 APP_MAIN_ICON='140_Data/Resources/UnityPlayer.png'
@@ -73,12 +74,12 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRITPION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-alsa-lib lib32-libxcursor"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1, pulseaudio"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-alsa-lib lib32-libxcursor pulseaudio"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glu alsa-lib libxcursor"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glu alsa-lib libxcursor pulseaudio"
 
 # Load common functions
 
