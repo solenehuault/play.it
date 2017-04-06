@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170406.2
+script_version=20170406.3
 
 # Set game-specific variables
 
@@ -51,20 +51,17 @@ ARCHIVE_GOG_FR_MD5='56b3efee60bc490c68f8040587fc1878'
 ARCHIVE_GOG_FR_VERSION='1.1-gog2.2.0.8'
 ARCHIVE_GOG_FR_SIZE='250000'
 
-ARCHIVE_DOC1_MAIN_PATH='data/noarch/docs'
-ARCHIVE_DOC1_MAIN_FILES='./*.pdf'
+ARCHIVE_DOC1_PATH='data/noarch/docs'
+ARCHIVE_DOC1_FILES='./*'
 
-ARCHIVE_DOC2_MAIN_PATH='data/noarch/data'
-ARCHIVE_DOC2_MAIN_FILES='./*.txt'
+ARCHIVE_DOC2_PATH='data/noarch/data'
+ARCHIVE_DOC2_FILES='./*.txt'
 
-ARCHIVE_DOC_L10N_PATH='data/noarch/docs'
-ARCHIVE_DOC_L10N_FILES='./*.txt'
+ARCHIVE_GAME_BIN_PATH='data/noarch/data'
+ARCHIVE_GAME_BIN_FILES='./*.exe ./*.ini ./alife/*.bat ./alife/*.exe ./alife/*.ini'
 
-ARCHIVE_GAME_MAIN_PATH='data/noarch/data'
-ARCHIVE_GAME_MAIN_FILES='./*.ini ./alife/*.ini ./alife/install.bat ./alife/dos4gw.exe ./alife/uvconfig.exe'
-
-ARCHIVE_GAME_L10N_PATH='data/noarch/data'
-ARCHIVE_GAME_L10N_FILES='./*'
+ARCHIVE_GAME_DATA_PATH='data/noarch/data'
+ARCHIVE_GAME_DATA_FILES='./*'
 
 CONFIG_FILES='./*.ini */*.ini'
 DATA_DIRS='./save'
@@ -74,15 +71,19 @@ APP_MAIN_EXE='alife/afterdos.bat'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_L10N_ID="${GAME_ID}-l10n"
-PKG_L10N_PROVIDE="$PKG_L10N_ID"
-PKG_L10N_ID_EN="${GAME_ID}-l10n-en"
-PKG_L10N_ID_FR="${GAME_ID}-l10n-fr"
-PKG_L10N_DESCRIPTION_EN='English localization'
-PKG_L10N_DESCRIPTION_FR='French localization'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_PROVIDE="$PKG_DATA_ID"
+PKG_DATA_ID_EN="${PKG_DATA_ID}-en"
+PKG_DATA_ID_FR="${PKG_DATA_ID}-fr"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_MAIN_DEPS_DEB="$PKG_L10N_ID, dosbox"
-PKG_MAIN_DEPS_ARCH="$PKG_L10N_ID dosbox"
+PKG_BIN_ID="$GAME_ID"
+PKG_BIN_ARCH='32'
+PKG_BIN_PROVIDE="$PKG_BIN_ID"
+PKG_BIN_ID_EN="${PKG_BIN_ID}-en"
+PKG_BIN_ID_FR="${PKG_BIN_ID}-fr"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
@@ -120,13 +121,13 @@ set_source_archive 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
 case "$ARCHIVE" in
 	('ARCHIVE_GOG_EN')
 		PKG_VERSION="$ARCHIVE_GOG_EN_VERSION"
-		PKG_L10N_ID="$PKG_L10N_ID_EN"
-		PKG_L10N_DESCRIPTION="$PKG_L10N_DESCRIPTION_EN"
+		PKG_BIN_ID="$PKG_BIN_ID_EN"
+		PKG_DATA_ID="$PKG_DATA_ID_EN"
 	;;
 	('ARCHIVE_GOG_FR')
 		PKG_VERSION="$ARCHIVE_GOG_FR_VERSION"
-		PKG_L10N_ID="$PKG_L10N_ID_FR"
-		PKG_L10N_DESCRIPTION="$PKG_L10N_DESCRIPTION_FR"
+		PKG_BIN_ID="$PKG_BIN_ID_FR"
+		PKG_DATA_ID="$PKG_DATA_ID_FR"
 	;;
 esac
 check_deps
@@ -135,44 +136,44 @@ file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_L10N'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
-PKG='PKG_L10N'
-organize_data 'DOC_L10N'  "$PATH_DOC"
-organize_data 'GAME_L10N' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
 
-PKG='PKG_MAIN'
-organize_data 'DOC1_MAIN' "$PATH_DOC"
-organize_data 'DOC2_MAIN' "$PATH_DOC"
-organize_data 'GAME_MAIN' "$PATH_GAME"
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
-sed -i 's|$APP_EXE $APP_OPTIONS $@|cd ${APP_EXE%/*}\n${APP_EXE##*/} $APP_OPTIONS $@|' "${PKG_MAIN_PATH}${PATH_BIN}/${GAME_ID}"
+sed -i 's|$APP_EXE $APP_OPTIONS $@|cd ${APP_EXE%/*}\n${APP_EXE##*/} $APP_OPTIONS $@|' "${PKG_BIN_PATH}${PATH_BIN}/${GAME_ID}"
 
 # Build package
 
-write_metadata 'PKG_MAIN' 'PKG_L10N'
-build_pkg      'PKG_MAIN' 'PKG_L10N'
+write_metadata 'PKG_BIN' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
-rm --recursive "${PLAYIT_WORKDIR}"
+rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_L10N_PKG" "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
