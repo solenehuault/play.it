@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.3
+script_version=20170406.1
 
 # Set game-specific variables
 
@@ -67,7 +67,7 @@ ARCHIVE_GAME_L10N_PATH='data/noarch/data'
 ARCHIVE_GAME_L10N_FILES='./*'
 
 CONFIG_FILES='./*.ini */*.ini'
-DATA_DIRS='./saves'
+DATA_DIRS='./save'
 
 APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='alife/afterdos.bat'
