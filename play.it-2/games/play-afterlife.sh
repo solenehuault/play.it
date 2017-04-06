@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170406.1
+script_version=20170406.2
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Afterlife'
 
 ARCHIVE_GOG_EN='gog_afterlife_2.2.0.8.sh'
 ARCHIVE_GOG_EN_MD5='3aca0fac1b93adec5aff39d395d995ab'
-ARCHIVE_GOG_EN_VERSION='1.1-gog2.2.0.8'
+ARCHIVE_GOG_EN_VERSION='1.0-gog2.2.0.8'
 ARCHIVE_GOG_EN_SIZE='250000'
 
 ARCHIVE_GOG_FR='gog_afterlife_french_2.2.0.8.sh'
