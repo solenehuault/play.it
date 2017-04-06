@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170405.4
+library_revision=20170406.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -913,12 +913,13 @@ set_workdir_workdir() {
 	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
 	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
 	local needed_space=$(($archive_size * 2))
+	[ "$XDG_RUNTIME_DIR" ] || XDG_RUNTIME_DIR="/run/user/$(id -u)"
 	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
-	local free_space_run=$(df --output=avail /run/user/$(id -u) | tail --lines=1)
+	local free_space_run=$(df --output=avail "$XDG_RUNTIME_DIR" | tail --lines=1)
 	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
 	local free_space_cache=$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)
 	if [ $free_space_run -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="/run/user/$(id -u)/play.it/$workdir_name"
+		export PLAYIT_WORKDIR="$XDG_RUNTIME_DIR/play.it/$workdir_name"
 	elif [ $free_space_tmp -ge $needed_space ]; then
 		export PLAYIT_WORKDIR="/tmp/play.it/$workdir_name"
 	elif [ $free_space_cache -ge $needed_space ]; then
@@ -1057,18 +1058,18 @@ write_bin_build_userdirs() {
 	
 	if [ ! -e "$PATH_CACHE" ]; then
 	  mkdir --parents "$PATH_CACHE"
-	  init_userdir_dirs "$PATH_CACHE" $CACHE_DIRS
-	  init_userdir_files "$PATH_CACHE" $CACHE_FILES
+	  init_userdir_dirs "$PATH_CACHE" "$CACHE_DIRS"
+	  init_userdir_files "$PATH_CACHE" "$CACHE_FILES"
 	fi
 	if [ ! -e "$PATH_CONFIG" ]; then
 	  mkdir --parents "$PATH_CONFIG"
-	  init_userdir_dirs "$PATH_CONFIG" $CONFIG_DIRS
-	  init_userdir_files "$PATH_CONFIG" $CONFIG_FILES
+	  init_userdir_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
+	  init_userdir_files "$PATH_CONFIG" "$CONFIG_FILES"
 	fi
 	if [ ! -e "$PATH_DATA" ]; then
 	  mkdir --parents "$PATH_DATA"
-	  init_userdir_dirs "$PATH_DATA" $DATA_DIRS
-	  init_userdir_files "$PATH_DATA" $DATA_FILES
+	  init_userdir_dirs "$PATH_DATA" "$DATA_DIRS"
+	  init_userdir_files "$PATH_DATA" "$DATA_FILES"
 	fi
 	
 	EOF
@@ -1112,9 +1113,9 @@ write_bin_build_prefix() {
 	init_prefix_files "$PATH_CACHE"
 	init_prefix_files "$PATH_CONFIG"
 	init_prefix_files "$PATH_DATA"
-	init_prefix_dirs "$PATH_CACHE" $CACHE_DIRS
-	init_prefix_dirs "$PATH_CONFIG" $CONFIG_DIRS
-	init_prefix_dirs "$PATH_DATA" $DATA_DIRS
+	init_prefix_dirs "$PATH_CACHE" "$CACHE_DIRS"
+	init_prefix_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
+	init_prefix_dirs "$PATH_DATA" "$DATA_DIRS"
 	
 	EOF
 }
@@ -1145,9 +1146,9 @@ write_bin_run() {
 
 	if [ $app_type != 'scummvm' ]; then
 		cat >> "$file" <<- 'EOF'
-		clean_userdir "$PATH_CACHE" $CACHE_FILES
-		clean_userdir "$PATH_CONFIG" $CONFIG_FILES
-		clean_userdir "$PATH_DATA" $DATA_FILES
+		clean_userdir "$PATH_CACHE" "$CACHE_FILES"
+		clean_userdir "$PATH_CONFIG" "$CONFIG_FILES"
+		clean_userdir "$PATH_DATA" "$DATA_FILES"
 		EOF
 	fi
 
@@ -1369,8 +1370,7 @@ write_bin_set_prefix_funcs() {
 	init_prefix_dirs() {
 	  (
 	    cd "$1"
-	    shift 1
-	    for dir in $@; do
+	    for dir in $2; do
 	      rm --force --recursive "$PATH_PREFIX/$dir"
 	      mkdir --parents "$PATH_PREFIX/${dir%/*}"
 	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
@@ -1395,14 +1395,12 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_dirs() {
 	  (
-	    local dest="$1"
-	    shift 1
 	    cd "$PATH_GAME"
-	    for dir in $@; do
-	      if [ -e "$dir" ]; then
-	        cp --parents --recursive "$dir" "$dest"
+	    for dir in $2; do
+	      if [ ! -e "$1/$dir" ] && [ -e "$dir" ]; then
+	        cp --parents --recursive "$dir" "$1"
 	      else
-	        mkdir --parents "$dest/$dir"
+	        mkdir --parents "$1/$dir"
 	      fi
 	    done
 	  )
@@ -1410,12 +1408,10 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_files() {
 	  (
-	    local dest="$1"
-	    shift 1
 	    cd "$PATH_GAME"
-	    for file in $@; do
-	      if [ -e "$file" ]; then
-	        cp --parents "$file" "$dest"
+	    for file in $2; do
+	      if [ ! -e "$1/$file" ] && [ -e "$file" ]; then
+	        cp --parents "$file" "$1"
 	      fi
 	    done
 	  )
@@ -1611,6 +1607,7 @@ write_metadata_deb() {
 		cat >> "$target" <<- EOF
 		Conflicts: $pkg_provide
 		Provides: $pkg_provide
+		Replaces: $pkg_provide
 		EOF
 	fi
 
