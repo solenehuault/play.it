@@ -24,9 +24,9 @@ write_bin_run() {
 
 	if [ $app_type != 'scummvm' ]; then
 		cat >> "$file" <<- 'EOF'
-		clean_userdir "$PATH_CACHE" $CACHE_FILES
-		clean_userdir "$PATH_CONFIG" $CONFIG_FILES
-		clean_userdir "$PATH_DATA" $DATA_FILES
+		clean_userdir "$PATH_CACHE" "$CACHE_FILES"
+		clean_userdir "$PATH_CONFIG" "$CONFIG_FILES"
+		clean_userdir "$PATH_DATA" "$DATA_FILES"
 		EOF
 	fi
 

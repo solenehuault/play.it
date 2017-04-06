@@ -122,8 +122,7 @@ write_bin_set_prefix_funcs() {
 	init_prefix_dirs() {
 	  (
 	    cd "$1"
-	    shift 1
-	    for dir in $@; do
+	    for dir in $2; do
 	      rm --force --recursive "$PATH_PREFIX/$dir"
 	      mkdir --parents "$PATH_PREFIX/${dir%/*}"
 	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
@@ -148,14 +147,12 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_dirs() {
 	  (
-	    local dest="$1"
-	    shift 1
 	    cd "$PATH_GAME"
-	    for dir in $@; do
-	      if [ -e "$dir" ]; then
-	        cp --parents --recursive "$dir" "$dest"
+	    for dir in $2; do
+	      if [ ! -e "$1/$dir" ] && [ -e "$dir" ]; then
+	        cp --parents --recursive "$dir" "$1"
 	      else
-	        mkdir --parents "$dest/$dir"
+	        mkdir --parents "$1/$dir"
 	      fi
 	    done
 	  )
@@ -163,12 +160,10 @@ write_bin_set_prefix_funcs() {
 	
 	init_userdir_files() {
 	  (
-	    local dest="$1"
-	    shift 1
 	    cd "$PATH_GAME"
-	    for file in $@; do
-	      if [ -e "$file" ]; then
-	        cp --parents "$file" "$dest"
+	    for file in $2; do
+	      if [ ! -e "$1/$file" ] && [ -e "$file" ]; then
+	        cp --parents "$file" "$1"
 	      fi
 	    done
 	  )

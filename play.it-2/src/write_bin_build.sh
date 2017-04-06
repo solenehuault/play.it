@@ -6,18 +6,18 @@ write_bin_build_userdirs() {
 	
 	if [ ! -e "$PATH_CACHE" ]; then
 	  mkdir --parents "$PATH_CACHE"
-	  init_userdir_dirs "$PATH_CACHE" $CACHE_DIRS
-	  init_userdir_files "$PATH_CACHE" $CACHE_FILES
+	  init_userdir_dirs "$PATH_CACHE" "$CACHE_DIRS"
+	  init_userdir_files "$PATH_CACHE" "$CACHE_FILES"
 	fi
 	if [ ! -e "$PATH_CONFIG" ]; then
 	  mkdir --parents "$PATH_CONFIG"
-	  init_userdir_dirs "$PATH_CONFIG" $CONFIG_DIRS
-	  init_userdir_files "$PATH_CONFIG" $CONFIG_FILES
+	  init_userdir_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
+	  init_userdir_files "$PATH_CONFIG" "$CONFIG_FILES"
 	fi
 	if [ ! -e "$PATH_DATA" ]; then
 	  mkdir --parents "$PATH_DATA"
-	  init_userdir_dirs "$PATH_DATA" $DATA_DIRS
-	  init_userdir_files "$PATH_DATA" $DATA_FILES
+	  init_userdir_dirs "$PATH_DATA" "$DATA_DIRS"
+	  init_userdir_files "$PATH_DATA" "$DATA_FILES"
 	fi
 	
 	EOF
@@ -61,9 +61,9 @@ write_bin_build_prefix() {
 	init_prefix_files "$PATH_CACHE"
 	init_prefix_files "$PATH_CONFIG"
 	init_prefix_files "$PATH_DATA"
-	init_prefix_dirs "$PATH_CACHE" $CACHE_DIRS
-	init_prefix_dirs "$PATH_CONFIG" $CONFIG_DIRS
-	init_prefix_dirs "$PATH_DATA" $DATA_DIRS
+	init_prefix_dirs "$PATH_CACHE" "$CACHE_DIRS"
+	init_prefix_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
+	init_prefix_dirs "$PATH_DATA" "$DATA_DIRS"
 	
 	EOF
 }
