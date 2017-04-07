@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170407.1
 
 # Set game-specific variables
 
@@ -48,8 +48,10 @@ ARCHIVE_GOG_VERSION='1.0.0202-gog2.1.0.3'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game/documents/licenses'
 ARCHIVE_DOC2_FILES='./*'
+
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./anna ./characters ./config.ini ./data.vis ./libs64 ./lua ./scenes ./videos'
 
@@ -63,7 +65,7 @@ APP_MAIN_ICON_RES='256x256'
 
 PKG_MAIN_ARCH='64'
 PKG_MAIN_DEPS_DEB='libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libx11-6, libxext6, libxcb1, libxau6, libxdmcp6'
-PKG_MAIN_DEPS_ARCH="ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp"
+PKG_MAIN_DEPS_ARCH='ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp'
 
 # Load common functions
 
@@ -100,9 +102,7 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
@@ -113,6 +113,7 @@ organize_data 'DOC1' "$PATH_DOC"
 organize_data 'DOC2' "$PATH_DOC"
 organize_data 'GAME' "$PATH_GAME"
 
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
 mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
 mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
@@ -121,14 +122,13 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_MAIN'
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
 write_metadata 'PKG_MAIN'
-
-build_pkg 'PKG_MAIN'
+build_pkg      'PKG_MAIN'
 
 # Clean up
 
