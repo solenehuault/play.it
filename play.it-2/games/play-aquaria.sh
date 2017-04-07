@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170407.1
 
 # Set game-specific variables
 
@@ -48,8 +48,10 @@ ARCHIVE_GOG_VERSION='1.1.3-gog2.0.0.4'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./docs/* ./*.txt'
+
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./aquaria ./aquaria.png ./config ./data ./default-1.xml ./gfx ./_mods ./mus ./scripts ./sfx ./usersettings.xml ./vox'
 
@@ -100,9 +102,7 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
@@ -117,14 +117,16 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
@@ -133,7 +135,7 @@ rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
 write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+build_pkg      'PKG_MAIN'
 
 # Clean up
 
