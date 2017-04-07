@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170407.1
+script_version=20170407.2
 
 # Set game-specific variables
 
@@ -52,8 +52,11 @@ ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./docs/* ./*.txt'
 
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./aquaria ./aquaria.png ./config ./data ./default-1.xml ./gfx ./_mods ./mus ./scripts ./sfx ./usersettings.xml ./vox'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./aquaria ./config ./*.xml'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./aquaria.png ./data ./gfx ./_mods ./mus ./scripts ./sfx ./vox'
 
 CACHE_DIRS='./maptemplates'
 CONFIG_FILES='./*.xml ./config/*'
@@ -63,9 +66,12 @@ APP_MAIN_EXE='aquaria'
 APP_MAIN_ICON='aquaria.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl1.2debian, libopenal1, xdg-utils'
-PKG_MAIN_DEPS_ARCH='lib32-sdl lib32-openal xdg-utils'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl1.2debian, libopenal1, xdg-utils"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-sdl lib32-openal xdg-utils"
 
 # Load common functions
 
@@ -106,17 +112,22 @@ file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
@@ -134,8 +145,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg      'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -143,6 +156,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 #print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
