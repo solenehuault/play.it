@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170406.3
+script_version=20170407.1
 
 # Set game-specific variables
 
@@ -120,12 +120,10 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
 case "$ARCHIVE" in
 	('ARCHIVE_GOG_EN')
-		PKG_VERSION="$ARCHIVE_GOG_EN_VERSION"
 		PKG_BIN_ID="$PKG_BIN_ID_EN"
 		PKG_DATA_ID="$PKG_DATA_ID_EN"
 	;;
 	('ARCHIVE_GOG_FR')
-		PKG_VERSION="$ARCHIVE_GOG_FR_VERSION"
 		PKG_BIN_ID="$PKG_BIN_ID_FR"
 		PKG_DATA_ID="$PKG_DATA_ID_FR"
 	;;
