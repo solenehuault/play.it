@@ -108,14 +108,13 @@ write_bin_set_prefix_vars_wine() {
 write_bin_set_prefix_funcs() {
 	cat >> "$file" <<- 'EOF'
 	clean_userdir() {
-	  local target="$1"
-	  shift 1
-	  for file in "$@"; do
-	  if [ -f "$file" ] && [ ! -f "$target/$file" ]; then
-	    mkdir --parents "$target/${file%/*}"
-	    mv "$file" "$target/$file"
-	    ln --symbolic "$target/$file" "$file"
-	  fi
+	  cd "$PATH_PREFIX"
+	  for file in $2; do
+	    if [ -f "$file" ] && [ ! -f "$1/$file" ]; then
+	      cp --parents "$file" "$1"
+	      rm "$file"
+	      ln --symbolic "$(readlink -e "$1/$file")" "$file"
+	    fi
 	  done
 	}
 	
