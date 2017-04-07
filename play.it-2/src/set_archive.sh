@@ -73,7 +73,7 @@ set_source_archive_vars() {
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
 	ARCHIVE_SIZE="$(eval echo \$${archive}_SIZE)"
-	PKG_VERSION="$(eval echo \$${archive}_VERSION)"
+	PKG_VERSION="$(eval echo \$${archive}_VERSION)+${script_version}"
 }
 
 # print archive use message
