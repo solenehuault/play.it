@@ -46,9 +46,17 @@ write_bin_run_dosbox() {
 	EOF
 
 	if [ "$GAME_IMAGE" ]; then
-		cat >> "$file" <<- EOF
-		imgmount d $GAME_IMAGE -t iso -fs iso
-		EOF
+		case "$GAME_IMAGE_TYPE" in
+			('cdrom')
+				cat >> "$file" <<- EOF
+				imgmount d $GAME_IMAGE -t cdrom
+				EOF
+			;;
+			('iso'|*)
+				cat >> "$file" <<- EOF
+				imgmount d $GAME_IMAGE -t iso -fs iso
+				EOF
+			;;
 	fi
 
 	if [ "$app_prerun" ]; then
