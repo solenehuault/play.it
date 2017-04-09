@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170409.1
+script_version=20170409.2
 
 # Set game-specific variables
 
@@ -49,17 +49,41 @@ ARCHIVE_GOG_VERSION='2.3.67.3-gog2.6.0.10'
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./BaldursGateII ./engine.lua'
+
+ARCHIVE_GAME_AREAS_PATH='data/noarch/game'
+ARCHIVE_GAME_AREAS_FILES='./data/AREA*.bif ./data/Areas.bif ./data/25Areas.bif ./data/ARMisc.bif ./data/25ArMisc.bif'
+
+ARCHIVE_GAME_MOVIES_PATH='data/noarch/game'
+ARCHIVE_GAME_MOVIES_FILES='./movies'
+
+ARCHIVE_GAME_MUSIC_PATH='data/noarch/game'
+ARCHIVE_GAME_MUSIC_FILES='./music'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./*'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='BaldursGateII'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0'
-PKG_MAIN_DEPS_ARCH='lib32-libgl lib32-openal lib32-json-c lib32-openssl'
+PKG_AREAS_ID="${GAME_ID}-areas"
+PKG_AREAS_DESCRIPTION='areas'
+
+PKG_MOVIES_ID="${GAME_ID}-movies"
+PKG_MOVIES_DESCRIPTION='movies'
+
+PKG_MUSIC_ID="${GAME_ID}-music"
+PKG_MUSIC_DESCRIPTION='music'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_AREAS_ID, $PKG_MOVIES_ID, $PKG_MUSIC_ID, $PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0"
+PKG_BIN_DEPS_ARCH="$PKG_AREAS_ID $PKG_MOVIES_ID $PKG_MUSIC_ID $PKG_DATA_ID lib32-libgl lib32-openal lib32-json-c lib32-openssl"
 
 # Load common functions
 
@@ -100,20 +124,34 @@ file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_AREAS' 'PKG_MOVIES' 'PKG_MUSIC' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC'  "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+PKG='PKG_AREAS'
+organize_data 'GAME_AREAS' "$PATH_GAME"
+
+PKG='PKG_MOVIES'
+organize_data 'GAME_MOVIES' "$PATH_GAME"
+
+PKG='PKG_MUSIC'
+organize_data 'GAME_MUSIC' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+
+PATH_ICON="$PATH_ICON_BASE/$APP_DATA_ICON_RES/apps"
+mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
@@ -125,8 +163,10 @@ if [ ! -e /usr/lib32/libjson.so.0 ] && [ -e /usr/lib32/libjson-c.so ] ; then
 fi
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg      'PKG_MAIN'
+write_metadata 'PKG_BIN'
+rm "$postinst"
+write_metadata 'PKG_AREAS' 'PKG_MOVIES' 'PKG_MUSIC' 'PKG_DATA'
+build_pkg      'PKG_AREAS' 'PKG_MOVIES' 'PKG_MUSIC' 'PKG_DATA' 'PKG_BIN'
 
 # Clean up
 
@@ -134,6 +174,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_AREAS_PKG" "$PKG_MOVIES_PKG" "$PKG_MUSIC_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
