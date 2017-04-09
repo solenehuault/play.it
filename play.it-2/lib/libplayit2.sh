@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170406.1
+library_revision=20170409.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -745,7 +745,7 @@ set_source_archive_vars() {
 	fi
 	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
 	ARCHIVE_SIZE="$(eval echo \$${archive}_SIZE)"
-	PKG_VERSION="$(eval echo \$${archive}_VERSION)"
+	PKG_VERSION="$(eval echo \$${archive}_VERSION)+${script_version}"
 }
 
 # print archive use message
@@ -1167,15 +1167,24 @@ write_bin_run_dosbox() {
 	c:
 	EOF
 
+	if [ "$GAME_IMAGE" ]; then
+		case "$GAME_IMAGE_TYPE" in
+			('cdrom')
+				cat >> "$file" <<- EOF
+				mount d $GAME_IMAGE -t cdrom
+				EOF
+			;;
+			('iso'|*)
+				cat >> "$file" <<- EOF
+				imgmount d $GAME_IMAGE -t iso -fs iso
+				EOF
+			;;
+		esac
+	fi
+
 	if [ "$app_prerun" ]; then
 		cat >> "$file" <<- EOF
 		$app_prerun
-		EOF
-	fi
-
-	if [ "$GAME_IMAGE" ]; then
-		cat >> "$file" <<- EOF
-		imgmount d $GAME_IMAGE -t iso -fs iso
 		EOF
 	fi
 
@@ -1356,14 +1365,13 @@ write_bin_set_prefix_vars_wine() {
 write_bin_set_prefix_funcs() {
 	cat >> "$file" <<- 'EOF'
 	clean_userdir() {
-	  local target="$1"
-	  shift 1
-	  for file in "$@"; do
-	  if [ -f "$file" ] && [ ! -f "$target/$file" ]; then
-	    mkdir --parents "$target/${file%/*}"
-	    mv "$file" "$target/$file"
-	    ln --symbolic "$target/$file" "$file"
-	  fi
+	  cd "$PATH_PREFIX"
+	  for file in $2; do
+	    if [ -f "$file" ] && [ ! -f "$1/$file" ]; then
+	      cp --parents "$file" "$1"
+	      rm "$file"
+	      ln --symbolic "$(readlink -e "$1/$file")" "$file"
+	    fi
 	  done
 	}
 	
