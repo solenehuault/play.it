@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170409.2
+script_version=20170409.3
 
 # Set game-specific variables
 
@@ -53,7 +53,7 @@ ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./gog_eula.txt'
 
 ARCHIVE_GAME_BIN_PATH='app'
-ARCHIVE_GAME_BIN_FILES='./*.bat ./*.cfg ./*.exe ./*.inf ./*.ini'
+ARCHIVE_GAME_BIN_FILES='./*.cfg ./*.exe ./*.inf ./*.ini'
 
 ARCHIVE_GAME_DATA1_PATH='app'
 ARCHIVE_GAME_DATA1_FILES='./*.65 ./*.ad ./*.adv ./*.bak ./*.bnk ./*.bsa ./*.cel ./*.cif ./*.clr ./*.col ./*.cpy ./*.dat ./*.flc ./*.gld ./*.ico ./*.img ./*.lgt ./*.lst ./*.me ./*.mif ./*.mnu ./*.ntz ./*.opl ./*.rci ./*.txt ./*.voc ./*.xfm ./cityintr ./citytxt ./extra ./speech'
@@ -62,11 +62,14 @@ ARCHIVE_GAME_DATA2_PATH='app/__support'
 ARCHIVE_GAME_DATA2_FILES='./save'
 
 GAME_IMAGE='.'
+GAME_IMAGE_TYPE='cdrom'
 
 DATA_DIRS='./save ./arena_cd'
 
 APP_MAIN_TYPE='dosbox'
-APP_MAIN_EXE='arena.bat'
+APP_MAIN_EXE='acd.exe'
+APP_MAIN_OPTIONS='-Ssbpdig.adv -IOS220 -IRQS7 -DMAS1 -Mgenmidi.adv -IOM330 -IRQM2 -DMAM1'
+APP_MAIN_PRERUN='d:'
 APP_MAIN_ICON='goggame-1435828982.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
 
