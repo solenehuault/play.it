@@ -45,15 +45,15 @@ write_bin_run_dosbox() {
 	c:
 	EOF
 
-	if [ "$app_prerun" ]; then
-		cat >> "$file" <<- EOF
-		$app_prerun
-		EOF
-	fi
-
 	if [ "$GAME_IMAGE" ]; then
 		cat >> "$file" <<- EOF
 		imgmount d $GAME_IMAGE -t iso -fs iso
+		EOF
+	fi
+
+	if [ "$app_prerun" ]; then
+		cat >> "$file" <<- EOF
+		$app_prerun
 		EOF
 	fi
 
