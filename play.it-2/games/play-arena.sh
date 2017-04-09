@@ -34,13 +34,12 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170409.1
 
 # Set game-specific variables
 
 GAME_ID='arena'
 GAME_NAME='The Elder Scrolls: Arena'
-GAME_IMAGE='.'
 
 ARCHIVE_GOG='setup_tes_arena_2.0.0.5.exe'
 ARCHIVE_GOG_MD5='ca5a894aa852f9dbb3ede787e51ec828'
@@ -49,10 +48,14 @@ ARCHIVE_GOG_VERSION='1.0-gog2.0.0.5'
 
 ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./*.pdf'
+
 ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./gog_eula.txt'
+
 ARCHIVE_GAME_PATH='app'
 ARCHIVE_GAME_FILES='./2651.gld ./*.mif ./*.exe ./*.adv ./*.flc ./arena.bat ./*.dat ./*.ico ./arrows.cif ./*.cpy ./*.col ./*.img ./*.65 ./cityintr ./citytxt ./*.inf ./disks.bak ./*.txt ./extra ./*.voc ./*.lgt ./global.bsa ./*.bnk ./*.cfg ./ivb.ntz ./*.rci ./*.cel ./*.mnu ./names.clr ./read.me ./sample.ad ./sample.opl ./speech ./spells.lst ./__support/save ./ultramid.ini ./wingame.xfm'
+
+GAME_IMAGE='.'
 
 DATA_DIRS='./save ./arena_cd'
 
@@ -100,8 +103,7 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
@@ -118,16 +120,15 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+write_bin     'APP_MAIN'
+write_desktop 'APP_MAIN'
 
 sed -i "s/imgmount d $GAME_IMAGE -t iso -fs iso/mount d $GAME_IMAGE -t cdrom\nd:/" "${PKG_MAIN_PATH}${PATH_BIN}/$GAME_ID"
-
-write_desktop 'APP_MAIN'
 
 # Build package
 
 write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+build_pkg      'PKG_MAIN'
 
 # Clean up
 
