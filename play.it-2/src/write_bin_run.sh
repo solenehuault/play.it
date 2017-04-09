@@ -49,7 +49,7 @@ write_bin_run_dosbox() {
 		case "$GAME_IMAGE_TYPE" in
 			('cdrom')
 				cat >> "$file" <<- EOF
-				imgmount d $GAME_IMAGE -t cdrom
+				mount d $GAME_IMAGE -t cdrom
 				EOF
 			;;
 			('iso'|*)
