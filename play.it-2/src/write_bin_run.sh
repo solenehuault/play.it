@@ -57,6 +57,7 @@ write_bin_run_dosbox() {
 				imgmount d $GAME_IMAGE -t iso -fs iso
 				EOF
 			;;
+		esac
 	fi
 
 	if [ "$app_prerun" ]; then
