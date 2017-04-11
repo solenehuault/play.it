@@ -46,10 +46,15 @@ set_workdir_workdir() {
 # NEEDED VARS: $PKG_ID $PKG_VERSION $PKG_ARCH $PLAYIT_WORKDIR
 # CALLED BY: set_workdir
 set_workdir_pkg() {
-	local pkg_id="$(eval echo \$${pkg}_ID)"
-	if [ ! "$pkg_id" ]; then
+	local pkg_id
+	if [ "$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_id="$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})"
+	elif [ "$(eval echo \$${pkg}_ID)" ]; then
+		pkg_id="$(eval echo \$${pkg}_ID)"
+	else
 		pkg_id="$GAME_ID"
 	fi
+	eval $(echo export ${pkg}_ID="$pkg_id")
 
 	local pkg_version="$(eval echo \$${pkg}_VERSION)"
 	if [ ! "$pkg_version" ]; then

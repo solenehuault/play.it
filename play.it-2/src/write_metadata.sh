@@ -17,10 +17,6 @@ write_metadata() {
 		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
 		local pkg_version="$(eval echo \$${pkg}_VERSION)"
 
-		if [ ! "$pkg_id" ]; then
-			pkg_id="$GAME_ID"
-		fi
-
 		if [ ! "$pkg_version" ]; then
 			pkg_version="$PKG_VERSION"
 		fi

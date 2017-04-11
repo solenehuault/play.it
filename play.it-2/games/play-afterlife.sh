@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170407.1
+script_version=20170411.1
 
 # Set game-specific variables
 
@@ -73,15 +73,15 @@ APP_MAIN_ICON_RES='256x256'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_PROVIDE="$PKG_DATA_ID"
-PKG_DATA_ID_EN="${PKG_DATA_ID}-en"
-PKG_DATA_ID_FR="${PKG_DATA_ID}-fr"
+PKG_DATA_ID_GOG_EN="${PKG_DATA_ID}-en"
+PKG_DATA_ID_GOG_FR="${PKG_DATA_ID}-fr"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ID="$GAME_ID"
 PKG_BIN_ARCH='32'
 PKG_BIN_PROVIDE="$PKG_BIN_ID"
-PKG_BIN_ID_EN="${PKG_BIN_ID}-en"
-PKG_BIN_ID_FR="${PKG_BIN_ID}-fr"
+PKG_BIN_ID_GOG_EN="${PKG_BIN_ID}-en"
+PKG_BIN_ID_GOG_FR="${PKG_BIN_ID}-fr"
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
@@ -118,16 +118,6 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
-case "$ARCHIVE" in
-	('ARCHIVE_GOG_EN')
-		PKG_BIN_ID="$PKG_BIN_ID_EN"
-		PKG_DATA_ID="$PKG_DATA_ID_EN"
-	;;
-	('ARCHIVE_GOG_FR')
-		PKG_BIN_ID="$PKG_BIN_ID_FR"
-		PKG_DATA_ID="$PKG_DATA_ID_FR"
-	;;
-esac
 check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
