@@ -34,40 +34,36 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170410.1
+script_version=20170410.2
 
 # Set game-specific variables
 
 GAME_ID='bastion'
 GAME_NAME='Bastion'
 
-ARCHIVE_HUMBLE='Bastion-HIB-2012-06-20.sh'
-ARCHIVE_HUMBLE_MD5='aa6ccaead3b4b8a5fbd156f4019e8c8b'
-ARCHIVE_HUMBLE_SIZE='1100000'
-ARCHIVE_HUMBLE_VERSION='1.2.20120620-humble120620'
-ARCHIVE_HUMBLE_TYPE='nix_stage1'
+ARCHIVE_HUMBLE='bastion-10162016-bin'
+ARCHIVE_HUMBLE_MD5='19fea173ff2da0f990f60bd5e7c3b237'
+ARCHIVE_HUMBLE_SIZE='1300000'
+ARCHIVE_HUMBLE_VERSION='1.2.20161020-humble161019'
+ARCHIVE_HUMBLE_TYPE='mojosetup'
 
-ARCHIVE_BIN32='instarchive_linux_x86'
-ARCHIVE_BIN64='instarchive_linux_x86_64'
-ARCHIVE_DATA='instarchive_all'
+ARCHIVE_DOC_PATH='data'
+ARCHIVE_DOC_FILES='./Linux.README'
 
-ARCHIVE_DOC_PATH='.'
-ARCHIVE_DOC_FILES='./README.linux'
-
-ARCHIVE_GAME_BIN32_PATH='.'
+ARCHIVE_GAME_BIN32_PATH='data'
 ARCHIVE_GAME_BIN32_FILES='./Bastion.bin.x86 ./lib'
 
-ARCHIVE_GAME_BIN64_PATH='.'
+ARCHIVE_GAME_BIN64_PATH='data'
 ARCHIVE_GAME_BIN64_FILES='./Bastion.bin.x86_64 ./lib64'
 
-ARCHIVE_GAME_DATA_PATH='.'
-ARCHIVE_GAME_DATA_FILES='./Bastion.exe ./Bastion.png ./*.dll ./Content ./mono ./*.config'
+ARCHIVE_GAME_DATA_PATH='data'
+ARCHIVE_GAME_DATA_FILES='./*.config ./*.dll ./*.txt ./Bastion.exe ./Bastion.bmp ./Content ./mono'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_32='Bastion.bin.x86'
 APP_MAIN_EXE_64='Bastion.bin.x86_64'
-APP_MAIN_ICON='Bastion.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON='Bastion.bmp'
+APP_MAIN_ICON_RES='512x512'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -121,21 +117,21 @@ file_checksum "$SOURCE_ARCHIVE"
 
 set_workdir 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
 extract_data_from "$SOURCE_ARCHIVE"
-ARCHIVE='ARCHIVE'
-ARCHIVE_TYPE='nix_stage2'
-extract_data_from "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_DATA"
-extract_data_from "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_BIN32"
-extract_data_from "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_BIN64"
 
 PKG='PKG_BIN32'
-organize_data 'GAME_32' "$PATH_GAME"
+organize_data 'GAME_BIN32' "$PATH_GAME"
 
 PKG='PKG_BIN64'
-organize_data 'GAME_64' "$PATH_GAME"
+organize_data 'GAME_BIN64' "$PATH_GAME"
 
 PKG='PKG_DATA'
 organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
+
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -153,21 +149,7 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-
-cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
-EOF
-
-cat > "$prerm" << EOF
-rm "$PATH_ICON/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
-EOF
-
-write_metadata 'PKG_DATA'
-rm "$postinst" "$prerm"
-write_metadata 'PKG_BIN32' 'PKG_BIN64'
+write_metadata 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 
 # Clean up
