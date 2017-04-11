@@ -9,7 +9,6 @@ set_common_defaults() {
 	DEFAULT_INSTALL_PREFIX='/usr/local'
 	DEFAULT_ICON_CHOICE='original'
 	DEFAULT_MOVIES_SUPPORT='0'
-	NO_ICON='0'
 	unset winecfg_desktop
 	unset winecfg_launcher
 	
