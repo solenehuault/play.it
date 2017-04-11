@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170406.1
+script_version=20170411.1
 
 # Set game-specific variables
 
@@ -114,18 +114,6 @@ fetch_args "$@"
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-case "$ARCHIVE" in
-	('ARCHIVE_GOG')
-		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_GOG"
-		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_GOG"
-		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_GOG"
-	;;
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE"
-		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE"
-		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_HUMBLE"
-	;;
-esac
 check_deps
 set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
