@@ -92,15 +92,13 @@ extract_and_sort_icons_from() {
 	local pkg_path="$(eval echo \$${PKG}_PATH)"
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'sort_icons'
-		if [ "$NO_ICON" = '0' ]; then
-			app_icon="$(eval echo \$${app}_ICON)"
-			extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
-			if [ "${app_icon##*.}" = 'exe' ]; then
-				extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-			fi
-			sort_icons "$app"
-			rm --recursive "$PLAYIT_WORKDIR/icons"
+		app_icon="$(eval echo \$${app}_ICON)"
+		extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
+		if [ "${app_icon##*.}" = 'exe' ]; then
+			extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
 		fi
+		sort_icons "$app"
+		rm --recursive "$PLAYIT_WORKDIR/icons"
 	done
 }
 
