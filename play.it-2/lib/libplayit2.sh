@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170409.1
+library_revision=20170411.1
 
 # build .pkg.tar package, .deb package or .tar archive
 # USAGE: build_pkg $pkg[…]
@@ -151,6 +151,9 @@ check_deps() {
 	if [ "$PACKAGE_TYPE" = 'deb' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
 	fi
+	if [ "${APP_MAIN_ICON##*.}" = 'bmp' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS convert"
+	fi
 	if [ "${APP_MAIN_ICON##*.}" = 'ico' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS icotool"
 	fi
@@ -158,9 +161,6 @@ check_deps() {
 		case $dep in
 			('7z')
 				check_deps_7z
-			;;
-			('convert'|'icotool'|'wrestool')
-				check_deps_icon "$dep"
 			;;
 			(*)
 				if ! which $dep >/dev/null 2>&1; then
@@ -184,24 +184,6 @@ check_deps_7z() {
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
 		check_deps_failed 'p7zip'
-	fi
-}
-
-# check presence of a software to handle icon extraction
-# USAGE: check_deps_icon $command_name
-# NEEDED VARS: NO_ICON
-# CALLED BY: check_deps
-check_deps_icon() {
-	if [ -z "$(which $1 2>/dev/null)" ] && [ "$NO_ICON" != '1' ]; then
-		NO_ICON='1'
-		case ${LANG%_*} in
-			('fr')
-				printf '%s est introuvable. Les icônes ne seront pas extraites.\n' "$1"
-			;;
-			('en'|*)
-				printf '%s not found. Skipping icons extraction.\n' "$1"
-			;;
-		esac
 	fi
 }
 
@@ -571,7 +553,13 @@ liberror() {
 # NEEDED VARS: $PKG, $PKG_PATH, $PLAYIT_WORKDIR
 organize_data() {
 	local archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
+	if [ -z "$archive_path" ]; then
+		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")"
+	fi
 	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
+	if [ -z "$archive_files" ]; then
+		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")"
+	fi
 	if [ "$archive_path" ] && [ -e "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
 		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
 		mkdir --parents "$pkg_path"
@@ -823,7 +811,6 @@ set_common_defaults() {
 	DEFAULT_INSTALL_PREFIX='/usr/local'
 	DEFAULT_ICON_CHOICE='original'
 	DEFAULT_MOVIES_SUPPORT='0'
-	NO_ICON='0'
 	unset winecfg_desktop
 	unset winecfg_launcher
 	
@@ -934,10 +921,15 @@ set_workdir_workdir() {
 # NEEDED VARS: $PKG_ID $PKG_VERSION $PKG_ARCH $PLAYIT_WORKDIR
 # CALLED BY: set_workdir
 set_workdir_pkg() {
-	local pkg_id="$(eval echo \$${pkg}_ID)"
-	if [ ! "$pkg_id" ]; then
+	local pkg_id
+	if [ "$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_id="$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})"
+	elif [ "$(eval echo \$${pkg}_ID)" ]; then
+		pkg_id="$(eval echo \$${pkg}_ID)"
+	else
 		pkg_id="$GAME_ID"
 	fi
+	eval $(echo export ${pkg}_ID="$pkg_id")
 
 	local pkg_version="$(eval echo \$${pkg}_VERSION)"
 	if [ ! "$pkg_version" ]; then
@@ -1497,10 +1489,6 @@ write_metadata() {
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
 		local pkg_version="$(eval echo \$${pkg}_VERSION)"
-
-		if [ ! "$pkg_id" ]; then
-			pkg_id="$GAME_ID"
-		fi
 
 		if [ ! "$pkg_version" ]; then
 			pkg_version="$PKG_VERSION"
