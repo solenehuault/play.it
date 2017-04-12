@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170411.1
+script_version=20170412.1
 
 # Set game-specific variables
 
@@ -65,8 +65,8 @@ ARCHIVE_GAME_DATA_FILES='./140_Data'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_PRERUN='pulseaudio --start'
-APP_MAIN_EXE_32='140.x86'
-APP_MAIN_EXE_64='140.x86_64'
+APP_MAIN_EXE_BIN32='140.x86'
+APP_MAIN_EXE_BIN64='140.x86_64'
 APP_MAIN_ICON='140_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
@@ -138,12 +138,10 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 

@@ -32,6 +32,9 @@ write_bin() {
 		write_bin_set_vars
 		if [ "$app_type" != 'scummvm' ]; then
 			local app_exe="$(eval echo \$${app}_EXE)"
+			if [ -z "$app_exe" ]; then
+				app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
+			fi
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
 			local app_prerun="$(eval echo \$${app}_PRERUN)"

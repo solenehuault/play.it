@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170409.1
+script_version=20170412.1
 
 # Set game-specific variables
 
@@ -126,12 +126,10 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
