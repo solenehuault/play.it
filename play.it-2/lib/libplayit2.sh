@@ -33,92 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170412.1
-
-# build .pkg.tar package, .deb package or .tar archive
-# USAGE: build_pkg $pkg[…]
-# NEEDED VARS: $pkg_PATH, PACKAGE_TYPE
-# CALLS: testvar, liberror, build_pkg_arch, build_pkg_deb, build_pkg_tar
-build_pkg() {
-	for pkg in $@; do
-		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
-		local pkg_path="$(eval echo \$${pkg}_PATH)"
-		case $PACKAGE_TYPE in
-			('arch')
-				build_pkg_arch
-			;;
-			('deb')
-				build_pkg_deb
-			;;
-			(*)
-				liberror 'PACKAGE_TYPE' 'build_pkg'
-			;;
-		esac
-	done
-}
-
-# build .pkg.tar package
-# USAGE: build_pkg_arch
-# NEEDED VARS: PLAYIT_WORKDIR, COMPRESSION_METHOD
-# CALLS: build_pkg_print
-# CALLED BY: build_pkg
-build_pkg_arch() {
-	local pkg_filename="${PWD}/${pkg_path##*/}.pkg.tar"
-	local tar_options='--create --group=root --owner=root'
-	case $COMPRESSION_METHOD in
-		('gzip')
-			tar_options="$tar_options --gzip"
-			pkg_filename="${pkg_filename}.gz"
-		;;
-		('xz')
-			tar_options="$tar_options --xz"
-			pkg_filename="${pkg_filename}.xz"
-		;;
-		('none') ;;
-		(*)
-			liberror 'PACKAGE_TYPE' 'build_pkg'
-		;;
-	esac
-	build_pkg_print
-	(
-		cd "$pkg_path"
-		local files="* .PKGINFO"
-		if [ -e '.INSTALL' ]; then
-			files="$files .INSTALL"
-		fi
-		tar $tar_options --file "$pkg_filename" $files
-	)
-	export ${pkg}_PKG="$pkg_filename"
-}
-
-# build .deb package
-# USAGE: build_pkg_deb
-# NEEDED VARS: PLAYIT_WORKDIR, COMPRESSION_METHOD
-# CALLS: build_pkg_print
-# CALLED BY: build_pkg
-build_pkg_deb() {
-	local pkg_filename="${PWD}/${pkg_path##*/}.deb"
-	local dpkg_options="-Z$COMPRESSION_METHOD"
-	build_pkg_print
-	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
-	export ${pkg}_PKG="$pkg_filename"
-}
-
-# print package building message
-# USAGE: build_pkg_print
-# CALLED BY: build_pkg_deb, build_pkg_tar
-build_pkg_print() {
-	local string
-	case ${LANG%_*} in
-		('fr')
-			string='Construction de %s\n'
-		;;
-		('en'|*)
-			string='Building %s\n'
-		;;
-	esac
-	printf "$string" "${pkg_filename##*/}"
-}
+library_revision=20170418.1
 
 # check script dependencies
 # USAGE: check_deps
@@ -201,6 +116,41 @@ check_deps_failed() {
 		;;
 	esac
 	return 1
+}
+
+# set package distribution-specific architecture
+# USAGE: set_arch
+# NEEDED VARS: $PACKAGE_TYPE
+# CALLED BY: set_workdir_pkg write_metadata
+set_arch() {
+	case $PACKAGE_TYPE in
+
+		('arch')
+			case "$(eval echo \$${pkg}_ARCH)" in
+				('32'|'64')
+					pkg_arch='x86_64'
+				;;
+				(*)
+					pkg_arch='any'
+				;;
+			esac
+		;;
+
+		('deb')
+			case "$(eval echo \$${pkg}_ARCH)" in
+				('32')
+					pkg_arch='i386'
+				;;
+				('64')
+					pkg_arch='amd64'
+				;;
+				(*)
+					pkg_arch='all'
+				;;
+			esac
+		;;
+
+	esac
 }
 
 # extract data from given archive
@@ -573,6 +523,266 @@ organize_data() {
 	fi
 }
 
+# write package meta-data
+# USAGE: write_metadata $pkg
+# NEEDED VARS: $PKG_ARCH $PKG_DEPS $PKG_DESCRIPTION $PKG_ID $PKG_PATH
+#  $PKG_PROVIDE $PKG_VERSION $PACKAGE_TYPE
+# CALLS: testvar liberror pkg_write_arch pkg_write_deb
+write_metadata() {
+	for pkg in $@; do
+		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
+
+		# Set package-specific variables
+		local pkg_arch
+		set_arch
+		local pkg_id="$(eval echo \$${pkg}_ID)"
+		local pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
+		local pkg_maint="$(whoami)@$(hostname)"
+		local pkg_path="$(eval echo \$${pkg}_PATH)"
+		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
+		local pkg_version="$(eval echo \$${pkg}_VERSION)"
+		[ "$pkg_version" ] || pkg_version="$PKG_VERSION"
+
+		case $PACKAGE_TYPE in
+			('arch')
+				pkg_write_arch
+			;;
+			('deb')
+				pkg_write_deb
+			;;
+		esac
+
+	done
+}
+
+# build .pkg.tar or .deb package
+# USAGE: build_pkg $pkg[…]
+# NEEDED VARS: $PKG_PATH $PACKAGE_TYPE
+# CALLS: testvar liberror pkg_build_arch pkg_build_deb
+build_pkg() {
+	for pkg in $@; do
+		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
+		local pkg_path="$(eval echo \$${pkg}_PATH)"
+		case $PACKAGE_TYPE in
+			('arch')
+				pkg_build_arch
+			;;
+			('deb')
+				pkg_build_deb
+			;;
+			(*)
+				liberror 'PACKAGE_TYPE' 'build_pkg'
+			;;
+		esac
+	done
+}
+
+# print package building message
+# USAGE: pkg_print
+# CALLED BY: pkg_build_arch pkg_build_deb
+pkg_print() {
+	local string
+	case ${LANG%_*} in
+		('fr')
+			string='Construction de %s\n'
+		;;
+		('en'|*)
+			string='Building %s\n'
+		;;
+	esac
+	printf "$string" "${pkg_filename##*/}"
+}
+
+# write .pkg.tar package meta-data
+# USAGE: pkg_write_arch
+# CALLED BY: write_metadata
+pkg_write_arch() {
+	local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+	local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
+	local target="$pkg_path/.PKGINFO"
+
+	mkdir --parents "${target%/*}"
+
+	cat > "$target" <<- EOF
+	pkgname = $pkg_id
+	pkgver = $pkg_version
+	packager = $pkg_maint
+	builddate = $(date +"%m%d%Y")
+	size = $pkg_size
+	arch = $pkg_arch
+	EOF
+
+	if [ "$pkg_description" ]; then
+		cat >> "$target" <<- EOF
+		pkgdesc = $GAME_NAME - $pkg_description - ./play.it script version $script_version
+		EOF
+	else
+		cat >> "$target" <<- EOF
+		pkgdesc = $GAME_NAME - ./play.it script version $script_version
+		EOF
+	fi
+
+	for dep in $pkg_deps; do
+		cat >> "$target" <<- EOF
+		depend = $dep
+		EOF
+	done
+
+	if [ $pkg_provide ]; then
+		cat >> "$target" <<- EOF
+		conflict = $pkg_provide
+		provides = $pkg_provide
+		EOF
+	fi
+
+	target="$pkg_path/.INSTALL"
+
+	if [ -e "$postinst" ]; then
+		cat >> "$target" <<- EOF
+		post_install() {
+		$(cat "$postinst")
+		}
+
+		post_upgrade() {
+		post_install
+		}
+		EOF
+	fi
+
+	if [ -e "$prerm" ]; then
+		cat >> "$target" <<- EOF
+		pre_remove() {
+		$(cat "$prerm")
+		}
+
+		pre_upgrade() {
+		pre_remove
+		}
+		EOF
+	fi
+}
+
+# build .pkg.tar package
+# USAGE: pkg_build_arch
+# NEEDED VARS: $PLAYIT_WORKDIR $COMPRESSION_METHOD
+# CALLS: pkg_print
+# CALLED BY: build_pkg
+pkg_build_arch() {
+	local pkg_filename="$PWD/${pkg_path##*/}.pkg.tar"
+	local tar_options='--create --group=root --owner=root'
+	case $COMPRESSION_METHOD in
+		('gzip')
+			tar_options="$tar_options --gzip"
+			pkg_filename="${pkg_filename}.gz"
+		;;
+		('xz')
+			tar_options="$tar_options --xz"
+			pkg_filename="${pkg_filename}.xz"
+		;;
+		('none') ;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'build_pkg'
+		;;
+	esac
+	pkg_print
+	(
+		cd "$pkg_path"
+		local files='.PKGINFO *'
+		if [ -e '.INSTALL' ]; then
+			files=".INSTALL $files"
+		fi
+		tar $tar_options --file "$pkg_filename" $files
+	)
+	export ${pkg}_PKG="$pkg_filename"
+}
+
+# write .deb package meta-data
+# USAGE: pkg_write_deb
+# CALLED BY: write_metadata
+pkg_write_deb() {
+	local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+	local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
+	local target="$pkg_path/DEBIAN/control"
+
+	mkdir --parents "${target%/*}"
+
+	cat > "$target" <<- EOF
+	Package: $pkg_id
+	Version: $pkg_version
+	Architecture: $pkg_arch
+	Maintainer: $pkg_maint
+	Installed-Size: $pkg_size
+	Section: non-free/games
+	EOF
+
+	if [ "$pkg_provide" ]; then
+		cat >> "$target" <<- EOF
+		Conflicts: $pkg_provide
+		Provides: $pkg_provide
+		Replaces: $pkg_provide
+		EOF
+	fi
+
+	if [ "$pkg_deps" ]; then
+		cat >> "$target" <<- EOF
+		Depends: $pkg_deps
+		EOF
+	fi
+
+	if [ "$pkg_description" ]; then
+		cat >> "$target" <<- EOF
+		Description: $GAME_NAME - $pkg_description
+		 ./play.it script version $script_version
+		EOF
+	else
+		cat >> "$target" <<- EOF
+		Description: $GAME_NAME
+		 ./play.it script version $script_version
+		EOF
+	fi
+
+	if [ "$pkg_arch" = 'all' ]; then
+		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "$target"
+	fi
+
+	if [ -e "$postinst" ]; then
+		target="$pkg_path/DEBIAN/postinst"
+		cat > "$target" <<- EOF
+		#!/bin/sh -e
+
+		$(cat "$postinst")
+
+		exit 0
+		EOF
+		chmod 755 "$target"
+	fi
+
+	if [ -e "$prerm" ]; then
+		target="$pkg_path/DEBIAN/prerm"
+		cat > "$target" <<- EOF
+		#!/bin/sh -e
+
+		$(cat "$prerm")
+
+		exit 0
+		EOF
+		chmod 755 "$target"
+	fi
+}
+
+# build .deb package
+# USAGE: pkg_build_deb
+# NEEDED VARS: $PLAYIT_WORKDIR $COMPRESSION_METHOD
+# CALLS: pkg_print
+# CALLED BY: build_pkg
+pkg_build_deb() {
+	local pkg_filename="$PWD/${pkg_path##*/}.deb"
+	local dpkg_options="-Z$COMPRESSION_METHOD"
+	pkg_print
+	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
+	export ${pkg}_PKG="$pkg_filename"
+}
+
 # print a localized error message
 # USAGE: print_error
 print_error() {
@@ -619,41 +829,6 @@ print_instructions() {
 		;;
 	esac
 	printf '\n'
-}
-
-# set package distribution-specific architecture
-# USAGE: set_arch
-# NEEDED VARS: $PACKAGE_TYPE
-# CALLED BY: set_workdir_pkg write_metadata
-set_arch() {
-	case $PACKAGE_TYPE in
-
-		('arch')
-			case "$(eval echo \$${pkg}_ARCH)" in
-				('32'|'64')
-					pkg_arch='x86_64'
-				;;
-				(*)
-					pkg_arch='any'
-				;;
-			esac
-		;;
-
-		('deb')
-			case "$(eval echo \$${pkg}_ARCH)" in
-				('32')
-					pkg_arch='i386'
-				;;
-				('64')
-					pkg_arch='amd64'
-				;;
-				(*)
-					pkg_arch='all'
-				;;
-			esac
-		;;
-
-	esac
 }
 
 # set archive for data extraction
@@ -975,130 +1150,220 @@ tolower() {
 
 # write launcher script
 # USAGE: write_bin $app
-# NEEDED VARS: APP_ID APP_TYPE PKG PATH_BIN APP_EXE APP_OPTIONS APP_LIBS
-# CALLS: liberror write_bin_header write_bin_set_vars write_bin_set_exe
-# 	write_bin_set_prefix write_bin_build_userdirs write_bin_build_prefix
-# 	write_bin_run
+# NEEDED VARS: $PKG $APP_ID $APP_TYPE $PATH_BIN $APP_EXE $APP_OPTIONS $APP_LIBS
+#  $APP_PRERUN
+# CALLS: liberror write_bin_set_vars write_bin_set_exe write_bin_set_prefix
+#  write_bin_build_userdirs write_bin_build_prefix write_bin_run
 write_bin() {
 	PKG_PATH="$(eval echo \$${PKG}_PATH)"
 	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_bin'
+
+		# Get app-specific variables
 		local app_id="$(eval echo \$${app}_ID)"
-		if [ -z "$app_id" ]; then
-			app_id="$GAME_ID"
-		fi
 		local app_type="$(eval echo \$${app}_TYPE)"
-		if [ "$winecfg_launcher" != 'done' ] && [ "$app_type" = 'wine' ]; then
-			winecfg_launcher='done'
+		[ "$app_id" ] || app_id="$GAME_ID"
+		if [ "$app_type" != 'scummvm' ]; then
+			local app_exe="$(eval echo \$${app}_EXE)"
+			local app_libs="$(eval echo \$${app}_LIBS)"
+			local app_options="$(eval echo \$${app}_OPTIONS)"
+			local app_prerun="$(eval echo \$${app}_PRERUN)"
+			[ "$app_exe" ] || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
+			if [ "$app_type" = 'native' ]; then
+				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
+			fi
+		fi
+
+		# Write winecfg launcher for WINE games
+		if [ "$app_type" = 'wine' ]; then
 			write_bin_winecfg
 		fi
+
 		local file="${PKG_PATH}${PATH_BIN}/$app_id"
 		mkdir --parents "${file%/*}"
 
 		# Write launcher headers
 		cat > "$file" <<- EOF
 		#!/bin/sh
+		# script generated by ./play.it $library_version - http://wiki.dotslashplay.it/
 		set -o errexit
 
-		# script generated by ./play.it - http://wiki.dotslashplay.it/
-
 		EOF
-		write_bin_set_vars
-		if [ "$app_type" != 'scummvm' ]; then
-			local app_exe="$(eval echo \$${app}_EXE)"
-			if [ -z "$app_exe" ]; then
-				app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
-			fi
-			local app_libs="$(eval echo \$${app}_LIBS)"
-			local app_options="$(eval echo \$${app}_OPTIONS)"
-			local app_prerun="$(eval echo \$${app}_PRERUN)"
-			if [ -e "${PKG_PATH}${PATH_GAME}/$app_exe" ]; then
-				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
-			fi
+
+		# Write launcher
+		if [ "$app_type" = 'scummvm' ]; then
+			write_bin_set_scummvm
+		else
 			if [ "$app_id" != "${GAME_ID}_winecfg" ]; then
 				write_bin_set_exe
 			fi
-			write_bin_set_prefix
-			write_bin_build_userdirs
-			write_bin_build_prefix
+			write_bin_set
+			write_bin_build
 		fi
 		write_bin_run
 		sed -i 's/  /\t/g' "$file"
 		chmod 755 "$file"
+
 	done
 }
 
-# write winecfg launcher script
-# USAGE: write_bin_winecfg
-# NEEDED VARS: GAME_ID
-# CALLS: write_bin
-write_bin_winecfg() {
-	APP_WINECFG_ID="${GAME_ID}_winecfg"
-	APP_WINECFG_TYPE='wine'
-	APP_WINECFG_EXE='winecfg'
-	write_bin 'APP_WINECFG'
-	local target="${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
-	sed --in-place 's/# Run the game/# Run WINE configuration/' "$target"
-	sed --in-place 's|cd "$PATH_PREFIX"||' "$target"
-	sed --in-place 's|wine "$APP_EXE" $APP_OPTIONS $@|winecfg|' "$target"
+# write launcher script - set target binary/script to run the game
+# USAGE: write_bin_set_exe
+# CALLED BY: write_bin
+write_bin_set_exe() {
+	cat >> "$file" <<- EOF
+
+	# Set executable file
+
+	APP_EXE='$app_exe'
+	APP_OPTIONS='$app_options'
+	export LD_LIBRARY_PATH="$app_libs:\$LD_LIBRARY_PATH"
+	EOF
 }
 
-# write launcher script - set common user-writables directories
-# USAGE: write_bin_build_userdirs
-write_bin_build_userdirs() {
+# write launcher script - set common vars
+# USAGE: write_bin_set_vars
+# CALLED BY: write_bin
+write_bin_set() {
+	cat >> "$file" <<- EOF
+
+	# Set game-specific variables
+
+	GAME_ID='$GAME_ID'
+	PATH_GAME='$PATH_GAME'
+
+	CACHE_DIRS='$CACHE_DIRS'
+	CACHE_FILES='$CACHE_FILES'
+
+	CONFIG_DIRS='$CONFIG_DIRS'
+	CONFIG_FILES='$CONFIG_FILES'
+
+	DATA_DIRS='$DATA_DIRS'
+	DATA_FILES='$DATA_FILES'
+
+	EOF
 	cat >> "$file" <<- 'EOF'
+	# Set prefix name
+
+	[ "$PREFIX_ID" ] || PREFIX_ID='$GAME_ID'
+
+	# Set prefix-specific variables
+
+	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
+	[ "$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="$HOME/.config"
+	[ "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
+
+	PATH_CACHE="$XDG_CACHE_HOME/$PREFIX_ID"
+	PATH_CONFIG="$XDG_CONFIG_HOME/$PREFIX_ID"
+	PATH_DATA="$XDG_DATA_HOME/games/$PREFIX_ID"
+	EOF
+	if [ "$app_type" = 'wine' ]; then
+		write_bin_set_wine
+	else
+		cat >> "$file" <<- 'EOF'
+		PATH_PREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
+		EOF
+	fi
+	cat >> "$file" <<- 'EOF'
+
+	# Set ./play.it functions
+
+	clean_userdir() {
+	  cd "$PATH_PREFIX"
+	  for file in $2; do
+	    if [ -f "$file" ] && [ ! -f "$1/$file" ]; then
+	      cp --parents "$file" "$1"
+	      rm "$file"
+	      ln --symbolic "$(readlink -e "$1/$file")" "$file"
+	    fi
+	  done
+	}
+
+	init_prefix_dirs() {
+	  (
+	    cd "$1"
+	    for dir in $2; do
+	      rm --force --recursive "$PATH_PREFIX/$dir"
+	      mkdir --parents "$PATH_PREFIX/${dir%/*}"
+	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
+	    done
+	  )
+	}
+
+	init_prefix_files() {
+	  (
+	    cd "$1"
+	    find . -type f | while read file; do
+	      local file_prefix="$(readlink -e "$PATH_PREFIX/$file")"
+	      local file_real="$(readlink -e "$file")"
+	      if [ "$file_real" != "$file_prefix" ]; then
+	        rm --force "$PATH_PREFIX/$file"
+	        mkdir --parents "$PATH_PREFIX/${file%/*}"
+	        ln --symbolic "$file_real" "$PATH_PREFIX/$file"
+	      fi
+	    done
+	  )
+	}
+
+	init_userdir_dirs() {
+	  (
+	    cd "$PATH_GAME"
+	    for dir in $2; do
+	      if [ ! -e "$1/$dir" ] && [ -e "$dir" ]; then
+	        cp --parents --recursive "$dir" "$1"
+	      else
+	        mkdir --parents "$1/$dir"
+	      fi
+	    done
+	  )
+	}
+
+	init_userdir_files() {
+	  (
+	    cd "$PATH_GAME"
+	    for file in $2; do
+	      if [ ! -e "$1/$file" ] && [ -e "$file" ]; then
+	        cp --parents "$file" "$1"
+	      fi
+	    done
+	  )
+	}
+		EOF
+}
+
+# write launcher script - build game prefix
+# USAGE: write_bin_build
+write_bin_build() {
+	cat >> "$file" <<- 'EOF'
+
 	# Build user-writable directories
-	
+
 	if [ ! -e "$PATH_CACHE" ]; then
 	  mkdir --parents "$PATH_CACHE"
 	  init_userdir_dirs "$PATH_CACHE" "$CACHE_DIRS"
 	  init_userdir_files "$PATH_CACHE" "$CACHE_FILES"
 	fi
+
 	if [ ! -e "$PATH_CONFIG" ]; then
 	  mkdir --parents "$PATH_CONFIG"
 	  init_userdir_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
 	  init_userdir_files "$PATH_CONFIG" "$CONFIG_FILES"
 	fi
+
 	if [ ! -e "$PATH_DATA" ]; then
 	  mkdir --parents "$PATH_DATA"
 	  init_userdir_dirs "$PATH_DATA" "$DATA_DIRS"
 	  init_userdir_files "$PATH_DATA" "$DATA_FILES"
 	fi
-	
-	EOF
-}
 
-# write launcher script - set WINE-specific user-writables directories
-# USAGE: write_bin_build_userdirs_wine
-write_bin_build_userdirs_wine() {
-	cat >> "$file" <<- 'EOF'
-	export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
-	if ! [ -e "$WINEPREFIX" ]; then
-	  mkdir --parents "${WINEPREFIX%/*}"
-	  wineboot --init 2>/dev/null
-	EOF
-
-	if [ "$APP_WINETRICKS" ]; then
-		cat >> "$file" <<- EOF
-		  winetricks $APP_WINETRICKS
-		EOF
-	fi
-
-	cat >> "$file" <<- 'EOF'
-	  rm "$WINEPREFIX/dosdevices/z:"
-	fi
-	EOF
-}
-
-# write launcher script - build game prefix
-# USAGE: write_bin_build_prefix
-write_bin_build_prefix() {
-	cat >> "$file" <<- EOF
 	# Build prefix
-	
+
 	EOF
-	[ "$app_type" = 'wine' ] && write_bin_build_userdirs_wine
+
+	if [ "$app_type" = 'wine' ]; then
+		write_bin_build_wine
+	fi
 	cat >> "$file" <<- 'EOF'
 	if [ ! -e "$PATH_PREFIX" ]; then
 	  mkdir --parents "$PATH_PREFIX"
@@ -1110,7 +1375,6 @@ write_bin_build_prefix() {
 	init_prefix_dirs "$PATH_CACHE" "$CACHE_DIRS"
 	init_prefix_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
 	init_prefix_dirs "$PATH_DATA" "$DATA_DIRS"
-	
 	EOF
 }
 
@@ -1120,7 +1384,9 @@ write_bin_build_prefix() {
 # 	write_bin_run_wine
 write_bin_run() {
 	cat >> "$file" <<- EOF
+
 	# Run the game
+
 	EOF
 
 	case $app_type in
@@ -1147,6 +1413,7 @@ write_bin_run() {
 	fi
 
 	cat >> "$file" <<- EOF
+
 	exit 0
 	EOF
 }
@@ -1215,6 +1482,19 @@ write_bin_run_native() {
 	EOF
 }
 
+# write launcher script - set ScummVM-specific common vars
+# USAGE: write_bin_set_scummvm
+write_bin_set_scummvm() {
+	cat >> "$file" <<- EOF
+	# Set game-specific variables
+
+	GAME_ID='$GAME_ID'
+	PATH_GAME='$PATH_GAME'
+	SCUMMVM_ID='$(eval echo \$${app}_SCUMMID)'
+
+	EOF
+}
+
 # write launcher script - run the ScummVM game
 # USAGE: write_bin_run_scummvm
 # CALLED BY: write_bin_run
@@ -1228,6 +1508,58 @@ write_bin_run_scummvm() {
 	cat >> "$file" <<- 'EOF'
 	scummvm -p "$PATH_GAME" $APP_OPTIONS $@ $SCUMMVM_ID
 	EOF
+}
+
+# write winecfg launcher script
+# USAGE: write_bin_winecfg
+# NEEDED VARS: GAME_ID
+# CALLS: write_bin
+write_bin_winecfg() {
+	if [ "$winecfg_launcher" != '1' ]; then
+		winecfg_launcher='1'
+		APP_WINECFG_ID="${GAME_ID}_winecfg"
+		APP_WINECFG_TYPE='wine'
+		APP_WINECFG_EXE='winecfg'
+		write_bin 'APP_WINECFG'
+		local target="${PKG_PATH}${PATH_BIN}/$APP_WINECFG_ID"
+		sed --in-place 's/# Run the game/# Run WINE configuration/' "$target"
+		sed --in-place 's/cd "$PATH_PREFIX"//' "$target"
+		sed --in-place 's/wine "$APP_EXE" $APP_OPTIONS $@/winecfg/' "$target"
+	fi
+}
+
+# write launcher script - set WINE-specific prefix-specific vars
+# USAGE: write_bin_set_wine
+# CALLED BY: write_bin_set
+write_bin_set_wine() {
+	cat >> "$file" <<- 'EOF'
+	WINEPREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
+	PATH_PREFIX="$WINEPREFIX/drive_c/$GAME_ID"
+	WINEARCH='win32'
+	WINEDEBUG='-all'
+	WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
+
+	EOF
+}
+
+# write launcher script - set WINE-specific user-writables directories
+# USAGE: write_bin_build_wine
+# CALLED BY: write_bin_build
+write_bin_build_wine() {
+	cat >> "$file" <<- 'EOF'
+	export WINEPREFIX WINEARCH WINEDEBUG WINEDLLOVERRIDES
+	if ! [ -e "$WINEPREFIX" ]; then
+	  mkdir --parents "$WINEPREFIX"
+	  wineboot --init 2>/dev/null
+	  rm "$WINEPREFIX/dosdevices/z:"
+	fi
+	EOF
+
+	if [ "$APP_WINETRICKS" ]; then
+		cat >> "$file" <<- EOF
+		winetricks $APP_WINETRICKS
+		EOF
+	fi
 }
 
 # write launcher script - run the WINE game
@@ -1246,179 +1578,6 @@ write_bin_run_wine() {
 
 	cat >> "$file" <<- 'EOF'
 	wine "$APP_EXE" $APP_OPTIONS $@
-	EOF
-}
-
-# write launcher script - set common vars
-# USAGE: write_bin_set_vars
-write_bin_set_vars() {
-	cat >> "$file" <<- EOF
-	# Set game-specific variables
-	
-	GAME_ID="$GAME_ID"
-	PATH_GAME="$PATH_GAME"
-	
-	EOF
-	if [ "$app_type" != 'scummvm' ]; then
-		cat >> "$file" <<- EOF
-		CACHE_DIRS='$CACHE_DIRS'
-		CACHE_FILES='$CACHE_FILES'
-	
-		CONFIG_DIRS='$CONFIG_DIRS'
-		CONFIG_FILES='$CONFIG_FILES'
-	
-		DATA_DIRS='$DATA_DIRS'
-		DATA_FILES='$DATA_FILES'
-	
-		EOF
-	else
-		cat >> "$file" <<- EOF
-		SCUMMVM_ID='$(eval echo \$${app}_SCUMMID)'
-	
-		EOF
-	fi
-}
-
-# write launcher script - set target binary/script to run the game
-# USAGE: write_bin_set_exe
-# CALLED BY: write_bin
-write_bin_set_exe() {
-	cat >> "$file" <<- EOF
-	# Set executable file
-	APP_EXE="$app_exe"
-	APP_OPTIONS="$app_options"
-	export LD_LIBRARY_PATH="$app_libs:\$LD_LIBRARY_PATH"
-	
-	EOF
-}
-
-# write launcher script - set prefix path
-# USAGE: write_bin_set_prefix
-# CALLS: write_bin_set_prefix_vars, write_bin_set_prefix_funcs
-write_bin_set_prefix() {
-	cat >> "$file" <<- EOF
-	# Set prefix name
-	
-	if [ -z "\$PREFIX_ID" ]; then
-	  PREFIX_ID="$GAME_ID"
-	fi
-	
-	EOF
-	write_bin_set_prefix_vars
-	write_bin_set_prefix_funcs
-}
-
-# write launcher script - set prefix-specific vars
-# USAGE: write_bin_set_prefix_vars
-# CALLED BY: write_bin_set_prefix
-# CALLS: write_bin_set_prefix_wine
-write_bin_set_prefix_vars() {
-	cat >> "$file" <<- 'EOF'
-	# Set prefix-specific variables
-	
-	if [ ! -w "$XDG_CACHE_HOME" ]; then
-	  XDG_CACHE_HOME="$HOME/.cache"
-	fi
-	if [ ! -w "$XDG_CONFIG_HOME" ]; then
-	  XDG_CONFIG_HOME="$HOME/.config"
-	fi
-	if [ ! -w "$XDG_DATA_HOME" ]; then
-	  XDG_DATA_HOME="$HOME/.local/share"
-	fi
-	
-	PATH_CACHE="$XDG_CACHE_HOME/$PREFIX_ID"
-	PATH_CONFIG="$XDG_CONFIG_HOME/$PREFIX_ID"
-	PATH_DATA="$XDG_DATA_HOME/games/$PREFIX_ID"
-	EOF
-	if [ "$app_type" = 'wine' ] ; then
-		write_bin_set_prefix_vars_wine
-	else
-		cat >> "$file" <<- 'EOF'
-		PATH_PREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
-		EOF
-	fi
-}
-
-# write launcher script - set WINE-specific prefix-specific vars
-# USAGE: write_bin_set_prefix_vars_wine
-# CALLED BY: write_bin_set_prefix_vars
-write_bin_set_prefix_vars_wine() {
-	cat >> "$file" <<- 'EOF'
-	WINEPREFIX="$XDG_DATA_HOME/play.it/prefixes/$PREFIX_ID"
-	PATH_PREFIX="$WINEPREFIX/drive_c/$GAME_ID"
-	WINEARCH='win32'
-	WINEDEBUG='-all'
-	WINEDLLOVERRIDES='winemenubuilder.exe,mscoree,mshtml=d'
-	
-	EOF
-}
-
-# write launcher script - set prefix-specific functions
-# USAGE: write_bin_set_prefix_funcs
-# CALLED BY: write_bin_set_prefix
-write_bin_set_prefix_funcs() {
-	cat >> "$file" <<- 'EOF'
-	clean_userdir() {
-	  cd "$PATH_PREFIX"
-	  for file in $2; do
-	    if [ -f "$file" ] && [ ! -f "$1/$file" ]; then
-	      cp --parents "$file" "$1"
-	      rm "$file"
-	      ln --symbolic "$(readlink -e "$1/$file")" "$file"
-	    fi
-	  done
-	}
-	
-	init_prefix_dirs() {
-	  (
-	    cd "$1"
-	    for dir in $2; do
-	      rm --force --recursive "$PATH_PREFIX/$dir"
-	      mkdir --parents "$PATH_PREFIX/${dir%/*}"
-	      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
-	    done
-	  )
-	}
-	
-	init_prefix_files() {
-	  (
-	    cd "$1"
-	    find . -type f | while read file; do
-	      local file_prefix="$(readlink -e "$PATH_PREFIX/$file")"
-	      local file_real="$(readlink -e "$file")"
-	      if [ "$file_real" != "$file_prefix" ]; then
-	        rm --force "$PATH_PREFIX/$file"
-	        mkdir --parents "$PATH_PREFIX/${file%/*}"
-	        ln --symbolic "$file_real" "$PATH_PREFIX/$file"
-	      fi
-	    done
-	  )
-	}
-	
-	init_userdir_dirs() {
-	  (
-	    cd "$PATH_GAME"
-	    for dir in $2; do
-	      if [ ! -e "$1/$dir" ] && [ -e "$dir" ]; then
-	        cp --parents --recursive "$dir" "$1"
-	      else
-	        mkdir --parents "$1/$dir"
-	      fi
-	    done
-	  )
-	}
-	
-	init_userdir_files() {
-	  (
-	    cd "$PATH_GAME"
-	    for file in $2; do
-	      if [ ! -e "$1/$file" ] && [ -e "$file" ]; then
-	        cp --parents "$file" "$1"
-	      fi
-	    done
-	  )
-	}
-	
 	EOF
 }
 
@@ -1471,188 +1630,5 @@ write_desktop_winecfg() {
 	APP_WINECFG_CAT='Settings'
 	write_desktop 'APP_WINECFG'
 	sed --in-place 's/Icon=.\+/Icon=winecfg/' "${PKG_PATH}${PATH_DESK}/${APP_WINECFG_ID}.desktop"
-}
-
-# write package meta-data
-# USAGE: write_metadata $pkg
-# NEEDED VARS: $PKG_ARCH_ARCH $PKG_ARCH_DEB $PKG_DEPS_ARCH $PKG_DEPS_DEB
-#  $PKG_DESCRIPTION $PKG_ID $PKG_PATH $PKG_PROVIDE $PKG_VERSION $PACKAGE_TYPE
-# CALLS: testvar liberror write_metadata_arch write_metadata_deb
-write_metadata() {
-	for pkg in $@; do
-
-		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
-
-		local pkg_arch
-		set_arch
-		local pkg_id="$(eval echo \$${pkg}_ID)"
-		local pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
-		local pkg_maint="$(whoami)@$(hostname)"
-		local pkg_path="$(eval echo \$${pkg}_PATH)"
-		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
-		local pkg_version="$(eval echo \$${pkg}_VERSION)"
-
-		if [ ! "$pkg_version" ]; then
-			pkg_version="$PKG_VERSION"
-		fi
-		if [ ! "$pkg_version" ]; then
-			pkg_version='1.0-1'
-		fi
-
-		case $PACKAGE_TYPE in
-			('arch')
-				local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
-				local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
-				write_metadata_arch
-			;;
-			('deb')
-				local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
-				local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
-				write_metadata_deb
-			;;
-		esac
-
-	done
-}
-
-# write .pkg.tar package meta-data
-# USAGE: write_metadata_arch
-# CALLED BY: write_metadata
-write_metadata_arch() {
-	local target="$pkg_path/.PKGINFO"
-
-	mkdir --parents "${target%/*}"
-
-	cat > "$target" <<- EOF
-	pkgname = $pkg_id
-	pkgver = $pkg_version
-	packager = $pkg_maint
-	builddate = $(date +"%m%d%Y")
-	size = $pkg_size
-	arch = $pkg_arch
-	EOF
-
-	if [ "$pkg_description" ]; then
-		cat >> "$target" <<- EOF
-		pkgdesc = $GAME_NAME - $pkg_description - ./play.it script version $script_version
-		EOF
-	else
-		cat >> "$target" <<- EOF
-		pkgdesc = $GAME_NAME - ./play.it script version $script_version
-		EOF
-	fi
-
-	for dep in $pkg_deps; do
-		cat >> "$target" <<- EOF
-		depend = $dep
-		EOF
-	done
-
-	if [ $pkg_provide ]; then
-		cat >> "$target" <<- EOF
-		conflict = $pkg_provide
-		provides = $pkg_provide
-		EOF
-	fi
-
-	target="$pkg_path/.INSTALL"
-
-	if [ -e "$postinst" ]; then
-		cat >> "$target" <<- EOF
-		post_install() {
-		EOF
-		cat "$postinst" >> "$target"
-		cat >> "$target" <<- EOF
-		}
-		post_upgrade() {
-		post_install
-		}
-		EOF
-	fi
-
-	if [ -e "$prerm" ]; then
-		cat >> "$target" <<- EOF
-		pre_remove() {
-		EOF
-		cat "$prerm" >> "$target"
-		cat >> "$target" <<- EOF
-		}
-		pre_upgrade() {
-		pre_remove
-		}
-		EOF
-	fi
-}
-
-# write .deb package meta-data
-# USAGE: write_metadata_deb
-# CALLED BY: write_metadata
-write_metadata_deb() {
-	local target="$pkg_path/DEBIAN/control"
-
-	mkdir --parents "${target%/*}"
-
-	cat > "$target" <<- EOF
-	Package: $pkg_id
-	Version: $pkg_version
-	Architecture: $pkg_arch
-	Maintainer: $pkg_maint
-	Installed-Size: $pkg_size
-	Section: non-free/games
-	EOF
-
-	if [ "$pkg_provide" ]; then
-		cat >> "$target" <<- EOF
-		Conflicts: $pkg_provide
-		Provides: $pkg_provide
-		Replaces: $pkg_provide
-		EOF
-	fi
-
-	if [ "$pkg_deps" ]; then
-		cat >> "$target" <<- EOF
-		Depends: $pkg_deps
-		EOF
-	fi
-
-	if [ "$pkg_description" ]; then
-		cat >> "$target" <<- EOF
-		Description: $GAME_NAME - $pkg_description
-		 ./play.it script version $script_version
-		EOF
-	else
-		cat >> "$target" <<- EOF
-		Description: $GAME_NAME
-		 ./play.it script version $script_version
-		EOF
-	fi
-
-	if [ "$pkg_arch" = 'all' ]; then
-		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "$target"
-	fi
-
-	if [ -e "$postinst" ]; then
-		target="$pkg_path/DEBIAN/postinst"
-		cat > "$target" <<- EOF
-		#!/bin/sh -e
-		EOF
-		cat "$postinst" >> "$target"
-		cat >> "$target" <<- EOF
-		exit 0
-		EOF
-		chmod 755 "$target"
-	fi
-
-	if [ -e "$prerm" ]; then
-		target="$pkg_path/DEBIAN/prerm"
-		cat > "$target" <<- EOF
-		#!/bin/sh -e
-		EOF
-		cat "$prerm" >> "$target"
-		cat >> "$target" <<- EOF
-		exit 0
-		EOF
-		chmod 755 "$target"
-	fi
 }
 
