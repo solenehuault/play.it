@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170407.2
+script_version=20170418.1
 
 # Set game-specific variables
 
@@ -70,8 +70,8 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='64'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libavcodec56 | libavcodec-extra-56, libavformat56, libavutil54, libswscale3, zlib1g, libc6, libgl1-mesa-glx | libgl1, libopenal1, libstdc++6, libgcc1, libx11-6, libxext6, libxcb1, libxau6, libxdmcp6"
-PKG_BIN_DEPS_ARCH="$PKG_DATA_ID ffmpeg zlib glibc libgl openal gcc libx11 libxext libxcb libxau libxdmcp"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa-glx | libgl1, libopenal1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID libgl openal"
 
 # Load common functions
 
