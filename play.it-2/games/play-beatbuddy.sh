@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170419.1
 
 # Set game-specific variables
 
@@ -46,20 +46,27 @@ ARCHIVE_HUMBLE_MD5='156d19b327a02ac4a277f6f6ad4e188e'
 ARCHIVE_HUMBLE_SIZE='1100000'
 ARCHIVE_HUMBLE_VERSION='1.0-humble150815'
 
-ARCHIVE_GAME_PATH='Beatbuddy'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='Beatbuddy'
+ARCHIVE_GAME_BIN_FILES='./Beatbuddy.x86 ./Beatbuddy_Data/Mono ./Beatbuddy_Data/Plugins'
+
+ARCHIVE_GAME_DATA_PATH='Beatbuddy'
+ARCHIVE_GAME_DATA_FILES='./Beatbuddy_Data'
 
 DATA_DIRS='./logs'
 DATA_FILES='./Beatbuddy.x86'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Beatbuddy.x86'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='Beatbuddy_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128x128'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB="libglu1-mesa | libglu1, libxcursor1, libasound2-plugins"
-PKG_MAIN_DEPS_ARCH="lib32-glu lib32-libxcursor lib32-alsa-plugins"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTIOn='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libglu1-mesa | libglu1, libxcursor1, libasound2-plugins"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-libxcursor lib32-alsa-plugins"
 
 # Load common functions
 
@@ -96,30 +103,35 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_HUMBLE'
 check_deps
 set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_DATA' 'PKG_BIN'
 extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+PKG='PKG_BIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
+PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
@@ -127,8 +139,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -136,6 +150,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
