@@ -96,7 +96,7 @@ write_bin_set() {
 	cat >> "$file" <<- 'EOF'
 	# Set prefix name
 
-	[ "$PREFIX_ID" ] || PREFIX_ID='$GAME_ID'
+	[ "$PREFIX_ID" ] || PREFIX_ID="$GAME_ID"
 
 	# Set prefix-specific variables
 
