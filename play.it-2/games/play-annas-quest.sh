@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170418.1
+script_version=20170421.1
 
 # Set game-specific variables
 
@@ -55,8 +55,11 @@ ARCHIVE_DOC2_FILES='./*'
 ARCHIVE_GAME_BIN_PATH='data/noarch/game'
 ARCHIVE_GAME_BIN_FILES='./anna ./config.ini ./libs64'
 
+ARCHIVE_GAME_VIDEO_PATH='data/noarch/game'
+ARCHIVE_GAME_VIDEO_FILES='./videos'
+
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
-ARCHIVE_GAME_DATA_FILES='./characters ./data.vis ./lua ./scenes ./videos'
+ARCHIVE_GAME_DATA_FILES='./characters ./data.vis ./lua ./scenes'
 
 CONFIG_FILES='./config.ini'
 
@@ -66,12 +69,15 @@ APP_MAIN_LIBS='libs64'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256x256'
 
+PKG_VIDEO_ID="${GAME_ID}-videos"
+PKG_VIDEO_DESCRIPTION='videos'
+
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='64'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa-glx | libgl1, libopenal1"
-PKG_BIN_DEPS_ARCH="$PKG_DATA_ID libgl openal"
+PKG_BIN_DEPS_DEB="$PKG_VIDEO_ID, $PKG_DATA_ID, libgl1-mesa-glx | libgl1, libopenal1"
+PKG_BIN_DEPS_ARCH="$PKG_VIDEO_ID $PKG_DATA_ID libgl openal"
 
 # Load common functions
 
@@ -112,11 +118,14 @@ file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
+set_workdir 'PKG_BIN' 'PKG_VIDEO' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
 organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_VIDEO'
+organize_data 'GAME_VIDEO' "$PATH_GAME"
 
 PKG='PKG_DATA'
 organize_data 'DOC1'      "$PATH_DOC"
@@ -137,8 +146,8 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+write_metadata 'PKG_BIN' 'PKG_VIDEO' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_VIDEO' 'PKG_DATA'
 
 # Clean up
 
@@ -146,6 +155,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions "$PKG_VIDEO_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
