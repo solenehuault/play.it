@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170421.1
 
 # Set game-specific variables
 
@@ -48,20 +48,29 @@ ARCHIVE_GOG_VERSION='1.0-gog2.1.0.17'
 
 ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./*.pdf'
+
 ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./gog_eula.txt ./eula.txt'
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./beyondzo.mg1 ./goggame-*.ico ./*.exe ./data'
+
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.exe'
+
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./beyondzo.mg1 ./goggame-*.ico ./data'
 
 DATA_FILES='./*.SAV'
 
 APP_MAIN_TYPE='dosbox'
-APP_MAIN_EXE='frotz data\\beyondzo.dat'
+APP_MAIN_EXE='frotz.exe'
+APP_MAIN_OPTIONS='data\\beyondzo.dat'
 APP_MAIN_ICON='goggame-1207661533.ico'
 APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
 
-PKG_MAIN_DEPS_DEB='dosbox'
-PKG_MAIN_DEPS_ARCH='dosbox'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_MAIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_MAIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
@@ -98,31 +107,36 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 extract_and_sort_icons_from 'APP_MAIN'
+rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
+PKG='PKG_BIN'
+write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA' 'PKG_BIN'
+build_pkg      'PKG_DATA' 'PKG_BIN'
 
 # Clean up
 
@@ -130,6 +144,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
