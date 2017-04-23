@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170422.1
 
 # Set game-specific variables
 
@@ -48,10 +48,15 @@ ARCHIVE_GOG_VERSION='1.1-gog2.0.0.2'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*.pdf ./*.txt'
+
 ARCHIVE_DOC2_PATH='data/noarch/data'
 ARCHIVE_DOC2_FILES='./*.txt'
-ARCHIVE_GAME_PATH='data/noarch/data'
-ARCHIVE_GAME_FILES='./*.bm* ./*.exe ./biopatch.zip ./bmenace.conf'
+
+ARCHIVE_GAME_BIN_PATH='data/noarch/data'
+ARCHIVE_GAME_BIN_FILES='./*.exe ./biopatch.zip'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/data'
+ARCHIVE_GAME_DATA_FILES='./*.bm*'
 
 CONFIG_FILES='./*.conf ./config.*'
 DATA_FILES='./SAVEGAM*'
@@ -74,8 +79,12 @@ APP_3_EXE='bmenace3.exe'
 APP_ICON='data/noarch/support/icon.png'
 APP_ICON_RES='256x256'
 
-PKG_MAIN_DEPS_DEB='dosbox'
-PKG_MAIN_DEPS_ARCH='dosbox'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
@@ -112,27 +121,31 @@ fetch_args "$@"
 set_source_archive 'ARCHIVE_GOG'
 check_deps
 set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
+file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
+set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 PATH_ICON="$PATH_ICON_BASE/$APP_ICON_RES/apps"
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_bin 'APP_1'
 write_bin 'APP_2'
 write_bin 'APP_3'
@@ -155,8 +168,10 @@ rm "$PATH_ICON/$APP_2_ID.png"
 rm "$PATH_ICON/$APP_3_ID.png"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -164,6 +179,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
