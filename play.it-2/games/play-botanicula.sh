@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170424.1
+script_version=20170424.2
 
 # Set game-specific variables
 
@@ -58,8 +58,8 @@ ARCHIVE_GAME_DATA_FILES='./bin/*.xml ./bin/*.swf ./bin/data'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='bin/adl'
 APP_MAIN_OPTIONS='bin/BotaniculaLinux-app.xml'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_PATH='bin/data/icons'
+APP_MAIN_ICON_RES='16 32 36 48 57 72 114 128 256 512'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -117,10 +117,6 @@ PKG='PKG_DATA'
 organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
-
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
@@ -131,7 +127,25 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
+cat > "$postinst" << EOF
+for res in $APP_MAIN_ICON_RES; do
+	PATH_ICON=$PATH_ICON_BASE/\${res}x\${res}/apps
+	mkdir --parents "\$PATH_ICON"
+	ln --symbolic "$PATH_GAME/$APP_MAIN_ICON_PATH/b\${res}.png" "\$PATH_ICON/$GAME_ID.png"
+done
+EOF
+
+cat > "$prerm" << EOF
+for res in $APP_ICON_RES; do
+	PATH_ICON=$PATH_ICON_BASE/\${res}x\${res}/apps
+	rm "\$PATH_ICON/$GAME_ID.png"
+	rmdir --parents --ignore-fail-on-non-empty "\$PATH_ICON"
+done
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
 build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
