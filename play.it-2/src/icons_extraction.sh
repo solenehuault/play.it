@@ -60,9 +60,9 @@ done
 # CALLED BY: sort_icons
 sort_icons_arch() {
 	for res in $icon_res; do
-		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		path_icon="${PATH_ICON_BASE}/${res}x${res}/apps"
 		mkdir -p "${pkg_path}${path_icon}"
-		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x${res}x*.png; do
 			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
 		done
 	done
@@ -74,9 +74,9 @@ sort_icons_arch() {
 # CALLED BY: sort_icons
 sort_icons_deb() {
 	for res in $icon_res; do
-		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		path_icon="${PATH_ICON_BASE}/${res}x${res}/apps"
 		mkdir -p "${pkg_path}${path_icon}"
-		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x${res}x*.png; do
 			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
 		done
 	done
