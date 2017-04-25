@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170418.1
+library_revision=20170425.1
 
 # check script dependencies
 # USAGE: check_deps
@@ -151,6 +151,73 @@ set_arch() {
 		;;
 
 	esac
+}
+
+# test the validity of the argument given to parent function
+# USAGE: testvar $var_name $pattern
+testvar() {
+	if [ -z "$(echo "$1" | grep ^${2})" ]; then
+		return 1
+	fi
+}
+
+# set defaults rights on files (755 for dirs & 644 for regular files)
+# USAGE: fix_rights $dir[…]
+fix_rights() {
+	for dir in "$@"; do
+		if [ ! -d "$dir" ]; then
+			return 1
+		fi
+		find "$dir" -type d -exec chmod 755 '{}' +
+		find "$dir" -type f -exec chmod 644 '{}' +
+	done
+}
+
+# print a localized error message
+# USAGE: print_error
+print_error() {
+	case ${LANG%_*} in
+		('fr')
+			printf '\n\033[1;31mErreur :\033[0m\n'
+		;;
+		('en'|*)
+			printf '\n\033[1;31mError:\033[0m\n'
+		;;
+	esac
+}
+
+# convert files name to lower case
+# USAGE: tolower $dir[…]
+tolower() {
+	for dir in "$@"; do
+		if [ ! -d "$dir" ]; then
+			return 1
+		fi
+		find "$dir" -depth | while read file; do
+			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
+			if [ ! -e "$newfile" ] && [ "$file" != "$dir" ]; then
+				mv "$file" "$newfile"
+			fi
+		done
+	done
+}
+
+# display an error if a function has been called with invalid arguments
+# USAGE: liberror $var_name $calling_function
+liberror() {
+	local var="$1"
+	local value="$(eval echo \$$var)"
+	local func="$2"
+	print_error
+	case ${LANG%_*} in
+		('fr')
+			printf 'valeur incorrecte pour %s appelée par %s : %s\n' "$var" "$func" "$value"
+		;;
+		('en'|*)
+			printf 'invalid value for %s called by %s: %s\n' "$var" "$func" "$value"
+		;;
+	esac
+	return 1
 }
 
 # extract data from given archive
@@ -362,18 +429,6 @@ file_checksum_error() {
 	printf "$string2"
 }
 
-# set defaults rights on files (755 for dirs & 644 for regular files)
-# USAGE: fix_rights $dir[…]
-fix_rights() {
-	for dir in "$@"; do
-		if [ ! -d "$dir" ]; then
-			return 1
-		fi
-		find "$dir" -type d -exec chmod 755 '{}' +
-		find "$dir" -type f -exec chmod 644 '{}' +
-	done
-}
-
 # extract .png or .ico files from given file
 # USAGE: extract_icon_from $file[…]
 # NEEDED VARS: $PLAYIT_WORKDIR
@@ -476,24 +531,6 @@ extract_and_sort_icons_from() {
 		sort_icons "$app"
 		rm --recursive "$PLAYIT_WORKDIR/icons"
 	done
-}
-
-# display an error if a function has been called with invalid arguments
-# USAGE: liberror $var_name $calling_function
-liberror() {
-	local var="$1"
-	local value="$(eval echo \$$var)"
-	local func="$2"
-	print_error
-	case ${LANG%_*} in
-		('fr')
-			printf 'valeur incorrecte pour %s appelée par %s : %s\n' "$var" "$func" "$value"
-		;;
-		('en'|*)
-			printf 'invalid value for %s called by %s: %s\n' "$var" "$func" "$value"
-		;;
-	esac
-	return 1
 }
 
 # put files from archive in the right package directories
@@ -781,19 +818,6 @@ pkg_build_deb() {
 	pkg_print
 	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
 	export ${pkg}_PKG="$pkg_filename"
-}
-
-# print a localized error message
-# USAGE: print_error
-print_error() {
-	case ${LANG%_*} in
-		('fr')
-			printf '\n\033[1;31mErreur :\033[0m\n'
-		;;
-		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
-		;;
-	esac
 }
 
 # print installation instructions
@@ -1124,30 +1148,6 @@ set_workdir_pkg() {
 	export ${pkg}_PATH="$pkg_path"
 }
 
-# test the validity of the argument given to parent function
-# USAGE: testvar $var_name $pattern
-testvar() {
-	if [ -z "$(echo "$1" | grep ^${2})" ]; then
-		return 1
-	fi
-}
-
-# convert files name to lower case
-# USAGE: tolower $dir[…]
-tolower() {
-	for dir in "$@"; do
-		if [ ! -d "$dir" ]; then
-			return 1
-		fi
-		find "$dir" -depth | while read file; do
-			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
-			if [ ! -e "$newfile" ] && [ "$file" != "$dir" ]; then
-				mv "$file" "$newfile"
-			fi
-		done
-	done
-}
-
 # write launcher script
 # USAGE: write_bin $app
 # NEEDED VARS: $PKG $APP_ID $APP_TYPE $PATH_BIN $APP_EXE $APP_OPTIONS $APP_LIBS
@@ -1246,7 +1246,7 @@ write_bin_set() {
 	cat >> "$file" <<- 'EOF'
 	# Set prefix name
 
-	[ "$PREFIX_ID" ] || PREFIX_ID='$GAME_ID'
+	[ "$PREFIX_ID" ] || PREFIX_ID="$GAME_ID"
 
 	# Set prefix-specific variables
 
