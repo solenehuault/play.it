@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.1
+script_version=20170425.2
 
 # Set game-specific variables
 
@@ -73,7 +73,7 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE_BIN32='Bastion.bin.x86'
 APP_MAIN_EXE_BIN64='Bastion.bin.x86_64'
 APP_MAIN_ICON='Bastion.bmp'
-APP_MAIN_ICON_RES='512x512'
+APP_MAIN_ICON_RES='512'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -131,7 +131,8 @@ PKG='PKG_DATA'
 organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
 mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"

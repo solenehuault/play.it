@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.1
+script_version=20170425.2
 
 # Set game-specific variables
 
@@ -65,7 +65,7 @@ CONFIG_FILES='./*.ini'
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./anox.exe'
 APP_MAIN_ICON='./anox.ico'
-APP_MAIN_ICON_RES='16x16 32x32 48x48'
+APP_MAIN_ICON_RES='16 32 48'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'

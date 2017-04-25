@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.1
+script_version=20170425.2
 
 # Set game-specific variables
 
@@ -65,7 +65,7 @@ APP_MAIN_EXE_BIN32='./Braveland Pirate.x86'
 APP_MAIN_EXE_BIN64='./Braveland Pirate.x86_64'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -137,7 +137,8 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"

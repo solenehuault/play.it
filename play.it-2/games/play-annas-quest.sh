@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.1
+script_version=20170425.2
 
 # Set game-specific variables
 
@@ -67,7 +67,7 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE='anna'
 APP_MAIN_LIBS='libs64'
 APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
 
 PKG_VIDEO_ID="${GAME_ID}-videos"
 PKG_VIDEO_DESCRIPTION='videos'
@@ -125,7 +125,8 @@ organize_data 'DOC1'      "$PATH_DOC"
 organize_data 'DOC2'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
 mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
 

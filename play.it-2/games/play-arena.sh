@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.1
+script_version=20170425.2
 
 # Set game-specific variables
 
@@ -71,7 +71,7 @@ APP_MAIN_EXE='acd.exe'
 APP_MAIN_OPTIONS='-Ssbpdig.adv -IOS220 -IRQS7 -DMAS1 -Mgenmidi.adv -IOM330 -IRQM2 -DMAM1'
 APP_MAIN_PRERUN='d:'
 APP_MAIN_ICON='goggame-1435828982.ico'
-APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
+APP_MAIN_ICON_RES='16 32 48 256'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'

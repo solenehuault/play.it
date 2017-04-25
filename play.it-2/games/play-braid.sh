@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.1
+script_version=20170425.2
 
 # Set game-specific variables
 
@@ -61,7 +61,7 @@ ARCHIVE_GAME_DATA_FILES='./data ./Icon.png'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Braid.bin.x86'
 APP_MAIN_ICON='./Icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
 APP_MAIN_LIBS='./lib'
 
 PKG_DATA_ID="${GAME_ID}-data"
@@ -126,7 +126,8 @@ write_desktop 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
