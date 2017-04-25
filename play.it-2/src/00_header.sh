@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170425.2
+library_revision=20170425.3
 
 # Check library version against script target version
 
