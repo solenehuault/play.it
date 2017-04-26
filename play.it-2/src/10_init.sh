@@ -26,12 +26,8 @@ fi
 
 DEFAULT_CHECKSUM_METHOD='md5'
 DEFAULT_COMPRESSION_METHOD='none'
-DEFAULT_GAME_LANG='en'
-DEFAULT_GAME_LANG_AUDIO='en'
-DEFAULT_GAME_LANG_TXT='en'
 DEFAULT_INSTALL_PREFIX='/usr/local'
-DEFAULT_ICON_CHOICE='original'
-DEFAULT_MOVIES_SUPPORT='0'
+DEFAULT_PACKAGE_TYPE='deb'
 unset winecfg_desktop
 unset winecfg_launcher
 
@@ -46,11 +42,5 @@ if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
 			DEFAULT_PACKAGE_TYPE='arch'
 		;;
 	esac
-fi
-
-# Fall back on deb format by default
-
-if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
-	DEFAULT_PACKAGE_TYPE='deb'
 fi
 

@@ -4,12 +4,7 @@
 fetch_args() {
 	unset CHECKSUM_METHOD
 	unset COMPRESSION_METHOD
-	unset GAME_LANG
-	unset GAME_LANG_AUDIO
-	unset GAME_LANG_TXT
-	unset ICON_CHOICE
 	unset INSTALL_PREFIX
-	unset MOVIES_SUPPORT
 	unset PACKAGE_TYPE
 	unset SOURCE_ARCHIVE
 	for arg in "$@"; do
@@ -20,26 +15,11 @@ fetch_args() {
 			('--compression='*)
 				export COMPRESSION_METHOD="${arg#*=}"
 			;;
-			('--icon='*)
-				export ICON_CHOICE="${arg#*=}"
-			;;
 			('--prefix='*)
 				export INSTALL_PREFIX="${arg#*=}"
 			;;
-			('--lang='*)
-				export GAME_LANG="${arg#*=}"
-			;;
-			('--lang-audio='*)
-				export GAME_LANG_AUDIO="${arg#*=}"
-			;;
-			('--lang-txt='*)
-				export GAME_LANG_TXT="${arg#*=}"
-			;;
 			('--package='*)
 				export PACKAGE_TYPE="${arg#*=}"
-			;;
-			('--movies=')
-				export MOVIES_SUPPORT="${arg#*=}"
 			;;
 			('--'*)
 				return 1
@@ -51,11 +31,7 @@ fetch_args() {
 	done
 	fetch_args_set_var 'CHECKSUM_METHOD'
 	fetch_args_set_var 'COMPRESSION_METHOD'
-	fetch_args_set_var 'GAME_LANG'
-	fetch_args_set_var 'GAME_LANG_AUDIO'
-	fetch_args_set_var 'GAME_LANG_TXT'
 	fetch_args_set_var 'INSTALL_PREFIX'
-	fetch_args_set_var 'MOVIES_SUPPORT'
 	fetch_args_set_var 'PACKAGE_TYPE'
 }
 
