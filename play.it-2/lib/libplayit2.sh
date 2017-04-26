@@ -33,146 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170426.1
-
-# Check library version against script target version
-
-library_version_major=${library_version%.*}
-target_version_major=${target_version%.*}
-
-library_version_minor=$(echo $library_version | cut -d'.' -f2)
-target_version_minor=$(echo $target_version | cut -d'.' -f2)
-
-if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
-	case ${LANG%_*} in
-		('fr')
-			printf '\n\033[1;31mErreur:\033[0m\n'
-			printf 'Mauvaise version de libplayit2.sh\n'
-			printf 'La version cible est : %s\n' "$target_version"
-		;;
-		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
-			printf 'Wrong version of libplayit2.sh\n'
-			printf 'Target version is: %s\n' "$target_version"
-		;;
-	esac
-	return 1
-fi
-
-# Set default values for common vars
-
-DEFAULT_CHECKSUM_METHOD='md5'
-DEFAULT_COMPRESSION_METHOD='none'
-DEFAULT_GAME_LANG='en'
-DEFAULT_GAME_LANG_AUDIO='en'
-DEFAULT_GAME_LANG_TXT='en'
-DEFAULT_INSTALL_PREFIX='/usr/local'
-DEFAULT_ICON_CHOICE='original'
-DEFAULT_MOVIES_SUPPORT='0'
-unset winecfg_desktop
-unset winecfg_launcher
-
-# Try to detect the host distribution through lsb_release
-
-if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
-	case "$(lsb_release -si)" in
-		('Debian'|'Ubuntu')
-			DEFAULT_PACKAGE_TYPE='deb'
-		;;
-		('Arch')
-			DEFAULT_PACKAGE_TYPE='arch'
-		;;
-	esac
-fi
-
-# Fall back on deb format by default
-
-if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
-	DEFAULT_PACKAGE_TYPE='deb'
-fi
-
-# check script dependencies
-# USAGE: check_deps
-# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
-# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
-check_deps() {
-	case "$ARCHIVE_TYPE" in
-		('innosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
-		;;
-		('nixstaller')
-			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
-		;;
-		('mojosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
-		;;
-		('zip')
-			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
-		;;
-		('rar')
-			SCRIPT_DEPS="$SCRIPT_DEPS unar"
-		;;
-		('tar.gz')
-			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
-		;;
-	esac
-	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
-		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
-	fi
-	if [ "$PACKAGE_TYPE" = 'deb' ]; then
-		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
-	fi
-	if [ "${APP_MAIN_ICON##*.}" = 'bmp' ]; then
-		SCRIPT_DEPS="$SCRIPT_DEPS convert"
-	fi
-	if [ "${APP_MAIN_ICON##*.}" = 'ico' ]; then
-		SCRIPT_DEPS="$SCRIPT_DEPS icotool"
-	fi
-	for dep in $SCRIPT_DEPS; do
-		case $dep in
-			('7z')
-				check_deps_7z
-			;;
-			(*)
-				if ! which $dep >/dev/null 2>&1; then
-					check_deps_failed "$dep"
-				fi
-			;;
-		esac
-	done
-}
-
-# check presence of a software to handle .7z archives
-# USAGE: check_deps_7z
-# CALLS: check_deps_failed
-# CALLED BY: check_deps
-check_deps_7z() {
-	if which 7zr >/dev/null 2>&1; then
-		extract_7z() { 7zr x -o"$2" -y "$1"; }
-	elif which 7za >/dev/null 2>&1; then
-		extract_7z() { 7za x -o"$2" -y "$1"; }
-	elif which unar >/dev/null 2>&1; then
-		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
-	else
-		check_deps_failed 'p7zip'
-	fi
-}
-
-# display a message if a required dependency is missing
-# USAGE: check_deps_failed $command_name
-# CALLED BY: check_deps, check_deps_7z
-check_deps_failed() {
-	print_error
-	case ${LANG%_*} in
-		('fr')
-			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
-		;;
-		('en'|*)
-			printf '%s not found. Install it before running this script.\n' "$1"
-		;;
-	esac
-	return 1
-}
+library_revision=20170426.2
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -276,6 +137,205 @@ liberror() {
 	return 1
 }
 
+# check script dependencies
+# USAGE: check_deps
+# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
+# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
+check_deps() {
+	case "$ARCHIVE_TYPE" in
+		('innosetup')
+			SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
+		;;
+		('nixstaller')
+			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
+		;;
+		('mojosetup')
+			SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
+		;;
+		('zip')
+			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+		;;
+		('rar')
+			SCRIPT_DEPS="$SCRIPT_DEPS unar"
+		;;
+		('tar.gz')
+			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
+		;;
+	esac
+	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
+	fi
+	if [ "$PACKAGE_TYPE" = 'deb' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
+	fi
+	if [ "${APP_MAIN_ICON##*.}" = 'bmp' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS convert"
+	fi
+	if [ "${APP_MAIN_ICON##*.}" = 'ico' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS icotool"
+	fi
+	for dep in $SCRIPT_DEPS; do
+		case $dep in
+			('7z')
+				check_deps_7z
+			;;
+			(*)
+				if ! which $dep >/dev/null 2>&1; then
+					check_deps_failed "$dep"
+				fi
+			;;
+		esac
+	done
+}
+
+# check presence of a software to handle .7z archives
+# USAGE: check_deps_7z
+# CALLS: check_deps_failed
+# CALLED BY: check_deps
+check_deps_7z() {
+	if which 7zr >/dev/null 2>&1; then
+		extract_7z() { 7zr x -o"$2" -y "$1"; }
+	elif which 7za >/dev/null 2>&1; then
+		extract_7z() { 7za x -o"$2" -y "$1"; }
+	elif which unar >/dev/null 2>&1; then
+		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
+	else
+		check_deps_failed 'p7zip'
+	fi
+}
+
+# display a message if a required dependency is missing
+# USAGE: check_deps_failed $command_name
+# CALLED BY: check_deps, check_deps_7z
+check_deps_failed() {
+	print_error
+	case ${LANG%_*} in
+		('fr')
+			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
+		;;
+		('en'|*)
+			printf '%s not found. Install it before running this script.\n' "$1"
+		;;
+	esac
+	return 1
+}
+
+# Check library version against script target version
+
+library_version_major=${library_version%.*}
+target_version_major=${target_version%.*}
+
+library_version_minor=$(echo $library_version | cut -d'.' -f2)
+target_version_minor=$(echo $target_version | cut -d'.' -f2)
+
+if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
+	case ${LANG%_*} in
+		('fr')
+			printf '\n\033[1;31mErreur:\033[0m\n'
+			printf 'Mauvaise version de libplayit2.sh\n'
+			printf 'La version cible est : %s\n' "$target_version"
+		;;
+		('en'|*)
+			printf '\n\033[1;31mError:\033[0m\n'
+			printf 'Wrong version of libplayit2.sh\n'
+			printf 'Target version is: %s\n' "$target_version"
+		;;
+	esac
+	return 1
+fi
+
+# Set default values for common vars
+
+DEFAULT_CHECKSUM_METHOD='md5'
+DEFAULT_COMPRESSION_METHOD='none'
+DEFAULT_INSTALL_PREFIX='/usr/local'
+DEFAULT_PACKAGE_TYPE='deb'
+unset winecfg_desktop
+unset winecfg_launcher
+
+# Try to detect the host distribution through lsb_release
+
+if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
+	case "$(lsb_release -si)" in
+		('Debian'|'Ubuntu')
+			DEFAULT_PACKAGE_TYPE='deb'
+		;;
+		('Arch')
+			DEFAULT_PACKAGE_TYPE='arch'
+		;;
+	esac
+fi
+
+# Parse arguments given to the script
+
+unset CHECKSUM_METHOD
+unset COMPRESSION_METHOD
+unset INSTALL_PREFIX
+unset PACKAGE_TYPE
+unset SOURCE_ARCHIVE
+for arg in "$@"; do
+	case "$arg" in
+		('--checksum='*)
+			export CHECKSUM_METHOD="${arg#*=}"
+		;;
+		('--compression='*)
+			export COMPRESSION_METHOD="${arg#*=}"
+		;;
+		('--prefix='*)
+			export INSTALL_PREFIX="${arg#*=}"
+		;;
+		('--package='*)
+			export PACKAGE_TYPE="${arg#*=}"
+		;;
+		('--'*)
+			return 1
+		;;
+		(*)
+			export SOURCE_ARCHIVE="$arg"
+		;;
+	esac
+done
+
+# Set global variables not already set by script arguments
+
+for var in 'CHECKSUM_METHOD' 'COMPRESSION_METHOD' 'INSTALL_PREFIX' 'PACKAGE_TYPE'; do
+	value="$(eval echo \$$var)"
+	if [ -z "$value" ]; then
+		value_default="$(eval echo \$DEFAULT_$var)"
+		if [ -n "$value_default" ]; then
+			export $var="$value_default"
+		fi
+	fi
+done
+unset value
+unset value_default
+
+# Check script dependencies
+
+check_deps
+
+# Set package paths
+
+case $PACKAGE_TYPE in
+	('arch')
+		PATH_BIN="$INSTALL_PREFIX/bin"
+		PATH_DESK='/usr/local/share/applications'
+		PATH_DOC="$INSTALL_PREFIX/share/doc/$GAME_ID"
+		PATH_GAME="$INSTALL_PREFIX/share/$GAME_ID"
+		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
+	;;
+	('deb')
+		PATH_BIN="$INSTALL_PREFIX/games"
+		PATH_DESK='/usr/local/share/applications'
+		PATH_DOC="$INSTALL_PREFIX/share/doc/$GAME_ID"
+		PATH_GAME="$INSTALL_PREFIX/share/games/$GAME_ID"
+		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
+	;;
+	(*)
+		return 1
+	;;
+esac
+
 # extract data from given archive
 # USAGE: extract_data $archive[…]
 # NEEDED_VARS: $PLAYIT_WORKDIR $ARCHIVE $ARCHIVE_TYPE $ARCHIVE_PASSWD
@@ -339,80 +399,6 @@ extract_data_from_print() {
 			printf 'Extracting data from %s \n' "$file"
 		;;
 	esac
-}
-
-# parse arguments given to the script
-# USAGE: fetch_args $argument[…]
-# CALLS: fetch_args_set_var
-fetch_args() {
-	unset CHECKSUM_METHOD
-	unset COMPRESSION_METHOD
-	unset GAME_LANG
-	unset GAME_LANG_AUDIO
-	unset GAME_LANG_TXT
-	unset ICON_CHOICE
-	unset INSTALL_PREFIX
-	unset MOVIES_SUPPORT
-	unset PACKAGE_TYPE
-	unset SOURCE_ARCHIVE
-	for arg in "$@"; do
-		case "$arg" in
-			('--checksum='*)
-				export CHECKSUM_METHOD="${arg#*=}"
-			;;
-			('--compression='*)
-				export COMPRESSION_METHOD="${arg#*=}"
-			;;
-			('--icon='*)
-				export ICON_CHOICE="${arg#*=}"
-			;;
-			('--prefix='*)
-				export INSTALL_PREFIX="${arg#*=}"
-			;;
-			('--lang='*)
-				export GAME_LANG="${arg#*=}"
-			;;
-			('--lang-audio='*)
-				export GAME_LANG_AUDIO="${arg#*=}"
-			;;
-			('--lang-txt='*)
-				export GAME_LANG_TXT="${arg#*=}"
-			;;
-			('--package='*)
-				export PACKAGE_TYPE="${arg#*=}"
-			;;
-			('--movies=')
-				export MOVIES_SUPPORT="${arg#*=}"
-			;;
-			('--'*)
-				return 1
-			;;
-			(*)
-				export SOURCE_ARCHIVE="$arg"
-			;;
-		esac
-	done
-	fetch_args_set_var 'CHECKSUM_METHOD'
-	fetch_args_set_var 'COMPRESSION_METHOD'
-	fetch_args_set_var 'GAME_LANG'
-	fetch_args_set_var 'GAME_LANG_AUDIO'
-	fetch_args_set_var 'GAME_LANG_TXT'
-	fetch_args_set_var 'INSTALL_PREFIX'
-	fetch_args_set_var 'MOVIES_SUPPORT'
-	fetch_args_set_var 'PACKAGE_TYPE'
-}
-
-# set global vars not already set by script arguments
-# USAGE: fetch_args_set_var $var_name
-# CALLED BY: fetch_args
-fetch_args_set_var() {
-	local value="$(eval echo \$$1)"
-	if [ -z "$value" ]; then
-		local value_default="$(eval echo \$DEFAULT_$1)"
-		if [ -n "$value_default" ]; then
-			export $1="$value_default"
-		fi
-	fi
 }
 
 # check integrity of target file
@@ -1051,48 +1037,6 @@ set_source_archive_error_no_type() {
 		;;
 	esac
 	return 1
-}
-
-# set package paths
-# USAGE: set_common_paths
-# NEEDED VARS: PACKAGE_TYPE
-# CALLS: set_common_paths_arch, set_common_paths_deb, set_common_paths_tar, liberror
-set_common_paths() {
-	case $PACKAGE_TYPE in
-		('arch')
-			set_common_paths_arch
-		;;
-		('deb')
-			set_common_paths_deb
-		;;
-		(*)
-			liberror 'PACKAGE_TYPE' 'set_common_paths'
-		;;
-	esac
-}
-
-# set .pkg.tar.xz package paths
-# USAGE: set_common_paths_arch
-# NEEDED VARS: INSTALL_PREFIX, GAME_ID
-# CALLED BY: set_common_paths
-set_common_paths_arch() {
-	PATH_BIN="${INSTALL_PREFIX}/bin"
-	PATH_DESK='/usr/local/share/applications'
-	PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
-	PATH_GAME="${INSTALL_PREFIX}/share/${GAME_ID}"
-	PATH_ICON_BASE='/usr/local/share/icons/hicolor'
-}
-
-# set .deb package paths
-# USAGE: set_common_paths_deb
-# NEEDED VARS: INSTALL_PREFIX, GAME_ID
-# CALLED BY: set_common_paths
-set_common_paths_deb() {
-	PATH_BIN="${INSTALL_PREFIX}/games"
-	PATH_DESK='/usr/local/share/applications'
-	PATH_DOC="${INSTALL_PREFIX}/share/doc/${GAME_ID}"
-	PATH_GAME="${INSTALL_PREFIX}/share/games/${GAME_ID}"
-	PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 }
 
 # set working directories
