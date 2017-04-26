@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170425.3
+library_revision=20170426.1
 
 # Check library version against script target version
 
@@ -57,6 +57,38 @@ if [ $library_version_major -ne $target_version_major ] || [ $library_version_mi
 		;;
 	esac
 	return 1
+fi
+
+# Set default values for common vars
+
+DEFAULT_CHECKSUM_METHOD='md5'
+DEFAULT_COMPRESSION_METHOD='none'
+DEFAULT_GAME_LANG='en'
+DEFAULT_GAME_LANG_AUDIO='en'
+DEFAULT_GAME_LANG_TXT='en'
+DEFAULT_INSTALL_PREFIX='/usr/local'
+DEFAULT_ICON_CHOICE='original'
+DEFAULT_MOVIES_SUPPORT='0'
+unset winecfg_desktop
+unset winecfg_launcher
+
+# Try to detect the host distribution through lsb_release
+
+if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
+	case "$(lsb_release -si)" in
+		('Debian'|'Ubuntu')
+			DEFAULT_PACKAGE_TYPE='deb'
+		;;
+		('Arch')
+			DEFAULT_PACKAGE_TYPE='arch'
+		;;
+	esac
+fi
+
+# Fall back on deb format by default
+
+if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
+	DEFAULT_PACKAGE_TYPE='deb'
 fi
 
 # check script dependencies
@@ -1019,37 +1051,6 @@ set_source_archive_error_no_type() {
 		;;
 	esac
 	return 1
-}
-
-# set default values for common vars
-# USAGE: set_common_defaults
-set_common_defaults() {
-	DEFAULT_CHECKSUM_METHOD='md5'
-	DEFAULT_COMPRESSION_METHOD='none'
-	DEFAULT_GAME_LANG='en'
-	DEFAULT_GAME_LANG_AUDIO='en'
-	DEFAULT_GAME_LANG_TXT='en'
-	DEFAULT_INSTALL_PREFIX='/usr/local'
-	DEFAULT_ICON_CHOICE='original'
-	DEFAULT_MOVIES_SUPPORT='0'
-	unset winecfg_desktop
-	unset winecfg_launcher
-	
-	# Try to detect the host distribution through lsb_release
-	if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
-		case "$(lsb_release -si)" in
-			('Debian'|'Ubuntu')
-				DEFAULT_PACKAGE_TYPE='deb'
-			;;
-			('Arch')
-				DEFAULT_PACKAGE_TYPE='arch'
-			;;
-		esac
-	fi
-	# Fall back on deb format by default
-	if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
-		DEFAULT_PACKAGE_TYPE='deb'
-	fi
 }
 
 # set package paths
