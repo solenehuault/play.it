@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.1
+script_version=20170426.2
 
 # Set game-specific variables
 
@@ -90,15 +90,10 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Parse command-line arguments
-
-fetch_args "$@"
-
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG'
 check_deps
-set_common_paths
 file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
