@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170425.2
+script_version=20170426.1
 
 # Set game-specific variables
 
@@ -89,9 +89,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set extra variables
+# Parse command-line arguments
 
-set_common_defaults
 fetch_args "$@"
 
 # Set source archive
