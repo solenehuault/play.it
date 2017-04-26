@@ -1,34 +1,3 @@
-# set default values for common vars
-# USAGE: set_common_defaults
-set_common_defaults() {
-	DEFAULT_CHECKSUM_METHOD='md5'
-	DEFAULT_COMPRESSION_METHOD='none'
-	DEFAULT_GAME_LANG='en'
-	DEFAULT_GAME_LANG_AUDIO='en'
-	DEFAULT_GAME_LANG_TXT='en'
-	DEFAULT_INSTALL_PREFIX='/usr/local'
-	DEFAULT_ICON_CHOICE='original'
-	DEFAULT_MOVIES_SUPPORT='0'
-	unset winecfg_desktop
-	unset winecfg_launcher
-	
-	# Try to detect the host distribution through lsb_release
-	if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
-		case "$(lsb_release -si)" in
-			('Debian'|'Ubuntu')
-				DEFAULT_PACKAGE_TYPE='deb'
-			;;
-			('Arch')
-				DEFAULT_PACKAGE_TYPE='arch'
-			;;
-		esac
-	fi
-	# Fall back on deb format by default
-	if ! [ "$DEFAULT_PACKAGE_TYPE" ]; then
-		DEFAULT_PACKAGE_TYPE='deb'
-	fi
-}
-
 # set package paths
 # USAGE: set_common_paths
 # NEEDED VARS: PACKAGE_TYPE
