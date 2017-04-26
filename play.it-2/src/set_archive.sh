@@ -42,6 +42,8 @@ set_source_archive() {
 	if [ -z "$SOURCE_ARCHIVE" ]; then
 		set_source_archive_error_not_found "$@"
 	fi
+	check_deps
+	file_checksum "$SOURCE_ARCHIVE"
 }
 
 # set archive-related vars
