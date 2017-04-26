@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.2
+script_version=20170426.3
 
 # Set game-specific variables
 
@@ -106,8 +106,6 @@ fi
 # Set source archive
 
 set_source_archive 'ARCHIVE_GOG'
-check_deps
-file_checksum "$SOURCE_ARCHIVE"
 
 # Extract game data
 
