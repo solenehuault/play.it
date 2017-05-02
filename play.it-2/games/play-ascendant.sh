@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='ascendant'
 GAME_NAME='Ascendant'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_ascendant_2.2.0.7.sh'
 ARCHIVE_GOG_MD5='8cdcd59a2f8363b7237e9cbe2675adda'
@@ -63,6 +65,8 @@ APP_MAIN_EXE_64='Ascendant_64.x86_64'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_32 PKG_64'
 
 PKG_32_ARCH='32'
 PKG_32_DEPS_DEB='libglu1-mesa | libglu1, libxcursor1, libxrandr2'
@@ -90,13 +94,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_32'

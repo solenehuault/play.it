@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='aladdin'
 GAME_NAME='Aladdin'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_disney_s_aladdin_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='9dd6d84c2276809c5630320335e3415b'
@@ -61,6 +63,8 @@ APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='aladdin.exe'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -87,13 +91,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 tolower "$PLAYIT_WORKDIR/gamedata"
 

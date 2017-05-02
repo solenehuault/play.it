@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='caesar-3'
 GAME_NAME='Caesar III'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='setup_caesar3_2.0.0.9.exe'
 ARCHIVE_GOG_MD5='2ee16fab54493e1c2a69122fd2e56635'
@@ -72,6 +74,8 @@ APP_MAIN_EXE='./c3.exe'
 APP_MAIN_ICON='./c3.exe'
 APP_MAIN_ICON_RES='16 32'
 
+PACKAGES_LIST='PKG_MOVIES PKG_SOUNDS PKG_DATA PKG_BIN'
+
 PKG_MOVIES_ID="${GAME_ID}-movies"
 PKG_MOVIES_DESCRIPTION='movies'
 
@@ -103,13 +107,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_MOVIES' 'PKG_SOUNDS' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'

@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='baldurs-gate-2-ee'
 GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_baldur_s_gate_2_enhanced_edition_2.6.0.10.sh'
 ARCHIVE_GOG_MD5='cd4d65cade256285a4490b48a0448e20'
@@ -68,6 +70,8 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE='BaldursGateII'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
+
+PACKAGES_LIST='PKG_AREAS PKG_MOVIES PKG_MUSIC PKG_DATA PKG_BIN'
 
 PKG_AREAS_ID="${GAME_ID}-areas"
 PKG_AREAS_DESCRIPTION='areas'
@@ -103,13 +107,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_AREAS' 'PKG_MOVIES' 'PKG_MUSIC' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'

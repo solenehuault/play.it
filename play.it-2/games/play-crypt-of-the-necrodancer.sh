@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170502.1
+script_version=20170502.2
 
 # Set game-specific variables
 
 GAME_ID='crypt-of-the-necrodancer'
 GAME_NAME='Crypt Of The Necrodancer'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_crypt_of_the_necrodancer_2.3.0.5.sh'
 ARCHIVE_GOG_MD5='8a6e7c3d26461aa2fa959b8607e676f7'
@@ -63,6 +65,8 @@ APP_MAIN_EXE='NecroDancer'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
 
+PACKAGES_LIST='PKG_MAIN'
+
 PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2, libvorbis0a'
 PKG_MAIN_DEPS_ARCH='lib32-glibc lib32-libogg lib32-libvorbis lib32-libx11 lib32-libxau lib32-libxcb lib32-libxdmcp lib32-libxext lib32-libgl lib32-openal'
@@ -85,13 +89,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data 'DOC1' "$PATH_DOC"

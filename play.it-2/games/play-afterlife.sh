@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='afterlife'
 GAME_NAME='Afterlife'
+
+ARCHIVES_LIST='ARCHIVE_GOG_EN ARCHIVE_GOG_FR'
 
 ARCHIVE_GOG_EN='gog_afterlife_2.2.0.8.sh'
 ARCHIVE_GOG_EN_MD5='3aca0fac1b93adec5aff39d395d995ab'
@@ -70,6 +72,8 @@ APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='alife/afterdos.bat'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_PROVIDE="$PKG_DATA_ID"
@@ -103,13 +107,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 tolower "$PLAYIT_WORKDIR/gamedata"
 

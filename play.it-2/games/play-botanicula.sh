@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='botanicula'
 GAME_NAME='Botanicula'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_botanicula_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='7b92a379f8d2749e2f97c43ecc540c3c'
@@ -60,6 +62,8 @@ APP_MAIN_EXE='bin/adl'
 APP_MAIN_OPTIONS='bin/BotaniculaLinux-app.xml'
 APP_MAIN_ICON_PATH='bin/data/icons'
 APP_MAIN_ICON_RES='16 32 36 48 57 72 114 128 256 512'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -86,13 +90,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'

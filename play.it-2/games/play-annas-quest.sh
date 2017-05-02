@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='annas-quest'
 GAME_NAME='Anna’s Quest'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_anna_s_quest_2.1.0.3.sh'
 ARCHIVE_GOG_MD5='cb4cf167a13413b6df8238397393298a'
@@ -69,6 +71,8 @@ APP_MAIN_LIBS='libs64'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
 
+PACKAGES_LIST='PKG_VIDEO PKG_DATA PKG_BIN'
+
 PKG_VIDEO_ID="${GAME_ID}-videos"
 PKG_VIDEO_DESCRIPTION='videos'
 
@@ -97,13 +101,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_VIDEO' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'

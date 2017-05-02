@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='beyond-zork'
 GAME_NAME='Beyond Zork: The Coconut of Quendor'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='setup_beyond_zork_2.1.0.17.exe'
 ARCHIVE_GOG_MD5='8a5168d7340af5b1b4df708f467785c0'
@@ -66,6 +68,8 @@ APP_MAIN_OPTIONS='data\\beyondzo.dat'
 APP_MAIN_ICON='goggame-1207661533.ico'
 APP_MAIN_ICON_RES='16 32 48 256'
 
+PACKAGES_LIST='PKG_DATA PKG_MAIN'
+
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
@@ -90,13 +94,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'

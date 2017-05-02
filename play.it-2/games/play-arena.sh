@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=20170502.1
 
 # Set game-specific variables
 
 GAME_ID='arena'
 GAME_NAME='The Elder Scrolls: Arena'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='setup_tes_arena_2.0.0.5.exe'
 ARCHIVE_GOG_MD5='ca5a894aa852f9dbb3ede787e51ec828'
@@ -73,6 +75,8 @@ APP_MAIN_PRERUN='d:'
 APP_MAIN_ICON='goggame-1435828982.ico'
 APP_MAIN_ICON_RES='16 32 48 256'
 
+PACKAGES_LIST='PKG_DATA PKG_BIN'
+
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
@@ -98,13 +102,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'

@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170426.3
+script_version=201704502.1
 
 # Set game-specific variables
 
 GAME_ID='beatbuddy'
 GAME_NAME='Beatbuddy: Tale of the Guardians'
+
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
 ARCHIVE_HUMBLE='BeatbuddyLinux1439603370.zip'
 ARCHIVE_HUMBLE_MD5='156d19b327a02ac4a277f6f6ad4e188e'
@@ -60,6 +62,8 @@ APP_MAIN_EXE='Beatbuddy.x86'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='Beatbuddy_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTIOn='data'
@@ -86,13 +90,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-
 # Extract game data
 
-set_workdir 'PKG_DATA' 'PKG_BIN'
 extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
