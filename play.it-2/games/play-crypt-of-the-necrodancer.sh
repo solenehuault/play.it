@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170502.2
+script_version=20170502.3
 
 # Set game-specific variables
 
@@ -97,7 +97,8 @@ organize_data 'DOC1' "$PATH_DOC"
 organize_data 'DOC2' "$PATH_DOC"
 organize_data 'GAME' "$PATH_GAME"
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 mkdir --parents "${PKG_MAIN_PATH}${PATH_ICON}"
 mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
 
