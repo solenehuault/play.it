@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170502.1
+script_version=20170502.2
 
 # Set game-specific variables
 
@@ -68,13 +68,13 @@ APP_MAIN_OPTIONS='data\\beyondzo.dat'
 APP_MAIN_ICON='goggame-1207661533.ico'
 APP_MAIN_ICON_RES='16 32 48 256'
 
-PACKAGES_LIST='PKG_DATA PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_MAIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
-PKG_MAIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
