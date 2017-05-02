@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170426.2
+library_revision=20170502.1
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -220,6 +220,228 @@ check_deps_failed() {
 	return 1
 }
 
+# set archive for data extraction
+# USAGE: set_archive $name $archive[…]
+# NEEDED_VARS: SOURCE_ARCHIVE
+# CALLS: set_archive_print
+set_archive() {
+	local name=$1
+	shift 1
+	for archive in "$@"; do
+		if [ -f "$archive" ]; then
+			export $name="$archive"
+			set_archive_print "$archive"
+			return 0
+		elif [ -f "${SOURCE_ARCHIVE%/*}/$archive" ]; then
+			export $name="${SOURCE_ARCHIVE%/*}/$archive"
+			set_archive_print "${SOURCE_ARCHIVE%/*}/$archive"
+			return 0
+		fi
+	done
+	unset $name
+}
+
+# set source archive for data extraction
+# USAGE: set_source_archive $archive[…]
+# NEEDED_VARS: SOURCE_ARCHIVE
+# CALLS: set_source_archive_vars set_source_archive_error set_archive_print
+set_source_archive() {
+	for archive in "$@"; do
+		file="$(eval echo \$$archive)"
+		if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
+			ARCHIVE="$archive"
+			set_archive_print "$SOURCE_ARCHIVE"
+			set_source_archive_vars
+			return 0
+		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
+			SOURCE_ARCHIVE="$file"
+			ARCHIVE="$archive"
+			set_archive_print "$SOURCE_ARCHIVE"
+			set_source_archive_vars
+			return 0
+		fi
+	done
+	if [ -z "$SOURCE_ARCHIVE" ]; then
+		set_source_archive_error_not_found "$@"
+	fi
+	check_deps
+	file_checksum "$SOURCE_ARCHIVE"
+}
+
+# set archive-related vars
+# USAGE: set_source_archive_vars
+# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_SIZE
+# CALLS: set_source_archive_error_no_type
+# CALLED BY: set_source_archive file_checksum
+set_source_archive_vars() {
+	ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
+	if [ -z "$ARCHIVE_TYPE" ]; then
+		case "${SOURCE_ARCHIVE##*/}" in
+			(gog_*.sh)
+				ARCHIVE_TYPE='mojosetup'
+			;;
+			(setup_*.exe|patch_*.exe)
+				ARCHIVE_TYPE='innosetup'
+			;;
+			(*.zip)
+				ARCHIVE_TYPE='zip'
+			;;
+			(*.tar.gz)
+				ARCHIVE_TYPE='tar.gz'
+			;;
+			(*)
+				set_source_archive_error_no_type
+			;;
+		esac
+		eval ${archive}_TYPE=$ARCHIVE_TYPE
+	fi
+	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
+	ARCHIVE_SIZE="$(eval echo \$${archive}_SIZE)"
+	PKG_VERSION="$(eval echo \$${archive}_VERSION)+${script_version}"
+}
+
+# print archive use message
+# USAGE: set_archive_print $file
+# CALLED BY: set_archive set_source_archive
+set_archive_print() {
+	local string
+	case ${LANG%_*} in
+		('fr')
+			string='Utilisation de %s\n'
+		;;
+		('en'|*)
+			string='Using %s\n'
+		;;
+	esac
+	printf "$string" "$1"
+}
+
+# display an error message telling the target archive has not been found
+# USAGE: set_source_archive_error_not_found
+# CALLED BY: set_source_archive
+set_source_archive_error_not_found() {
+	print_error
+	local string
+	if [ "$#" = 1 ]; then
+		case ${LANG%_*} in
+			('fr')
+				string='Le fichier suivant est introuvable :\n'
+			;;
+			('en'|*)
+				string='The following file could not be found:'
+			;;
+		esac
+	else
+		case ${LANG%_*} in
+			('fr')
+				string='Aucun des fichiers suivant n’est présent :\n'
+			;;
+			('en'|*)
+				string='None of the following files could be found:\n'
+			;;
+		esac
+	fi
+	printf "$string"
+	for archive in "$@"; do
+		printf '%s\n' "$(eval echo \$$archive)"
+	done
+	return 1
+}
+
+# display an error message telling the type of the target archive is not set
+# USAGE: set_source_archive_error_no_type
+# CALLED BY: set_source_archive_vars
+set_source_archive_error_no_type() {
+	print_error
+	case ${LANG%_*} in
+		('fr')
+			printf 'ARCHIVE_TYPE n’est pas défini pour %s\n' "$SOURCE_ARCHIVE"
+		;;
+		('en'|*)
+			printf 'ARCHIVE_TYPE is not set for %s\n' "$SOURCE_ARCHIVE"
+		;;
+	esac
+	return 1
+}
+
+# set working directories
+# USAGE: set_workdir $pkg[…]
+# CALLS: set_workdir_workdir testvar set_workdir_pkg
+set_workdir() {
+	if [ $# = 1 ]; then
+		PKG="$1"
+	fi
+	set_workdir_workdir
+	mkdir --parents "$PLAYIT_WORKDIR/scripts"
+	export postinst="$PLAYIT_WORKDIR/scripts/postinst"
+	export prerm="$PLAYIT_WORKDIR/scripts/prerm"
+	while [ $# -ge 1 ]; do
+		local pkg=$1
+		testvar "$pkg" 'PKG'
+		set_workdir_pkg $pkg
+		shift 1
+	done
+}
+
+# set gobal working directory
+# USAGE: set_workdir_workdir
+# NEEDED VARS: $ARCHIVE $ARCHIVE_SIZE
+# CALLED BY: set_workdir
+set_workdir_workdir() {
+	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
+	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
+	local needed_space=$(($archive_size * 2))
+	[ "$XDG_RUNTIME_DIR" ] || XDG_RUNTIME_DIR="/run/user/$(id -u)"
+	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
+	local free_space_run=$(df --output=avail "$XDG_RUNTIME_DIR" | tail --lines=1)
+	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
+	local free_space_cache=$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)
+	if [ $free_space_run -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="$XDG_RUNTIME_DIR/play.it/$workdir_name"
+	elif [ $free_space_tmp -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="/tmp/play.it/$workdir_name"
+	elif [ $free_space_cache -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="$XDG_CACHE_HOME/play.it/$workdir_name"
+	else
+		export PLAYIT_WORKDIR="$PWD/play.it/$workdir_name"
+	fi
+}
+
+# set package-secific working directory
+# USAGE: set_workdir_pkg $pkg
+# NEEDED VARS: $PKG_ID $PKG_VERSION $PKG_ARCH $PLAYIT_WORKDIR
+# CALLED BY: set_workdir
+set_workdir_pkg() {
+	local pkg_id
+	if [ "$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_id="$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})"
+	elif [ "$(eval echo \$${pkg}_ID)" ]; then
+		pkg_id="$(eval echo \$${pkg}_ID)"
+	else
+		pkg_id="$GAME_ID"
+	fi
+	eval $(echo export ${pkg}_ID="$pkg_id")
+
+	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	if [ ! "$pkg_version" ]; then
+		pkg_version="$PKG_VERSION"
+	fi
+	if [ ! "$pkg_version" ]; then
+		pkg_version='1.0-1'
+	fi
+
+	local pkg_arch
+	set_arch
+
+	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
+		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
+	else
+		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+	fi
+
+	export ${pkg}_PATH="$pkg_path"
+}
+
 # Check library version against script target version
 
 library_version_major=${library_version%.*}
@@ -335,6 +557,15 @@ case $PACKAGE_TYPE in
 		return 1
 	;;
 esac
+
+# Set source archive
+
+set_source_archive $ARCHIVES_LIST
+
+# Set working directories
+
+set_workdir $PACKAGES_LIST
+
 
 # extract data from given archive
 # USAGE: extract_data $archive[…]
@@ -895,226 +1126,6 @@ print_instructions() {
 		;;
 	esac
 	printf '\n'
-}
-
-# set archive for data extraction
-# USAGE: set_archive $name $archive[…]
-# NEEDED_VARS: SOURCE_ARCHIVE
-# CALLS: set_archive_print
-set_archive() {
-	local name=$1
-	shift 1
-	for archive in "$@"; do
-		if [ -f "$archive" ]; then
-			export $name="$archive"
-			set_archive_print "$archive"
-			return 0
-		elif [ -f "${SOURCE_ARCHIVE%/*}/$archive" ]; then
-			export $name="${SOURCE_ARCHIVE%/*}/$archive"
-			set_archive_print "${SOURCE_ARCHIVE%/*}/$archive"
-			return 0
-		fi
-	done
-	unset $name
-}
-
-# set source archive for data extraction
-# USAGE: set_source_archive $archive[…]
-# NEEDED_VARS: SOURCE_ARCHIVE
-# CALLS: set_source_archive_vars set_source_archive_error set_archive_print
-set_source_archive() {
-	for archive in "$@"; do
-		file="$(eval echo \$$archive)"
-		if [ -n "$SOURCE_ARCHIVE" ] && [ "${SOURCE_ARCHIVE##*/}" = "$file" ]; then
-			ARCHIVE="$archive"
-			set_archive_print "$SOURCE_ARCHIVE"
-			set_source_archive_vars
-			return 0
-		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
-			SOURCE_ARCHIVE="$file"
-			ARCHIVE="$archive"
-			set_archive_print "$SOURCE_ARCHIVE"
-			set_source_archive_vars
-			return 0
-		fi
-	done
-	if [ -z "$SOURCE_ARCHIVE" ]; then
-		set_source_archive_error_not_found "$@"
-	fi
-}
-
-# set archive-related vars
-# USAGE: set_source_archive_vars
-# NEEDED_VARS: ARCHIVE ARCHIVE_MD5 ARCHIVE_TYPE ARCHIVE_SIZE
-# CALLS: set_source_archive_error_no_type
-# CALLED BY: set_source_archive file_checksum
-set_source_archive_vars() {
-	ARCHIVE_TYPE="$(eval echo \$${archive}_TYPE)"
-	if [ -z "$ARCHIVE_TYPE" ]; then
-		case "${SOURCE_ARCHIVE##*/}" in
-			(gog_*.sh)
-				ARCHIVE_TYPE='mojosetup'
-			;;
-			(setup_*.exe|patch_*.exe)
-				ARCHIVE_TYPE='innosetup'
-			;;
-			(*.zip)
-				ARCHIVE_TYPE='zip'
-			;;
-			(*.tar.gz)
-				ARCHIVE_TYPE='tar.gz'
-			;;
-			(*)
-				set_source_archive_error_no_type
-			;;
-		esac
-		eval ${archive}_TYPE=$ARCHIVE_TYPE
-	fi
-	ARCHIVE_MD5="$(eval echo \$${archive}_MD5)"
-	ARCHIVE_SIZE="$(eval echo \$${archive}_SIZE)"
-	PKG_VERSION="$(eval echo \$${archive}_VERSION)+${script_version}"
-}
-
-# print archive use message
-# USAGE: set_archive_print $file
-# CALLED BY: set_archive set_source_archive
-set_archive_print() {
-	local string
-	case ${LANG%_*} in
-		('fr')
-			string='Utilisation de %s\n'
-		;;
-		('en'|*)
-			string='Using %s\n'
-		;;
-	esac
-	printf "$string" "$1"
-}
-
-# display an error message telling the target archive has not been found
-# USAGE: set_source_archive_error_not_found
-# CALLED BY: set_source_archive
-set_source_archive_error_not_found() {
-	print_error
-	local string
-	if [ "$#" = 1 ]; then
-		case ${LANG%_*} in
-			('fr')
-				string='Le fichier suivant est introuvable :\n'
-			;;
-			('en'|*)
-				string='The following file could not be found:'
-			;;
-		esac
-	else
-		case ${LANG%_*} in
-			('fr')
-				string='Aucun des fichiers suivant n’est présent :\n'
-			;;
-			('en'|*)
-				string='None of the following files could be found:\n'
-			;;
-		esac
-	fi
-	printf "$string"
-	for archive in "$@"; do
-		printf '%s\n' "$(eval echo \$$archive)"
-	done
-	return 1
-}
-
-# display an error message telling the type of the target archive is not set
-# USAGE: set_source_archive_error_no_type
-# CALLED BY: set_source_archive_vars
-set_source_archive_error_no_type() {
-	print_error
-	case ${LANG%_*} in
-		('fr')
-			printf 'ARCHIVE_TYPE n’est pas défini pour %s\n' "$SOURCE_ARCHIVE"
-		;;
-		('en'|*)
-			printf 'ARCHIVE_TYPE is not set for %s\n' "$SOURCE_ARCHIVE"
-		;;
-	esac
-	return 1
-}
-
-# set working directories
-# USAGE: set_workdir $pkg[…]
-# CALLS: set_workdir_workdir testvar set_workdir_pkg
-set_workdir() {
-	if [ $# = 1 ]; then
-		PKG="$1"
-	fi
-	set_workdir_workdir
-	mkdir --parents "$PLAYIT_WORKDIR/scripts"
-	export postinst="$PLAYIT_WORKDIR/scripts/postinst"
-	export prerm="$PLAYIT_WORKDIR/scripts/prerm"
-	while [ $# -ge 1 ]; do
-		local pkg=$1
-		testvar "$pkg" 'PKG'
-		set_workdir_pkg $pkg
-		shift 1
-	done
-}
-
-# set gobal working directory
-# USAGE: set_workdir_workdir
-# NEEDED VARS: $ARCHIVE $ARCHIVE_SIZE
-# CALLED BY: set_workdir
-set_workdir_workdir() {
-	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
-	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
-	local needed_space=$(($archive_size * 2))
-	[ "$XDG_RUNTIME_DIR" ] || XDG_RUNTIME_DIR="/run/user/$(id -u)"
-	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
-	local free_space_run=$(df --output=avail "$XDG_RUNTIME_DIR" | tail --lines=1)
-	local free_space_tmp=$(df --output=avail /tmp | tail --lines=1)
-	local free_space_cache=$(df --output=avail "$XDG_CACHE_HOME" | tail --lines=1)
-	if [ $free_space_run -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="$XDG_RUNTIME_DIR/play.it/$workdir_name"
-	elif [ $free_space_tmp -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="/tmp/play.it/$workdir_name"
-	elif [ $free_space_cache -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="$XDG_CACHE_HOME/play.it/$workdir_name"
-	else
-		export PLAYIT_WORKDIR="$PWD/play.it/$workdir_name"
-	fi
-}
-
-# set package-secific working directory
-# USAGE: set_workdir_pkg $pkg
-# NEEDED VARS: $PKG_ID $PKG_VERSION $PKG_ARCH $PLAYIT_WORKDIR
-# CALLED BY: set_workdir
-set_workdir_pkg() {
-	local pkg_id
-	if [ "$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})" ]; then
-		pkg_id="$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})"
-	elif [ "$(eval echo \$${pkg}_ID)" ]; then
-		pkg_id="$(eval echo \$${pkg}_ID)"
-	else
-		pkg_id="$GAME_ID"
-	fi
-	eval $(echo export ${pkg}_ID="$pkg_id")
-
-	local pkg_version="$(eval echo \$${pkg}_VERSION)"
-	if [ ! "$pkg_version" ]; then
-		pkg_version="$PKG_VERSION"
-	fi
-	if [ ! "$pkg_version" ]; then
-		pkg_version='1.0-1'
-	fi
-
-	local pkg_arch
-	set_arch
-
-	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
-		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
-	else
-		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
-	fi
-
-	export ${pkg}_PATH="$pkg_path"
 }
 
 # write launcher script
