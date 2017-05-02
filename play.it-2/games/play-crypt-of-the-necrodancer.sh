@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170502.3
+script_version=20170502.4
 
 # Set game-specific variables
 
@@ -54,8 +54,17 @@ ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game/'
 ARCHIVE_DOC2_FILES='./license.txt'
 
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./*.so.* ./fmod ./NecroDancer ./essentia*'
+
+ARCHIVE_GAME_MUSIC_PATH='data/noarch/game'
+ARCHIVE_GAME_MUSIC_FILES='./data/music'
+
+ARCHIVE_GAME_VIDEO_PATH='data/noarch/game'
+ARCHIVE_GAME_VIDEO_FILES='./data/video'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./data'
 
 DATA_DIRS='./downloaded_dungeons ./downloaded_mods ./logs ./mods'
 DATA_FILES='./NecroDancer'
@@ -65,11 +74,20 @@ APP_MAIN_EXE='NecroDancer'
 APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_MUSIC PKG_VIDEO PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2, libvorbis0a'
-PKG_MAIN_DEPS_ARCH='lib32-glibc lib32-libogg lib32-libvorbis lib32-libx11 lib32-libxau lib32-libxcb lib32-libxdmcp lib32-libxext lib32-libgl lib32-openal'
+PKG_MUSIC_ID="${GAME_ID}-music"
+PKG_MUSIC_DESCRIPTION='music'
+
+PKG_VIDEO_ID="${GAME_ID}-video"
+PKG_VIDEO_DESCRIPTION='video'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_MUSIC_ID, $PKG_VIDEO_ID, $PKG_DATA_ID, libglu1-mesa | libglu1, libopenal1, libfftw3-single3, libglfw2, libgsm1, libsamplerate0, libschroedinger-1.0-0, libtag1v5-vanilla | libtag1-vanilla, libyaml-0-2, libvorbis0a"
+PKG_BIN_DEPS_ARCH="$PKG_MUSIC_ID $PKG_VIDEO_ID $PKG_DATA_ID lib32-glibc lib32-libogg lib32-libvorbis lib32-libx11 lib32-libxau lib32-libxcb lib32-libxdmcp lib32-libxext lib32-libgl lib32-openal"
 
 # Load common functions
 
@@ -93,26 +111,37 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_MUSIC'
+organize_data 'GAME_MUSIC' "$PATH_GAME"
+
+PKG='PKG_VIDEO'
+organize_data 'GAME_VIDEO' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 res="$APP_MAIN_ICON_RES"
 PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
-mkdir --parents "${PKG_MAIN_PATH}${PATH_ICON}"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_bin     'APP_MAIN'
 write_desktop 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg      'PKG_MAIN'
+write_metadata 'PKG_BIN' 'PKG_MUSIC' 'PKG_VIDEO' 'PKG_DATA'
+build_pkg      'PKG_BIN' 'PKG_MUSIC' 'PKG_VIDEO' 'PKG_DATA'
 
 # Clean up
 
@@ -120,6 +149,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_MUSIC_PKG" "$PKG_VIDEO_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
