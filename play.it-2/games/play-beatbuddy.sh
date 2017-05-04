@@ -106,8 +106,7 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_BIN'
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
