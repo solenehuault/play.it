@@ -34,24 +34,31 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170504.1
 
 # Set game-specific variables
 
 GAME_ID='aquaria'
 GAME_NAME='Aquaria'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='gog_aquaria_2.0.0.4.sh'
 ARCHIVE_GOG_MD5='1810de0d68028c6ec01d33181086180d'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='280000'
+ARCHIVE_GOG_SIZE='280000'
 ARCHIVE_GOG_VERSION='1.1.3-gog2.0.0.4'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./docs/* ./*.txt'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./aquaria ./aquaria.png ./config ./data ./default-1.xml ./gfx ./_mods ./mus ./scripts ./sfx ./usersettings.xml ./vox'
+
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./aquaria ./config ./*.xml'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./aquaria.png ./data ./gfx ./_mods ./mus ./scripts ./sfx ./vox'
 
 CACHE_DIRS='./maptemplates'
 CONFIG_FILES='./*.xml ./config/*'
@@ -59,11 +66,16 @@ CONFIG_FILES='./*.xml ./config/*'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='aquaria'
 APP_MAIN_ICON='aquaria.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl1.2debian, libopenal1, xdg-utils'
-PKG_MAIN_DEPS_ARCH='lib32-sdl lib32-openal xdg-utils'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl1.2debian, libopenal1, xdg-utils"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-sdl lib32-openal xdg-utils"
 
 # Load common functions
 
@@ -83,48 +95,33 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
-ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
@@ -132,8 +129,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -141,6 +140,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 #print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

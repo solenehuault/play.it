@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Lovers in a Dangerous Spacetime'
 
 ARCHIVE_HUMBLE='LoversInADangerousSpacetime-1.4.4_Linux.zip'
 ARCHIVE_HUMBLE_MD5='38927a73e1fe84620ebc876f8f039adb'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='880000'
+ARCHIVE_HUMBLE_SIZE='880000'
 ARCHIVE_HUMBLE_VERSION='1.4.4-humble160908'
 
 ARCHIVE_GAME_32_PATH='.'

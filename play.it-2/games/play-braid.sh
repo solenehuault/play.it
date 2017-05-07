@@ -34,34 +34,46 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170217.1
+script_version=20170504.1
 
 # Set game-specific variables
 
 GAME_ID='braid'
 GAME_NAME='Braid'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='gog_braid_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='22bac5c37b44916fea3e23092706d55d'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='170000'
+ARCHIVE_GOG_SIZE='170000'
 ARCHIVE_GOG_VERSION='2015.06.11-gog2.0.0.2'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./*.txt ./licenses'
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./Braid.bin.x86 ./data ./Icon.png ./lib/libCgGL.so ./lib/libCg.so ./lib/libfltk.so.1.3 ./launcher.bin.x86'
+
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./*.x86 ./lib/libCg*.so'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./data ./Icon.png'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Braid.bin.x86'
 APP_MAIN_ICON='./Icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
 APP_MAIN_LIBS='./lib'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl-2.0-0, libgl1-mesa-glx | libgl1'
-PKG_MAIN_DEPS_ARCH='lib32-sdl2 lib32-libgl lib32-glibc'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1, libxft2, libfltk1.3"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-sdl2 lib32-libgl lib32-glibc"
 
 # Load common functions
 
@@ -81,42 +93,31 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
-organize_data
+
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+
+chmod 755 "${PKG_BIN_PATH}${PATH_GAME}/launcher.bin.x86"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -128,8 +129,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
+build_pkg      'PKG_BIN' 'PKG_DATA'
 
 # Clean up
 
@@ -137,6 +140,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,13 +43,13 @@ GAME_NAME='Shadowrun: Dragonfall'
 
 ARCHIVE_GOG='gog_shadowrun_dragonfall_director_s_cut_2.6.0.10.sh'
 ARCHIVE_GOG_MD5='9ec016b74004e8def71d64023beb70f3'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='7200000'
+ARCHIVE_GOG_SIZE='7200000'
 ARCHIVE_GOG_VERSION='2.0.9-gog2.6.0.10'
 
 ARCHIVE_HUMBLE='shadowrun-dragonfall-linux.tar.gz_2.0.9.zip'
 ARCHIVE_HUMBLE_MD5='49e88d170e086c01c4dcb19154875cca'
 ARCHIVE_HUMBLE_VERSION='2.0.9-humble1'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='7200000'
+ARCHIVE_HUMBLE_SIZE='7200000'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'

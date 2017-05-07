@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Octodad Dadliest Catch'
 
 ARCHIVE_HUMBLE='OctodadDadliestCatch1.2.19338.tar.gz'
 ARCHIVE_HUMBLE_MD5='9022035ccca5b77b05498b4fdd7a0c4b'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='3100000'
+ARCHIVE_HUMBLE_SIZE='3100000'
 ARCHIVE_HUMBLE_VERSION='1.2.19338-humble160801'
 
 ARCHIVE_GAME_PATH='Octodad Dadliest Catch'

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Kingdom Rush'
 
 ARCHIVE_GOG='gog_kingdom_rush_2.0.0.5.sh'
 ARCHIVE_GOG_MD5='a505372a8b3b0c98e0968301679e6781'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2100000'
+ARCHIVE_GOG_SIZE='2100000'
 ARCHIVE_GOG_VERSION='2.1-gog2.0.0.5'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

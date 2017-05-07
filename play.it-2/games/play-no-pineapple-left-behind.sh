@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='No Pineapple Left Behind'
 
 ARCHIVE_GOG='gog_no_pineapple_left_behind_2.4.0.7.sh'
 ARCHIVE_GOG_MD5='8134abbdbc068f3305a54a41f32820bc'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='7100000'
+ARCHIVE_GOG_SIZE='7100000'
 ARCHIVE_GOG_VERSION='1.1.0-gog2.4.0.7'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

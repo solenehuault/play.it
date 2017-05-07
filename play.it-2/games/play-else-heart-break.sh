@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='else Heart.Break()'
 
 ARCHIVE_HUMBLE='ElseHeartbreakLinux.tgz'
 ARCHIVE_HUMBLE_MD5='7030450cadac6234676967ae41f2a732'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='1500000'
+ARCHIVE_HUMBLE_SIZE='1500000'
 ARCHIVE_HUMBLE_VERSION='1.0.9-humble162901'
 ARCHIVE_HUMBLE_TYPE='tar.gz'
 

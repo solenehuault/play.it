@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='The Lion King'
 
 ARCHIVE_GOG='gog_the_lion_king_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='3b4f1118785e1f1cc769ae41379b7940'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='16000'
+ARCHIVE_GOG_SIZE='16000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.2'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

@@ -60,9 +60,9 @@ done
 # CALLED BY: sort_icons
 sort_icons_arch() {
 	for res in $icon_res; do
-		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		path_icon="${PATH_ICON_BASE}/${res}x${res}/apps"
 		mkdir -p "${pkg_path}${path_icon}"
-		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x${res}x*.png; do
 			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
 		done
 	done
@@ -74,9 +74,9 @@ sort_icons_arch() {
 # CALLED BY: sort_icons
 sort_icons_deb() {
 	for res in $icon_res; do
-		path_icon="${PATH_ICON_BASE}/${res}/apps"
+		path_icon="${PATH_ICON_BASE}/${res}x${res}/apps"
 		mkdir -p "${pkg_path}${path_icon}"
-		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x*.png; do
+		for file in "${PLAYIT_WORKDIR}"/icons/*${res}x${res}x*.png; do
 			mv "${file}" "${pkg_path}${path_icon}/${app_id}.png"
 		done
 	done
@@ -92,15 +92,13 @@ extract_and_sort_icons_from() {
 	local pkg_path="$(eval echo \$${PKG}_PATH)"
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'sort_icons'
-		if [ "$NO_ICON" = '0' ]; then
-			app_icon="$(eval echo \$${app}_ICON)"
-			extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
-			if [ "${app_icon##*.}" = 'exe' ]; then
-				extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-			fi
-			sort_icons "$app"
-			rm --recursive "$PLAYIT_WORKDIR/icons"
+		app_icon="$(eval echo \$${app}_ICON)"
+		extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
+		if [ "${app_icon##*.}" = 'exe' ]; then
+			extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
 		fi
+		sort_icons "$app"
+		rm --recursive "$PLAYIT_WORKDIR/icons"
 	done
 }
 

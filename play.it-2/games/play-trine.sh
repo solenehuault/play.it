@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Trine'
 
 ARCHIVE_GOG='gog_trine_enchanted_edition_2.0.0.2.sh'
 ARCHIVE_GOG_MD5='0e8d2338b568222b28cf3c31059b4960'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='1500000'
+ARCHIVE_GOG_SIZE='1500000'
 ARCHIVE_GOG_VERSION='2.12.508-gog2.0.0.2'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

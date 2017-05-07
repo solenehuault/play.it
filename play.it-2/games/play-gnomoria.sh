@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170325.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Gnomoria'
 
 ARCHIVE_GOG='gog_gnomoria_2.0.0.1.sh'
 ARCHIVE_GOG_MD5='3d0a9ed4fb45ff133b5a7410a2114455'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='230000'
+ARCHIVE_GOG_SIZE='230000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.1'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
@@ -125,12 +125,14 @@ set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_32'
-organize_data_generic 'GAME_32' "$PATH_GAME"
+organize_data 'GAME_32' "$PATH_GAME"
+
 PKG='PKG_64'
-organize_data_generic 'GAME_64' "$PATH_GAME"
+organize_data 'GAME_64' "$PATH_GAME"
+
 PKG='PKG_MAIN'
-organize_data_generic 'GAME_MAIN' "$PATH_GAME"
-organize_data_generic 'DOC' "$PATH_DOC"
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_MAIN' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 

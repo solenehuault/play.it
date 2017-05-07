@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='The Elder Scrolls II: Daggerfall'
 
 ARCHIVE_GOG='setup_tes_daggerfall_2.0.0.4.exe'
 ARCHIVE_GOG_MD5='68f1eb4f257d8da4c4eab2104770c49b'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='580000'
+ARCHIVE_GOG_SIZE='580000'
 ARCHIVE_GOG_VERSION='1.07.213-gog2.0.0.4'
 
 ARCHIVE_DOC1_PATH='app'

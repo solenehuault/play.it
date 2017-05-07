@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Regency Solitaire'
 
 ARCHIVE_HUMBLE='RegencySolitaireV117b_1472495785.tar.gz'
 ARCHIVE_HUMBLE_MD5='15e8377d2cac99a52407cb399bd1ee7c'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='71000'
+ARCHIVE_HUMBLE_SIZE='71000'
 ARCHIVE_HUMBLE_VERSION='1.17b-humble160829'
 
 ARCHIVE_GAME_PATH='RegencySolitaireV117b'

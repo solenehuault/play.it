@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170325.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -44,7 +44,7 @@ GAME_NAME='Desperados: Wanted Dead or Alive'
 ARCHIVE_GOG='setup_desperados_wanted_dead_or_alive_2.0.0.6.exe'
 ARCHIVE_GOG_MD5='8e2f4e2ade9e641fdd35a9dd36d55d00'
 ARCHIVE_GOG_VERSION='1.01-gog2.0.0.6'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='810000'
+ARCHIVE_GOG_SIZE='810000'
 
 ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./manual.pdf ./readme.txt'
@@ -116,11 +116,11 @@ set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
-organize_data_generic 'GAME_BIN' "$PATH_GAME"
+organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data_generic 'GAME_DATA' "$PATH_GAME"
-organize_data_generic 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+organize_data 'DOC'       "$PATH_DOC"
 
 if [ "$NO_ICON" = '0' ]; then
 	(

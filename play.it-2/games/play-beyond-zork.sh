@@ -34,34 +34,47 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170504.1
 
 # Set game-specific variables
 
 GAME_ID='beyond-zork'
 GAME_NAME='Beyond Zork: The Coconut of Quendor'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='setup_beyond_zork_2.1.0.17.exe'
 ARCHIVE_GOG_MD5='8a5168d7340af5b1b4df708f467785c0'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='21000'
+ARCHIVE_GOG_SIZE='21000'
 ARCHIVE_GOG_VERSION='1.0-gog2.1.0.17'
 
 ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./*.pdf'
+
 ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./gog_eula.txt ./eula.txt'
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./beyondzo.mg1 ./goggame-*.ico ./*.exe ./data'
+
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.exe'
+
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./beyondzo.mg1 ./goggame-*.ico ./data'
 
 DATA_FILES='./*.SAV'
 
 APP_MAIN_TYPE='dosbox'
-APP_MAIN_EXE='frotz data\\beyondzo.dat'
+APP_MAIN_EXE='frotz.exe'
+APP_MAIN_OPTIONS='data\\beyondzo.dat'
 APP_MAIN_ICON='goggame-1207661533.ico'
-APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
+APP_MAIN_ICON_RES='16 32 48 256'
 
-PKG_MAIN_DEPS_DEB='dosbox'
-PKG_MAIN_DEPS_ARCH='dosbox'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
@@ -81,48 +94,32 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 extract_and_sort_icons_from 'APP_MAIN'
+rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata 'PKG_DATA' 'PKG_BIN'
+build_pkg      'PKG_DATA' 'PKG_BIN'
 
 # Clean up
 
@@ -130,6 +127,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

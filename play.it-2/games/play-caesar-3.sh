@@ -34,28 +34,35 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170504.1
 
 # Set game-specific variables
 
 GAME_ID='caesar-3'
 GAME_NAME='Caesar III'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='setup_caesar3_2.0.0.9.exe'
 ARCHIVE_GOG_MD5='2ee16fab54493e1c2a69122fd2e56635'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='550000'
+ARCHIVE_GOG_SIZE='550000'
 ARCHIVE_GOG_VERSION='1.1-gog2.0.0.9'
 
 ARCHIVE_DOC1_PATH='tmp'
 ARCHIVE_DOC1_FILES='./gog_eula.txt ./eula.txt'
+
 ARCHIVE_DOC2_PATH='app'
 ARCHIVE_DOC2_FILES='./readme.txt ./*.pdf'
+
 ARCHIVE_GAME_BIN_PATH='app'
-ARCHIVE_GAME_BIN_FILES='./*.inf ./c3.exe ./caesar3.ini ./smackw32.dll'
+ARCHIVE_GAME_BIN_FILES='./*.dll ./*.exe ./*.inf ./*.ini'
+
 ARCHIVE_GAME_MOVIES_PATH='app'
 ARCHIVE_GAME_MOVIES_FILES='./smk'
+
 ARCHIVE_GAME_SOUNDS_PATH='app'
 ARCHIVE_GAME_SOUNDS_FILES='./wavs'
+
 ARCHIVE_GAME_DATA_PATH='app'
 ARCHIVE_GAME_DATA_FILES='./555 ./*.555 ./*.emp ./*.eng ./*.map ./*.sg2 ./c3_model.txt ./mission1.pak'
 
@@ -65,7 +72,9 @@ DATA_FILES='./c3_model.txt ./status.txt ./*.sav'
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./c3.exe'
 APP_MAIN_ICON='./c3.exe'
-APP_MAIN_ICON_RES='16x16 32x32'
+APP_MAIN_ICON_RES='16 32'
+
+PACKAGES_LIST='PKG_MOVIES PKG_SOUNDS PKG_DATA PKG_BIN'
 
 PKG_MOVIES_ID="${GAME_ID}-movies"
 PKG_MOVIES_DESCRIPTION='movies'
@@ -98,29 +107,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_MOVIES' 'PKG_SOUNDS' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
@@ -133,19 +121,24 @@ PKG='PKG_SOUNDS'
 organize_data 'GAME_SOUNDS' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data 'GAME_DATA' "$PATH_GAME"
 organize_data 'DOC1'      "$PATH_DOC"
 organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'
+(
+	cd "$PKG_BIN_PATH"
+	cp --link --parents --recursive "./$PATH_ICON_BASE" "$PKG_DATA_PATH"
+	rm --recursive "./$PATH_ICON_BASE"
+	rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
+)
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 

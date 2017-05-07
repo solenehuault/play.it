@@ -34,22 +34,26 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170504.1
 
 # Set game-specific variables
 
 GAME_ID='ascendant'
 GAME_NAME='Ascendant'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='gog_ascendant_2.2.0.7.sh'
 ARCHIVE_GOG_MD5='8cdcd59a2f8363b7237e9cbe2675adda'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2400000'
+ARCHIVE_GOG_SIZE='2400000'
 ARCHIVE_GOG_VERSION='1.2.2-gog2.2.0.7'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
+
 ARCHIVE_GAME_32_PATH='data/noarch/game'
 ARCHIVE_GAME_32_FILES='./*.x86 ./Ascendant_Data'
+
 ARCHIVE_GAME_64_PATH='data/noarch/game'
 ARCHIVE_GAME_64_FILES='./*.x86_64 ./Ascendant_64_Data'
 
@@ -60,7 +64,9 @@ APP_MAIN_EXE_32='Ascendant.x86'
 APP_MAIN_EXE_64='Ascendant_64.x86_64'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_32 PKG_64'
 
 PKG_32_ARCH='32'
 PKG_32_DEPS_DEB='libglu1-mesa | libglu1, libxcursor1, libxrandr2'
@@ -88,52 +94,31 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_32'
 organize_data 'GAME_32' "$PATH_GAME"
+
 PKG='PKG_64'
+organize_data 'DOC'     "$PATH_DOC"
 organize_data 'GAME_64' "$PATH_GAME"
-organize_data 'DOC' "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
 PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
+
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -146,7 +131,7 @@ rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
 write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_32' 'PKG_64'
+build_pkg      'PKG_32' 'PKG_64'
 
 # Clean up
 
@@ -154,9 +139,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
+printf '\n'
+printf '32-bit:'
 print_instructions "$PKG_32_PKG"
-printf '\n64-bit:'
+printf '64-bit:'
 print_instructions "$PKG_64_PKG"
 
 exit 0

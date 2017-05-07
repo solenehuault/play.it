@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Darwinia'
 
 ARCHIVE_GOG='gog_darwinia_2.0.0.5.sh'
 ARCHIVE_GOG_MD5='ef55064ab82a64324e295f2ea96239d6'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='45000'
+ARCHIVE_GOG_SIZE='45000'
 ARCHIVE_GOG_VERSION='1.4.2-gog2.0.0.5'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

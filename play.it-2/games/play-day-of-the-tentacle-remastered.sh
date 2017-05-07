@@ -2,7 +2,7 @@
 set -o errexit
 
 ###
-# Copyright (c) 2015-2016, Antoine Le Gonidec
+# Copyright (c) 2015-2017, Antoine Le Gonidec
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Day of the Tentacle Remastered'
 
 ARCHIVE_GOG='gog_day_of_the_tentacle_remastered_2.1.0.2.sh'
 ARCHIVE_GOG_MD5='612c59c5cbdbf4d73322b46527a2d502'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='2700000'
+ARCHIVE_GOG_SIZE='2700000'
 ARCHIVE_GOG_VERSION='1.4.1-gog2.1.0.2'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'

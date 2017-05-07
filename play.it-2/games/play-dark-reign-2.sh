@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -44,7 +44,7 @@ GAME_NAME='Dark Reign 2'
 ARCHIVE_GOG='setup_dark_reign2_2.0.0.11.exe'
 ARCHIVE_GOG_MD5='9a3d10825507b73c4db178f9caea2406'
 ARCHIVE_GOG_VERSION='1.3.882-gog2.0.0.11'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='450000'
+ARCHIVE_GOG_SIZE='450000'
 
 ARCHIVE_DOC_PATH='app'
 ARCHIVE_DOC_FILES='./customer_support.htm ./manual.pdf ./readme.rtf ./*.txt'

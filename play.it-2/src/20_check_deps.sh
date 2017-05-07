@@ -29,6 +29,9 @@ check_deps() {
 	if [ "$PACKAGE_TYPE" = 'deb' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
 	fi
+	if [ "${APP_MAIN_ICON##*.}" = 'bmp' ]; then
+		SCRIPT_DEPS="$SCRIPT_DEPS convert"
+	fi
 	if [ "${APP_MAIN_ICON##*.}" = 'ico' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS icotool"
 	fi
@@ -36,9 +39,6 @@ check_deps() {
 		case $dep in
 			('7z')
 				check_deps_7z
-			;;
-			('convert'|'icotool'|'wrestool')
-				check_deps_icon "$dep"
 			;;
 			(*)
 				if ! which $dep >/dev/null 2>&1; then
@@ -62,24 +62,6 @@ check_deps_7z() {
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
 		check_deps_failed 'p7zip'
-	fi
-}
-
-# check presence of a software to handle icon extraction
-# USAGE: check_deps_icon $command_name
-# NEEDED VARS: NO_ICON
-# CALLED BY: check_deps
-check_deps_icon() {
-	if [ -z "$(which $1 2>/dev/null)" ] && [ "$NO_ICON" != '1' ]; then
-		NO_ICON='1'
-		case ${LANG%_*} in
-			('fr')
-				printf '%s est introuvable. Les icônes ne seront pas extraites.\n' "$1"
-			;;
-			('en'|*)
-				printf '%s not found. Skipping icons extraction.\n' "$1"
-			;;
-		esac
 	fi
 }
 

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='MouseCraft'
 
 ARCHIVE_GOG='gog_mousecraft_2.1.0.7.sh'
 ARCHIVE_GOG_MD5='5d99353d6ef0db693cc3a492cfb8ae4c'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='870000'
+ARCHIVE_GOG_SIZE='870000'
 ARCHIVE_GOG_VERSION='1.20-gog2.1.0.7'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'

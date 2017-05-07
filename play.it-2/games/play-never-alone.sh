@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170329.1
+script_version=20170405.1
 
 # Set game-specific variables
 
@@ -43,7 +43,7 @@ GAME_NAME='Never Alone'
 
 ARCHIVE_HUMBLE='NeverAlone_ArcticCollection_Linux.1.04.tar.gz'
 ARCHIVE_HUMBLE_MD5='3da062abaaa9e3e6ff97d4c82c8ea3c3'
-ARCHIVE_HUMBLE_UNCOMPRESSED_SIZE='4900000'
+ARCHIVE_HUMBLE_SIZE='4900000'
 ARCHIVE_HUMBLE_VERSION='1.04-humble161008'
 
 ARCHIVE_GAME_PATH='NeverAlone_ArcticCollection_Linux.1.04'
