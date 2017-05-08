@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170504.1
+library_revision=20170508.1
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -1331,6 +1331,10 @@ organize_data() {
 #  $PKG_PROVIDE $PKG_VERSION $PACKAGE_TYPE
 # CALLS: testvar liberror pkg_write_arch pkg_write_deb
 write_metadata() {
+	if [ $# = 0 ]; then
+		write_metadata $PACKAGES_LIST
+		return 0
+	fi
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
 
@@ -1362,6 +1366,10 @@ write_metadata() {
 # NEEDED VARS: $PKG_PATH $PACKAGE_TYPE
 # CALLS: testvar liberror pkg_build_arch pkg_build_deb
 build_pkg() {
+	if [ $# = 0 ]; then
+		build_pkg $PACKAGES_LIST
+		return 0
+	fi
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
