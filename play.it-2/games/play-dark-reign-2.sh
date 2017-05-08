@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170408.1
 
 # Set game-specific variables
 
 GAME_ID='dark-reign-2'
 GAME_NAME='Dark Reign 2'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='setup_dark_reign2_2.0.0.11.exe'
 ARCHIVE_GOG_MD5='9a3d10825507b73c4db178f9caea2406'
@@ -64,7 +66,9 @@ APP_WINETRICKS='win98'
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./launcher.exe'
 APP_MAIN_ICON='./dr2.exe'
-APP_MAIN_ICON_RES='16x16 32x32'
+APP_MAIN_ICON_RES='16 32'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -91,29 +95,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE"
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
@@ -123,22 +106,19 @@ PKG='PKG_DATA'
 organize_data 'GAME_DATA' "$PATH_GAME"
 organize_data 'DOC'       "$PATH_DOC"
 
-if [ "$NO_ICON" = '0' ]; then
-	(
-		cd "${PKG_BIN_PATH}${PATH_GAME}"
-		extract_icon_from "$APP_MAIN_ICON"
-		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-		sort_icons 'APP_MAIN'
-		rm --recursive "$PLAYIT_WORKDIR/icons"
-	)
-fi
+PKG='PKG_BIN'
+extract_and_sort_icons_from 'APP_MAIN'
+(
+	cd "$PKG_BIN_PATH"
+	cp --link --parents --recursive "./$PATH_ICON_BASE" "$PKG_DATA_PATH"
+	rm --recursive "./$PATH_ICON_BASE"
+	rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
+)
 
 cat > "${PKG_BIN_PATH}${PATH_GAME}/dr2-cdkey.reg" << EOF
 REGEDIT4
-
 [HKEY_LOCAL_MACHINE\Software\WON\CDKeys]
 "DarkReign2"=hex:56,c1,0c,ed,bb,61,40,19,99,3d,cd,6c,78,51,4c,5e
-
 EOF
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
@@ -146,15 +126,14 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_BIN'
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 sed -i 's/wine "$APP_EXE" $APP_OPTIONS $@/regedit dr2-cdkey.reg\n&/' "${PKG_BIN_PATH}${PATH_BIN}/$GAME_ID"
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+write_metadata
+build_pkg
 
 # Clean up
 
