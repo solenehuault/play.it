@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.1
 
 # Set game-specific variables
 
@@ -127,8 +127,8 @@ sed -i "s/imgmount d $GAME_IMAGE -t iso -fs iso/mount d $GAME_IMAGE -t cdrom/" "
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+write_metadata
+build_pkg
 
 # Clean up
 

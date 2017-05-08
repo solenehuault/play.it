@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.1
 
 # Set game-specific variables
 
@@ -136,8 +136,8 @@ sed -i 's|$APP_EXE $APP_OPTIONS $@|cd ${APP_EXE%/*}\n${APP_EXE##*/} $APP_OPTIONS
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+write_metadata
+build_pkg
 
 # Clean up
 

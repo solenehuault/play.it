@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170408.1
+script_version=20170408.2
 
 # Set game-specific variables
 
@@ -156,8 +156,8 @@ done
 
 # Build package
 
-write_metadata $PACKAGES_LIST
-build_pkg      $PACKAGES_LIST
+write_metadata
+build_pkg
 
 # Clean up
 

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.1
 
 # Set game-specific variables
 
@@ -118,8 +118,8 @@ write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_DATA' 'PKG_BIN'
-build_pkg      'PKG_DATA' 'PKG_BIN'
+write_metadata
+build_pkg
 
 # Clean up
 
