@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170512.2
+script_version=20170512.3
 
 # Set game-specific variables
 
@@ -46,7 +46,7 @@ ARCHIVES_LIST='ARCHIVE_GOG'
 ARCHIVE_GOG='gog_don_t_starve_2.6.0.8.sh'
 ARCHIVE_GOG_MD5='2b0d363bea53654c0267ae424de7130a'
 ARCHIVE_GOG_SIZE='650000'
-ARCHIVE_GOG_VERSION='2.6.0.8-gog2.6.0.8'
+ARCHIVE_GOG_VERSION='1.198251-gog2.6.0.8'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
