@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170512.2
+script_version=20170512.3
 
 # Set game-specific variables
 
@@ -57,9 +57,17 @@ ARCHIVE_DOC_PATH_GOG='data/noarch/docs'
 ARCHIVE_DOC_PATH_HUMBLE='Deponia'
 ARCHIVE_DOC_FILES='./documents ./version.txt ./readme.txt'
 
-ARCHIVE_GAME_MAIN_PATH_HUMBLE='Deponia'
-ARCHIVE_GAME_MAIN_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./characters ./config.ini ./data.vis ./Deponia ./lua ./scenes ./videos libs64/libavcodec.so.56 libs64/libavdevice.so.56 libs64/libavfilter.so.5 libs64/libavformat.so.56 libs64/libavutil.so.54 libs64/libswresample.so.1 libs64/libswscale.so.3 libs64/libz.so.1'
+ARCHIVE_GAME_BIN_PATH_HUMBLE='Deponia'
+ARCHIVE_GAME_BIN_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./config.ini ./Deponia libs64/libavcodec.so.56 libs64/libavdevice.so.56 libs64/libavfilter.so.5 libs64/libavformat.so.56 libs64/libavutil.so.54 libs64/libswresample.so.1 libs64/libswscale.so.3 libs64/libz.so.1'
+
+ARCHIVE_GAME_VIDEOS_PATH_HUMBLE='Deponia'
+ARCHIVE_GAME_VIDEOS_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_VIDEOS_FILES='./videos'
+
+ARCHIVE_GAME_DATA_PATH_HUMBLE='Deponia'
+ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./characters ./data.vis ./lua ./scenes'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Deponia'
@@ -67,11 +75,17 @@ APP_MAIN_LIBS='libs64'
 APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
 APP_MAIN_ICON_GOG_RES='256'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_VIDEOS PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3'
-PKG_MAIN_DEPS_ARCH='libgl openal ffmpeg ffmpeg2.8'
+PKG_VIDEOS_ID="${GAME_ID}-videos"
+PKG_VIDEOS_DESCRIPTION='videos'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_VIDEOS_ID, $PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
+PKG_BIN_DEPS_ARCH="$PKG_VIDEOS_ID $PKG_DATA_ID libgl openal ffmpeg ffmpeg2.8"
 
 # Load common functions
 
@@ -98,9 +112,15 @@ if [ "$ARCHIVE_TYPE" = 'tar.gz' ]; then
 	fix_rights "$PLAYIT_WORKDIR/gamedata"
 fi
 
-PKG='PKG_MAIN'
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_VIDEOS'
+organize_data 'GAME_VIDEOS' "$PATH_GAME"
+
+PKG='PKG_DATA'
 organize_data 'DOC'       "$PATH_DOC"
-organize_data 'GAME_MAIN' "$PATH_GAME"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
 	APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
@@ -109,14 +129,15 @@ fi
 if [ "$APP_MAIN_ICON" ]; then
 	res="$APP_MAIN_ICON_RES"
 	PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
-	mkdir --parents "${PKG_MAIN_PATH}${PATH_ICON}"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "${PKG_MAIN_PATH}${PATH_ICON}/$GAME_ID.png"
+	mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -130,6 +151,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_VIDEOS_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
