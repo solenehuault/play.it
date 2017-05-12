@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170512.1
+script_version=20170512.2
 
 # Set game-specific variables
 
@@ -66,7 +66,7 @@ DATA_DIRS='data/savegame'
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='game.exe'
 APP_MAIN_ICON='./game.exe'
-APP_MAIN_ICON_RES='16x16 32x32'
+APP_MAIN_ICON_RES='16 32'
 
 PACKAGES_LIST='PKG_DATA PKG_BIN'
 
