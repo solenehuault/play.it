@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170411.1
+script_version=20170412.1
 
 # Set game-specific variables
 
@@ -76,7 +76,7 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Deponia2'
 APP_MAIN_LIBS='libs64'
 APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
-APP_MAIN_ICON_GOG_RES='256x256'
+APP_MAIN_ICON_GOG_RES='256'
 
 PACKAGES_LIST='PKG_VIDEOS PKG_DATA PKG_BIN'
 
@@ -127,11 +127,12 @@ organize_data 'DOC2'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
 if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
-		APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
-		APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
+	APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
+	APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
 fi
 if [ "$APP_MAIN_ICON" ]; then
-	PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/$APP_MAIN_ICON_RES/apps"
+	res="$APP_MAIN_ICON_RES"
+	PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/${res}x${res}/apps"
 	mkdir --parents "$PATH_ICON"
 	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
 fi
