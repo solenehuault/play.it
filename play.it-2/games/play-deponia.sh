@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170512.1
+script_version=20170512.2
 
 # Set game-specific variables
 
@@ -108,9 +108,9 @@ if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
 fi
 if [ "$APP_MAIN_ICON" ]; then
 	res="$APP_MAIN_ICON_RES"
-	PATH_ICON="${PKG_DATA_PATH}${PATH_ICON_BASE}/${res}x${res}/apps"
-	mkdir --parents "$PATH_ICON"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PATH_ICON/$GAME_ID.png"
+	PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+	mkdir --parents "${PKG_MAIN_PATH}${PATH_ICON}"
+	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "${PKG_MAIN_PATH}${PATH_ICON}/$GAME_ID.png"
 fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
