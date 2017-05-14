@@ -64,7 +64,7 @@ set_source_archive_vars() {
 			(*.zip)
 				ARCHIVE_TYPE='zip'
 			;;
-			(*.tar.gz)
+			(*.tar.gz|*.tgz)
 				ARCHIVE_TYPE='tar.gz'
 			;;
 			(*)
