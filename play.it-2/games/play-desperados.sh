@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170512.2
+script_version=20170514.1
 
 # Set game-specific variables
 
@@ -60,8 +60,9 @@ ARCHIVE_GAME_BIN_FILES='./*.dll ./*.exe'
 ARCHIVE_GAME_DATA_PATH='app/game'
 ARCHIVE_GAME_DATA_FILES='./data'
 
-CONFIG_DIRS='data/configuration'
-DATA_DIRS='data/savegame'
+CACHE_FILES='./*.tmp'
+CONFIG_DIRS='./data/configuration'
+DATA_DIRS='./data/savegame ./data/levels/briefing/Restart'
 
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='game.exe'
