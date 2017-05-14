@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170408.2
 
 # Set game-specific variables
 
 GAME_ID='darkest-dungeon'
 GAME_NAME='Darkest Dungeon'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_darkest_dungeon_2.10.0.10.sh'
 ARCHIVE_GOG_MD5='f8fa42b354731886f9b69e1d0e78b3b7'
@@ -48,24 +50,32 @@ ARCHIVE_GOG_VERSION='17687-gog2.10.0.10'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./README.linux'
+
 ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
 ARCHIVE_GAME_BIN32_FILES='./lib ./darkest.bin.x86'
+
 ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
 ARCHIVE_GAME_BIN64_FILES='./lib64 ./darkest.bin.x86_64'
+
 ARCHIVE_GAME_AUDIO_PATH='data/noarch/game'
 ARCHIVE_GAME_AUDIO_FILES='./audio'
+
 ARCHIVE_GAME_VIDEO_PATH='data/noarch/game'
 ARCHIVE_GAME_VIDEO_FILES='./video'
+
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./*'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='darkest.bin.x86'
-APP_MAIN_EXE_64='darkest.bin.x86_64'
+APP_MAIN_EXE_BIN32='darkest.bin.x86'
+APP_MAIN_EXE_BIN64='darkest.bin.x86_64'
 APP_MAIN_ICON='Icon.bmp'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_AUDIO PKG_VIDEO PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_AUDIO_ID="${GAME_ID}-audio"
 PKG_AUDIO_DESCRIPTION='audio'
@@ -77,12 +87,10 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_CONFLICTS_DEB="$GAME_ID"
 PKG_BIN32_DEPS_DEB="$PKG_AUDIO_ID, $PKG_VIDEO_ID, $PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0"
 PKG_BIN32_DEPS_ARCH="$PKG_AUDIO_ID $PKG_VIDEO_ID $PKG_DATA_ID lib32-sdl2"
 
 PKG_BIN64_ARCH='64'
-PKG_BIN64_CONFLICTS_DEB="$GAME_ID"
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
 PKG_BIN64_DEPS_ARCH="$PKG_AUDIO_ID $PKG_VIDEO_ID $PKG_DATA_ID sdl2"
 
@@ -104,29 +112,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_AUDIO' 'PKG_VIDEO' 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 (
@@ -138,42 +125,39 @@ extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN32'
 organize_data 'GAME_BIN32' "$PATH_GAME"
+
 PKG='PKG_BIN64'
 organize_data 'GAME_BIN64' "$PATH_GAME"
+
 PKG='PKG_AUDIO'
 organize_data 'GAME_AUDIO' "$PATH_GAME"
+
 PKG='PKG_VIDEO'
 organize_data 'GAME_VIDEO' "$PATH_GAME"
+
 PKG='PKG_DATA'
 organize_data 'DOC1'      "$PATH_DOC"
 organize_data 'DOC2'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-if [ "$NO_ICON" = '0' ]; then
-	PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-	extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
-	mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
-	mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
-fi
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+extract_icon_from "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+mv "$PLAYIT_WORKDIR/icons/${APP_MAIN_ICON%.bmp}.png" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
-write_metadata 'PKG_AUDIO' 'PKG_VIDEO' 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
-build_pkg 'PKG_AUDIO' 'PKG_VIDEO' 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
+write_metadata
+build_pkg
 
 # Clean up
 

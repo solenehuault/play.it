@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170512.3
 
 # Set game-specific variables
 
 GAME_ID='deponia'
 GAME_NAME='Deponia'
+
+ARCHIVES_LIST='ARCHIVE_GOG ARCHIVE_HUMBLE'
 
 ARCHIVE_GOG='gog_deponia_2.1.0.3.sh'
 ARCHIVE_GOG_MD5='a3a21ba1c1ee68c9be2c755bd79e1b30'
@@ -51,26 +53,39 @@ ARCHIVE_HUMBLE_MD5='8ff4e21bbb4abcdc4059845acf7c7f04'
 ARCHIVE_HUMBLE_SIZE='1700000'
 ARCHIVE_HUMBLE_VERSION='3.3.1358-humble160511'
 
-ARCHIVE_HUMBLE_DOC_PATH='Deponia'
-ARCHIVE_HUMBLE_DOC_FILES='./documents ./version.txt ./readme.txt'
+ARCHIVE_DOC_PATH_GOG='data/noarch/docs'
+ARCHIVE_DOC_PATH_HUMBLE='Deponia'
+ARCHIVE_DOC_FILES='./documents ./version.txt ./readme.txt'
 
-ARCHIVE_GOG_DOC_PATH='data/noarch/docs'
-ARCHIVE_GOG_DOC_FILES='./documents ./version.txt'
+ARCHIVE_GAME_BIN_PATH_HUMBLE='Deponia'
+ARCHIVE_GAME_BIN_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./config.ini ./Deponia libs64/libavcodec.so.56 libs64/libavdevice.so.56 libs64/libavfilter.so.5 libs64/libavformat.so.56 libs64/libavutil.so.54 libs64/libswresample.so.1 libs64/libswscale.so.3 libs64/libz.so.1'
 
-ARCHIVE_HUMBLE_GAME_MAIN_PATH='Deponia'
-ARCHIVE_GOG_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./characters ./config.ini ./data.vis ./Deponia ./lua ./scenes ./videos libs64/libavcodec.so.56 libs64/libavdevice.so.56 libs64/libavfilter.so.5 libs64/libavformat.so.56 libs64/libavutil.so.54 libs64/libswresample.so.1 libs64/libswscale.so.3 libs64/libz.so.1'
+ARCHIVE_GAME_VIDEOS_PATH_HUMBLE='Deponia'
+ARCHIVE_GAME_VIDEOS_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_VIDEOS_FILES='./videos'
+
+ARCHIVE_GAME_DATA_PATH_HUMBLE='Deponia'
+ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./characters ./data.vis ./lua ./scenes'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Deponia'
 APP_MAIN_LIBS='libs64'
-APP_GOG_ICON='data/noarch/support/icon.png'
-APP_GOG_ICON_RES='256x256'
+APP_MAIN_ICON_GOG='data/noarch/support/icon.png'
+APP_MAIN_ICON_GOG_RES='256'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_CONFLICTS_DEB="$GAME_ID"
-PKG_MAIN_DEPS_DEB="libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
-PKG_MAIN_DEPS_ARCH="libgl openal ffmpeg ffmpeg2.8"
+PACKAGES_LIST='PKG_VIDEOS PKG_DATA PKG_BIN'
+
+PKG_VIDEOS_ID="${GAME_ID}-videos"
+PKG_VIDEOS_DESCRIPTION='videos'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_VIDEOS_ID, $PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libopenal1, libavcodec56 | libavcodec-ffmpeg56 | libavcodec-extra-56 | libavcodec-ffmpeg-extra56, libavformat56 | libavformat-ffmpeg56, libavutil54 | libavutil-ffmpeg54, libswscale3 | libswscale-ffmpeg3"
+PKG_BIN_DEPS_ARCH="$PKG_VIDEOS_ID $PKG_DATA_ID libgl openal ffmpeg ffmpeg2.8"
 
 # Load common functions
 
@@ -90,72 +105,45 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
-
-case "$ARCHIVE" in
-	('ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_GOG_DOC_PATH"
-		ARCHIVE_DOC_FILES="$ARCHIVE_GOG_DOC_FILES"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_GOG_GAME_MAIN_PATH"
-		APP_MAIN_ICON="$APP_GOG_ICON"
-		APP_MAIN_ICON_RES="$APP_GOG_ICON_RES"
-	;;
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_DOC_PATH="$ARCHIVE_HUMBLE_DOC_PATH"
-		ARCHIVE_DOC_FILES="$ARCHIVE_HUMBLE_DOC_FILES"
-		ARCHIVE_GAME_MAIN_PATH="$ARCHIVE_HUMBLE_GAME_MAIN_PATH"
-	;;
-esac
-
-set_common_paths
-
-if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then 
-	PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-fi
-
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
-fix_rights "$PLAYIT_WORKDIR/gamedata"
+if [ "$ARCHIVE_TYPE" = 'tar.gz' ]; then
+	fix_rights "$PLAYIT_WORKDIR/gamedata"
+fi
 
-PKG='PKG_MAIN'
-organize_data 'GAME_MAIN' "$PATH_GAME"
-organize_data 'DOC' "$PATH_DOC"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
 
-if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then 
-	mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+PKG='PKG_VIDEOS'
+organize_data 'GAME_VIDEOS' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+
+if [ "$ARCHIVE" = 'ARCHIVE_GOG' ]; then
+	APP_MAIN_ICON="$APP_MAIN_ICON_GOG"
+	APP_MAIN_ICON_RES="$APP_MAIN_ICON_GOG_RES"
+fi
+if [ "$APP_MAIN_ICON" ]; then
+	res="$APP_MAIN_ICON_RES"
+	PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+	mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+	mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 fi
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata
+build_pkg
 
 # Clean up
 
@@ -163,6 +151,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_VIDEOS_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

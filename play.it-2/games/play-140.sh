@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.1
 
 # Set game-specific variables
 
@@ -75,7 +75,7 @@ APP_MAIN_ICON_RES='128'
 PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DESCRITPION='data'
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
 PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1, pulseaudio"
@@ -145,7 +145,7 @@ EOF
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN32' 'PKG_BIN64'
-build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+build_pkg
 
 # Clean up
 

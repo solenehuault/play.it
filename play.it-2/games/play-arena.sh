@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.2
 
 # Set game-specific variables
 
@@ -123,12 +123,11 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
-sed -i "s/imgmount d $GAME_IMAGE -t iso -fs iso/mount d $GAME_IMAGE -t cdrom/" "${PKG_BIN_PATH}${PATH_BIN}/$GAME_ID"
 
 # Build package
 
-write_metadata 'PKG_BIN' 'PKG_DATA'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+write_metadata
+build_pkg
 
 # Clean up
 

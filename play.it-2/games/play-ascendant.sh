@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.1
 
 # Set game-specific variables
 
@@ -130,8 +130,8 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg      'PKG_32' 'PKG_64'
+write_metadata
+build_pkg
 
 # Clean up
 

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170504.1
+script_version=20170508.1
 
 # Set game-specific variables
 
@@ -150,7 +150,7 @@ EOF
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN'
-build_pkg      'PKG_BIN' 'PKG_DATA'
+build_pkg
 
 # Clean up
 
