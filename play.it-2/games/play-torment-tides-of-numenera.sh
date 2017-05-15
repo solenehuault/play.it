@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170515.1
 
 # Set game-specific variables
 
@@ -80,7 +80,7 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='arch-independant data'
 
 PKG_BIN_ARCH='64'
-PKG_BIN_DEPS_DEB="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa | libgl1, libsdl2-2.0-0"
+PKG_BIN_DEPS_DEB="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa-glx | libgl1, libsdl2-2.0-0"
 PKG_BIN_DEPS_ARCH="$PKG_AUDIO_ID $PKG_RESOURCES_ID $PKG_DATA_ID libgl sdl2"
 
 # Load common functions

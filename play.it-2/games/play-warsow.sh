@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170515.1
 
 # Set game-specific variables
 
@@ -68,7 +68,7 @@ PKG_MAIN_DESCRIPTION='arch-independant data'
 
 PKG_32_ARCH='32'
 PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu | libglu1"
+PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
 PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu"
 
 PKG_64_ARCH='64'
