@@ -34,20 +34,19 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160906.1
+script_version=20170516.1
 
 # Set game-specific variables
 
 SCRIPT_DEPS_HARD='fakeroot realpath unzip'
 
 GAME_ID='baldurs-gate-2-ee'
-GAME_ID_SHORT='bg2ee'
 GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
 
-GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.6.0.10.sh'
-GAME_ARCHIVE1_MD5='cd4d65cade256285a4490b48a0448e20'
+GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.6.0.11.sh'
+GAME_ARCHIVE1_MD5='b9ee856a29238d4aec65367377d88ac4'
 GAME_ARCHIVE_FULLSIZE='2700000'
-PKG_REVISION='gog2.6.0.10'
+PKG_VERSION='2.3.67.3-gog2.6.0.10'
 
 INSTALLER_PATH='data/noarch'
 INSTALLER_DOC='docs/*'
@@ -62,7 +61,6 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='2.3.67.3'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0'
@@ -116,8 +114,8 @@ printf '\n'
 set_target '1' 'gog.com'
 printf '\n'
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG_VERSION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 
 PATH_BIN="${PKG_PREFIX}/games"
 PATH_DOC="/usr/local/share/doc/${GAME_ID}"
@@ -164,7 +162,7 @@ printf '\n'
 
 # Build package
 
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG_VERSION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
