@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170516.1
 
 # Set game-specific variables
 
 GAME_ID='heroes-of-might-and-magic-5'
 GAME_NAME='Heroes of Might and Magic V'
+
+ARCHIVES_LIST='ARCHIVE_GOG_EN ARCHIVE_GOG_FR'
 
 ARCHIVE_GOG_EN='setup_homm5_2.1.0.22.bin'
 ARCHIVE_GOG_EN_MD5='9a31aecfcd072f1a01ab4e810f57f894'
@@ -73,13 +75,13 @@ DATA_FILES='./*.log'
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='bin/h5_game.exe'
 APP_MAIN_ICON='bin/h5_game.exe'
-APP_MAIN_ICON_RES='16x16 32x32 48x48'
+APP_MAIN_ICON_RES='16 32 48'
 
 APP_HOF_ID="${GAME_ID}_hof"
 APP_HOF_TYPE='wine'
 APP_HOF_EXE='bina1/h5_game.exe'
 APP_HOF_ICON='bina1/h5_game.exe'
-APP_HOF_ICON_RES='16x16 32x32 48x48'
+APP_HOF_ICON_RES='16 32 48'
 APP_HOF_NAME="$GAME_NAME - Hammers of Fate"
 
 APP_EDIT_ID="${GAME_ID}_edit"
@@ -87,7 +89,7 @@ APP_EDIT_TYPE='wine'
 APP_EDIT_EXE='bin/h5_mapeditor.exe'
 APP_EDIT_ICON='bin/h5_mapeditor.exe'
 APP_EDIT_ICON_ID='128'
-APP_EDIT_ICON_RES='32x32'
+APP_EDIT_ICON_RES='32'
 APP_EDIT_NAME="$GAME_NAME - Map Editor"
 
 APP_HOFEDIT_ID="${GAME_ID}_hofedit"
@@ -95,16 +97,17 @@ APP_HOFEDIT_TYPE='wine'
 APP_HOFEDIT_EXE='bina1/h5_mapeditor.exe'
 APP_HOFEDIT_ICON='bina1/h5_mapeditor.exe'
 APP_HOFEDIT_ICON_ID='128'
-APP_HOFEDIT_ICON_RES='32x32'
+APP_HOFEDIT_ICON_RES='32'
 APP_HOFEDIT_NAME="$GAME_NAME - Hammers of Fate - Map Editor"
 
+PACKAGES_LIST='PKG_L10N PKG_DATA PKG_BIN'
+
 PKG_L10N_ID="${GAME_ID}-l10n"
-PKG_L10N_ID_EN="${GAME_ID}-l10n-en"
-PKG_L10N_ID_FR="${GAME_ID}-l10n-fr"
-PKG_L10N_PROVIDES_DEB="$PKG_L10N_ID"
-PKG_L10N_PROVIDES_ARCH="$PKG_L10N_ID"
-PKG_L10N_DESCRIPTION_EN='English localization'
-PKG_L10N_DESCRIPTION_FR='French localization'
+PKG_L10N_ID_GOG_EN="${GAME_ID}-l10n-en"
+PKG_L10N_ID_GOG_FR="${GAME_ID}-l10n-fr"
+PKG_L10N_PROVIDE="$PKG_L10N_ID"
+PKG_L10N_DESCRIPTION_GOG_EN='English localization'
+PKG_L10N_DESCRIPTION_GOG_FR='French localization'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -131,47 +134,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG_EN' 'ARCHIVE_GOG_FR'
-case "$ARCHIVE" in
-	('ARCHIVE_GOG_EN')
-		ARCHIVE_MD5="$ARCHIVE_GOG_EN_MD5"
-		ARCHIVE_TYPE="$ARCHIVE_GOG_EN_TYPE"
-		ARCHIVE_SIZE="$ARCHIVE_GOG_EN_SIZE"
-		ARCHIVE_VERSION="$ARCHIVE_GOG_EN_VERSION"
-		PKG_L10N_ID="$PKG_L10N_ID_EN"
-		PKG_L10N_DESCRIPTION="$PKG_L10N_DESCRIPTION_EN"
-	;;
-	('ARCHIVE_GOG_FR')
-		ARCHIVE_MD5="$ARCHIVE_GOG_FR_MD5"
-		ARCHIVE_TYPE="$ARCHIVE_GOG_FR_TYPE"
-		ARCHIVE_SIZE="$ARCHIVE_GOG_FR_SIZE"
-		ARCHIVE_VERSION="$ARCHIVE_GOG_FR_VERSION"
-		PKG_L10N_ID="$PKG_L10N_ID_FR"
-		PKG_L10N_DESCRIPTION="$PKG_L10N_DESCRIPTION_FR"
-	;;
-esac
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE"
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_L10N' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
@@ -186,46 +150,25 @@ PKG='PKG_DATA'
 organize_data 'DOC_DATA'  "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-if [ "$NO_ICON" = '0' ]; then
-	(
-		cd "${PKG_BIN_PATH}${PATH_GAME}"
-
-		extract_icon_from "$APP_MAIN_ICON"
-		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-		sort_icons 'APP_MAIN'
-		rm --recursive "$PLAYIT_WORKDIR/icons"
-
-		extract_icon_from "$APP_HOF_ICON"
-		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-		sort_icons 'APP_HOF'
-		rm --recursive "$PLAYIT_WORKDIR/icons"
-
-		WRESTOOL_NAME="$APP_EDIT_ICON_ID"
-		extract_icon_from "$APP_EDIT_ICON"
-		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-		sort_icons 'APP_EDIT'
-		rm --recursive "$PLAYIT_WORKDIR/icons"
-
-		WRESTOOL_NAME="$APP_HOFEDIT_ICON_ID"
-		extract_icon_from "$APP_HOFEDIT_ICON"
-		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-		sort_icons 'APP_HOFEDIT'
-		rm --recursive "$PLAYIT_WORKDIR/icons"
-	)
-fi
+PKG='PKG_BIN'
+extract_and_sort_icons_from 'APP_MAIN' 'APP_HOF' 'APP_EDIT' 'APP_HOFEDIT'
+(
+        cd "$PKG_BIN_PATH"
+        cp --link --parents --recursive "./$PATH_ICON_BASE" "$PKG_DATA_PATH"
+        rm --recursive "./$PATH_ICON_BASE"
+        rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
+)
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
 PKG='PKG_BIN'
-write_bin     'APP_MAIN' 'APP_HOF' 'APP_EDIT' 'APP_HOFEDIT'
-write_desktop 'APP_MAIN' 'APP_HOF' 'APP_EDIT' 'APP_HOFEDIT'
-
+write_launcher 'APP_MAIN' 'APP_HOF' 'APP_EDIT' 'APP_HOFEDIT'
 (
 	cd "${PKG_BIN_PATH}${PATH_BIN}"
-	sed -i 's|cd "$PATH_PREFIX"|cd "$PATH_PREFIX/${APP_EXE%/*}"|'                     "$GAME_ID" "$APP_HOF_ID" "$APP_EDIT_ID" "$APP_HOFEDIT_ID"
-	sed -i 's|wine "$APP_EXE" $APP_OPTIONS $@|wine "${APP_EXE##*/}" $APP_OPTIONS $@|' "$GAME_ID" "$APP_HOF_ID" "$APP_EDIT_ID" "$APP_HOFEDIT_ID"
+	sed --in-place 's|cd "$PATH_PREFIX"|cd "$PATH_PREFIX/${APP_EXE%/*}"|'                     "$GAME_ID" "$APP_HOF_ID" "$APP_EDIT_ID" "$APP_HOFEDIT_ID"
+	sed --in-place 's|wine "$APP_EXE" $APP_OPTIONS $@|wine "${APP_EXE##*/}" $APP_OPTIONS $@|' "$GAME_ID" "$APP_HOF_ID" "$APP_EDIT_ID" "$APP_HOFEDIT_ID"
 )
 
 # Build package

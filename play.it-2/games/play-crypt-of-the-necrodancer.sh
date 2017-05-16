@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170508.1
+script_version=20170514.1
 
 # Set game-specific variables
 
@@ -66,8 +66,8 @@ ARCHIVE_GAME_VIDEO_FILES='./data/video'
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./data'
 
-DATA_DIRS='./downloaded_dungeons ./downloaded_mods ./logs ./mods'
-DATA_FILES='./NecroDancer'
+DATA_DIRS='./downloaded_dungeons ./downloaded_mods ./logs ./mods ./replays'
+DATA_FILES='./data/save_data.xml ./data/played.dat'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='NecroDancer'

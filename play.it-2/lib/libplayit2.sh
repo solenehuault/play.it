@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170514.1
+library_revision=20170516.3
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -252,13 +252,11 @@ set_source_archive() {
 			ARCHIVE="$archive"
 			set_archive_print "$SOURCE_ARCHIVE"
 			set_source_archive_vars
-			return 0
 		elif [ -z "$SOURCE_ARCHIVE" ] && [ -f "$file" ]; then
 			SOURCE_ARCHIVE="$file"
 			ARCHIVE="$archive"
 			set_archive_print "$SOURCE_ARCHIVE"
 			set_source_archive_vars
-			return 0
 		fi
 	done
 	if [ -z "$SOURCE_ARCHIVE" ]; then
@@ -362,6 +360,76 @@ set_source_archive_error_no_type() {
 		;;
 	esac
 	return 1
+}
+
+# check integrity of target file
+# USAGE: file_checksum $file
+# NEEDED VARS: CHECKSUM_METHOD
+# CALLS: file_checksum_md5, file_checksum_none, liberror
+file_checksum() {
+	case $CHECKSUM_METHOD in
+		('md5')
+			file_checksum_md5 "$1"
+		;;
+		('none')
+			return 0
+		;;
+		(*)
+			liberror 'CHECKSUM_METHOD' 'file_checksum'
+		;;
+	esac
+}
+
+# check integrity of target file against MD5 control sum
+# USAGE: file_checksum_md5 $file
+# NEEDED VARS: ARCHIVE ARCHIVE_MD5
+# CALLS: file_checksum_print, file_checksum_error
+# CALLED BY: file_checksum
+file_checksum_md5() {
+	file_checksum_print "$(basename "$1")"
+	FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
+	if [ "$FILE_MD5" = "$(eval echo \$${ARCHIVE}_MD5)" ]; then
+		return 0
+	fi
+	file_checksum_error "$1"
+	return 1
+}
+
+# print integrity check message
+# USAGE: file_checksum_print $file_name
+# CALLED BY: file_checksum_md5
+file_checksum_print() {
+	local string
+	case ${LANG%_*} in
+		('fr')
+			string='Contrôle de l’intégrité de %s\n'
+		;;
+		('en'|*)
+			string='Checking integrity of %s\n'
+		;;
+	esac
+	printf "$string" "$1"
+}
+
+# print integrity check error message
+# USAGE: file_checksum_error $file
+# CALLED BY: file_checksum_md5
+file_checksum_error() {
+	print_error
+	local string1
+	local string2
+	case ${LANG%_*} in
+		('fr')
+			string1='Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n'
+			string2='Utilisez --checksum=none pour forcer son utilisation.\n'
+		;;
+		('en'|*)
+			string1='Hashsum mismatch. %s is not the expected file.\n'
+			string2='Use --checksum=none to force its use.\n'
+		;;
+	esac
+	printf "$string1" "$1"
+	printf "$string2"
 }
 
 # set working directories
@@ -632,76 +700,6 @@ extract_data_from_print() {
 	esac
 }
 
-# check integrity of target file
-# USAGE: file_checksum $file
-# NEEDED VARS: CHECKSUM_METHOD
-# CALLS: file_checksum_md5, file_checksum_none, liberror
-file_checksum() {
-	case $CHECKSUM_METHOD in
-		('md5')
-			file_checksum_md5 "$1"
-		;;
-		('none')
-			return 0
-		;;
-		(*)
-			liberror 'CHECKSUM_METHOD' 'file_checksum'
-		;;
-	esac
-}
-
-# check integrity of target file against MD5 control sum
-# USAGE: file_checksum_md5 $file
-# NEEDED VARS: ARCHIVE ARCHIVE_MD5
-# CALLS: file_checksum_print, file_checksum_error
-# CALLED BY: file_checksum
-file_checksum_md5() {
-	file_checksum_print "$(basename "$1")"
-	FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
-	if [ "$FILE_MD5" = "$(eval echo \$${ARCHIVE}_MD5)" ]; then
-		return 0
-	fi
-	file_checksum_error "$1"
-	return 1
-}
-
-# print integrity check message
-# USAGE: file_checksum_print $file_name
-# CALLED BY: file_checksum_md5
-file_checksum_print() {
-	local string
-	case ${LANG%_*} in
-		('fr')
-			string='Contrôle de l’intégrité de %s\n'
-		;;
-		('en'|*)
-			string='Checking integrity of %s\n'
-		;;
-	esac
-	printf "$string" "$1"
-}
-
-# print integrity check error message
-# USAGE: file_checksum_error $file
-# CALLED BY: file_checksum_md5
-file_checksum_error() {
-	print_error
-	local string1
-	local string2
-	case ${LANG%_*} in
-		('fr')
-			string1='Somme de contrôle incohérente. %s n’est pas le fichier attendu.\n'
-			string2='Utilisez --checksum=none pour forcer son utilisation.\n'
-		;;
-		('en'|*)
-			string1='Hashsum mismatch. %s is not the expected file.\n'
-			string2='Use --checksum=none to force its use.\n'
-		;;
-	esac
-	printf "$string1" "$1"
-	printf "$string2"
-}
-
 # extract .png or .ico files from given file
 # USAGE: extract_icon_from $file[…]
 # NEEDED VARS: $PLAYIT_WORKDIR
@@ -835,7 +833,8 @@ write_bin() {
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
 			local app_prerun="$(eval echo \$${app}_PRERUN)"
-			[ "$app_exe" ] || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
+			[ "$app_exe" ]  || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
+			[ "$app_libs" ] || app_libs="$(eval echo \"\$${app}_LIBS_${PKG#PKG_}\")"
 			if [ "$app_type" = 'native' ]; then
 				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
 			fi
@@ -1342,11 +1341,15 @@ write_metadata() {
 		local pkg_arch
 		set_arch
 		local pkg_id="$(eval echo \$${pkg}_ID)"
-		local pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
 		local pkg_maint="$(whoami)@$(hostname)"
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
 		local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	        if [ "$(eval echo \$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_})" ]; then
+	                pkg_description="$(eval echo \$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_})"
+	        else
+			pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
+	        fi
 		[ "$pkg_version" ] || pkg_version="$PKG_VERSION"
 
 		case $PACKAGE_TYPE in

@@ -15,11 +15,15 @@ write_metadata() {
 		local pkg_arch
 		set_arch
 		local pkg_id="$(eval echo \$${pkg}_ID)"
-		local pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
 		local pkg_maint="$(whoami)@$(hostname)"
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
 		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
 		local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	        if [ "$(eval echo \$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_})" ]; then
+	                pkg_description="$(eval echo \$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_})"
+	        else
+			pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
+	        fi
 		[ "$pkg_version" ] || pkg_version="$PKG_VERSION"
 
 		case $PACKAGE_TYPE in

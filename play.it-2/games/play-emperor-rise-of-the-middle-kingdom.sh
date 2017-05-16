@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170514.1
+script_version=20170514.2
 
 # Set game-specific variables
 
@@ -58,7 +58,7 @@ ARCHIVE_GAME_DATA_PATH='app'
 ARCHIVE_GAME_DATA_FILES='./*.eng ./audio ./binks ./campaigns ./cities ./data ./dragon.ico ./model ./mp3dec.asi ./mssds3dh.m3d ./mssrsx.m3d ./res ./save'
 
 CONFIG_FILES='./*.cfg ./*.ini'
-DATA_DIRS='./save'
+DATA_DIRS='./campaigns ./save'
 
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='emperor.exe'
