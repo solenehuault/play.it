@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170514.1
+library_revision=20170516.1
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -835,7 +835,8 @@ write_bin() {
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
 			local app_prerun="$(eval echo \$${app}_PRERUN)"
-			[ "$app_exe" ] || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
+			[ "$app_exe" ]  || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
+			[ "$app_libs" ] || app_libs="$(eval echo \"\$${app}_LIBS_${PKG#PKG_}\")"
 			if [ "$app_type" = 'native' ]; then
 				chmod +x "${PKG_PATH}${PATH_GAME}/$app_exe"
 			fi
