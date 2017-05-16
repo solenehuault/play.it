@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170516.1
 
 # Set game-specific variables
 
 GAME_ID='gnomoria'
 GAME_NAME='Gnomoria'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_gnomoria_2.0.0.1.sh'
 ARCHIVE_GOG_MD5='3d0a9ed4fb45ff133b5a7410a2114455'
@@ -48,38 +50,37 @@ ARCHIVE_GOG_VERSION='1.0-gog2.0.0.1'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./Linux.README'
 
-ARCHIVE_GAME_32_PATH='data/noarch/game'
-ARCHIVE_GAME_32_FILES='./*.x86 ./lib/libmojoshader.so ./lib/libmono-2.0.so.1 ./lib/libMonoPosixHelper.so ./lib/libpng15.so.15 ./lib/libSDL2_image-2.0.so.0 ./lib/libtheoraplay.so'
+ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN32_FILES='./*.x86 ./lib/libmojoshader.so ./lib/libmono-2.0.so.1 ./lib/libMonoPosixHelper.so ./lib/libpng15.so.15 ./lib/libSDL2_image-2.0.so.0 ./lib/libtheoraplay.so'
 
-ARCHIVE_GAME_64_PATH='data/noarch/game'
-ARCHIVE_GAME_64_FILES='./*.x86_64 ./lib64/libmojoshader.so ./lib64/libmono-2.0.so.1 ./lib64/libMonoPosixHelper.so ./lib64/libpng15.so.15 ./lib64/libSDL2_image-2.0.so.0 ./lib64/libtheoraplay.so'
+ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./lib64/libmojoshader.so ./lib64/libmono-2.0.so.1 ./lib64/libMonoPosixHelper.so ./lib64/libpng15.so.15 ./lib64/libSDL2_image-2.0.so.0 ./lib64/libtheoraplay.so'
 
-ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./*.dll ./Content ./FNA.dll.config ./Gnomoria ./Gnomoria.exe ./Gnomoria.png ./Mod?Files ./mono'
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./*.dll ./Content ./FNA.dll.config ./Gnomoria ./Gnomoria.exe ./Gnomoria.png ./Mod?Files ./mono'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='./Gnomoria.bin.x86'
-APP_MAIN_EXE_64='./Gnomoria.bin.x86_64'
+APP_MAIN_EXE_BIN32='./Gnomoria.bin.x86'
+APP_MAIN_EXE_BIN64='./Gnomoria.bin.x86_64'
 APP_MAIN_ICON='Gnomoria.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
 
-PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_ARCH_DEB='all'
-PKG_MAIN_ARCH_ARCH='any'
-PKG_MAIN_DESCRIPTION='arch-independant data'
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
-PKG_32_ARCH='32'
-PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, p7zip-full, libjpeg62-turbo | libjpeg62, libopenal1, libsdl2-2.0-0, libsdl2-image-2.0-0, libtheora0, libvorbisfile3"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID lib32-openal lib32-sdl2 lib32-sdl2_image lib32-libvorbis"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_64_ARCH='64'
-PKG_64_CONFLICTS_DEB="$GAME_ID"
-PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_MAIN_ID openal sdl2 sdl2_image libvorbis"
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, p7zip-full, libjpeg62-turbo | libjpeg62, libopenal1, libsdl2-2.0-0, libsdl2-image-2.0-0, libtheora0, libvorbisfile3"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-openal lib32-sdl2 lib32-sdl2_image lib32-libvorbis"
+
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID openal sdl2 sdl2_image libvorbis"
 
 # Load common functions
 
@@ -106,51 +107,32 @@ if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.}
 	return 1
 fi
 
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_32'
-organize_data 'GAME_32' "$PATH_GAME"
+PKG='PKG_BIN32'
+organize_data 'GAME_BIN32' "$PATH_GAME"
 
-PKG='PKG_64'
-organize_data 'GAME_64' "$PATH_GAME"
+PKG='PKG_BIN64'
+organize_data 'GAME_BIN64' "$PATH_GAME"
 
-PKG='PKG_MAIN'
+PKG='PKG_DATA'
 organize_data 'DOC'       "$PATH_DOC"
-organize_data 'GAME_MAIN' "$PATH_GAME"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -162,10 +144,10 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
+write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata 'PKG_BIN32' 'PKG_BIN64'
+build_pkg
 
 # Clean up
 
@@ -173,9 +155,10 @@ rm --recursive "${PLAYIT_WORKDIR}"
 
 # Print instructions
 
-printf '\n32-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
-printf '\n64-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0
