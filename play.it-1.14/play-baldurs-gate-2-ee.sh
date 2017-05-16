@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170516.1
+script_version=20170516.2
 
 # Set game-specific variables
 
@@ -46,7 +46,7 @@ GAME_NAME='Baldur’s Gate 2 - Enhanced Edition'
 GAME_ARCHIVE1='gog_baldur_s_gate_2_enhanced_edition_2.6.0.11.sh'
 GAME_ARCHIVE1_MD5='b9ee856a29238d4aec65367377d88ac4'
 GAME_ARCHIVE_FULLSIZE='2700000'
-PKG_VERSION='2.3.67.3-gog2.6.0.10'
+PKG_VERSION='2.3.67.3-gog2.6.0.11'
 
 INSTALLER_PATH='data/noarch'
 INSTALLER_DOC='docs/*'
