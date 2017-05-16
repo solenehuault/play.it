@@ -32,7 +32,7 @@
 # build a .deb package from the .sh MojoSetup installer
 # tested on Debian, should work on any .deb-based distribution
 #
-# script version 20151127.1
+# script version 20170516.1
 #
 # send your bug reports to vv221@dotslashplay.it
 # start the e-mail subject by "./play.it" to avoid it being flagged as spam
@@ -41,14 +41,12 @@
 # Set game-specific variables
 
 GAME_ID='shadowrun-dragonfall'
-GAME_ID_SHORT='dragonfall'
 GAME_NAME='Shadowrun: Dragonfall'
 
-GAME_ARCHIVE1='gog_shadowrun_dragonfall_director_s_cut_2.6.0.10.sh'
-GAME_ARCHIVE1_MD5='9ec016b74004e8def71d64023beb70f3'
+GAME_ARCHIVE1='gog_shadowrun_dragonfall_director_s_cut_2.6.0.11.sh'
+GAME_ARCHIVE1_MD5='ee3db5bc8554852337b063b993f66012'
 GAME_ARCHIVE_FULLSIZE='7200000'
-PKG_ORIGIN='gog'
-PKG_REVISION='2.6.0.10'
+PKG_VERSION='2.0.0.9-gog2.6.0.11'
 
 GAME_CACHE_DIRS=''
 GAME_CACHE_FILES=''
@@ -60,7 +58,7 @@ GAME_DATA_DIRS='./DumpBox ./logs'
 GAME_DATA_FILES='./Dragonfall ./ShadowrunEditor ./Dragonfall.sh'
 GAME_DATA_FILES_POST=''
 
-APP_COMMON_ID="${GAME_ID_SHORT}-common.sh"
+APP_COMMON_ID="${GAME_ID}-common.sh"
 
 APP1_ID="${GAME_ID}"
 APP1_EXE='./Dragonfall'
@@ -71,7 +69,6 @@ APP1_NAME_FR="${GAME_NAME}"
 APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
-PKG1_VERSION='2.0.0.9'
 PKG1_ARCH='i386'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libglu1-mesa | libglu1, libqtgui4, libqt4-network, libxcursor1, libxrandr2'
@@ -108,8 +105,8 @@ GAME_ARCHIVE_CHECKSUM_DEFAULT='md5sum'
 GAME_LANG_DEFAULT=''
 WITH_MOVIES_DEFAULT=''
 
-game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID_SHORT}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
-game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG1_VERSION}-${PKG_ORIGIN}${PKG_REVISION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG_TMPDIR' "$(mktemp -u ${GAME_ID}.XXXXX)" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
+game_mkdir 'PKG1_DIR' "${PKG1_ID}_${PKG_VERSION}_${PKG1_ARCH}" "$((${GAME_ARCHIVE_FULLSIZE}*2))"
 fetch_args "$@"
 printf '\n'
 check_deps 'unzip fakeroot'
@@ -154,7 +151,7 @@ write_desktop "${APP1_ID}" "${APP1_NAME}" "${APP1_NAME_FR}" "${PKG1_DIR}${PATH_D
 printf '\n'
 
 # Building package
-write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG1_VERSION}-${PKG_ORIGIN}${PKG_REVISION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
+write_pkg_debian "${PKG1_DIR}" "${PKG1_ID}" "${PKG_VERSION}" "${PKG1_ARCH}" "${PKG1_CONFLICTS}" "${PKG1_DEPS}" "${PKG1_RECS}" "${PKG1_DESC}"
 build_pkg "${PKG1_DIR}" "${PKG1_DESC}" "${PKG_COMPRESSION}"
 print_instructions "${PKG1_DESC}" "${PKG1_DIR}"
 printf '\n%s ;)\n\n' "$(l10n 'have_fun')"
