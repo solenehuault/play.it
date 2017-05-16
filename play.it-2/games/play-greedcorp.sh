@@ -34,46 +34,50 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170516.1
 
 # Set game-specific variables
 
 GAME_ID='greedcorp'
 GAME_NAME='GreedCorp'
 
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
+
 ARCHIVE_HUMBLE='greedcorp_linux.tar.gz'
 ARCHIVE_HUMBLE_MD5='c1cffb847bf65caf8abd4c589813884a'
 ARCHIVE_HUMBLE_SIZE='210000'
 ARCHIVE_HUMBLE_VERSION='1.0-humble'
 
-ARCHIVE_GAME_32_PATH='GreedCorp'
-ARCHIVE_GAME_32_FILES='./*.x86 ./*_Data/*/x86'
-ARCHIVE_GAME_64_PATH='GreedCorp'
-ARCHIVE_GAME_64_FILES='./*.x86_64 ./*_Data/*/x86_64'
-ARCHIVE_GAME_MAIN_PATH='GreedCorp'
-ARCHIVE_GAME_MAIN_FILES='./*_Data'
+ARCHIVE_GAME_BIN32_PATH='GreedCorp'
+ARCHIVE_GAME_BIN32_FILES='./*.x86 ./*_Data/*/x86'
+
+ARCHIVE_GAME_BIN64_PATH='GreedCorp'
+ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./*_Data/*/x86_64'
+
+ARCHIVE_GAME_DATA_PATH='GreedCorp'
+ARCHIVE_GAME_DATA_FILES='./*_Data'
 
 DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='GreedCorp.x86'
-APP_MAIN_EXE_64='./GreedCorp.x86_64'
+APP_MAIN_EXE_BIN32='GreedCorp.x86'
+APP_MAIN_EXE_BIN64='./GreedCorp.x86_64'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_32_ARCH='32'
-PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1"
-PKG_32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl"
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl"
 
-PKG_64_ARCH='64'
-PKG_64_CONFLICTS_DEB="$GAME_ID"
-PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_DATA_ID libgl"
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID libgl"
 
 # Load common functions
 
@@ -100,50 +104,31 @@ if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.}
 	return 1
 fi
 
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_DATA' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_32'
-organize_data 'GAME_32' "$PATH_GAME"
+PKG='PKG_BIN32'
+organize_data 'GAME_BIN32' "$PATH_GAME"
 
-PKG='PKG_64'
-organize_data 'GAME_64' "$PATH_GAME"
+PKG='PKG_BIN64'
+organize_data 'GAME_BIN64' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data 'GAME_MAIN' "$PATH_GAME"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -157,8 +142,8 @@ EOF
 
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg      'PKG_32' 'PKG_64' 'PKG_DATA'
+write_metadata 'PKG_BIN32' 'PKG_BIN64'
+build_pkg
 
 # Clean up
 
@@ -168,8 +153,8 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 printf '\n'
 printf '32-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_32_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
 printf '64-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_64_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0
