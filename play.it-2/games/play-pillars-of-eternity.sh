@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.3
+script_version=20170517.4
 
 # Set game-specific variables
 
@@ -77,7 +77,7 @@ APP_MAIN_ICON1_RES='512'
 APP_MAIN_ICON2='./PillarsOfEternity_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON2_RES='128'
 
-PACKAGES_LIST='PKG_AREA PKG_DAT PKG_BIN'
+PACKAGES_LIST='PKG_AREA PKG_DATA PKG_BIN'
 
 PKG_AREA_ID="${GAME_ID}-areas"
 PKG_AREA_DESCRIPTION='area'
@@ -117,7 +117,6 @@ ARCHIVE="$ARCHIVE_MAIN"
 
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_AREA' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 (
 	if [ "$ARCHIVE_DLC1" ]; then
