@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170517.2
 
 # Set game-specific variables
 
@@ -157,6 +157,7 @@ organize_data 'DOC1'      "$PATH_DOC"
 organize_data 'DOC2'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
+PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'
 extract_and_sort_icons_from 'APP_EDITOR_MAP'
 extract_and_sort_icons_from 'APP_EDITOR_CAMPAIGN'
