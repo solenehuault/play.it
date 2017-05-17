@@ -34,27 +34,35 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170517.1
 
 # Set game-specific variables
 
 GAME_ID='never-alone'
 GAME_NAME='Never Alone'
 
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
+
 ARCHIVE_HUMBLE='NeverAlone_ArcticCollection_Linux.1.04.tar.gz'
 ARCHIVE_HUMBLE_MD5='3da062abaaa9e3e6ff97d4c82c8ea3c3'
 ARCHIVE_HUMBLE_SIZE='4900000'
 ARCHIVE_HUMBLE_VERSION='1.04-humble161008'
 
-ARCHIVE_GAME_PATH='NeverAlone_ArcticCollection_Linux.1.04'
-ARCHIVE_GAME_FILES_BIN='./Never_Alone.x64 ./Never_Alone_Data/*/x86_64'
-ARCHIVE_GAME_FILES_VIDEOS='./Never_Alone_Data/StreamingAssets/Videos'
-ARCHIVE_GAME_FILES_DATA='./Never_Alone_Data'
+ARCHIVE_GAME_BIN_PATH='NeverAlone_ArcticCollection_Linux.1.04'
+ARCHIVE_GAME_BIN_FILES='./Never_Alone.x64 ./Never_Alone_Data/*/x86_64'
+
+ARCHIVE_GAME_VIDEOS_PATH='NeverAlone_ArcticCollection_Linux.1.04'
+ARCHIVE_GAME_VIDEOS_FILES='./Never_Alone_Data/StreamingAssets/Videos'
+
+ARCHIVE_GAME_DATA_PATH='NeverAlone_ArcticCollection_Linux.1.04'
+ARCHIVE_GAME_DATA_FILES='./Never_Alone_Data'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Never_Alone.x64'
 APP_MAIN_ICON='Never_Alone_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_VIDEOS PKG_DATA PKG_BIN'
 
 PKG_VIDEOS_ID="$GAME_ID-videos"
 PKG_VIDEOS_DESCRIPTION='videos'
@@ -84,54 +92,31 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA' 'PKG_VIDEOS'
 extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_BIN"
-organize_data 'GAME' "$PATH_GAME"
+organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_VIDEOS'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_VIDEOS"
-organize_data 'GAME' "$PATH_GAME"
+organize_data 'GAME_VIDEOS' "$PATH_GAME"
 
 PKG='PKG_DATA'
-ARCHIVE_GAME_FILES="$ARCHIVE_GAME_FILES_DATA"
-organize_data 'GAME' "$PATH_GAME"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
 PKG='PKG_BIN'
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
+
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -146,7 +131,7 @@ EOF
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN' 'PKG_VIDEOS'
-build_pkg      'PKG_BIN' 'PKG_VIDEOS' 'PKG_DATA'
+build_pkg
 
 # Clean up
 
