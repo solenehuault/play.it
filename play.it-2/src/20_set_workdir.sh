@@ -23,8 +23,7 @@ set_workdir() {
 # CALLED BY: set_workdir
 set_workdir_workdir() {
 	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
-	local archive_size=$(eval echo \$${ARCHIVE}_SIZE)
-	local needed_space=$(($archive_size * 2))
+	local needed_space=$(($ARCHIVE_SIZE * 2))
 	[ "$XDG_RUNTIME_DIR" ] || XDG_RUNTIME_DIR="/run/user/$(id -u)"
 	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
 	local free_space_run=$(df --output=avail "$XDG_RUNTIME_DIR" 2>/dev/null | tail --lines=1)
