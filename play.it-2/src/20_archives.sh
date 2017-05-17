@@ -40,7 +40,6 @@ set_source_archive() {
 set_archive() {
 	local name=$1
 	shift 1
-	unset $name
 	for archive in "$@"; do
 		local file="$(eval echo \$$archive)"
 		if [ -f "$file" ]; then
@@ -52,6 +51,7 @@ set_archive() {
 			return 0
 		fi
 	done
+	unset $name
 }
 
 # set archive-specific variables
