@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170517.2
 
 # Set game-specific variables
 
@@ -112,23 +112,9 @@ fi
 
 # Load extra archives (DLC)
 
-set_archive 'ARCHIVE_DLC1' "$ARCHIVE_GOG_DLC1"
-set_archive 'ARCHIVE_DLC2' "$ARCHIVE_GOG_DLC2"
-set_archive 'ARCHIVE_DLC3' "$ARCHIVE_GOG_DLC3"
-(
-	if [ "$ARCHIVE_DLC1" ]; then
-		ARCHIVE='ARCHIVE_GOG_DLC1'
-		file_checksum "$ARCHIVE_DLC1"
-	fi
-	if [ "$ARCHIVE_DLC2" ]; then
-		ARCHIVE='ARCHIVE_GOG_DLC2'
-		file_checksum "$ARCHIVE_DLC2"
-	fi
-	if [ "$ARCHIVE_DLC3" ]; then
-		ARCHIVE='ARCHIVE_GOG_DLC3'
-		file_checksum "$ARCHIVE_DLC3"
-	fi
-)
+set_archive 'ARCHIVE_DLC1' 'ARCHIVE_GOG_DLC1'
+set_archive 'ARCHIVE_DLC2' 'ARCHIVE_GOG_DLC2'
+set_archive 'ARCHIVE_DLC3' 'ARCHIVE_GOG_DLC3'
 
 # Extract game data
 
