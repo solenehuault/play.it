@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170517.3
+library_revision=20170517.4
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -372,26 +372,28 @@ file_checksum_error() {
 # NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
 # CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
-	case "$(eval echo \$${ARCHIVE}_TYPE)" in
-		('innosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
-		;;
-		('nixstaller')
-			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
-		;;
-		('mojosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
-		;;
-		('zip')
-			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
-		;;
-		('rar')
-			SCRIPT_DEPS="$SCRIPT_DEPS unar"
-		;;
-		('tar.gz')
-			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
-		;;
-	esac
+	if [ -n "$ARCHIVE" ]; then
+		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+			('innosetup')
+				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
+			;;
+			('nixstaller')
+				SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
+			;;
+			('mojosetup')
+				SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
+			;;
+			('zip')
+				SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+			;;
+			('rar')
+				SCRIPT_DEPS="$SCRIPT_DEPS unar"
+			;;
+			('tar.gz')
+				SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
+			;;
+		esac
+	fi
 	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
 	fi
@@ -490,6 +492,7 @@ set_workdir_workdir() {
 	else
 		export PLAYIT_WORKDIR="$PWD/play.it/$workdir_name"
 	fi
+	rm --force --recursive "$PLAYIT_WORKDIR"
 }
 
 # set package-secific working directory
@@ -1333,7 +1336,7 @@ organize_data() {
 			cd "$PLAYIT_WORKDIR/gamedata/$archive_path"
 			for file in $archive_files; do
 				if [ -e "$file" ]; then
-					cp --recursive --link --parents "$file" "$pkg_path"
+					cp --recursive --force --link --parents "$file" "$pkg_path"
 					rm --recursive "$file"
 				fi
 			done
