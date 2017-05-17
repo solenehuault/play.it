@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.2
+script_version=20170517.4
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ ARCHIVES_LIST='ARCHIVE_GOG_EN ARCHIVE_GOG_FR'
 
 ARCHIVE_GOG_EN='setup_homm3_complete_2.0.0.16.exe'
 ARCHIVE_GOG_EN_MD5='263d58f8cc026dd861e9bbcadecba318'
+ARCHIVE_GOG_EN_VERSION='3.0-gog2.0.0.16'
 ARCHIVE_GOG_EN_PATCH='patch_heroes_of_might_and_magic_3_complete_2.0.1.17.exe'
 ARCHIVE_GOG_EN_PATCH_MD5='815b9c097cd57d0e269beb4cc718dad3'
 ARCHIVE_GOG_EN_PATCH_VERSION='3.0-gog2.0.1.17'
@@ -133,6 +134,7 @@ fi
 if [ "$ARCHIVE" = 'ARCHIVE_GOG_EN' ]; then
 	set_archive 'PATCH_ARCHIVE' 'ARCHIVE_GOG_EN_PATCH'
 	ARCHIVE='ARCHIVE_GOG_EN'
+	set_workdir $PACKAGES_LIST
 fi
 
 # Extract game data
