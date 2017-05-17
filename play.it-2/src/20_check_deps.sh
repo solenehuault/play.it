@@ -3,7 +3,7 @@
 # NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
 # CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
-	case "$ARCHIVE_TYPE" in
+	case "$(eval echo \$${ARCHIVE}_TYPE)" in
 		('innosetup')
 			SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 		;;
