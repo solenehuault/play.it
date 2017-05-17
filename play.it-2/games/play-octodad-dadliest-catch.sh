@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170517.1
 
 # Set game-specific variables
 
 GAME_ID='octodad-dadliest-catch'
 GAME_NAME='Octodad Dadliest Catch'
+
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
 ARCHIVE_HUMBLE='OctodadDadliestCatch1.2.19338.tar.gz'
 ARCHIVE_HUMBLE_MD5='9022035ccca5b77b05498b4fdd7a0c4b'
@@ -55,7 +57,9 @@ DATA_FILES='./*.odad ./*.txt'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='OctodadDadliestCatch'
 APP_MAIN_ICON='./icon_512x512.png'
-APP_MAIN_ICON_RES='512x512'
+APP_MAIN_ICON_RES='512'
+
+PACKAGES_LIST='PKG_MAIN'
 
 PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgl1-mesa-glx | libgl1'
@@ -79,32 +83,9 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
-
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
 organize_data 'GAME' "$PATH_GAME"
@@ -113,10 +94,12 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
+
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -128,8 +111,8 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata
+build_pkg
 
 # Clean up
 
