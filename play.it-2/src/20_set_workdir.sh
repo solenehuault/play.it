@@ -38,6 +38,7 @@ set_workdir_workdir() {
 	else
 		export PLAYIT_WORKDIR="$PWD/play.it/$workdir_name"
 	fi
+	rm --force --recursive "$PLAYIT_WORKDIR"
 }
 
 # set package-secific working directory
