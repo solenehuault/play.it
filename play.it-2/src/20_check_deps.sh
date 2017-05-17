@@ -3,26 +3,28 @@
 # NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
 # CALLS: check_deps_7z, check_deps_icon, check_deps_failed
 check_deps() {
-	case "$(eval echo \$${ARCHIVE}_TYPE)" in
-		('innosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
-		;;
-		('nixstaller')
-			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
-		;;
-		('mojosetup')
-			SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
-		;;
-		('zip')
-			SCRIPT_DEPS="$SCRIPT_DEPS unzip"
-		;;
-		('rar')
-			SCRIPT_DEPS="$SCRIPT_DEPS unar"
-		;;
-		('tar.gz')
-			SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
-		;;
-	esac
+	if [ -n "$ARCHIVE" ]; then
+		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+			('innosetup')
+				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
+			;;
+			('nixstaller')
+				SCRIPT_DEPS="$SCRIPT_DEPS gzip tar unxz"
+			;;
+			('mojosetup')
+				SCRIPT_DEPS="$SCRIPT_DEPS bsdtar"
+			;;
+			('zip')
+				SCRIPT_DEPS="$SCRIPT_DEPS unzip"
+			;;
+			('rar')
+				SCRIPT_DEPS="$SCRIPT_DEPS unar"
+			;;
+			('tar.gz')
+				SCRIPT_DEPS="$SCRIPT_DEPS gzip tar"
+			;;
+		esac
+	fi
 	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
 	fi
