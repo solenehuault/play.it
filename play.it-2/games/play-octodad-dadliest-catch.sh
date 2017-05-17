@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170517.2
 
 # Set game-specific variables
 
@@ -48,8 +48,11 @@ ARCHIVE_HUMBLE_MD5='9022035ccca5b77b05498b4fdd7a0c4b'
 ARCHIVE_HUMBLE_SIZE='3100000'
 ARCHIVE_HUMBLE_VERSION='1.2.19338-humble160801'
 
-ARCHIVE_GAME_PATH='Octodad Dadliest Catch'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='Octodad Dadliest Catch'
+ARCHIVE_GAME_BIN_FILES='./OctodadDadliestCatch ./lib*.so'
+
+ARCHIVE_GAME_DATA_PATH='Octodad Dadliest Catch'
+ARCHIVE_GAME_DATA_FILES='./*'
 
 CONFIG_FILES='./*.xml'
 DATA_FILES='./*.odad ./*.txt'
@@ -59,11 +62,14 @@ APP_MAIN_EXE='OctodadDadliestCatch'
 APP_MAIN_ICON='./icon_512x512.png'
 APP_MAIN_ICON_RES='512'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libgl1-mesa-glx | libgl1'
-PKG_MAIN_DEPS_ARCH='lib32-libgl'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-libgl"
 
 # Load common functions
 
@@ -88,12 +94,17 @@ fi
 extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -111,7 +122,9 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
 build_pkg
 
 # Clean up
@@ -120,6 +133,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
