@@ -1,22 +1,24 @@
 # set archive for data extraction
 # USAGE: set_archive $name $archive[…]
 # NEEDED_VARS: SOURCE_ARCHIVE
-# CALLS: set_archive_print
+# CALLS: check_deps file_checksum set_archive_print
 set_archive() {
 	local name=$1
 	shift 1
+	unset $name
 	for archive in "$@"; do
 		if [ -f "$archive" ]; then
 			export $name="$archive"
 			set_archive_print "$archive"
-			return 0
 		elif [ -f "${SOURCE_ARCHIVE%/*}/$archive" ]; then
 			export $name="${SOURCE_ARCHIVE%/*}/$archive"
 			set_archive_print "${SOURCE_ARCHIVE%/*}/$archive"
-			return 0
 		fi
 	done
-	unset $name
+	if [ -n "$(eval echo \$$name)" ]; then
+		check_deps
+		file_checksum "$(eval echo \$$name)"
+	fi
 }
 
 # set source archive for data extraction
