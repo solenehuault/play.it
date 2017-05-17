@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170517.1
 
 # Set game-specific variables
 
 GAME_ID='legend-of-grimrock'
 GAME_NAME='Legend of Grimrock'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_legend_of_grimrock_2.1.0.5.sh'
 ARCHIVE_GOG_MD5='b63089766247484f5d2b214d924425f6'
@@ -65,7 +67,9 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE_BIN32='Grimrock.bin.x86'
 APP_MAIN_EXE_BIN64='Grimrock.bin.x86_64'
 APP_MAIN_ICON='grimrock.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -96,29 +100,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE"
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN32'
@@ -136,19 +119,14 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN32"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN64"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -163,7 +141,7 @@ EOF
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN32' 'PKG_BIN64'
-build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+build_pkg
 
 # Clean up
 
