@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170517.2
+library_revision=20170517.3
 
 # set package distribution-specific architecture
 # USAGE: set_arch
@@ -179,7 +179,6 @@ set_source_archive() {
 set_archive() {
 	local name=$1
 	shift 1
-	unset $name
 	for archive in "$@"; do
 		local file="$(eval echo \$$archive)"
 		if [ -f "$file" ]; then
@@ -191,6 +190,7 @@ set_archive() {
 			return 0
 		fi
 	done
+	unset $name
 }
 
 # set archive-specific variables
