@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170516.1
+script_version=20170517.1
 
 # Set game-specific variables
 
@@ -130,21 +130,19 @@ fi
 
 # Load patch if using GOG English archive
 
-if [ "${SOURCE_ARCHIVE##*/}" = "$ARCHIVE_GOG_EN" ]; then
-	MAIN_ARCHIVE="$SOURCE_ARCHIVE"
-	unset ARCHIVE SOURCE_ARCHIVE
-	set_source_archive 'ARCHIVE_GOG_EN_PATCH'
-	file_checksum "$SOURCE_ARCHIVE"
-	PATCH_ARCHIVE="$SOURCE_ARCHIVE"
-	SOURCE_ARCHIVE="$MAIN_ARCHIVE"
+if [ "$ARCHIVE" = 'ARCHIVE_GOG_EN' ]; then
+	set_archive 'PATCH_ARCHIVE' 'ARCHIVE_GOG_EN_PATCH'
 	ARCHIVE='ARCHIVE_GOG_EN'
 fi
 
 # Extract game data
 
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "${SOURCE_ARCHIVE##*/}" = "$ARCHIVE_GOG_EN" ]; then
-	extract_data_from "$PATCH_ARCHIVE"
+if [ "$PATCH_ARCHIVE" ]; then
+	(
+		ARCHIVE='PATCH_ARCHIVE'
+		extract_data_from "$PATCH_ARCHIVE"
+	)
 fi
 
 PKG='PKG_BIN'
