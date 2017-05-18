@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170518.2
 
 # Set game-specific variables
 
@@ -48,17 +48,23 @@ ARCHIVE_HUMBLE_MD5='15e8377d2cac99a52407cb399bd1ee7c'
 ARCHIVE_HUMBLE_SIZE='71000'
 ARCHIVE_HUMBLE_VERSION='1.17b-humble160829'
 
-ARCHIVE_GAME_PATH='RegencySolitaireV117b'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='RegencySolitaireV117b'
+ARCHIVE_GAME_BIN_FILES='./RegencySolitaire'
+
+ARCHIVE_GAME_DATA_PATH='RegencySolitaireV117b'
+ARCHIVE_GAME_DATA_FILES='./data'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='RegencySolitaire'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_BIN PKG_DATA'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu1-mesa | libglu1'
-PKG_MAIN_DEPS_ARCH='glu'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID glu"
 
 # Load common functions
 
@@ -83,12 +89,17 @@ fi
 extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -102,6 +113,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
