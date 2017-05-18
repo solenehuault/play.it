@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.1
 
 # Set game-specific variables
 
 GAME_ID='shadowrun-dragonfall'
 GAME_NAME='Shadowrun: Dragonfall'
+
+ARCHIVES_LIST='ARCHIVE_GOG ARCHIVE_HUMBLE'
 
 ARCHIVE_GOG='gog_shadowrun_dragonfall_director_s_cut_2.6.0.10.sh'
 ARCHIVE_GOG_MD5='9ec016b74004e8def71d64023beb70f3'
@@ -77,7 +79,9 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./Dragonfall'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='./Dragonfall_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_ICON_RES='128'
+
+PACKAGES_LIST='PKG_DATA_BERLIN PKG_DATA_SEATTLE PKG_DATA PKG_BIN'
 
 PKG_DATA_BERLIN_ID="${GAME_ID}-data-berlin"
 PKG_DATA_BERLIN_DESCRIPTION='data - Berlin'
@@ -86,13 +90,11 @@ PKG_DATA_SEATTLE_ID="${GAME_ID}-data-seattle"
 PKG_DATA_SEATTLE_DESCRIPTION='data - Seattle'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DEPS_DEB="$PKG_DATA_BERLIN_ID, $PKG_DATA_SEATTLE_ID"
-PKG_DATA_DEPS_ARCH="$PKG_DATA_BERLIN_ID $PKG_DATA_SEATTLE_ID"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libqtgui4, libqt4-network, libxcursor1, libxrandr2"
-PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-qt4 lib32-libxcursor lib32-libxrandr"
+PKG_BIN_DEPS_DEB="$PKG_DATA_BERLIN_ID, $PKG_DATA_SEATTLE_ID, $PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libqtgui4, libqt4-network, libxcursor1, libxrandr2"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_BERLIN_ID $PKG_DATA_SEATTLE_ID $PKG_DATA_ID lib32-glu lib32-qt4 lib32-libxcursor lib32-libxrandr"
 
 # Load common functions
 
@@ -112,47 +114,11 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
-
-case "$ARCHIVE" in
-	('ARCHIVE_GOG')
-		ARCHIVE_GAME_BIN_PATH="$ARCHIVE_GAME_BIN_PATH_GOG"
-		ARCHIVE_GAME_DATA_BERLIN_PATH="$ARCHIVE_GAME_DATA_BERLIN_PATH_GOG"
-		ARCHIVE_GAME_DATA_SEATTLE_PATH="$ARCHIVE_GAME_DATA_SEATTLE_PATH_GOG"
-		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_GOG"
-	;;
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_GAME_BIN_PATH="$ARCHIVE_GAME_BIN_PATH_HUMBLE"
-		ARCHIVE_GAME_DATA_BERLIN_PATH="$ARCHIVE_GAME_DATA_BERLIN_PATH_HUMBLE"
-		ARCHIVE_GAME_DATA_SEATTLE_PATH="$ARCHIVE_GAME_DATA_SEATTLE_PATH_HUMBLE"
-		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_HUMBLE"
-	;;
-esac
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA_BERLIN' 'PKG_DATA_SEATTLE' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
+	ARCHIVE_HUMBLE_TYPE='tar.gz'
 	extract_data_from "$PLAYIT_WORKDIR/gamedata"/*.tar.gz
 	rm --recursive --force "$PLAYIT_WORKDIR/gamedata/__MACOSX"
 	rm "$PLAYIT_WORKDIR/gamedata"/*.tar.gz
@@ -176,10 +142,12 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_BIN'
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
+
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -194,7 +162,7 @@ EOF
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN' 'PKG_DATA_BERLIN' 'PKG_DATA_SEATTLE'
-build_pkg 'PKG_BIN' 'PKG_DATA_BERLIN' 'PKG_DATA_SEATTLE' 'PKG_DATA'
+build_pkg
 
 # Clean up
 
