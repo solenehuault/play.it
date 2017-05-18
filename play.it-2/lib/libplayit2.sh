@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170518.2
+library_revision=20170518.3
 
 # set package distribution-specific architecture
 # USAGE: set_arch $pkg
@@ -836,7 +836,12 @@ extract_and_sort_icons_from() {
 	local pkg_path="$(eval echo \$${PKG}_PATH)"
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'sort_icons'
-		app_icon="$(eval echo \$${app}_ICON)"
+		if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${app}_ICON_${ARCHIVE#ARCHIVE_})" ]; then
+			app_icon="$(eval echo \$${app}_ICON_${ARCHIVE#ARCHIVE_})"
+			export ${app}_ICON="$app_icon"
+		else
+			app_icon="$(eval echo \$${app}_ICON)"
+		fi
 		extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
 		if [ "${app_icon##*.}" = 'exe' ]; then
 			extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
