@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170518.2
 
 # Set game-specific variables
 
@@ -54,8 +54,11 @@ ARCHIVE_DOC1_FILES='./*.txt ./*.pdf'
 ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./eula.txt ./gog_eula.txt'
 
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./anims ./cfg ./connect.bat ./data ./datam ./dos4gw.exe ./goggame-1207659026.ico ./hospital.cfg ./hospital.exe ./intro ./levels ./modem.ini ./qdata ./qdatam ./save ./sound'
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.bat ./*/*/*.bat ./*.exe ./*/*.exe ./*/*/*.exe ./*.cfg ./*.ini ./*/*.ini'
+
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./anims ./cfg ./data ./datam ./goggame-1207659026.ico ./intro ./levels ./qdata ./qdatam ./save ./sound'
 
 CONFIG_FILES='./*.ini ./*.cfg'
 DATA_DIRS='./save'
@@ -65,11 +68,14 @@ APP_MAIN_EXE='hospital.exe'
 APP_MAIN_ICON='goggame-1207659026.ico'
 APP_MAIN_ICON_RES='16 32 48 256'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='dosbox'
-PKG_MAIN_DEPS_ARCH='dosbox'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
@@ -93,17 +99,22 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 extract_and_sort_icons_from 'APP_MAIN'
-rm "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -117,6 +128,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
