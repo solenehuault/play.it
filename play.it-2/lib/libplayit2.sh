@@ -33,17 +33,25 @@
 ###
 
 library_version=2.0
-library_revision=20170517.4
+library_revision=20170518.1
 
 # set package distribution-specific architecture
-# USAGE: set_arch
-# NEEDED VARS: $PACKAGE_TYPE
+# USAGE: set_arch $pkg
+# CALLS: liberror
+# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH) pkg
 # CALLED BY: set_workdir_pkg write_metadata
 set_arch() {
+	local architecture
+	if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
+		architecture="$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})"
+		export ${1}_ARCH="$architecture"
+	else
+		architecture="$(eval echo \$${1}_ARCH)"
+	fi
 	case $PACKAGE_TYPE in
 
 		('arch')
-			case "$(eval echo \$${pkg}_ARCH)" in
+			case "$architecture" in
 				('32'|'64')
 					pkg_arch='x86_64'
 				;;
@@ -54,7 +62,7 @@ set_arch() {
 		;;
 
 		('deb')
-			case "$(eval echo \$${pkg}_ARCH)" in
+			case "$architecture" in
 				('32')
 					pkg_arch='i386'
 				;;
@@ -65,6 +73,10 @@ set_arch() {
 					pkg_arch='all'
 				;;
 			esac
+		;;
+
+		(*)
+			liberror 'PACKAGE_TYPE' 'set_arch'
 		;;
 
 	esac
@@ -501,16 +513,16 @@ set_workdir_workdir() {
 # CALLED BY: set_workdir
 set_workdir_pkg() {
 	local pkg_id
-	if [ "$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})" ]; then
-		pkg_id="$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})"
-	elif [ "$(eval echo \$${pkg}_ID)" ]; then
-		pkg_id="$(eval echo \$${pkg}_ID)"
+	if [ "$(eval echo \$${1}_ID_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_id="$(eval echo \$${1}_ID_${ARCHIVE#ARCHIVE_})"
+	elif [ "$(eval echo \$${1}_ID)" ]; then
+		pkg_id="$(eval echo \$${1}_ID)"
 	else
 		pkg_id="$GAME_ID"
 	fi
-	eval $(echo export ${pkg}_ID="$pkg_id")
+	eval $(echo export ${1}_ID="$pkg_id")
 
-	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	local pkg_version="$(eval echo \$${1}_VERSION)"
 	if [ ! "$pkg_version" ]; then
 		pkg_version="$PKG_VERSION"
 	fi
@@ -519,15 +531,15 @@ set_workdir_pkg() {
 	fi
 
 	local pkg_arch
-	set_arch
+	set_arch "$1"
 
-	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
+	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
 		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
 	else
 		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 	fi
 
-	export ${pkg}_PATH="$pkg_path"
+	export ${1}_PATH="$pkg_path"
 }
 
 # Check library version against script target version
@@ -853,6 +865,7 @@ write_bin() {
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
 			local app_prerun="$(eval echo \$${app}_PRERUN)"
+			local app_postrun="$(eval echo \$${app}_POSTRUN)"
 			[ "$app_exe" ]  || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
 			[ "$app_libs" ] || app_libs="$(eval echo \"\$${app}_LIBS_${PKG#PKG_}\")"
 			if [ "$app_type" = 'native' ]; then
@@ -1187,6 +1200,15 @@ write_bin_run_dosbox() {
 
 	cat >> "$file" <<- 'EOF'
 	$APP_EXE $APP_OPTIONS $@
+	EOF
+
+	if [ "$app_postrun" ]; then
+		cat >> "$file" <<- EOF
+		$app_postrun
+		EOF
+	fi
+
+	cat >> "$file" <<- 'EOF'
 	exit"
 	EOF
 }
@@ -1359,7 +1381,7 @@ write_metadata() {
 
 		# Set package-specific variables
 		local pkg_arch
-		set_arch
+		set_arch "$pkg"
 		local pkg_id="$(eval echo \$${pkg}_ID)"
 		local pkg_maint="$(whoami)@$(hostname)"
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
@@ -1430,7 +1452,12 @@ pkg_print() {
 # USAGE: pkg_write_arch
 # CALLED BY: write_metadata
 pkg_write_arch() {
-	local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+	local pkg_deps
+	if [ "$(eval echo \$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_})"
+	else
+		pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+	fi
 	local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 	local target="$pkg_path/.PKGINFO"
 
