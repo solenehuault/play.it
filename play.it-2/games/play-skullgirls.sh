@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.1
 
 # Set game-specific variables
 
 GAME_ID='skullgirls'
 GAME_NAME='Skullgirls'
+
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
 ARCHIVE_HUMBLE='Skullgirls-1.0.1.sh'
 ARCHIVE_HUMBLE_MD5='bf110f7d29bfd4b9e075584e41fef402'
@@ -49,29 +51,29 @@ ARCHIVE_HUMBLE_VERSION='1.0.1-humble152310'
 
 ARCHIVE_GAME_DATA_PATH='data/noarch'
 ARCHIVE_GAME_DATA_FILES='./*'
+
 ARCHIVE_GAME_BIN32_PATH='data/i686'
 ARCHIVE_GAME_BIN32_FILES='./*'
+
 ARCHIVE_GAME_BIN64_PATH='data/x86_64'
 ARCHIVE_GAME_BIN64_FILES='./*'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='SkullGirls.i686-pc-linux-gnu'
-APP_MAIN_EXE_64='SkullGirls.x86_64-pc-linux-gnu'
+APP_MAIN_EXE_BIN32='SkullGirls.i686-pc-linux-gnu'
+APP_MAIN_EXE_BIN64='SkullGirls.x86_64-pc-linux-gnu'
 APP_MAIN_ICON='Icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_CONFLICTS_DEB="$GAME_ID"
-PKG_BIN32_CONFLICTS_ARCH="$GAME_ID"
 PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl2-mixer-2.0-0, libsdl2-2.0-0"
 PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-sdl2 lib32-sdl2_mixer"
 
 PKG_BIN64_ARCH='64'
-PKG_BIN64_CONFLICTS_DEB="$GAME_ID"
-PKG_BIN64_CONFLICTS_ARCH="$GAME_ID"
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
 PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID sdl2 sdl2_mixer"
 
@@ -93,30 +95,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_DATA' 'PKG_BIN32' 'PKG_BIN64'
 extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_DATA'
@@ -132,17 +112,14 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
+
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -157,7 +134,7 @@ EOF
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN32' 'PKG_BIN64'
-build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+build_pkg
 
 # Clean up
 
