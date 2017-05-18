@@ -13,7 +13,7 @@ write_metadata() {
 
 		# Set package-specific variables
 		local pkg_arch
-		set_arch
+		set_arch "$pkg"
 		local pkg_id="$(eval echo \$${pkg}_ID)"
 		local pkg_maint="$(whoami)@$(hostname)"
 		local pkg_path="$(eval echo \$${pkg}_PATH)"

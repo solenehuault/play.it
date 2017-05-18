@@ -47,16 +47,16 @@ set_workdir_workdir() {
 # CALLED BY: set_workdir
 set_workdir_pkg() {
 	local pkg_id
-	if [ "$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})" ]; then
-		pkg_id="$(eval echo \$${pkg}_ID_${ARCHIVE#ARCHIVE_})"
-	elif [ "$(eval echo \$${pkg}_ID)" ]; then
-		pkg_id="$(eval echo \$${pkg}_ID)"
+	if [ "$(eval echo \$${1}_ID_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_id="$(eval echo \$${1}_ID_${ARCHIVE#ARCHIVE_})"
+	elif [ "$(eval echo \$${1}_ID)" ]; then
+		pkg_id="$(eval echo \$${1}_ID)"
 	else
 		pkg_id="$GAME_ID"
 	fi
-	eval $(echo export ${pkg}_ID="$pkg_id")
+	eval $(echo export ${1}_ID="$pkg_id")
 
-	local pkg_version="$(eval echo \$${pkg}_VERSION)"
+	local pkg_version="$(eval echo \$${1}_VERSION)"
 	if [ ! "$pkg_version" ]; then
 		pkg_version="$PKG_VERSION"
 	fi
@@ -65,14 +65,14 @@ set_workdir_pkg() {
 	fi
 
 	local pkg_arch
-	set_arch
+	set_arch "$1"
 
-	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${pkg}_ARCH)" = '32' ]; then
+	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
 		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
 	else
 		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
 	fi
 
-	export ${pkg}_PATH="$pkg_path"
+	export ${1}_PATH="$pkg_path"
 }
 
