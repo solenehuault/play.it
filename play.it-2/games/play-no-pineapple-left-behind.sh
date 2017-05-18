@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170518.1
 
 # Set game-specific variables
 
@@ -63,6 +63,7 @@ ARCHIVE_GAME_DATA_FILES='./*_Data'
 DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
+APP_MAIN_PRERUN='pulseaudio --start'
 APP_MAIN_EXE_BIN32='./nplb.x86'
 APP_MAIN_EXE_BIN64='./nplb.x86_64'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log -force-opengl'
@@ -75,12 +76,12 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa-glx | libgl1, libc6, libxcursor1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl lib32-glibc lib32-libxcursor"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa-glx | libgl1, libc6, libxcursor1, pulseaudio:amd64 | pulseaudio"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl lib32-glibc lib32-libxcursor pulseaudio"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID libgl glibc libxcursor"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID libgl glibc libxcursor pulseaudio"
 
 # Load common functions
 
