@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170515.1
+script_version=20170518.1
 
 # Set game-specific variables
 
 GAME_ID='warsow'
 GAME_NAME='War§ow'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_warsow_2.1.0.3.sh'
 ARCHIVE_GOG_MD5='028efe7a5f4dfd8851c2146431c7ca4a'
@@ -48,33 +50,37 @@ ARCHIVE_GOG_VERSION='2.1-gog2.1.0.3'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/games/docs'
 ARCHIVE_DOC2_FILES='./*'
-ARCHIVE_GAME_32_PATH='data/noarch/game'
-ARCHIVE_GAME_32_FILES='./*.i386 libs/*_i386.so'
-ARCHIVE_GAME_64_PATH='data/noarch/game'
-ARCHIVE_GAME_64_FILES='./*.x86_64 libs/*_x86_64.so'
-ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./basewsw'
+
+ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN32_FILES='./*.i386 libs/*_i386.so'
+
+ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN64_FILES='./*.x86_64 libs/*_x86_64.so'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./basewsw'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='warsow.i386'
-APP_MAIN_EXE_64='warsow.x86_64'
+APP_MAIN_EXE_BIN32='warsow.i386'
+APP_MAIN_EXE_BIN64='warsow.x86_64'
 APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256x256'
+APP_MAIN_ICON_RES='256'
 
-PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_DESCRIPTION='arch-independant data'
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
-PKG_32_ARCH='32'
-PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID glu"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_64_ARCH='64'
-PKG_64_CONFLICTS_DEB="$GAME_ID"
-PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_32_DEPS_ARCH"
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID glu"
+
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
 
 # Load common functions
 
@@ -94,61 +100,37 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_32'
-organize_data 'GAME_32' "$PATH_GAME"
-PKG='PKG_64'
-organize_data 'GAME_64' "$PATH_GAME"
-PKG='PKG_MAIN'
-organize_data 'GAME_MAIN' "$PATH_GAME"
-organize_data 'DOC' "$PATH_DOC"
+PKG='PKG_BIN32'
+organize_data 'GAME_BIN32' "$PATH_GAME"
 
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+PKG='PKG_BIN64'
+organize_data 'GAME_BIN64' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
+
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+mkdir --parents "${PKG_DATA_PATH}${PATH_ICON}"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "${PKG_DATA_PATH}${PATH_ICON}/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata
+build_pkg
 
 # Clean up
 
@@ -156,9 +138,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
-printf '\n64-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0
