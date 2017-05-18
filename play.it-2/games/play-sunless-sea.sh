@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170518.2
 
 # Set game-specific variables
 
@@ -58,6 +58,7 @@ ARCHIVE_HUMBLE_MD5='bdb37932e56fd0655a2e4263631e2582'
 ARCHIVE_HUMBLE_VERSION='2.2.2.3129-humble170131'
 ARCHIVE_HUMBLE_SIZE='700000'
 
+ARCHIVE_DOC_1_PATH_ZUBMARINER_GOG='data/noarch/game'
 ARCHIVE_DOC_1_PATH_GOG='data/noarch/game'
 ARCHIVE_DOC_1_PATH_HUMBLE='data/noarch'
 ARCHIVE_DOC_1_FILES='./README.linux'
@@ -65,6 +66,7 @@ ARCHIVE_DOC_1_FILES='./README.linux'
 ARCHIVE_DOC_2_PATH_GOG='data/noarch/docs'
 ARCHIVE_DOC_2_FILES_GOG='./*'
 
+ARCHIVE_GAME_BIN32_1_PATH_ZUBMARINER_GOG='data/noarch/game'
 ARCHIVE_GAME_BIN32_1_PATH_GOG='data/noarch/game'
 ARCHIVE_GAME_BIN32_1_PATH_HUMBLE='data/noarch'
 ARCHIVE_GAME_BIN32_1_FILES='./*.x86 ./*_Data/*/x86'
@@ -72,6 +74,7 @@ ARCHIVE_GAME_BIN32_1_FILES='./*.x86 ./*_Data/*/x86'
 ARCHIVE_GAME_BIN32_2_PATH_HUMBLE='data/x86'
 ARCHIVE_GAME_BIN32_2_FILES='./*.x86 ./*_Data/*/x86'
 
+ARCHIVE_GAME_BIN64_1_PATH_ZUBMARINER_GOG='data/noarch/game'
 ARCHIVE_GAME_BIN64_1_PATH_GOG='data/noarch/game'
 ARCHIVE_GAME_BIN64_1_PATH_HUMBLE='data/noarch'
 ARCHIVE_GAME_BIN64_1_FILES='./*.x86_64 ./*_Data/*/x86_64'
@@ -79,6 +82,7 @@ ARCHIVE_GAME_BIN64_1_FILES='./*.x86_64 ./*_Data/*/x86_64'
 ARCHIVE_GAME_BIN64_2_PATH_HUMBLE='data/x86_64'
 ARCHIVE_GAME_BIN64_2_FILES='./*.x86_64 ./*_Data/*/x86_64'
 
+ARCHIVE_GAME_DATA_PATH_ZUBMARINER_GOG='data/noarch/game'
 ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
 ARCHIVE_GAME_DATA_PATH_HUMBLE='data/noarch'
 ARCHIVE_GAME_DATA_FILES='./*'
