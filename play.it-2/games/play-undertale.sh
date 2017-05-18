@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170518.2
 
 # Set game-specific variables
 
@@ -51,19 +51,25 @@ ARCHIVE_GOG_VERSION='1.001-gog2.0.0.1'
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./UNDERTALE'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./assets'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='UNDERTALE'
 APP_MAIN_ICON='assets/icon.png'
 APP_MAIN_ICON_RES='64'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu1-mesa | libglu1, libopenal1, libxrandr2, libssl1.0.0'
-PKG_MAIN_DEPS_ARCH='lib32-glu lib32-openal lib32-libxrandr lib32-openssl'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libopenal1, libxrandr2, libssl1.0.0"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-openal lib32-libxrandr lib32-openssl"
 
 # Load common functions
 
@@ -87,13 +93,18 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC'  "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -111,7 +122,9 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadat 'PKG_BIN'
 build_pkg
 
 # Clean up
@@ -120,6 +133,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0
