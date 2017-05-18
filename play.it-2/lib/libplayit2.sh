@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170518.1
+library_revision=20170518.2
 
 # set package distribution-specific architecture
 # USAGE: set_arch $pkg
@@ -191,17 +191,27 @@ set_source_archive() {
 set_archive() {
 	local name=$1
 	shift 1
-	for archive in "$@"; do
-		local file="$(eval echo \$$archive)"
-		if [ -f "$file" ]; then
-			set_archive_vars "$archive" "$name" "$file"
-			return 0
-		elif [ -n "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
-			file="${SOURCE_ARCHIVE%/*}/$file"
-			set_archive_vars "$archive" "$name" "$file"
-			return 0
-		fi
-	done
+	if [ -n "$(eval echo \$$name)" ]; then
+		for archive in "$@"; do
+			local file="$(eval echo \$$archive)"
+			if [ "$(basename "$(eval echo \$$name)")" = "$file" ]; then
+				set_archive_vars "$archive" "$name" "$(eval echo \$$name)"
+				return 0
+			fi
+		done
+	else
+		for archive in "$@"; do
+			local file="$(eval echo \$$archive)"
+			if [ -f "$file" ]; then
+				set_archive_vars "$archive" "$name" "$file"
+				return 0
+			elif [ -n "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+				file="${SOURCE_ARCHIVE%/*}/$file"
+				set_archive_vars "$archive" "$name" "$file"
+				return 0
+			fi
+		done
+	fi
 	unset $name
 }
 
