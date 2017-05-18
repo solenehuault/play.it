@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170518.2
 
 # Set game-specific variables
 
@@ -106,14 +106,16 @@ fi
 
 # Try to load icons archive
 
+ARCHIVE_MAIN="$ARCHIVE"
 set_archive 'ICONS_PACK' 'ARCHIVE_ICONS'
+ARCHIVE="$ARCHIVE_MAIN"
 
 # Extract game data
 
 extract_data_from "$SOURCE_ARCHIVE"
 (
 	if [ "$ICONS_PACK" ]; then
-		ARCHIVE='ARCHIVE_ICONS'
+		ARCHIVE='ICONS_PACK'
 		extract_data_from "$ICONS_PACK"
 	fi
 )
