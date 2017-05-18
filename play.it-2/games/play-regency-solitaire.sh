@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.1
 
 # Set game-specific variables
 
 GAME_ID='regency-solitaire'
 GAME_NAME='Regency Solitaire'
+
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
 ARCHIVE_HUMBLE='RegencySolitaireV117b_1472495785.tar.gz'
 ARCHIVE_HUMBLE_MD5='15e8377d2cac99a52407cb399bd1ee7c'
@@ -51,6 +53,8 @@ ARCHIVE_GAME_FILES='./*'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='RegencySolitaire'
+
+PACKAGES_LIST='PKG_MAIN'
 
 PKG_MAIN_ARCH='64'
 PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu1-mesa | libglu1'
@@ -74,29 +78,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
@@ -106,13 +89,12 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata
+build_pkg
 
 # Clean up
 
