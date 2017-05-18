@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.2
 
 # Set game-specific variables
 
@@ -42,6 +42,8 @@ SCRIPT_DEPS='find'
 
 GAME_ID='the-swapper'
 GAME_NAME='The Swapper'
+
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
 ARCHIVE_HUMBLE='the-swapper-linux-1.24_1409159048.sh'
 ARCHIVE_HUMBLE_MD5='4f9627d245388edc320f61fae7cbd29f'
@@ -51,39 +53,38 @@ ARCHIVE_HUMBLE_TYPE='mojosetup'
 
 ARCHIVE_ICONS='the-swapper_icons.tar.gz'
 ARCHIVE_ICONS_MD5='cddcf271fb6eb10fba870aa91c30c410'
-ARCHIVE_ICONS_TYPE='tar.gz'
 
 ARCHIVE_DOC_PATH='data/noarch'
 ARCHIVE_DOC_FILES='./README* ./Licences'
 
-ARCHIVE_GAME_32_PATH='data/noarch'
-ARCHIVE_GAME_32_FILES='./TheSwapper.bin.x86 ./lib'
+ARCHIVE_GAME_BIN32_PATH='data/noarch'
+ARCHIVE_GAME_BIN32_FILES='./TheSwapper.bin.x86 ./lib'
 
-ARCHIVE_GAME_64_PATH='data/noarch'
-ARCHIVE_GAME_64_FILES='./TheSwapper.bin.x86_64 ./lib64'
+ARCHIVE_GAME_BIN64_PATH='data/noarch'
+ARCHIVE_GAME_BIN64_FILES='./TheSwapper.bin.x86_64 ./lib64'
 
-ARCHIVE_GAME_MAIN_PATH='data/noarch'
-ARCHIVE_GAME_MAIN_FILES='./*'
+ARCHIVE_GAME_DATA_PATH='data/noarch'
+ARCHIVE_GAME_DATA_FILES='./*'
 
 ARCHIVE_ICONS_PATH='.'
 ARCHIVE_ICONS_FILES='./16x16 ./32x32 ./48x48 ./128x128'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='TheSwapper.bin.x86'
-APP_MAIN_EXE_64='TheSwapper.bin.x86_64'
+APP_MAIN_EXE_BIN32='TheSwapper.bin.x86'
+APP_MAIN_EXE_BIN64='TheSwapper.bin.x86_64'
 
-PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_DESCRIPTION='arch-independant data'
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
-PKG_32_ARCH='32'
-PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libc6, libstdc++6, libsdl2-2.0-0, libsdl2-image-2.0-0"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID lib32-glu lib32-sdl2 lib32-sdl2_image"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_64_ARCH='64'
-PKG_64_CONFLICTS_DEB="$GAME_ID"
-PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_MAIN_ID glu sdl2 sdl2_image"
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0, libsdl2-image-2.0-0"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-sdl2 lib32-sdl2_image"
+
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glu sdl2 sdl2_image"
 
 # Load common functions
 
@@ -103,52 +104,33 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
+# Try to load icons archive
 
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE'
-set_archive 'ICONS_PACK' "$ARCHIVE_ICONS"
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE"
-if [ "$ICONS_PACK" ]; then
-	ARCHIVE_REAL="$ARCHIVE"
-	ARCHIVE='ARCHIVE_ICONS'
-	file_checksum "$ICONS_PACK"
-	ARCHIVE="$ARCHIVE_REAL"
-fi
+ARCHIVE_MAIN="$ARCHIVE"
+set_archive 'ICONS_PACK' 'ARCHIVE_ICONS'
+ARCHIVE="$ARCHIVE_MAIN"
 
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "$ICONS_PACK" ]; then
-	ARCHIVE='ARCHIVE_ICONS'
-	extract_data_from "$ICONS_PACK"
-fi
+(
+	if [ "$ICONS_PACK" ]; then
+		ARCHIVE='ICONS_PACK'
+		extract_data_from "$ICONS_PACK"
+	fi
+)
 
 find "$PLAYIT_WORKDIR/gamedata" -name '*:com.dropbox.attributes:$DATA' -delete
 
-PKG='PKG_32'
-organize_data 'GAME_32' "$PATH_GAME"
+PKG='PKG_BIN32'
+organize_data 'GAME_BIN32' "$PATH_GAME"
 
-PKG='PKG_64'
-organize_data 'GAME_64' "$PATH_GAME"
+PKG='PKG_BIN64'
+organize_data 'GAME_BIN64' "$PATH_GAME"
 
-PKG='PKG_MAIN'
-organize_data 'GAME_MAIN' "$PATH_GAME"
+PKG='PKG_DATA'
 organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 if [ "$ICONS_PACK" ]; then
 	organize_data 'ICONS' "$PATH_ICON_BASE"
 fi
@@ -157,21 +139,14 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata
+build_pkg
 
 # Clean up
 
@@ -179,9 +154,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
-printf '\n64-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0

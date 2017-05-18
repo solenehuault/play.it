@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.2
 
 # Set game-specific variables
 
 GAME_ID='theme-hospital'
 GAME_NAME='Theme Hospital'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='setup_theme_hospital_2.1.0.8.exe'
 ARCHIVE_GOG_MD5='c1dc6cd19a3e22f7f7b31a72957babf7'
@@ -48,10 +50,15 @@ ARCHIVE_GOG_VERSION='1.0-gog2.0.0.7'
 
 ARCHIVE_DOC1_PATH='app'
 ARCHIVE_DOC1_FILES='./*.txt ./*.pdf'
+
 ARCHIVE_DOC2_PATH='tmp'
 ARCHIVE_DOC2_FILES='./eula.txt ./gog_eula.txt'
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./anims ./cfg ./connect.bat ./data ./datam ./dos4gw.exe ./goggame-1207659026.ico ./hospital.cfg ./hospital.exe ./intro ./levels ./modem.ini ./qdata ./qdatam ./save ./sound'
+
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.bat ./*/*/*.bat ./*.exe ./*/*.exe ./*/*/*.exe ./*.cfg ./*.ini ./*/*.ini'
+
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./anims ./cfg ./data ./datam ./goggame-1207659026.ico ./intro ./levels ./qdata ./qdatam ./save ./sound'
 
 CONFIG_FILES='./*.ini ./*.cfg'
 DATA_DIRS='./save'
@@ -59,10 +66,16 @@ DATA_DIRS='./save'
 APP_MAIN_TYPE='dosbox'
 APP_MAIN_EXE='hospital.exe'
 APP_MAIN_ICON='goggame-1207659026.ico'
-APP_MAIN_ICON_RES='16x16 32x32 48x48 256x256'
+APP_MAIN_ICON_RES='16 32 48 256'
 
-PKG_MAIN_DEPS_DEB='dosbox'
-PKG_MAIN_DEPS_ARCH='dosbox'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, dosbox"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID dosbox"
 
 # Load common functions
 
@@ -82,49 +95,32 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 extract_and_sort_icons_from 'APP_MAIN'
-rm "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata
+build_pkg
 
 # Clean up
 
@@ -132,6 +128,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
 
 exit 0

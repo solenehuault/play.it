@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.1
 
 # Set game-specific variables
 
 GAME_ID='runner-2'
 GAME_NAME='Runner2: Future Legend of Rhythm Alien'
+
+ARCHIVES_LIST='ARCHIVE_HUMBLE_32 ARCHIVE_HUMBLE_64'
 
 ARCHIVE_HUMBLE_32='runner2_i386_1388171186.tar.gz'
 ARCHIVE_HUMBLE_32_MD5='ea105bdcd486879fb99889b87e90eed5'
@@ -53,22 +55,28 @@ ARCHIVE_HUMBLE_64_VERSION='1.0-humble1388171186'
 
 ARCHIVE_DOC_PATH='runner2-1.0'
 ARCHIVE_DOC_FILES='./README*'
+
 ARCHIVE_GAME_BIN_PATH='runner2-1.0/runner2'
 ARCHIVE_GAME_BIN_FILES='./runner2 ./*.so'
+
 ARCHIVE_GAME_DATA_PATH='runner2-1.0/runner2'
 ARCHIVE_GAME_DATA_FILES='./Effects ./Fonts ./Gameplay ./Graphics ./Menus ./Models ./package.toc ./Runner2.png ./Shaders ./Sounds ./Textures'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='runner2'
 APP_MAIN_ICON='./Runner2.png'
-APP_MAIN_ICON_RES='48x48'
+APP_MAIN_ICON_RES='48'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
+PKG_BIN_ARCH_HUMBLE_32='32'
+PKG_BIN_ARCH_HUMBLE_64='64'
 PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgcc1, zlib1g, libsdl1.2debian, libgl1-mesa-glx | libgl1"
-PKG_BIN_DEPS_ARCH_64="$PKG_DATA_ID zlib sdl libgl"
-PKG_BIN_DEPS_ARCH_32="$PKG_DATA_ID lib32-zlib lib32-sdl lib32-libgl"
+PKG_BIN_DEPS_ARCH_HUMBLE_64="$PKG_DATA_ID zlib sdl libgl"
+PKG_BIN_DEPS_ARCH_HUMBLE_32="$PKG_DATA_ID lib32-zlib lib32-sdl lib32-libgl"
 
 # Load common functions
 
@@ -88,42 +96,9 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_HUMBLE_32' 'ARCHIVE_HUMBLE_64'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_HUMBLE_32' 'ARCHIVE_HUMBLE_64'
-check_deps
-
-case "$ARCHIVE" in
-	('ARCHIVE_HUMBLE_32')
-		PKG_BIN_ARCH='32'
-		PKG_BIN_DEPS_ARCH="$PKG_BIN_DEPS_ARCH_32"
-	;;
-	('ARCHIVE_HUMBLE_64')
-		PKG_BIN_ARCH='64'
-		PKG_BIN_DEPS_ARCH="$PKG_BIN_DEPS_ARCH_64"
-	;;
-esac
-
 # Extract game data
 
-set_workdir 'PKG_BIN' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
-
 fix_rights "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
@@ -138,12 +113,12 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 # Write launchers
 
 PKG='PKG_BIN'
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-PATH_ICON="$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
 
 cat > "$postinst" << EOF
 mkdir --parents "$PATH_ICON"
@@ -159,7 +134,7 @@ write_metadata 'PKG_DATA'
 
 case "$PKG_BIN_ARCH" in
 	
-	('32on64')
+	('32')
 		cat > "$postinst" <<- EOF
 		ln --symbolic 'libfmodevent-4.44.08.so' "$PATH_GAME/libfmodevent.so"
 		ln --symbolic 'libfmodex-4.44.08.so' "$PATH_GAME/libfmodex.so"
@@ -184,8 +159,7 @@ case "$PKG_BIN_ARCH" in
 esac
 
 write_metadata 'PKG_BIN'
-
-build_pkg      'PKG_BIN' 'PKG_DATA'
+build_pkg
 
 # Clean up
 

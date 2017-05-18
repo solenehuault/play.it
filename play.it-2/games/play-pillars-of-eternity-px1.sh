@@ -34,12 +34,15 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.1
 
 # Set game-specific variables
 
+# Copy GAME_ID from play-pillars-of-eternity.sh
 GAME_ID='pillars-of-eternity'
 GAME_NAME='Pillars of Eternity: The White March Part I'
+
+ARCHIVES_LIST='ARCHIVE_GOG'
 
 ARCHIVE_GOG='gog_pillars_of_eternity_white_march_part_1_dlc_2.9.0.11.sh'
 ARCHIVE_GOG_MD5='98424615626c82ed723860d421f187b6'
@@ -48,13 +51,15 @@ ARCHIVE_GOG_VERSION='3.05.1186-gog2.9.0.11'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
+
 ARCHIVE_GAME_PATH='data/noarch/game'
 ARCHIVE_GAME_FILES='./*'
 
+PACKAGES_LIST='PKG_MAIN'
+
 PKG_MAIN_ID="${GAME_ID}-px1"
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="${GAME_ID}"
-PKG_MAIN_DEPS_ARCH="${GAME_ID}"
+PKG_MAIN_DEPS_DEB="$GAME_ID"
+PKG_MAIN_DEPS_ARCH="$GAME_ID"
 
 # Load common functions
 
@@ -74,29 +79,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-check_deps
-
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data 'DOC'  "$PATH_DOC"
@@ -106,9 +90,8 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-
-build_pkg 'PKG_MAIN'
+write_metadata
+build_pkg
 
 # Clean up
 

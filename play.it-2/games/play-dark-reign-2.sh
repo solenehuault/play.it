@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170408.1
+script_version=20170518.1
 
 # Set game-specific variables
 
@@ -64,8 +64,9 @@ DATA_FILES='./dr2.log'
 APP_WINETRICKS='win98'
 
 APP_MAIN_TYPE='wine'
-APP_MAIN_EXE='./launcher.exe'
-APP_MAIN_ICON='./dr2.exe'
+APP_MAIN_PRERUN='regedit dr2-cdkey.reg'
+APP_MAIN_EXE='launcher.exe'
+APP_MAIN_ICON='dr2.exe'
 APP_MAIN_ICON_RES='16 32'
 
 PACKAGES_LIST='PKG_DATA PKG_BIN'
@@ -127,8 +128,6 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
-
-sed -i 's/wine "$APP_EXE" $APP_OPTIONS $@/regedit dr2-cdkey.reg\n&/' "${PKG_BIN_PATH}${PATH_BIN}/$GAME_ID"
 
 # Build package
 

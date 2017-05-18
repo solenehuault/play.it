@@ -2,7 +2,12 @@
 # USAGE: pkg_write_arch
 # CALLED BY: write_metadata
 pkg_write_arch() {
-	local pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+	local pkg_deps
+	if [ "$(eval echo \$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_})"
+	else
+		pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+	fi
 	local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 	local target="$pkg_path/.PKGINFO"
 

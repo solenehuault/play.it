@@ -34,12 +34,14 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.2
 
 # Set game-specific variables
 
 GAME_ID='sunless-sea'
 GAME_NAME='Sunless Sea'
+
+ARCHIVES_LIST='ARCHIVE_ZUBMARINER_GOG ARCHIVE_GOG ARCHIVE_HUMBLE'
 
 ARCHIVE_ZUBMARINER_GOG='gog_sunless_sea_zubmariner_2.5.0.6.sh'
 ARCHIVE_ZUBMARINER_GOG_MD5='692cd0dac832d5254bd38d7e1a05b918'
@@ -56,23 +58,31 @@ ARCHIVE_HUMBLE_MD5='bdb37932e56fd0655a2e4263631e2582'
 ARCHIVE_HUMBLE_VERSION='2.2.2.3129-humble170131'
 ARCHIVE_HUMBLE_SIZE='700000'
 
-ARCHIVE_DOC_PATH_GOG='data/noarch/game'
-ARCHIVE_DOC_PATH_HUMBLE='data/noarch'
-ARCHIVE_DOC_FILES='./README.linux'
+ARCHIVE_DOC_1_PATH_ZUBMARINER_GOG='data/noarch/game'
+ARCHIVE_DOC_1_PATH_GOG='data/noarch/game'
+ARCHIVE_DOC_1_PATH_HUMBLE='data/noarch'
+ARCHIVE_DOC_1_FILES='./README.linux'
 
-ARCHIVE_DOC2_PATH_GOG='data/noarch/docs'
-ARCHIVE_DOC2_FILES_GOG='./*'
+ARCHIVE_DOC_2_PATH_GOG='data/noarch/docs'
+ARCHIVE_DOC_2_FILES_GOG='./*'
 
-ARCHIVE_GAME_BIN32_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_BIN32_PATH_HUMBLE1='data/x86'
-ARCHIVE_GAME_BIN32_PATH_HUMBLE2='data/noarch'
-ARCHIVE_GAME_BIN32_FILES='./*.x86 ./*_Data/*/x86'
+ARCHIVE_GAME_BIN32_1_PATH_ZUBMARINER_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN32_1_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN32_1_PATH_HUMBLE='data/noarch'
+ARCHIVE_GAME_BIN32_1_FILES='./*.x86 ./*_Data/*/x86'
 
-ARCHIVE_GAME_BIN64_PATH_GOG='data/noarch/game'
-ARCHIVE_GAME_BIN64_PATH_HUMBLE1='data/x86_64'
-ARCHIVE_GAME_BIN64_PATH_HUMBLE2='data/noarch'
-ARCHIVE_GAME_BIN64_FILES='./*.x86_64 ./*_Data/*/x86_64'
+ARCHIVE_GAME_BIN32_2_PATH_HUMBLE='data/x86'
+ARCHIVE_GAME_BIN32_2_FILES='./*.x86 ./*_Data/*/x86'
 
+ARCHIVE_GAME_BIN64_1_PATH_ZUBMARINER_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN64_1_PATH_GOG='data/noarch/game'
+ARCHIVE_GAME_BIN64_1_PATH_HUMBLE='data/noarch'
+ARCHIVE_GAME_BIN64_1_FILES='./*.x86_64 ./*_Data/*/x86_64'
+
+ARCHIVE_GAME_BIN64_2_PATH_HUMBLE='data/x86_64'
+ARCHIVE_GAME_BIN64_2_FILES='./*.x86_64 ./*_Data/*/x86_64'
+
+ARCHIVE_GAME_DATA_PATH_ZUBMARINER_GOG='data/noarch/game'
 ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
 ARCHIVE_GAME_DATA_PATH_HUMBLE='data/noarch'
 ARCHIVE_GAME_DATA_FILES='./*'
@@ -81,9 +91,11 @@ APP_MAIN_TYPE='native'
 APP_MAIN_EXE_BIN32='./Sunless Sea.x86'
 APP_MAIN_EXE_BIN64='./Sunless Sea.x86_64'
 APP_MAIN_ICON1='Sunless Sea_Data/Resources/UnityPlayer.png'
-APP_MAIN_ICON1_RES='128x128'
+APP_MAIN_ICON1_RES='128'
 APP_MAIN_ICON2='./Icon.png'
-APP_MAIN_ICON2_RES='256x256'
+APP_MAIN_ICON2_RES='256'
+
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
@@ -114,48 +126,8 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_ZUBMARINER_GOG' 'ARCHIVE_GOG' 'ARCHIVE_HUMBLE'
-check_deps
-set_common_paths
-file_checksum "$SOURCE_ARCHIVE"
-check_deps
-
-case "$ARCHIVE" in
-	('ARCHIVE_ZUBMARINER_GOG'|'ARCHIVE_GOG')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_GOG"
-		ARCHIVE_DOC2_PATH="$ARCHIVE_DOC2_PATH_GOG"
-		ARCHIVE_DOC2_FILES="$ARCHIVE_DOC2_FILES_GOG"
-		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_GOG"
-		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_GOG"
-		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_GOG"
-	;;
-	('ARCHIVE_HUMBLE')
-		ARCHIVE_DOC_PATH="$ARCHIVE_DOC_PATH_HUMBLE"
-		unset ARCHIVE_DOC2_PATH
-		unset ARCHIVE_DOC2_FILES
-		ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE1"
-		ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE1"
-		ARCHIVE_GAME_DATA_PATH="$ARCHIVE_GAME_DATA_PATH_HUMBLE"
-	;;
-esac
-
 # Extract game data
 
-set_workdir 'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
 extract_data_from "$SOURCE_ARCHIVE"
 if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 	ARCHIVE_HUMBLE_TYPE='mojosetup'
@@ -165,58 +137,51 @@ if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
 fi
 
 PKG='PKG_BIN32'
-organize_data 'GAME_BIN32' "$PATH_GAME"
-if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
-	ARCHIVE_GAME_BIN32_PATH="$ARCHIVE_GAME_BIN32_PATH_HUMBLE2"
-	organize_data 'GAME_BIN32' "$PATH_GAME"
-fi
+organize_data 'GAME_BIN32_1' "$PATH_GAME"
+organize_data 'GAME_BIN32_2' "$PATH_GAME"
 
 PKG='PKG_BIN64'
-organize_data 'GAME_BIN64' "$PATH_GAME"
-if [ "$ARCHIVE" = 'ARCHIVE_HUMBLE' ]; then
-	ARCHIVE_GAME_BIN64_PATH="$ARCHIVE_GAME_BIN64_PATH_HUMBLE2"
-	organize_data 'GAME_BIN64' "$PATH_GAME"
-fi
+organize_data 'GAME_BIN64_1' "$PATH_GAME"
+organize_data 'GAME_BIN64_2' "$PATH_GAME"
 
 PKG='PKG_DATA'
+organize_data 'DOC_1'     "$PATH_DOC"
+organize_data 'DOC_2'     "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
-organize_data 'DOC'       "$PATH_DOC"
-organize_data 'DOC2'      "$PATH_DOC"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN32"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_BIN64'
-APP_MAIN_EXE="$APP_MAIN_EXE_BIN64"
-write_bin     'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
+res1="$APP_MAIN_ICON1_RES"
+res2="$APP_MAIN_ICON2_RES"
+PATH_ICON1="$PATH_ICON_BASE/${res1}x${res1}/apps"
+PATH_ICON2="$PATH_ICON_BASE/${res2}x${res2}/apps"
+
 cat > "$postinst" << EOF
-mkdir --parents "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
-mkdir --parents "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON1" "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps/$GAME_ID.png"
-ln --symbolic "$PATH_GAME/$APP_MAIN_ICON2" "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps/$GAME_ID.png"
+mkdir --parents "$PATH_ICON1"
+mkdir --parents "$PATH_ICON2"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON1" "$PATH_ICON1/$GAME_ID.png"
+ln --symbolic "$PATH_GAME/$APP_MAIN_ICON2" "$PATH_ICON2/$GAME_ID.png"
 EOF
 
 cat > "$prerm" << EOF
-rm "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps/$GAME_ID.png"
-rm "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps/$GAME_ID.png"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON_BASE/$APP_MAIN_ICON1_RES/apps"
-rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON_BASE/$APP_MAIN_ICON2_RES/apps"
+rm "$PATH_ICON1/$GAME_ID.png"
+rm "$PATH_ICON2/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON1"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON2"
 EOF
 
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN32' 'PKG_BIN64'
-build_pkg      'PKG_BIN32' 'PKG_BIN64' 'PKG_DATA'
+build_pkg
 
 # Clean up
 

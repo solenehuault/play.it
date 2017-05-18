@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170405.1
+script_version=20170518.1
 
 # Set game-specific variables
 
@@ -43,6 +43,8 @@ SCRIPT_DEPS='find'
 GAME_ID='world-of-goo'
 GAME_NAME='World of Goo'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='gog_world_of_goo_2.0.0.3.sh'
 ARCHIVE_GOG_MD5='5359b8e7e9289fba4bcf74cf22856655'
 ARCHIVE_GOG_SIZE='82000'
@@ -50,32 +52,36 @@ ARCHIVE_GOG_VERSION='1.41-gog2.0.0.3'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
+
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./*.html ./*.txt'
-ARCHIVE_GAME_32_PATH='data/noarch/game'
-ARCHIVE_GAME_32_FILES='./WorldOfGoo.bin32 ./libs32'
-ARCHIVE_GAME_64_PATH='data/noarch/game'
-ARCHIVE_GAME_64_FILES='./WorldOfGoo.bin64 ./libs64'
-ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./icons ./properties ./res'
+
+ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN32_FILES='./WorldOfGoo.bin32 ./libs32'
+
+ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN64_FILES='./WorldOfGoo.bin64 ./libs64'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./icons ./properties ./res'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='WorldOfGoo.bin32'
-APP_MAIN_EXE_64='WorldOfGoo.bin64'
-APP_MAIN_ICON_RES='16x16 22x22 32x32 48x48 64x64 128x128'
+APP_MAIN_EXE_BIN32='WorldOfGoo.bin32'
+APP_MAIN_EXE_BIN64='WorldOfGoo.bin64'
+APP_MAIN_ICON_RES='16 22 32 48 64 128'
 
-PKG_MAIN_ID="${GAME_ID}-common"
-PKG_MAIN_DESCRIPTION='arch-independant data'
+PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
-PKG_32_ARCH='32'
-PKG_32_CONFLICTS_DEB="$GAME_ID"
-PKG_32_DEPS_DEB="$PKG_MAIN_ID, libglu1-mesa | libglu1, libogg0, libsdl1.2debian, libsdl-mixer1.2"
-PKG_32_DEPS_ARCH="$PKG_MAIN_ID lib32-glu lib32-libogg lib32-sdl lib32-sdl2_mixer"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
 
-PKG_64_ARCH='64'
-PKG_64_CONFLICTS_DEB="$GAME_ID"
-PKG_64_DEPS_DEB="$PKG_32_DEPS_DEB"
-PKG_64_DEPS_ARCH="$PKG_MAIN_ID glu libogg sdl sdl2_mixer"
+PKG_BIN32_ARCH='32'
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libglu1-mesa | libglu1, libogg0, libsdl1.2debian, libsdl-mixer1.2"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-libogg lib32-sdl lib32-sdl2_mixer"
+
+PKG_BIN64_ARCH='64'
+PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glu libogg sdl sdl2_mixer"
 
 # Load common functions
 
@@ -95,80 +101,51 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
-
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-check_deps
-set_common_paths
-PATH_ICON="$PKG_MAIN_PATH$PATH_ICON_BASE/$APP_MAIN_ICON_RES/apps"
-file_checksum "$SOURCE_ARCHIVE" 'ARCHIVE_GOG'
-
 # Extract game data
 
-set_workdir 'PKG_MAIN' 'PKG_32' 'PKG_64'
-PATH_ICON="${PATH_ICON_BASE}/${APP1_ICON_RES}/apps"
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_32'
-organize_data 'GAME_32' "$PATH_GAME"
+PKG='PKG_BIN32'
+organize_data 'GAME_BIN32' "$PATH_GAME"
 (
-	cd "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_32_PATH"
+	cd "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_BIN32_PATH"
 	find res -name '*.binltl' | while read file; do
-		cp --parents "$file" "${PKG_32_PATH}${PATH_GAME}"
+		cp --parents "$file" "${PKG_BIN32_PATH}${PATH_GAME}"
 		rm "$file"
 	done
 )
 
-PKG='PKG_64'
-organize_data 'GAME_64' "$PATH_GAME"
+PKG='PKG_BIN64'
+organize_data 'GAME_BIN64' "$PATH_GAME"
 (
-	cd "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_64_PATH"
+	cd "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_BIN64_PATH"
 	find res -name '*.binltl64' | while read file; do
-		cp --parents "$file" "${PKG_64_PATH}${PATH_GAME}"
+		cp --parents "$file" "${PKG_BIN64_PATH}${PATH_GAME}"
 		rm "$file"
 	done
 )
 
-PKG='PKG_MAIN'
-find "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_MAIN_PATH/res" -type d -empty -delete
-organize_data 'GAME_MAIN' "$PATH_GAME"
-organize_data 'DOC' "$PATH_DOC"
+PKG='PKG_DATA'
+find "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_DATA_PATH/res" -type d -empty -delete
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_32'
-APP_MAIN_EXE="$APP_MAIN_EXE_32"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
-
-PKG='PKG_64'
-APP_MAIN_EXE="$APP_MAIN_EXE_64"
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+for PKG in 'PKG_BIN32' 'PKG_BIN64'; do
+	write_launcher 'APP_MAIN'
+done
 
 # Build package
 
 cat > "$postinst" << EOF
 for res in ${APP_MAIN_ICON_RES}; do
-	PATH_ICON="${PATH_ICON_BASE}/\${res}/apps"
+	PATH_ICON="${PATH_ICON_BASE}/\${res}x\${res}/apps"
 	mkdir -p "\${PATH_ICON}"
-	ln -s "${PATH_GAME}/icons/\${res}.png" "\${PATH_ICON}/${GAME_ID}.png"
+	ln -s "${PATH_GAME}/icons/\${res}x\${res}.png" "\${PATH_ICON}/${GAME_ID}.png"
 done
-
 PATH_ICON="${PATH_ICON_BASE}/scalable/apps"
 mkdir -p "\${PATH_ICON}"
 ln -s "${PATH_GAME}/icons/scalable.svg" "\${PATH_ICON}/${GAME_ID}.svg"
@@ -176,20 +153,19 @@ EOF
 
 cat > "$prerm" << EOF
 for res in ${APP_MAIN_ICON_RES}; do
-	PATH_ICON="${PATH_ICON_BASE}/\${res}/apps"
+	PATH_ICON="${PATH_ICON_BASE}/\${res}x\${res}/apps"
 	rm "\${PATH_ICON}/${GAME_ID}.png"
 	rmdir -p --ignore-fail-on-non-empty "\${PATH_ICON}"
 done
-
 PATH_ICON="${PATH_ICON_BASE}/scalable/apps"
 rm "\${PATH_ICON}/${GAME_ID}.svg"
 rmdir -p --ignore-fail-on-non-empty "\${PATH_ICON}"
 EOF
 
-write_metadata 'PKG_MAIN'
+write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_32' 'PKG_64'
-build_pkg 'PKG_MAIN' 'PKG_32' 'PKG_64'
+write_metadata 'PKG_BIN32' 'PKG_BIN64'
+build_pkg
 
 # Clean up
 
@@ -197,9 +173,10 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-printf '\n32-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_32_PKG"
-printf '\n64-bit:'
-print_instructions "$PKG_MAIN_PKG" "$PKG_64_PKG"
+printf '\n'
+printf '32-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+printf '64-bit:'
+print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
 
 exit 0

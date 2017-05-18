@@ -27,6 +27,7 @@ write_bin() {
 			local app_libs="$(eval echo \$${app}_LIBS)"
 			local app_options="$(eval echo \$${app}_OPTIONS)"
 			local app_prerun="$(eval echo \$${app}_PRERUN)"
+			local app_postrun="$(eval echo \$${app}_POSTRUN)"
 			[ "$app_exe" ]  || app_exe="$(eval echo \"\$${app}_EXE_${PKG#PKG_}\")"
 			[ "$app_libs" ] || app_libs="$(eval echo \"\$${app}_LIBS_${PKG#PKG_}\")"
 			if [ "$app_type" = 'native' ]; then

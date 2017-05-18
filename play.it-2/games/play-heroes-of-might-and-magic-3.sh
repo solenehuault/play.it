@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170516.1
+script_version=20170517.4
 
 # Set game-specific variables
 
@@ -45,6 +45,7 @@ ARCHIVES_LIST='ARCHIVE_GOG_EN ARCHIVE_GOG_FR'
 
 ARCHIVE_GOG_EN='setup_homm3_complete_2.0.0.16.exe'
 ARCHIVE_GOG_EN_MD5='263d58f8cc026dd861e9bbcadecba318'
+ARCHIVE_GOG_EN_VERSION='3.0-gog2.0.0.16'
 ARCHIVE_GOG_EN_PATCH='patch_heroes_of_might_and_magic_3_complete_2.0.1.17.exe'
 ARCHIVE_GOG_EN_PATCH_MD5='815b9c097cd57d0e269beb4cc718dad3'
 ARCHIVE_GOG_EN_PATCH_VERSION='3.0-gog2.0.1.17'
@@ -130,21 +131,20 @@ fi
 
 # Load patch if using GOG English archive
 
-if [ "${SOURCE_ARCHIVE##*/}" = "$ARCHIVE_GOG_EN" ]; then
-	MAIN_ARCHIVE="$SOURCE_ARCHIVE"
-	unset ARCHIVE SOURCE_ARCHIVE
-	set_source_archive 'ARCHIVE_GOG_EN_PATCH'
-	file_checksum "$SOURCE_ARCHIVE"
-	PATCH_ARCHIVE="$SOURCE_ARCHIVE"
-	SOURCE_ARCHIVE="$MAIN_ARCHIVE"
+if [ "$ARCHIVE" = 'ARCHIVE_GOG_EN' ]; then
+	set_archive 'PATCH_ARCHIVE' 'ARCHIVE_GOG_EN_PATCH'
 	ARCHIVE='ARCHIVE_GOG_EN'
+	set_workdir $PACKAGES_LIST
 fi
 
 # Extract game data
 
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "${SOURCE_ARCHIVE##*/}" = "$ARCHIVE_GOG_EN" ]; then
-	extract_data_from "$PATCH_ARCHIVE"
+if [ "$PATCH_ARCHIVE" ]; then
+	(
+		ARCHIVE='PATCH_ARCHIVE'
+		extract_data_from "$PATCH_ARCHIVE"
+	)
 fi
 
 PKG='PKG_BIN'
@@ -159,6 +159,7 @@ organize_data 'DOC1'      "$PATH_DOC"
 organize_data 'DOC2'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
+PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'
 extract_and_sort_icons_from 'APP_EDITOR_MAP'
 extract_and_sort_icons_from 'APP_EDITOR_CAMPAIGN'
