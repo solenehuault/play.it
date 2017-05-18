@@ -34,10 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170518.1
 
 # Set game-specific variables
 
+# Copy GAME_ID from play-pillars-of-eternity.sh
 GAME_ID='pillars-of-eternity'
 GAME_NAME='Pillars of Eternity: The White March Part II'
 
@@ -58,9 +59,9 @@ ARCHIVE_GAME_FILES='./*'
 PACKAGES_LIST='PKG_MAIN'
 
 PKG_MAIN_ID="${GAME_ID}-px2"
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="${GAME_ID}, ${GAME_ID}-px1"
-PKG_MAIN_DEPS_ARCH="${GAME_ID} ${GAME_ID}-px1"
+# Copy dependency from GAME_ID in play-pillars-of-eternity-px1.sh
+PKG_MAIN_DEPS_DEB="$GAME_ID, ${GAME_ID}-px1"
+PKG_MAIN_DEPS_ARCH="$GAME_ID ${GAME_ID}-px1"
 
 # Load common functions
 
@@ -82,7 +83,6 @@ fi
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 rm "$PLAYIT_WORKDIR/gamedata/$ARCHIVE_GAME_PATH/PillarsOfEternity_Data/assetbundles/prefabs/objectbundle/px1_cre_blight_ice_terror.unity3d"

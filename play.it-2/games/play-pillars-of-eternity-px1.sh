@@ -34,10 +34,11 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170518.1
 
 # Set game-specific variables
 
+# Copy GAME_ID from play-pillars-of-eternity.sh
 GAME_ID='pillars-of-eternity'
 GAME_NAME='Pillars of Eternity: The White March Part I'
 
@@ -57,9 +58,8 @@ ARCHIVE_GAME_FILES='./*'
 PACKAGES_LIST='PKG_MAIN'
 
 PKG_MAIN_ID="${GAME_ID}-px1"
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB="${GAME_ID}"
-PKG_MAIN_DEPS_ARCH="${GAME_ID}"
+PKG_MAIN_DEPS_DEB="$GAME_ID"
+PKG_MAIN_DEPS_ARCH="$GAME_ID"
 
 # Load common functions
 
@@ -81,7 +81,6 @@ fi
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
 extract_data_from "$SOURCE_ARCHIVE"
 
 organize_data 'DOC'  "$PATH_DOC"
