@@ -31,6 +31,15 @@ write_bin_run_dosbox() {
 
 	cat >> "$file" <<- 'EOF'
 	$APP_EXE $APP_OPTIONS $@
+	EOF
+
+	if [ "$app_postrun" ]; then
+		cat >> "$file" <<- EOF
+		$app_postrun
+		EOF
+	fi
+
+	cat >> "$file" <<- 'EOF'
 	exit"
 	EOF
 }
