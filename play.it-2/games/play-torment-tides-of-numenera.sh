@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.2
+script_version=20170518.3
 
 # Set game-specific variables
 
@@ -66,7 +66,7 @@ ARCHIVE_GAME_DATA_FILES='./TidesOfNumenera_Data'
 DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_PRERUN='export LANG="en_US.UTF-8"'
+APP_MAIN_PRERUN='pulseaudio --start\nexport LANG="en_US.UTF-8"'
 APP_MAIN_EXE='TidesOfNumenera'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='TidesOfNumenera_Data/Resources/UnityPlayer.png'
@@ -81,11 +81,11 @@ PKG_RESOURCES_ID="${GAME_ID}-resources"
 PKG_RESOURCES_DESCRIPTION='resources'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DESCRIPTION='arch-independant data'
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='64'
-PKG_BIN_DEPS_DEB="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa-glx | libgl1, libsdl2-2.0-0"
-PKG_BIN_DEPS_ARCH="$PKG_AUDIO_ID $PKG_RESOURCES_ID $PKG_DATA_ID libgl sdl2"
+PKG_BIN_DEPS_DEB="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa-glx | libgl1, libsdl2-2.0-0, pulseaudio"
+PKG_BIN_DEPS_ARCH="$PKG_AUDIO_ID $PKG_RESOURCES_ID $PKG_DATA_ID libgl sdl2 pulseaudio"
 
 # Load common functions
 
