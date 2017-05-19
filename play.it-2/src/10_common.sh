@@ -46,15 +46,18 @@ set_standard_permissions() {
 
 # print a localized error message
 # USAGE: print_error
+# NEEDED VARS: (LANG)
 print_error() {
-	case ${LANG%_*} in
+	local string
+	case "${LANG%_*}" in
 		('fr')
-			printf '\n\033[1;31mErreur :\033[0m\n'
+			string='Erreur :'
 		;;
 		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
+			string='Error:'
 		;;
 	esac
+	printf '\n\033[1;31m%s\033[0m\n' "$string"
 }
 
 # convert files name to lower case
