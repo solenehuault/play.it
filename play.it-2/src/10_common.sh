@@ -74,19 +74,21 @@ tolower() {
 
 # display an error if a function has been called with invalid arguments
 # USAGE: liberror $var_name $calling_function
+# NEEDED VARS: (LANG)
 liberror() {
 	local var="$1"
 	local value="$(eval echo \$$var)"
 	local func="$2"
 	print_error
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf 'valeur incorrecte pour %s appelée par %s : %s\n' "$var" "$func" "$value"
+			string='Valeur incorrecte pour %s appelée par %s : %s\n'
 		;;
 		('en'|*)
-			printf 'invalid value for %s called by %s: %s\n' "$var" "$func" "$value"
+			string='Invalid value for %s called by %s: %s\n'
 		;;
 	esac
+	printf "$string" "$var" "$func" "$value"
 	return 1
 }
 
