@@ -16,11 +16,11 @@ extract_data_from() {
 			;;
 			('mojosetup')
 				bsdtar --directory "$destination" --extract --file "$file"
-				fix_rights "$destination"
+				set_standard_permissions "$destination"
 			;;
 			('mojosetup_unzip')
 				unzip -o -d "$destination" "$file" 1>/dev/null 2>&1 || true
-				fix_rights "$destination"
+				set_standard_permissions "$destination"
 			;;
 			('nix_stage1')
 				local input_blocksize=$(head --lines=514 "$file" | wc --bytes | tr --delete ' ')

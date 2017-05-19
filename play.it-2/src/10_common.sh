@@ -33,8 +33,8 @@ testvar() {
 }
 
 # set defaults rights on files (755 for dirs & 644 for regular files)
-# USAGE: fix_rights $dir[…]
-fix_rights() {
+# USAGE: set_standard_permissions $dir[…]
+set_standard_permissions() {
 	for dir in "$@"; do
 		if [ ! -d "$dir" ]; then
 			return 1
