@@ -19,7 +19,7 @@ pkg_write_arch() {
 	packager = $pkg_maint
 	builddate = $(date +"%m%d%Y")
 	size = $pkg_size
-	arch = $pkg_arch
+	arch = $pkg_architecture
 	EOF
 
 	if [ "$pkg_description" ]; then

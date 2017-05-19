@@ -1,9 +1,9 @@
 # set package distribution-specific architecture
-# USAGE: set_arch $pkg
-# CALLS: liberror
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH) pkg
+# USAGE: set_architecture $pkg
+# CALLS: liberror set_architecture_arch set_architecture_deb
+# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH)
 # CALLED BY: set_workdir_pkg write_metadata
-set_arch() {
+set_architecture() {
 	local architecture
 	if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
 		architecture="$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})"
@@ -12,36 +12,15 @@ set_arch() {
 		architecture="$(eval echo \$${1}_ARCH)"
 	fi
 	case $PACKAGE_TYPE in
-
 		('arch')
-			case "$architecture" in
-				('32'|'64')
-					pkg_arch='x86_64'
-				;;
-				(*)
-					pkg_arch='any'
-				;;
-			esac
+			set_architecture_arch "$architecture"
 		;;
-
 		('deb')
-			case "$architecture" in
-				('32')
-					pkg_arch='i386'
-				;;
-				('64')
-					pkg_arch='amd64'
-				;;
-				(*)
-					pkg_arch='all'
-				;;
-			esac
+			set_architecture_deb "$architecture"
 		;;
-
 		(*)
-			liberror 'PACKAGE_TYPE' 'set_arch'
+			liberror 'PACKAGE_TYPE' 'set_architecture'
 		;;
-
 	esac
 }
 

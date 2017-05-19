@@ -11,7 +11,7 @@ pkg_write_deb() {
 	cat > "$target" <<- EOF
 	Package: $pkg_id
 	Version: $pkg_version
-	Architecture: $pkg_arch
+	Architecture: $pkg_architecture
 	Maintainer: $pkg_maint
 	Installed-Size: $pkg_size
 	Section: non-free/games
@@ -43,7 +43,7 @@ pkg_write_deb() {
 		EOF
 	fi
 
-	if [ "$pkg_arch" = 'all' ]; then
+	if [ "$pkg_architecture" = 'all' ]; then
 		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "$target"
 	fi
 
