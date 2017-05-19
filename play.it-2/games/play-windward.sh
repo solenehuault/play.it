@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170519.1
+script_version=20170519.2
 
 # Set game-specific variables
 
@@ -126,7 +126,7 @@ rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
 write_metadata 'PKG_DATA'
-rm "$postinst" "$postinst"
+rm "$postinst" "$prerm"
 write_metadata 'PKG_BIN'
 build_pkg
 
