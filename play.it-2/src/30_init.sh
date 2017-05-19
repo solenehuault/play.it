@@ -120,6 +120,6 @@ set_source_archive $ARCHIVES_LIST
 
 # Set working directories
 
-set_workdir $PACKAGES_LIST
+set_temp_directories $PACKAGES_LIST
 
 

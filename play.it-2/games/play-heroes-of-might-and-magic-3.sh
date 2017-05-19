@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.4
+script_version=20170519.1
 
 # Set game-specific variables
 
@@ -134,7 +134,7 @@ fi
 if [ "$ARCHIVE" = 'ARCHIVE_GOG_EN' ]; then
 	set_archive 'PATCH_ARCHIVE' 'ARCHIVE_GOG_EN_PATCH'
 	ARCHIVE='ARCHIVE_GOG_EN'
-	set_workdir $PACKAGES_LIST
+	set_temp_directories $PACKAGES_LIST
 fi
 
 # Extract game data

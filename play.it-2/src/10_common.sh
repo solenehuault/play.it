@@ -2,7 +2,7 @@
 # USAGE: set_architecture $pkg
 # CALLS: liberror set_architecture_arch set_architecture_deb
 # NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH)
-# CALLED BY: set_workdir_pkg write_metadata
+# CALLED BY: set_temp_directories write_metadata
 set_architecture() {
 	local architecture
 	if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
