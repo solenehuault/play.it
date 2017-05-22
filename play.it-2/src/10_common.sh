@@ -27,18 +27,14 @@ set_architecture() {
 # test the validity of the argument given to parent function
 # USAGE: testvar $var_name $pattern
 testvar() {
-	if [ -z "$(echo "$1" | grep ^${2})" ]; then
-		return 1
-	fi
+	test "${1%%_*}" = "$2"
 }
 
 # set defaults rights on files (755 for dirs & 644 for regular files)
 # USAGE: set_standard_permissions $dir[…]
 set_standard_permissions() {
 	for dir in "$@"; do
-		if [ ! -d "$dir" ]; then
-			return 1
-		fi
+		[  -d "$dir" ] || return 1
 		find "$dir" -type d -exec chmod 755 '{}' +
 		find "$dir" -type f -exec chmod 644 '{}' +
 	done
