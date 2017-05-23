@@ -4,7 +4,7 @@
 # CALLS: set_archive
 set_source_archive() {
 	set_archive 'SOURCE_ARCHIVE' "$@"
-	[ $SOURCE_ARCHIVE ] && return 0
+	[ "$SOURCE_ARCHIVE" ] && return 0
 	print_error
 	local string
 	if [ "$#" = 1 ]; then
@@ -54,7 +54,7 @@ set_archive() {
 			if [ -f "$file" ]; then
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
-			elif [ $SOURCE_ARCHIVE ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+			elif [ "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
 				file="${SOURCE_ARCHIVE%/*}/$file"
 				set_archive_vars "$archive" "$name" "$file"
 				return 0

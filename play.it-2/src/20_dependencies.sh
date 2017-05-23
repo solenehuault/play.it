@@ -3,7 +3,7 @@
 # NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (CHECKSUM_METHOD) (LANG) (PACKAGE_TYPE) (SCRIPT_DEPS)
 # CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
-	if [ $ARCHIVE ]; then
+	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"

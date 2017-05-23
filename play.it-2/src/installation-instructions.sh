@@ -2,7 +2,7 @@
 # USAGE: print_instructions $pkg[…]
 # NEEDED VARS: (GAME_NAME) (PACKAGE_TYPE) (PACKAGES_LIST)
 print_instructions() {
-	[ $GAME_NAME ] || return 1
+	[ "$GAME_NAME" ] || return 1
 	if [ $# = 0 ]; then
 		print_instructions $PACKAGES_LIST
 		return 0

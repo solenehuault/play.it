@@ -3,7 +3,7 @@
 # NEEDED VARS: (PLAYIT_WORKDIR) (PKG) (PKG_PATH)
 organize_data() {
 	[ $# = 2 ] || return 1
-	[ $PLAYIT_WORKDIR ] || return 1
+	[ "$PLAYIT_WORKDIR" ] || return 1
 	[ $PKG ] || return 1
 	[ -n "$(eval echo \$${PKG}_PATH)" ] || return 1
 
@@ -25,7 +25,7 @@ organize_data() {
 		unset archive_files
 	fi
 
-	if [ $archive_path ] && [ $archive_files ] && [ -d "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
+	if [ "$archive_path" ] && [ "$archive_files" ] && [ -d "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
 		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
 		mkdir --parents "$pkg_path"
 		(
