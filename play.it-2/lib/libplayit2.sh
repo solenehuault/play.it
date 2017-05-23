@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170519.1
+library_revision=20170523.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -64,18 +64,14 @@ set_architecture() {
 # test the validity of the argument given to parent function
 # USAGE: testvar $var_name $pattern
 testvar() {
-	if [ -z "$(echo "$1" | grep ^${2})" ]; then
-		return 1
-	fi
+	test "${1%%_*}" = "$2"
 }
 
 # set defaults rights on files (755 for dirs & 644 for regular files)
 # USAGE: set_standard_permissions $dir[…]
 set_standard_permissions() {
 	for dir in "$@"; do
-		if [ ! -d "$dir" ]; then
-			return 1
-		fi
+		[  -d "$dir" ] || return 1
 		find "$dir" -type d -exec chmod 755 '{}' +
 		find "$dir" -type f -exec chmod 644 '{}' +
 	done
@@ -175,7 +171,7 @@ set_source_archive() {
 				string='Le fichier suivant est introuvable :\n'
 			;;
 			('en'|*)
-				string='The following file could not be found:'
+				string='The following file could not be found:\n'
 			;;
 		esac
 	else
@@ -216,7 +212,7 @@ set_archive() {
 			if [ -f "$file" ]; then
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
-			elif [ -n "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+			elif [ "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
 				file="${SOURCE_ARCHIVE%/*}/$file"
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
@@ -260,7 +256,7 @@ set_archive_vars() {
 		PKG_VERSION="$(eval echo \$${ARCHIVE}_VERSION)+${script_version}"
 	fi
 
-	# set MD5 control sum + check file integrity
+	# check file integrity
 	if [ -n "$(eval echo \$${ARCHIVE}_MD5)" ]; then
 		file_checksum "$file"
 	fi
@@ -402,10 +398,10 @@ file_checksum_error() {
 
 # check script dependencies
 # USAGE: check_deps
-# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
-# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
+# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (CHECKSUM_METHOD) (LANG) (PACKAGE_TYPE) (SCRIPT_DEPS)
+# CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
-	if [ -n "$ARCHIVE" ]; then
+	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
@@ -446,7 +442,7 @@ check_deps() {
 			;;
 			(*)
 				if ! which $dep >/dev/null 2>&1; then
-					check_deps_failed "$dep"
+					check_deps_error_not_found "$dep"
 				fi
 			;;
 		esac
@@ -455,7 +451,8 @@ check_deps() {
 
 # check presence of a software to handle .7z archives
 # USAGE: check_deps_7z
-# CALLS: check_deps_failed
+# NEEDED VARS: (LANG)
+# CALLS: check_deps_error_not_found
 # CALLED BY: check_deps
 check_deps_7z() {
 	if which 7zr >/dev/null 2>&1; then
@@ -465,23 +462,25 @@ check_deps_7z() {
 	elif which unar >/dev/null 2>&1; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
-		check_deps_failed 'p7zip'
+		check_deps_error_not_found 'p7zip'
 	fi
 }
 
 # display a message if a required dependency is missing
-# USAGE: check_deps_failed $command_name
-# CALLED BY: check_deps, check_deps_7z
-check_deps_failed() {
+# USAGE: check_deps_error_not_found $command_name
+# NEEDED VARS: (LANG)
+# CALLED BY: check_deps check_deps_7z
+check_deps_error_not_found() {
 	print_error
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
+			string='%s est introuvable. Installez-le avant de lancer ce script.\n'
 		;;
 		('en'|*)
-			printf '%s not found. Install it before running this script.\n' "$1"
+			string='%s not found. Install it before running this script.\n'
 		;;
 	esac
+	printf "$string" "$1"
 	return 1
 }
 
@@ -630,19 +629,20 @@ library_version_minor=$(echo $library_version | cut -d'.' -f2)
 target_version_minor=$(echo $target_version | cut -d'.' -f2)
 
 if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
-	case ${LANG%_*} in
+	print_error
+	case "${LANG%_*}" in
 		('fr')
-			printf '\n\033[1;31mErreur:\033[0m\n'
-			printf 'Mauvaise version de libplayit2.sh\n'
-			printf 'La version cible est : %s\n' "$target_version"
+			string1='Mauvaise version de libplayit2.sh\n'
+			string2='La version cible est : %s\n'
 		;;
 		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
-			printf 'Wrong version of libplayit2.sh\n'
-			printf 'Target version is: %s\n' "$target_version"
+			string1='Wrong version of libplayit2.sh\n'
+			string2='Target version is: %s\n'
 		;;
 	esac
-	return 1
+	printf "$string1"
+	printf "$string2" "$target_version"
+	exit 1
 fi
 
 # Set default values for common vars
@@ -656,8 +656,8 @@ unset winecfg_launcher
 
 # Try to detect the host distribution through lsb_release
 
-if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
-	case "$(lsb_release -si)" in
+if which lsb_release >/dev/null 2>&1; then
+	case "$(lsb_release --id --short)" in
 		('Debian'|'Ubuntu')
 			DEFAULT_PACKAGE_TYPE='deb'
 		;;
@@ -733,7 +733,7 @@ case $PACKAGE_TYPE in
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	(*)
-		return 1
+		liberror 'PACKAGE_TYPE' "$0"
 	;;
 esac
 
@@ -813,17 +813,32 @@ extract_data_from_print() {
 
 # put files from archive in the right package directories
 # USAGE: organize_data $id $path
-# NEEDED VARS: $PKG, $PKG_PATH, $PLAYIT_WORKDIR
+# NEEDED VARS: (PLAYIT_WORKDIR) (PKG) (PKG_PATH)
 organize_data() {
-	local archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
-	if [ -z "$archive_path" ]; then
+	[ $# = 2 ] || return 1
+	[ "$PLAYIT_WORKDIR" ] || return 1
+	[ $PKG ] || return 1
+	[ -n "$(eval echo \$${PKG}_PATH)" ] || return 1
+
+	local archive_path
+	if [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")" ]; then
 		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")"
+	elif [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH\")" ]; then
+		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
+	else
+		unset archive_path
 	fi
-	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
-	if [ -z "$archive_files" ]; then
+
+	local archive_files
+	if [ -n "$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")" ]; then
 		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")"
+	elif [ -n "$(eval echo \"\$ARCHIVE_${1}_FILES\")" ]; then
+		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
+	else
+		unset archive_files
 	fi
-	if [ "$archive_path" ] && [ -e "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
+
+	if [ "$archive_path" ] && [ "$archive_files" ] && [ -d "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
 		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
 		mkdir --parents "$pkg_path"
 		(
@@ -949,34 +964,40 @@ extract_and_sort_icons_from() {
 
 # print installation instructions
 # USAGE: print_instructions $pkg[…]
-# NEEDED VARS: PKG
+# NEEDED VARS: (GAME_NAME) (PACKAGE_TYPE) (PACKAGES_LIST)
 print_instructions() {
-	case ${LANG%_*} in
+	[ "$GAME_NAME" ] || return 1
+	if [ $# = 0 ]; then
+		print_instructions $PACKAGES_LIST
+		return 0
+	fi
+	case "${LANG%_*}" in
 		('fr')
-			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$GAME_NAME"
+			string='\nInstallez %s en lançant la série de commandes suivantes en root :\n'
 		;;
 		('en'|*)
-			printf '\nInstall %s by running the following commands as root:\n' "$GAME_NAME"
+			string='\nInstall %s by running the following commands as root:\n'
 		;;
 	esac
+	printf "$string" "$GAME_NAME"
 	case $PACKAGE_TYPE in
 		('arch')
 			printf 'pacman -U'
 			for pkg in $@; do
-				printf ' %s' "$pkg"
+				printf ' %s' "$(eval echo \$${pkg}_PKG)"
 			done
 			printf '\n'
 		;;
 		('deb')
 			printf 'dpkg -i'
 			for pkg in $@; do
-				printf ' %s' "$pkg"
+				printf ' %s' "$(eval echo \$${pkg}_PKG)"
 			done
 			printf '\n'
 			printf 'apt-get install -f\n'
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'build_pkg'
+			liberror 'PACKAGE_TYPE' 'print_instructions'
 		;;
 	esac
 	printf '\n'
