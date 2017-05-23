@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170516.1
+script_version=20170523.1
 
 # Set game-specific variables
 
@@ -182,6 +182,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_L10N_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions
 
 exit 0
