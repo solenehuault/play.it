@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170524.1
+library_revision=20170525.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -269,17 +269,20 @@ set_archive_vars() {
 # CALLED BY: set_archive_vars
 archive_guess_type() {
 	case "${1##*/}" in
-		(gog_*.sh)
-			export ${ARCHIVE}_TYPE='mojosetup'
+		(*.deb)
+			export ${ARCHIVE}_TYPE='debian'
 		;;
 		(setup_*.exe|patch_*.exe)
 			export ${ARCHIVE}_TYPE='innosetup'
 		;;
-		(*.zip)
-			export ${ARCHIVE}_TYPE='zip'
+		(gog_*.sh)
+			export ${ARCHIVE}_TYPE='mojosetup'
 		;;
 		(*.tar.gz|*.tgz)
 			export ${ARCHIVE}_TYPE='tar.gz'
+		;;
+		(*.zip)
+			export ${ARCHIVE}_TYPE='zip'
 		;;
 		(*)
 			archive_guess_type_error
@@ -403,6 +406,9 @@ file_checksum_error() {
 check_deps() {
 	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+			('debian')
+				SCRIPT_DEPS="$SCRIPT_DEPS dpkg"
+			;;
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 			;;
@@ -762,6 +768,9 @@ extract_data_from() {
 			('7z')
 				extract_7z "$file" "$destination"
 			;;
+			('debian')
+				dpkg-deb --extract "$file" "$destination"
+			;;
 			('innosetup')
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
 			;;
@@ -1090,7 +1099,7 @@ write_bin_set_exe() {
 	# Set executable file
 
 	APP_EXE='$app_exe'
-	APP_OPTIONS='$app_options'
+	APP_OPTIONS="$app_options"
 	export LD_LIBRARY_PATH="$app_libs:\$LD_LIBRARY_PATH"
 	EOF
 }
