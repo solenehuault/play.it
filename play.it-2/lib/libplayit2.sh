@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170523.1
+library_revision=20170525.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -269,17 +269,20 @@ set_archive_vars() {
 # CALLED BY: set_archive_vars
 archive_guess_type() {
 	case "${1##*/}" in
-		(gog_*.sh)
-			export ${ARCHIVE}_TYPE='mojosetup'
+		(*.deb)
+			export ${ARCHIVE}_TYPE='debian'
 		;;
 		(setup_*.exe|patch_*.exe)
 			export ${ARCHIVE}_TYPE='innosetup'
 		;;
-		(*.zip)
-			export ${ARCHIVE}_TYPE='zip'
+		(gog_*.sh)
+			export ${ARCHIVE}_TYPE='mojosetup'
 		;;
 		(*.tar.gz|*.tgz)
 			export ${ARCHIVE}_TYPE='tar.gz'
+		;;
+		(*.zip)
+			export ${ARCHIVE}_TYPE='zip'
 		;;
 		(*)
 			archive_guess_type_error
@@ -403,6 +406,9 @@ file_checksum_error() {
 check_deps() {
 	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+			('debian')
+				SCRIPT_DEPS="$SCRIPT_DEPS dpkg"
+			;;
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 			;;
@@ -747,17 +753,23 @@ set_temp_directories $PACKAGES_LIST
 
 
 # extract data from given archive
-# USAGE: extract_data $archive[…]
-# NEEDED_VARS: $PLAYIT_WORKDIR $ARCHIVE $ARCHIVE_TYPE $ARCHIVE_PASSWD
-# CALLS: liberror extract_7z (declared by check_deps_7z)
+# USAGE: extract_data_from $archive[…]
+# NEEDED_VARS: (ARCHIVE) (ARCHIVE_PASSWD) (ARCHIVE_TYPE) (LANG) (PLAYIT_WORKDIR)
+# CALLS: liberror extract_7z extract_data_from_print
 extract_data_from() {
+	[ "$PLAYIT_WORKDIR" ] || return 1
+	[ "$ARCHIVE" ] || return 1
+
 	for file in "$@"; do
-		extract_data_from_print
-		local destination="${PLAYIT_WORKDIR}/gamedata"
+		extract_data_from_print "$(basename "$file")"
+		local destination="$PLAYIT_WORKDIR/gamedata"
 		mkdir --parents "$destination"
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
 			('7z')
 				extract_7z "$file" "$destination"
+			;;
+			('debian')
+				dpkg-deb --extract "$file" "$destination"
 			;;
 			('innosetup')
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
@@ -797,18 +809,19 @@ extract_data_from() {
 }
 
 # print data extraction message
-# USAGE: extract_data_from_print
+# USAGE: extract_data_from_print $file
+# NEEDED VARS: (LANG)
 # CALLED BY: extract_data_from
 extract_data_from_print() {
-	local file="$(basename "$file")"
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf 'Extraction des données de %s\n' "$file"
+			string='Extraction des données de %s\n'
 		;;
 		('en'|*)
-			printf 'Extracting data from %s \n' "$file"
+			string='Extracting data from %s \n'
 		;;
 	esac
+	printf "$string" "$1"
 }
 
 # put files from archive in the right package directories
@@ -953,7 +966,11 @@ extract_and_sort_icons_from() {
 		else
 			app_icon="$(eval echo \$${app}_ICON)"
 		fi
+		if [ ! "$WRESTOOL_NAME" ] && [ -n "$(eval echo \$${app}_ICON_ID)" ]; then
+			WRESTOOL_NAME="$(eval echo \$${app}_ICON_ID)"
+		fi
 		extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
+		unset WRESTOOL_NAME
 		if [ "${app_icon##*.}" = 'exe' ]; then
 			extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
 		fi
@@ -1082,7 +1099,7 @@ write_bin_set_exe() {
 	# Set executable file
 
 	APP_EXE='$app_exe'
-	APP_OPTIONS='$app_options'
+	APP_OPTIONS="$app_options"
 	export LD_LIBRARY_PATH="$app_libs:\$LD_LIBRARY_PATH"
 	EOF
 }

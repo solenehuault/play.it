@@ -77,7 +77,7 @@ write_bin_set_exe() {
 	# Set executable file
 
 	APP_EXE='$app_exe'
-	APP_OPTIONS='$app_options'
+	APP_OPTIONS="$app_options"
 	export LD_LIBRARY_PATH="$app_libs:\$LD_LIBRARY_PATH"
 	EOF
 }

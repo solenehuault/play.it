@@ -111,17 +111,20 @@ set_archive_vars() {
 # CALLED BY: set_archive_vars
 archive_guess_type() {
 	case "${1##*/}" in
-		(gog_*.sh)
-			export ${ARCHIVE}_TYPE='mojosetup'
+		(*.deb)
+			export ${ARCHIVE}_TYPE='debian'
 		;;
 		(setup_*.exe|patch_*.exe)
 			export ${ARCHIVE}_TYPE='innosetup'
 		;;
-		(*.zip)
-			export ${ARCHIVE}_TYPE='zip'
+		(gog_*.sh)
+			export ${ARCHIVE}_TYPE='mojosetup'
 		;;
 		(*.tar.gz|*.tgz)
 			export ${ARCHIVE}_TYPE='tar.gz'
+		;;
+		(*.zip)
+			export ${ARCHIVE}_TYPE='zip'
 		;;
 		(*)
 			archive_guess_type_error
