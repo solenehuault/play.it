@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.2
+script_version=20170523.2
 
 # Set game-specific variables
 
@@ -43,10 +43,10 @@ GAME_NAME='Octodad Dadliest Catch'
 
 ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
-ARCHIVE_HUMBLE='OctodadDadliestCatch1.2.19338.tar.gz'
-ARCHIVE_HUMBLE_MD5='9022035ccca5b77b05498b4fdd7a0c4b'
-ARCHIVE_HUMBLE_SIZE='3100000'
-ARCHIVE_HUMBLE_VERSION='1.2.19338-humble160801'
+ARCHIVE_HUMBLE='OctodadDadliestCatch1.2.19351.tar.gz'
+ARCHIVE_HUMBLE_MD5='df1ded6c02d856a23c2dba919c3be40a'
+ARCHIVE_HUMBLE_SIZE='3000000'
+ARCHIVE_HUMBLE_VERSION='1.2.19351-humble170512'
 
 ARCHIVE_GAME_BIN_PATH='Octodad Dadliest Catch'
 ARCHIVE_GAME_BIN_FILES='./OctodadDadliestCatch ./lib*.so'
@@ -92,7 +92,7 @@ fi
 # Extract game data
 
 extract_data_from "$SOURCE_ARCHIVE"
-fix_rights "$PLAYIT_WORKDIR/gamedata"
+set_standard_permissions "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
 organize_data 'GAME_BIN' "$PATH_GAME"
@@ -133,6 +133,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions
 
 exit 0

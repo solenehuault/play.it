@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170523.1
 
 # Set game-specific variables
 
@@ -51,8 +51,11 @@ ARCHIVE_GOG_VERSION='20160707-gog2.35.0.38'
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./Windward.x86 ./WWServer.exe ./Windward_Data/Plugins ./Windward_Data/Mono'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./Windward_Data'
 
 DATA_DIRS='./logs'
 
@@ -62,11 +65,14 @@ APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libglu1-mesa | libglu1'
-PKG_MAIN_DEPS_ARCH='lib32-glu lsb-release'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lsb-release"
 
 # Load common functions
 
@@ -90,13 +96,18 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC'  "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -114,7 +125,9 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
 build_pkg
 
 # Clean up
@@ -123,6 +136,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 #print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions
 
 exit 0

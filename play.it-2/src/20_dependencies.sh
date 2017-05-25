@@ -1,9 +1,9 @@
 # check script dependencies
 # USAGE: check_deps
-# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
-# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
+# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (CHECKSUM_METHOD) (LANG) (PACKAGE_TYPE) (SCRIPT_DEPS)
+# CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
-	if [ -n "$ARCHIVE" ]; then
+	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
@@ -44,7 +44,7 @@ check_deps() {
 			;;
 			(*)
 				if ! which $dep >/dev/null 2>&1; then
-					check_deps_failed "$dep"
+					check_deps_error_not_found "$dep"
 				fi
 			;;
 		esac
@@ -53,7 +53,8 @@ check_deps() {
 
 # check presence of a software to handle .7z archives
 # USAGE: check_deps_7z
-# CALLS: check_deps_failed
+# NEEDED VARS: (LANG)
+# CALLS: check_deps_error_not_found
 # CALLED BY: check_deps
 check_deps_7z() {
 	if which 7zr >/dev/null 2>&1; then
@@ -63,23 +64,25 @@ check_deps_7z() {
 	elif which unar >/dev/null 2>&1; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
-		check_deps_failed 'p7zip'
+		check_deps_error_not_found 'p7zip'
 	fi
 }
 
 # display a message if a required dependency is missing
-# USAGE: check_deps_failed $command_name
-# CALLED BY: check_deps, check_deps_7z
-check_deps_failed() {
+# USAGE: check_deps_error_not_found $command_name
+# NEEDED VARS: (LANG)
+# CALLED BY: check_deps check_deps_7z
+check_deps_error_not_found() {
 	print_error
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
+			string='%s est introuvable. Installez-le avant de lancer ce script.\n'
 		;;
 		('en'|*)
-			printf '%s not found. Install it before running this script.\n' "$1"
+			string='%s not found. Install it before running this script.\n'
 		;;
 	esac
+	printf "$string" "$1"
 	return 1
 }
 

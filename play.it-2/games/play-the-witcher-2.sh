@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170523.1
 
 # Set game-specific variables
 
@@ -55,8 +55,8 @@ ARCHIVE_DOC1_FILES='./*'
 ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./*.rtf ./*.txt'
 
-ARCHIVE_GAME_MAIN_PATH='data/noarch/game'
-ARCHIVE_GAME_MAIN_FILES='./*'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./bin ./configurator ./CrashReporter* ./crash_reporting ./eONprecompiledShaders32.dat ./*launcher* ./libopenal-eon.so.1 ./saferun.sh ./sdlinput ./witcher2'
 
 ARCHIVE_GAME_PACK1_PATH='data/noarch/game'
 ARCHIVE_GAME_PACK1_FILES='./CookedPC/pack0.dzip.split00'
@@ -66,6 +66,9 @@ ARCHIVE_GAME_PACK2_FILES='./CookedPC/pack0.dzip.split01 ./CookedPC/pack0.dzip.sp
 
 ARCHIVE_GAME_MOVIES_PATH='data/noarch/game'
 ARCHIVE_GAME_MOVIES_FILES='./CookedPC/movies'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./CookedPC ./fontconfig ./icudt52l.dat ./linux ./SDLGamepad.config ./VPFS_registry.vpfsdb ./witcher2.vpfs'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./witcher2'
@@ -80,7 +83,7 @@ APP_CONFIG_ICON='linux/icons/witcher2-configurator.png'
 APP_CONFIG_ICON_RES='256'
 APP_CONFIG_CAT='Settings'
 
-PACKAGES_LIST='PKG_PACK1 PKG_PACK2 PKG_MOVIES PKG_MAIN'
+PACKAGES_LIST='PKG_PACK1 PKG_PACK2 PKG_MOVIES PKG_DATA PKG_BIN'
 
 PKG_PACK1_ID="${GAME_ID}-pack1"
 PKG_PACK1_DESCRIPTION='pack0, part 1'
@@ -91,9 +94,12 @@ PKG_PACK2_DESCRIPTION='pack0, part 2'
 PKG_MOVIES_ID="${GAME_ID}-movies"
 PKG_MOVIES_DESCRIPTION='movies'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB="$PKG_PACK1_ID, $PKG_PACK2_ID, $PKG_MOVIES_ID, libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0, libudev1"
-PKG_MAIN_DEPS_ARCH="$PKG_PACK1_ID $PKG_PACK2_ID $PKG_MOVIES_ID lib32-alsa-lib lib32-gtk2 lib32-sdl2_image lib32-freetype2 lib32-curl lib32-libtxc_dxtn"
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_PACK1_ID, $PKG_PACK2_ID, $PKG_MOVIES_ID, $PKG_DATA_ID, libasound2-plugins, libgtk2.0-0, libsdl2-image-2.0-0, libfreetype6, libcurl3, libtxc-dxtn-s2tc0 | libtxc-dxtn0, libudev1"
+PKG_BIN_DEPS_ARCH="$PKG_PACK1_ID $PKG_PACK2_ID $PKG_MOVIES_ID $PKG_DATA_ID lib32-alsa-lib lib32-gtk2 lib32-sdl2_image lib32-freetype2 lib32-curl lib32-libtxc_dxtn"
 
 # Load common functions
 
@@ -117,6 +123,9 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
 PKG='PKG_PACK1'
 organize_data 'GAME_PACK1' "$PATH_GAME"
 
@@ -126,17 +135,17 @@ organize_data 'GAME_PACK2' "$PATH_GAME"
 PKG='PKG_MOVIES'
 organize_data 'GAME_MOVIES' "$PATH_GAME"
 
-PKG='PKG_MAIN'
+PKG='PKG_DATA'
 organize_data 'DOC1'      "$PATH_DOC"
 organize_data 'DOC2'      "$PATH_DOC"
-organize_data 'GAME_MAIN' "$PATH_GAME"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_MAIN'
-write_launcher
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN' 'APP_CONFIG'
 
 # Build package
 
@@ -163,9 +172,9 @@ rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON_CONFIG"
 rm "$PATH_GAME/CookedPC/pack0.dzip"
 EOF
 
-write_metadata 'PKG_MAIN'
+write_metadata 'PKG_BIN'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_PACK1' 'PKG_PACK2' 'PKG_MOVIES'
+write_metadata 'PKG_PACK1' 'PKG_PACK2' 'PKG_MOVIES' 'PKG_DATA'
 build_pkg
 
 # Clean up
@@ -174,6 +183,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_PACK2_PKG" "$PKG_PACK1_PKG" "$PKG_MOVIES_PKG" "$PKG_MAIN_PKG"
+print_instructions
 
 exit 0

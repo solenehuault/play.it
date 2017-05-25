@@ -7,19 +7,20 @@ library_version_minor=$(echo $library_version | cut -d'.' -f2)
 target_version_minor=$(echo $target_version | cut -d'.' -f2)
 
 if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
-	case ${LANG%_*} in
+	print_error
+	case "${LANG%_*}" in
 		('fr')
-			printf '\n\033[1;31mErreur:\033[0m\n'
-			printf 'Mauvaise version de libplayit2.sh\n'
-			printf 'La version cible est : %s\n' "$target_version"
+			string1='Mauvaise version de libplayit2.sh\n'
+			string2='La version cible est : %s\n'
 		;;
 		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
-			printf 'Wrong version of libplayit2.sh\n'
-			printf 'Target version is: %s\n' "$target_version"
+			string1='Wrong version of libplayit2.sh\n'
+			string2='Target version is: %s\n'
 		;;
 	esac
-	return 1
+	printf "$string1"
+	printf "$string2" "$target_version"
+	exit 1
 fi
 
 # Set default values for common vars
@@ -33,8 +34,8 @@ unset winecfg_launcher
 
 # Try to detect the host distribution through lsb_release
 
-if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
-	case "$(lsb_release -si)" in
+if which lsb_release >/dev/null 2>&1; then
+	case "$(lsb_release --id --short)" in
 		('Debian'|'Ubuntu')
 			DEFAULT_PACKAGE_TYPE='deb'
 		;;
@@ -110,7 +111,7 @@ case $PACKAGE_TYPE in
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	(*)
-		return 1
+		liberror 'PACKAGE_TYPE' "$0"
 	;;
 esac
 
@@ -120,6 +121,6 @@ set_source_archive $ARCHIVES_LIST
 
 # Set working directories
 
-set_workdir $PACKAGES_LIST
+set_temp_directories $PACKAGES_LIST
 
 

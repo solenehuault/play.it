@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.2
+script_version=20170523.1
 
 # Set game-specific variables
 
@@ -51,8 +51,11 @@ ARCHIVE_GOG_VERSION='1.0-gog2.0.0.7'
 ARCHIVE_DOC_PATH='app'
 ARCHIVE_DOC_FILES='./torin.txt ./*.pdf'
 
-ARCHIVE_GAME_PATH='app'
-ARCHIVE_GAME_FILES='./*.exe ./*.drv ./*.shp ./*.hlp ./*.scr ./install.txt ./movie ./patches ./*.000 ./*.aud ./resource.cfg ./*.sfx ./*.err ./version ./torinhr.ico'
+ARCHIVE_GAME_BIN_PATH='app'
+ARCHIVE_GAME_BIN_FILES='./*.exe ./resource.cfg'
+
+ARCHIVE_GAME_DATA_PATH='app'
+ARCHIVE_GAME_DATA_FILES='./*.drv ./*.shp ./*.hlp ./*.scr ./install.txt ./movie ./patches ./*.000 ./*.aud ./*.sfx ./*.err ./version ./torinhr.ico'
 
 DATA_FILES='./version ./AUTOSAVE.* ./TORINSG.*'
 CONFIG_FILES='./resource.cfg ./TORIN.PRF'
@@ -63,11 +66,14 @@ APP_MAIN_OPTIONS='resource.cfg'
 APP_MAIN_ICON='torinhr.ico'
 APP_MAIN_ICON_RES='16 24 32 256'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='dosbox'
-PKG_MAIN_DEPS_ARCH='dosbox'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB='dosbox'
+PKG_BIN_DEPS_ARCH='dosbox'
 
 # Load common functions
 
@@ -91,16 +97,21 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC'  "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 extract_and_sort_icons_from 'APP_MAIN'
-rm "${PKG_MAIN_PATH}${PATH_GAME}/$APP_MAIN_ICON"
+rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -114,6 +125,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions
 
 exit 0

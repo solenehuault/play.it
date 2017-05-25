@@ -33,14 +33,14 @@
 ###
 
 library_version=2.0
-library_revision=20170518.3
+library_revision=20170523.1
 
 # set package distribution-specific architecture
-# USAGE: set_arch $pkg
-# CALLS: liberror
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH) pkg
-# CALLED BY: set_workdir_pkg write_metadata
-set_arch() {
+# USAGE: set_architecture $pkg
+# CALLS: liberror set_architecture_arch set_architecture_deb
+# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH)
+# CALLED BY: set_temp_directories write_metadata
+set_architecture() {
 	local architecture
 	if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
 		architecture="$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})"
@@ -49,54 +49,29 @@ set_arch() {
 		architecture="$(eval echo \$${1}_ARCH)"
 	fi
 	case $PACKAGE_TYPE in
-
 		('arch')
-			case "$architecture" in
-				('32'|'64')
-					pkg_arch='x86_64'
-				;;
-				(*)
-					pkg_arch='any'
-				;;
-			esac
+			set_architecture_arch "$architecture"
 		;;
-
 		('deb')
-			case "$architecture" in
-				('32')
-					pkg_arch='i386'
-				;;
-				('64')
-					pkg_arch='amd64'
-				;;
-				(*)
-					pkg_arch='all'
-				;;
-			esac
+			set_architecture_deb "$architecture"
 		;;
-
 		(*)
-			liberror 'PACKAGE_TYPE' 'set_arch'
+			liberror 'PACKAGE_TYPE' 'set_architecture'
 		;;
-
 	esac
 }
 
 # test the validity of the argument given to parent function
 # USAGE: testvar $var_name $pattern
 testvar() {
-	if [ -z "$(echo "$1" | grep ^${2})" ]; then
-		return 1
-	fi
+	test "${1%%_*}" = "$2"
 }
 
 # set defaults rights on files (755 for dirs & 644 for regular files)
-# USAGE: fix_rights $dir[…]
-fix_rights() {
+# USAGE: set_standard_permissions $dir[…]
+set_standard_permissions() {
 	for dir in "$@"; do
-		if [ ! -d "$dir" ]; then
-			return 1
-		fi
+		[  -d "$dir" ] || return 1
 		find "$dir" -type d -exec chmod 755 '{}' +
 		find "$dir" -type f -exec chmod 644 '{}' +
 	done
@@ -104,49 +79,81 @@ fix_rights() {
 
 # print a localized error message
 # USAGE: print_error
+# NEEDED VARS: (LANG)
 print_error() {
-	case ${LANG%_*} in
+	local string
+	case "${LANG%_*}" in
 		('fr')
-			printf '\n\033[1;31mErreur :\033[0m\n'
+			string='Erreur :'
 		;;
 		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
+			string='Error:'
 		;;
 	esac
+	printf '\n\033[1;31m%s\033[0m\n' "$string"
 }
 
 # convert files name to lower case
 # USAGE: tolower $dir[…]
 tolower() {
 	for dir in "$@"; do
-		if [ ! -d "$dir" ]; then
-			return 1
-		fi
-		find "$dir" -depth | while read file; do
+		[ -d "$dir" ] || return 1
+		find "$dir" -depth -mindepth 1 | while read file; do
 			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
-			if [ ! -e "$newfile" ] && [ "$file" != "$dir" ]; then
-				mv "$file" "$newfile"
-			fi
+			[ -e "$newfile" ] || mv "$file" "$newfile"
 		done
 	done
 }
 
 # display an error if a function has been called with invalid arguments
 # USAGE: liberror $var_name $calling_function
+# NEEDED VARS: (LANG)
 liberror() {
 	local var="$1"
 	local value="$(eval echo \$$var)"
 	local func="$2"
 	print_error
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf 'valeur incorrecte pour %s appelée par %s : %s\n' "$var" "$func" "$value"
+			string='Valeur incorrecte pour %s appelée par %s : %s\n'
 		;;
 		('en'|*)
-			printf 'invalid value for %s called by %s: %s\n' "$var" "$func" "$value"
+			string='Invalid value for %s called by %s: %s\n'
 		;;
 	esac
+	printf "$string" "$var" "$func" "$value"
 	return 1
+}
+
+# set distribution-specific package architecture for Arch Linux target
+# USAGE: set_architecture_arch $architecture
+# CALLED BY: set_architecture
+set_architecture_arch() {
+	case "$1" in
+		('32'|'64')
+			pkg_architecture='x86_64'
+		;;
+		(*)
+			pkg_architecture='any'
+		;;
+	esac
+}
+
+# set distribution-specific package architecture for Debian target
+# USAGE: set_architecture_deb $architecture
+# CALLED BY: set_architecture
+set_architecture_deb() {
+	case "$1" in
+		('32')
+			pkg_architecture='i386'
+		;;
+		('64')
+			pkg_architecture='amd64'
+		;;
+		(*)
+			pkg_architecture='all'
+		;;
+	esac
 }
 
 # set source archive for data extraction
@@ -164,7 +171,7 @@ set_source_archive() {
 				string='Le fichier suivant est introuvable :\n'
 			;;
 			('en'|*)
-				string='The following file could not be found:'
+				string='The following file could not be found:\n'
 			;;
 		esac
 	else
@@ -205,7 +212,7 @@ set_archive() {
 			if [ -f "$file" ]; then
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
-			elif [ -n "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+			elif [ "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
 				file="${SOURCE_ARCHIVE%/*}/$file"
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
@@ -249,7 +256,7 @@ set_archive_vars() {
 		PKG_VERSION="$(eval echo \$${ARCHIVE}_VERSION)+${script_version}"
 	fi
 
-	# set MD5 control sum + check file integrity
+	# check file integrity
 	if [ -n "$(eval echo \$${ARCHIVE}_MD5)" ]; then
 		file_checksum "$file"
 	fi
@@ -391,10 +398,10 @@ file_checksum_error() {
 
 # check script dependencies
 # USAGE: check_deps
-# NEEDED VARS: ARCHIVE_TYPE, SCRIPT_DEPS, CHECKSUM_METHOD, PACKAGE_TYPE
-# CALLS: check_deps_7z, check_deps_icon, check_deps_failed
+# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (CHECKSUM_METHOD) (LANG) (PACKAGE_TYPE) (SCRIPT_DEPS)
+# CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
-	if [ -n "$ARCHIVE" ]; then
+	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
@@ -435,7 +442,7 @@ check_deps() {
 			;;
 			(*)
 				if ! which $dep >/dev/null 2>&1; then
-					check_deps_failed "$dep"
+					check_deps_error_not_found "$dep"
 				fi
 			;;
 		esac
@@ -444,7 +451,8 @@ check_deps() {
 
 # check presence of a software to handle .7z archives
 # USAGE: check_deps_7z
-# CALLS: check_deps_failed
+# NEEDED VARS: (LANG)
+# CALLS: check_deps_error_not_found
 # CALLED BY: check_deps
 check_deps_7z() {
 	if which 7zr >/dev/null 2>&1; then
@@ -454,74 +462,92 @@ check_deps_7z() {
 	elif which unar >/dev/null 2>&1; then
 		extract_7z() { unar -output-directory "$2" -force-overwrite -no-directory "$1"; }
 	else
-		check_deps_failed 'p7zip'
+		check_deps_error_not_found 'p7zip'
 	fi
 }
 
 # display a message if a required dependency is missing
-# USAGE: check_deps_failed $command_name
-# CALLED BY: check_deps, check_deps_7z
-check_deps_failed() {
+# USAGE: check_deps_error_not_found $command_name
+# NEEDED VARS: (LANG)
+# CALLED BY: check_deps check_deps_7z
+check_deps_error_not_found() {
 	print_error
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf '%s est introuvable. Installez-le avant de lancer ce script.\n' "$1"
+			string='%s est introuvable. Installez-le avant de lancer ce script.\n'
 		;;
 		('en'|*)
-			printf '%s not found. Install it before running this script.\n' "$1"
+			string='%s not found. Install it before running this script.\n'
 		;;
 	esac
+	printf "$string" "$1"
 	return 1
 }
 
-# set working directories
-# USAGE: set_workdir $pkg[…]
-# CALLS: set_workdir_workdir testvar set_workdir_pkg
-set_workdir() {
-	if [ $# = 1 ]; then
-		PKG="$1"
-	fi
-	set_workdir_workdir
-	mkdir --parents "$PLAYIT_WORKDIR/scripts"
-	export postinst="$PLAYIT_WORKDIR/scripts/postinst"
-	export prerm="$PLAYIT_WORKDIR/scripts/prerm"
-	while [ $# -ge 1 ]; do
-		local pkg=$1
-		testvar "$pkg" 'PKG'
-		set_workdir_pkg $pkg
-		shift 1
-	done
-}
+# set temporary directories
+# USAGE: set_temp_directories $pkg[…]
+# NEEDED VARS: (ARCHIVE_SIZE) GAME_ID (LANG) (PWD) (XDG_CACHE_HOME) (XDG_RUNTIME_DIR)
+# CALLS: set_temp_directories_error_no_size set_temp_directories_error_not_enough_space set_temp_directories_pkg testvar
+set_temp_directories() {
 
-# set gobal working directory
-# USAGE: set_workdir_workdir
-# NEEDED VARS: $ARCHIVE $ARCHIVE_SIZE
-# CALLED BY: set_workdir
-set_workdir_workdir() {
-	local workdir_name=$(mktemp --dry-run ${GAME_ID}.XXXXX)
-	local needed_space=$(($ARCHIVE_SIZE * 2))
+	# If $PLAYIT_WORKDIR is already set, delete it before setting a new one
+	[ "$PLAYIT_WORKDIR" ] && rm --force --recursive "$PLAYIT_WORKDIR"
+
+	# If there is only a single package, make it the default one for the current instance
+	[ $# = 1 ] && PKG="$1"
+
+	# Generate an unique name for the current instance
+	local name="play.it/$(mktemp --dry-run ${GAME_ID}.XXXXX)"
+
+	# Look for a directory with enough free space to work in
+	if [ "$ARCHIVE_SIZE" ]; then
+		local needed_space=$(($ARCHIVE_SIZE * 2))
+	else
+		set_temp_directories_error_no_size
+	fi
 	[ "$XDG_RUNTIME_DIR" ] || XDG_RUNTIME_DIR="/run/user/$(id -u)"
-	[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
+	[ "$XDG_CACHE_HOME" ]  || XDG_CACHE_HOME="$HOME/.cache"
 	local free_space_run=$(df --output=avail "$XDG_RUNTIME_DIR" 2>/dev/null | tail --lines=1)
 	local free_space_tmp=$(df --output=avail /tmp 2>/dev/null | tail --lines=1)
 	local free_space_cache=$(df --output=avail "$XDG_CACHE_HOME" 2>/dev/null | tail --lines=1)
-	if [ $free_space_run -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="$XDG_RUNTIME_DIR/play.it/$workdir_name"
-	elif [ $free_space_tmp -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="/tmp/play.it/$workdir_name"
-	elif [ $free_space_cache -ge $needed_space ]; then
-		export PLAYIT_WORKDIR="$XDG_CACHE_HOME/play.it/$workdir_name"
+	local free_space_pwd=$(df --output=avail "$PWD" 2>/dev/null | tail --lines=1)
+	if [ -w "$XDG_RUNTIME_DIR" ] && [ $free_space_run -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="$XDG_RUNTIME_DIR/$name"
+	elif [ -w '/tmp' ] && [ $free_space_tmp -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="/tmp/$name"
+	elif [ -w "$XDG_CACHE_HOME" ] && [ $free_space_cache -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="$XDG_CACHE_HOME/$name"
+	elif [ -w "$PWD" ] && [ $free_space_pwd -ge $needed_space ]; then
+		export PLAYIT_WORKDIR="$PWD/$name"
 	else
-		export PLAYIT_WORKDIR="$PWD/play.it/$workdir_name"
+		set_temp_directories_error_not_enough_space
 	fi
-	rm --force --recursive "$PLAYIT_WORKDIR"
+
+	# If $PLAYIT_WORKDIR is an already existing directory, set a new one
+	if [ -e "$PLAYIT_WORKDIR" ]; then
+		set_temp_directories
+		return 0
+	fi
+
+	# Set $postinst and $prerm
+	mkdir --parents "$PLAYIT_WORKDIR/scripts"
+	export postinst="$PLAYIT_WORKDIR/scripts/postinst"
+	export prerm="$PLAYIT_WORKDIR/scripts/prerm"
+
+	# Set temporary directories for each package to build
+	for pkg in "$@"; do
+		testvar "$pkg" 'PKG'
+		set_temp_directories_pkg $pkg
+	done
 }
 
-# set package-secific working directory
-# USAGE: set_workdir_pkg $pkg
-# NEEDED VARS: $PKG_ID $PKG_VERSION $PKG_ARCH $PLAYIT_WORKDIR
-# CALLED BY: set_workdir
-set_workdir_pkg() {
+# set package-secific temporary directory
+# USAGE: set_temp_directories_pkg $pkg
+# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) PLAYIT_WORKDIR (PKG_ARCH) PKG_ID|GAME_ID PKG_VERSION|script_version
+# CALLED BY: set_temp_directories
+set_temp_directories_pkg() {
+
+	# Get package ID
 	local pkg_id
 	if [ "$(eval echo \$${1}_ID_${ARCHIVE#ARCHIVE_})" ]; then
 		pkg_id="$(eval echo \$${1}_ID_${ARCHIVE#ARCHIVE_})"
@@ -530,26 +556,68 @@ set_workdir_pkg() {
 	else
 		pkg_id="$GAME_ID"
 	fi
-	eval $(echo export ${1}_ID="$pkg_id")
+	export ${1}_ID="$pkg_id"
 
-	local pkg_version="$(eval echo \$${1}_VERSION)"
-	if [ ! "$pkg_version" ]; then
+	# Get package version
+	local pkg_version
+	if [ -n "$(eval echo \$${1}_VERSION)" ]; then
+		pkg_version="$(eval echo \$${1}_VERSION)+$script_version"
+	elif [ "$PKG_VERSION" ]; then
 		pkg_version="$PKG_VERSION"
-	fi
-	if [ ! "$pkg_version" ]; then
-		pkg_version='1.0-1'
-	fi
-
-	local pkg_arch
-	set_arch "$1"
-
-	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
-		local pkg_path="${PLAYIT_WORKDIR}/lib32-${pkg_id}_${pkg_version}_${pkg_arch}"
 	else
-		local pkg_path="${PLAYIT_WORKDIR}/${pkg_id}_${pkg_version}_${pkg_arch}"
+		pkg_version='1.0-1+$script_version'
 	fi
 
-	export ${1}_PATH="$pkg_path"
+	# Get package architecture
+	local pkg_architecture
+	set_architecture "$1"
+
+	# Set $PKG_PATH
+	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
+		pkg_id="lib32-$pkg_id"
+	fi
+	export ${1}_PATH="$PLAYIT_WORKDIR/${pkg_id}_${pkg_version}_${pkg_architecture}"
+}
+
+# display an error if set_temp_directories() is called before setting $ARCHIVE_SIZE
+# USAGE: set_temp_directories_error_no_size
+# NEEDED VARS: (LANG)
+# CALLS: print_error
+# CALLED BY: set_temp_directories
+set_temp_directories_error_no_size() {
+	print_error
+	case "${LANG%_*}" in
+		('fr')
+			string='$ARCHIVE_SIZE doit être défini avant tout appel à set_temp_directories().\n'
+		;;
+		('en'|*)
+			string='$ARCHIVE_SIZE must be set before any call to set_temp_directories().\n'
+		;;
+	esac
+	printf "$string"
+	return 1
+}
+
+# display an error if there is not enough free space to work in any of the tested directories
+# USAGE: set_temp_directories_error_not_enough_space
+# NEEDED VARS: (LANG)
+# CALLS: print_error
+# CALLED BY: set_temp_directories
+set_temp_directories_error_not_enough_space() {
+	print_error
+	case "${LANG%_*}" in
+		('fr')
+			string='Il n’y a pas assez d’espace libre dans les différents répertoires testés :\n'
+		;;
+		('en'|*)
+			string='There is not enough free space in the tested directories:\n'
+		;;
+	esac
+	printf "$string"
+	for path in "$XDG_RUNTIME_DIR" '/tmp' "$XDG_CACHE_HOME" "$PWD"; do
+		printf '%s\n' "$path"
+	done
+	return 1
 }
 
 # Check library version against script target version
@@ -561,19 +629,20 @@ library_version_minor=$(echo $library_version | cut -d'.' -f2)
 target_version_minor=$(echo $target_version | cut -d'.' -f2)
 
 if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
-	case ${LANG%_*} in
+	print_error
+	case "${LANG%_*}" in
 		('fr')
-			printf '\n\033[1;31mErreur:\033[0m\n'
-			printf 'Mauvaise version de libplayit2.sh\n'
-			printf 'La version cible est : %s\n' "$target_version"
+			string1='Mauvaise version de libplayit2.sh\n'
+			string2='La version cible est : %s\n'
 		;;
 		('en'|*)
-			printf '\n\033[1;31mError:\033[0m\n'
-			printf 'Wrong version of libplayit2.sh\n'
-			printf 'Target version is: %s\n' "$target_version"
+			string1='Wrong version of libplayit2.sh\n'
+			string2='Target version is: %s\n'
 		;;
 	esac
-	return 1
+	printf "$string1"
+	printf "$string2" "$target_version"
+	exit 1
 fi
 
 # Set default values for common vars
@@ -587,8 +656,8 @@ unset winecfg_launcher
 
 # Try to detect the host distribution through lsb_release
 
-if [ $(which lsb_release 2>/dev/null 2>&1) ]; then
-	case "$(lsb_release -si)" in
+if which lsb_release >/dev/null 2>&1; then
+	case "$(lsb_release --id --short)" in
 		('Debian'|'Ubuntu')
 			DEFAULT_PACKAGE_TYPE='deb'
 		;;
@@ -664,7 +733,7 @@ case $PACKAGE_TYPE in
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	(*)
-		return 1
+		liberror 'PACKAGE_TYPE' "$0"
 	;;
 esac
 
@@ -674,7 +743,7 @@ set_source_archive $ARCHIVES_LIST
 
 # Set working directories
 
-set_workdir $PACKAGES_LIST
+set_temp_directories $PACKAGES_LIST
 
 
 # extract data from given archive
@@ -695,11 +764,11 @@ extract_data_from() {
 			;;
 			('mojosetup')
 				bsdtar --directory "$destination" --extract --file "$file"
-				fix_rights "$destination"
+				set_standard_permissions "$destination"
 			;;
 			('mojosetup_unzip')
 				unzip -o -d "$destination" "$file" 1>/dev/null 2>&1 || true
-				fix_rights "$destination"
+				set_standard_permissions "$destination"
 			;;
 			('nix_stage1')
 				local input_blocksize=$(head --lines=514 "$file" | wc --bytes | tr --delete ' ')
@@ -740,6 +809,48 @@ extract_data_from_print() {
 			printf 'Extracting data from %s \n' "$file"
 		;;
 	esac
+}
+
+# put files from archive in the right package directories
+# USAGE: organize_data $id $path
+# NEEDED VARS: (PLAYIT_WORKDIR) (PKG) (PKG_PATH)
+organize_data() {
+	[ $# = 2 ] || return 1
+	[ "$PLAYIT_WORKDIR" ] || return 1
+	[ $PKG ] || return 1
+	[ -n "$(eval echo \$${PKG}_PATH)" ] || return 1
+
+	local archive_path
+	if [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")" ]; then
+		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")"
+	elif [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH\")" ]; then
+		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
+	else
+		unset archive_path
+	fi
+
+	local archive_files
+	if [ -n "$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")" ]; then
+		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")"
+	elif [ -n "$(eval echo \"\$ARCHIVE_${1}_FILES\")" ]; then
+		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
+	else
+		unset archive_files
+	fi
+
+	if [ "$archive_path" ] && [ "$archive_files" ] && [ -d "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
+		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
+		mkdir --parents "$pkg_path"
+		(
+			cd "$PLAYIT_WORKDIR/gamedata/$archive_path"
+			for file in $archive_files; do
+				if [ -e "$file" ]; then
+					cp --recursive --force --link --parents "$file" "$pkg_path"
+					rm --recursive "$file"
+				fi
+			done
+		)
+	fi
 }
 
 # extract .png or .ico files from given file
@@ -849,6 +960,47 @@ extract_and_sort_icons_from() {
 		sort_icons "$app"
 		rm --recursive "$PLAYIT_WORKDIR/icons"
 	done
+}
+
+# print installation instructions
+# USAGE: print_instructions $pkg[…]
+# NEEDED VARS: (GAME_NAME) (PACKAGE_TYPE) (PACKAGES_LIST)
+print_instructions() {
+	[ "$GAME_NAME" ] || return 1
+	if [ $# = 0 ]; then
+		print_instructions $PACKAGES_LIST
+		return 0
+	fi
+	case "${LANG%_*}" in
+		('fr')
+			string='\nInstallez %s en lançant la série de commandes suivantes en root :\n'
+		;;
+		('en'|*)
+			string='\nInstall %s by running the following commands as root:\n'
+		;;
+	esac
+	printf "$string" "$GAME_NAME"
+	case $PACKAGE_TYPE in
+		('arch')
+			printf 'pacman -U'
+			for pkg in $@; do
+				printf ' %s' "$(eval echo \$${pkg}_PKG)"
+			done
+			printf '\n'
+		;;
+		('deb')
+			printf 'dpkg -i'
+			for pkg in $@; do
+				printf ' %s' "$(eval echo \$${pkg}_PKG)"
+			done
+			printf '\n'
+			printf 'apt-get install -f\n'
+		;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'print_instructions'
+		;;
+	esac
+	printf '\n'
 }
 
 # alias calling write_bin() and write_desktop()
@@ -1354,33 +1506,6 @@ write_bin_run_wine() {
 	EOF
 }
 
-# put files from archive in the right package directories
-# USAGE: organize_data $id $path
-# NEEDED VARS: $PKG, $PKG_PATH, $PLAYIT_WORKDIR
-organize_data() {
-	local archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
-	if [ -z "$archive_path" ]; then
-		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")"
-	fi
-	local archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
-	if [ -z "$archive_files" ]; then
-		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")"
-	fi
-	if [ "$archive_path" ] && [ -e "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
-		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
-		mkdir --parents "$pkg_path"
-		(
-			cd "$PLAYIT_WORKDIR/gamedata/$archive_path"
-			for file in $archive_files; do
-				if [ -e "$file" ]; then
-					cp --recursive --force --link --parents "$file" "$pkg_path"
-					rm --recursive "$file"
-				fi
-			done
-		)
-	fi
-}
-
 # write package meta-data
 # USAGE: write_metadata $pkg
 # NEEDED VARS: $PKG_ARCH $PKG_DEPS $PKG_DESCRIPTION $PKG_ID $PKG_PATH
@@ -1395,8 +1520,8 @@ write_metadata() {
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'write_metadata'
 
 		# Set package-specific variables
-		local pkg_arch
-		set_arch "$pkg"
+		local pkg_architecture
+		set_architecture "$pkg"
 		local pkg_id="$(eval echo \$${pkg}_ID)"
 		local pkg_maint="$(whoami)@$(hostname)"
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
@@ -1484,7 +1609,7 @@ pkg_write_arch() {
 	packager = $pkg_maint
 	builddate = $(date +"%m%d%Y")
 	size = $pkg_size
-	arch = $pkg_arch
+	arch = $pkg_architecture
 	EOF
 
 	if [ "$pkg_description" ]; then
@@ -1584,7 +1709,7 @@ pkg_write_deb() {
 	cat > "$target" <<- EOF
 	Package: $pkg_id
 	Version: $pkg_version
-	Architecture: $pkg_arch
+	Architecture: $pkg_architecture
 	Maintainer: $pkg_maint
 	Installed-Size: $pkg_size
 	Section: non-free/games
@@ -1616,7 +1741,7 @@ pkg_write_deb() {
 		EOF
 	fi
 
-	if [ "$pkg_arch" = 'all' ]; then
+	if [ "$pkg_architecture" = 'all' ]; then
 		sed -i 's/Architecture: all/&\nMulti-Arch: foreign/' "$target"
 	fi
 
@@ -1656,40 +1781,5 @@ pkg_build_deb() {
 	pkg_print
 	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
 	export ${pkg}_PKG="$pkg_filename"
-}
-
-# print installation instructions
-# USAGE: print_instructions $pkg[…]
-# NEEDED VARS: PKG
-print_instructions() {
-	case ${LANG%_*} in
-		('fr')
-			printf '\nInstallez %s en lançant la série de commandes suivantes en root :\n' "$GAME_NAME"
-		;;
-		('en'|*)
-			printf '\nInstall %s by running the following commands as root:\n' "$GAME_NAME"
-		;;
-	esac
-	case $PACKAGE_TYPE in
-		('arch')
-			printf 'pacman -U'
-			for pkg in $@; do
-				printf ' %s' "$pkg"
-			done
-			printf '\n'
-		;;
-		('deb')
-			printf 'dpkg -i'
-			for pkg in $@; do
-				printf ' %s' "$pkg"
-			done
-			printf '\n'
-			printf 'apt-get install -f\n'
-		;;
-		(*)
-			liberror 'PACKAGE_TYPE' 'build_pkg'
-		;;
-	esac
-	printf '\n'
 }
 

@@ -13,7 +13,7 @@ set_source_archive() {
 				string='Le fichier suivant est introuvable :\n'
 			;;
 			('en'|*)
-				string='The following file could not be found:'
+				string='The following file could not be found:\n'
 			;;
 		esac
 	else
@@ -54,7 +54,7 @@ set_archive() {
 			if [ -f "$file" ]; then
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
-			elif [ -n "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+			elif [ "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
 				file="${SOURCE_ARCHIVE%/*}/$file"
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
@@ -98,7 +98,7 @@ set_archive_vars() {
 		PKG_VERSION="$(eval echo \$${ARCHIVE}_VERSION)+${script_version}"
 	fi
 
-	# set MD5 control sum + check file integrity
+	# check file integrity
 	if [ -n "$(eval echo \$${ARCHIVE}_MD5)" ]; then
 		file_checksum "$file"
 	fi
