@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.3
+# library version 1.14.4
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -175,7 +175,7 @@ elif [ -n "$(which unar)" ]; then
 	extract_7z() {
 	local archive="$1"
 	local target="$2"
-	unar -o "${target}" -Dfq "${archive}" >/dev/null
+	unar -output-directory "${target}" -force-overwrite -no-directory "${archive}" >/dev/null
 	}
 else
 	print error

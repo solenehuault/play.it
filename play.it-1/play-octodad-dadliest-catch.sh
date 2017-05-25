@@ -35,7 +35,7 @@ set -e
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160910.1
+script_version=20170523.1
 
 # Set game-specific variables
 
@@ -45,10 +45,10 @@ GAME_ID='octodad-dadliest-catch'
 GAME_ID_SHORT='octodad'
 GAME_NAME='Octodad Dadliest Catch'
 
-GAME_ARCHIVE1='OctodadDadliestCatch1.2.19338.tar.gz'
-GAME_ARCHIVE1_MD5='9022035ccca5b77b05498b4fdd7a0c4b'
-GAME_ARCHIVE_FULLSIZE='3100000'
-PKG_REVISION='humble160801'
+GAME_ARCHIVE1='OctodadDadliestCatch1.2.19351.tar.gz'
+GAME_ARCHIVE1_MD5='df1ded6c02d856a23c2dba919c3be40a'
+GAME_ARCHIVE_FULLSIZE='3000000'
+PKG_REVISION='humble170512'
 
 INSTALLER_PATH='*'
 INSTALLER_GAME='./*'
@@ -75,7 +75,7 @@ APP1_CAT='Game'
 
 PKG1_ID="${GAME_ID}"
 PKG1_ARCH='i386'
-PKG1_VERSION='1.0'
+PKG1_VERSION='1.2.19351'
 PKG1_CONFLICTS=''
 PKG1_DEPS='libc6, libstdc++6, libgl1-mesa-glx | libgl1'
 PKG1_RECS=''
