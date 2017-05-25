@@ -5,6 +5,9 @@
 check_deps() {
 	if [ "$ARCHIVE" ]; then
 		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+			('debian')
+				SCRIPT_DEPS="$SCRIPT_DEPS dpkg"
+			;;
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 			;;

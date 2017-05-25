@@ -14,6 +14,9 @@ extract_data_from() {
 			('7z')
 				extract_7z "$file" "$destination"
 			;;
+			('debian')
+				dpkg-deb --extract "$file" "$destination"
+			;;
 			('innosetup')
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
 			;;
