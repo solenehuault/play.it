@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.4
+# library version 1.14.6
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -379,9 +379,8 @@ done
 # set file rights to 644 and directory rights to 755
 # USAGE: fix_rights $directory…
 fix_rights() {
-local targets="$*"
 printf '%s…\n' "$(l10n 'fix_rights')"
-for target in ${targets}; do
+for target in "$@"; do
 	find "${target}" -type d -exec chmod 755 '{}' +
 	find "${target}" -type f -exec chmod 644 '{}' +
 done
@@ -1483,7 +1482,7 @@ local deps="$6"
 local recs="$7"
 local desc="$8"
 local extra_infos="$9"
-local size="$(du -cks $(realpath ${dir}/* | grep -v DEBIAN$) | tail -n1 | cut -f1)"
+local size="$(du -cks $(realpath "$dir"/* | grep -v DEBIAN$) | tail -n1 | cut -f1)"
 local maint="$(whoami)@$(hostname)"
 local target="${dir}/DEBIAN/control"
 if [ "${extra_infos}" = 'arch' ]; then
