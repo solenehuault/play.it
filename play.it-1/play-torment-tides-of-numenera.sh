@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170529.1
+script_version=20170529.2
 
 # Set game-specific variables
 
@@ -89,7 +89,7 @@ PKG_DATA_DESC="$GAME_NAME - data
 
 PKG_BIN_ID="$GAME_ID"
 PKG_BIN_ARCH='amd64'
-PKG_BIN_DEPS="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa | libgl1, libsdl2-2.0-0"
+PKG_BIN_DEPS="$PKG_AUDIO_ID, $PKG_RESOURCES_ID, $PKG_DATA_ID, libgl1-mesa-glx | libgl1, libsdl2-2.0-0"
 PKG_BIN_DESC="$GAME_NAME
  package built from GOG.com installer
  ./play.it script version $script_version"
