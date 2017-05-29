@@ -29,7 +29,7 @@
 
 ###
 # common functions for ./play.it scripts
-# library version 1.14.4
+# library version 1.14.5
 #
 # send your bug reports to vv221@dotslashplay.it
 ###
@@ -379,9 +379,8 @@ done
 # set file rights to 644 and directory rights to 755
 # USAGE: fix_rights $directory…
 fix_rights() {
-local targets="$*"
 printf '%s…\n' "$(l10n 'fix_rights')"
-for target in ${targets}; do
+for target in "$@"; do
 	find "${target}" -type d -exec chmod 755 '{}' +
 	find "${target}" -type f -exec chmod 644 '{}' +
 done
