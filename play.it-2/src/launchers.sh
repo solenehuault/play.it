@@ -279,53 +279,67 @@ write_bin_run() {
 }
 
 # write menu entry
-# USAGE: write_desktop $app
-# NEEDED VARS: $app_TYPE, $app_ID, $app_NAME, $app_CAT, PKG_PATH, PATH_DESK
-# CALLS: liberror
+# USAGE: write_desktop $app[…]
+# NEEDED VARS: (APP_ID) APP_TYPE GAME_ID GAME_NAME (LANG) PATH_DESK PKG PKG_PATH
+# CALLS: liberror testvar write_desktop_winecfg
 write_desktop() {
 	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
-		local type="$(eval echo \$${app}_TYPE)"
-		if [ "$winecfg_desktop" != 'done' ] && [ "$type" = 'wine' ]; then
+
+		local app_type="$(eval echo \$${app}_TYPE)"
+		if [ "$winecfg_desktop" != 'done' ] && [ "$app_type" = 'wine' ]; then
 			winecfg_desktop='done'
 			write_desktop_winecfg
 		fi
-		local id="$(eval echo \$${app}_ID)"
-		if [ -z "$id" ]; then
-			id="$GAME_ID"
+
+		local app_id
+		if [ -n "$(eval echo \$${app}_ID)" ]; then
+			app_id="$(eval echo \$${app}_ID)"
+		else
+			app_id="$GAME_ID"
 		fi
-		local name="$(eval echo \$${app}_NAME)"
-		if [ -z "$name" ]; then
-			name="$GAME_NAME"
+
+		local app_name
+		if [ -n "$(eval echo \$${app}_NAME)" ]
+			app_name="$(eval echo \$${app}_NAME)"
+		else
+			app_name="$GAME_NAME"
 		fi
-		local cat="$(eval echo \$${app}_CAT)"
-		if [ -z "$cat" ]; then
-			cat='Game'
+
+		local app_cat
+		if [ -n "$(eval echo \$${app}_CAT)" ]; then
+			app_cat="$(eval echo \$${app}_CAT)"
+		else
+			app_cat='Game'
 		fi
-		local target="${PKG_PATH}${PATH_DESK}/${id}.desktop"
+
+		local pkg_path="$(eval echo \$${PKG}_PATH)"
+		local target="${pkg_path}${PATH_DESK}/${app_id}.desktop"
 		mkdir --parents "${target%/*}"
-		cat > "${target}" <<- EOF
+		cat > "$target" <<- EOF
 		[Desktop Entry]
 		Version=1.0
 		Type=Application
-		Name=$name
-		Icon=$id
-		Exec=$id
-		Categories=$cat
+		Name=$app_name
+		Icon=$app_id
+		Exec=$app_id
+		Categories=$app_cat
 		EOF
 	done
 }
 
-# write winecfg launcher script
+# write winecfg menu entry
 # USAGE: write_desktop_winecfg
-# NEEDED VARS: GAME_ID
+# NEEDED VARS: GAME_ID GAME_NAME PATH_DESK PKG PKG_PATH
 # CALLS: write_desktop
+# CALLED BY: write_desktop
 write_desktop_winecfg() {
+	local pkg_path="$(eval echo \$${PKG}_PATH)"
 	APP_WINECFG_ID="${GAME_ID}_winecfg"
 	APP_WINECFG_NAME="$GAME_NAME - WINE configuration"
 	APP_WINECFG_CAT='Settings'
 	write_desktop 'APP_WINECFG'
-	sed --in-place 's/Icon=.\+/Icon=winecfg/' "${PKG_PATH}${PATH_DESK}/${APP_WINECFG_ID}.desktop"
+	sed --in-place 's/Icon=.\+/Icon=winecfg/' "${pkg_path}${PATH_DESK}/${APP_WINECFG_ID}.desktop"
 }
 
