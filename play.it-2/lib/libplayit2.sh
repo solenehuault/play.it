@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170531.1
+library_revision=20170531.2
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -159,10 +159,21 @@ set_architecture_deb() {
 # set source archive for data extraction
 # USAGE: set_source_archive $archive[…]
 # NEEDED VARS: (LANG)
-# CALLS: set_archive
+# CALLS: set_archive_error_not_found
 set_source_archive() {
 	set_archive 'SOURCE_ARCHIVE' "$@"
-	[ "$SOURCE_ARCHIVE" ] && return 0
+	if [ "$SOURCE_ARCHIVE" ]; then
+		return 0
+	else
+		set_archive_error_not_found "$@"
+	fi
+}
+
+# display an error message if a mandatory archive is not found
+# USAGE: set_archive_error_not_found $archive[…]
+# NEEDED VARS: (LANG)
+# CALLED BY: set_source_archive
+set_archive_error_not_found() {
 	print_error
 	local string
 	if [ "$#" = 1 ]; then
