@@ -292,7 +292,7 @@ write_desktop() {
 		fi
 
 		local app_name
-		if [ -n "$(eval echo \$${app}_NAME)" ]
+		if [ -n "$(eval echo \$${app}_NAME)" ]; then
 			app_name="$(eval echo \$${app}_NAME)"
 		else
 			app_name="$GAME_NAME"
