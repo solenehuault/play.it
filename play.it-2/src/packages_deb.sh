@@ -1,8 +1,14 @@
 # write .deb package meta-data
 # USAGE: pkg_write_deb
+# NEEDED VARS: GAME_NAME PKG_DEPS_DEB
 # CALLED BY: write_metadata
 pkg_write_deb() {
-	local pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+	local pkg_deps
+	if [ "$(eval echo \$${pkg}_DEPS_DEB_${ARCHIVE#ARCHIVE_})" ]; then
+		pkg_deps="$(eval echo \$${pkg}_DEPS_DEB_${ARCHIVE#ARCHIVE_})"
+	else
+		pkg_deps="$(eval echo \$${pkg}_DEPS_DEB)"
+	fi
 	local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 	local target="$pkg_path/DEBIAN/control"
 
@@ -73,15 +79,25 @@ pkg_write_deb() {
 }
 
 # build .deb package
-# USAGE: pkg_build_deb
-# NEEDED VARS: $PLAYIT_WORKDIR $COMPRESSION_METHOD
+# USAGE: pkg_build_deb $pkg_path
+# NEEDED VARS: (COMPRESSION_METHOD) (LANG) PLAYIT_WORKDIR
 # CALLS: pkg_print
 # CALLED BY: build_pkg
 pkg_build_deb() {
-	local pkg_filename="$PWD/${pkg_path##*/}.deb"
-	local dpkg_options="-Z$COMPRESSION_METHOD"
-	pkg_print
-	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$pkg_path" "$pkg_filename" 1>/dev/null
+	local pkg_filename="$PWD/${1##*/}.deb"
+
+	local dpkg_options
+	case $COMPRESSION_METHOD in
+		('gzip'|'none'|'xz')
+			dpkg_options="-Z$COMPRESSION_METHOD"
+		;;
+		(*)
+			liberror 'PACKAGE_TYPE' 'pkg_build_deb'
+		;;
+	esac
+
+	pkg_print "${pkg_filename##*/}"
+	TMPDIR="$PLAYIT_WORKDIR" fakeroot -- dpkg-deb $dpkg_options --build "$1" "$pkg_filename" 1>/dev/null
 	export ${pkg}_PKG="$pkg_filename"
 }
 
