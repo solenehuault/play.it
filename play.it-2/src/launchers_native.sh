@@ -3,6 +3,8 @@
 # CALLED BY: write_bin_run
 write_bin_run_native() {
 	cat >> "$file" <<- 'EOF'
+	# Run the game
+
 	cd "$PATH_PREFIX"
 	rm --force "$APP_EXE"
 	if [ -e "$PATH_DATA/$APP_EXE" ]; then
@@ -22,6 +24,7 @@ write_bin_run_native() {
 
 	cat >> "$file" <<- 'EOF'
 	"./$APP_EXE" $APP_OPTIONS $@
+
 	EOF
 }
 

@@ -3,6 +3,8 @@
 # CALLED BY: write_bin_run
 write_bin_run_dosbox() {
 	cat >> "$file" <<- 'EOF'
+	# Run the game
+
 	cd "$PATH_PREFIX"
 	dosbox -c "mount c .
 	c:
@@ -41,6 +43,7 @@ write_bin_run_dosbox() {
 
 	cat >> "$file" <<- 'EOF'
 	exit"
+
 	EOF
 }
 
