@@ -109,9 +109,9 @@ write_bin() {
 
 			# Set prefix-specific variables
 
-			[ "$XDG_CACHE_HOME" ]  || XDG_CACHE_HOME="$HOME/.cache"
+			[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
 			[ "$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="$HOME/.config"
-			[ "$XDG_DATA_HOME" ]   || XDG_DATA_HOME="$HOME/.local/share"
+			[ "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
 
 			PATH_CACHE="$XDG_CACHE_HOME/$PREFIX_ID"
 			PATH_CONFIG="$XDG_CONFIG_HOME/$PREFIX_ID"
@@ -199,19 +199,19 @@ write_bin() {
 
 			if [ ! -e "$PATH_CACHE" ]; then
 			  mkdir --parents "$PATH_CACHE"
-			  init_userdir_dirs  "$PATH_CACHE" "$CACHE_DIRS"
+			  init_userdir_dirs "$PATH_CACHE" "$CACHE_DIRS"
 			  init_userdir_files "$PATH_CACHE" "$CACHE_FILES"
 			fi
 
 			if [ ! -e "$PATH_CONFIG" ]; then
 			  mkdir --parents "$PATH_CONFIG"
-			  init_userdir_dirs  "$PATH_CONFIG" "$CONFIG_DIRS"
+			  init_userdir_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
 			  init_userdir_files "$PATH_CONFIG" "$CONFIG_FILES"
 			fi
 
 			if [ ! -e "$PATH_DATA" ]; then
 			  mkdir --parents "$PATH_DATA"
-			  init_userdir_dirs  "$PATH_DATA" "$DATA_DIRS"
+			  init_userdir_dirs "$PATH_DATA" "$DATA_DIRS"
 			  init_userdir_files "$PATH_DATA" "$DATA_FILES"
 			fi
 
@@ -231,9 +231,9 @@ write_bin() {
 			init_prefix_files "$PATH_CACHE"
 			init_prefix_files "$PATH_CONFIG"
 			init_prefix_files "$PATH_DATA"
-			init_prefix_dirs "$PATH_CACHE"  "$CACHE_DIRS"
+			init_prefix_dirs "$PATH_CACHE" "$CACHE_DIRS"
 			init_prefix_dirs "$PATH_CONFIG" "$CONFIG_DIRS"
-			init_prefix_dirs "$PATH_DATA"   "$DATA_DIRS"
+			init_prefix_dirs "$PATH_DATA" "$DATA_DIRS"
 
 			EOF
 		fi
@@ -255,9 +255,9 @@ write_bin() {
 
 		if [ $app_type != 'scummvm' ]; then
 			cat >> "$file" <<- 'EOF'
-			clean_userdir "$PATH_CACHE"  "$CACHE_FILES"
+			clean_userdir "$PATH_CACHE" "$CACHE_FILES"
 			clean_userdir "$PATH_CONFIG" "$CONFIG_FILES"
-			clean_userdir "$PATH_DATA"   "$DATA_FILES"
+			clean_userdir "$PATH_DATA" "$DATA_FILES"
 
 			exit 0
 			EOF
