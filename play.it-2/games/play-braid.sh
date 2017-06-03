@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170603.1
 
 # Set game-specific variables
 
@@ -55,7 +55,7 @@ ARCHIVE_DOC2_PATH='data/noarch/game'
 ARCHIVE_DOC2_FILES='./*.txt ./licenses'
 
 ARCHIVE_GAME_BIN_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN_FILES='./*.x86 ./lib/libCg*.so'
+ARCHIVE_GAME_BIN_FILES='./*.x86 ./lib/libCg*.so ./lib/libfltk.so.1.3'
 
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./data ./Icon.png'
@@ -72,7 +72,7 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1, libxft2, libfltk1.3"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0, libgl1-mesa-glx | libgl1, libxft2"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-sdl2 lib32-libgl lib32-glibc"
 
 # Load common functions
