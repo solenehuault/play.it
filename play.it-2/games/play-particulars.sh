@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170526.1
+script_version=20170603.1
 
 # Set game-specific variables
 
@@ -46,7 +46,7 @@ ARCHIVES_LIST='ARCHIVE_HUMBLE'
 ARCHIVE_HUMBLE='particulars_lin_latest1416421559.zip'
 ARCHIVE_HUMBLE_MD5='b7b269b8e33d682a2fca5c548928dabf'
 ARCHIVE_HUMBLE_SIZE='1400000'
-ARCHIVE_HUMBLE_VERSION='1.0-humble141119'
+ARCHIVE_HUMBLE_VERSION='1.0.0.2-humble141119'
 
 ARCHIVE_DOC1_PATH='particulars_1.0.0.2_lin/licenses'
 ARCHIVE_DOC1_FILES='./*'
@@ -103,8 +103,8 @@ PKG='PKG_BIN32'
 organize_data 'GAME_BIN32' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data 'DOC1' "$PATH_DOC1"
-organize_data 'DOC2' "$PATH_DOC2"
+organize_data 'DOC1' "$PATH_DOC"
+organize_data 'DOC2' "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
