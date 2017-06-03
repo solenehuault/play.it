@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170603.1
+script_version=20170603.2
 
 # Set game-specific variables
 
@@ -43,10 +43,10 @@ GAME_NAME='Psychonauts'
 
 ARCHIVES_LIST='ARCHIVE_GOG'
 
-ARCHIVE_GOG='gog_psychonauts_2.0.0.3.sh'
-ARCHIVE_GOG_MD5='8bf1bd92e7784adce2fb952fdde7fdb5'
+ARCHIVE_GOG='gog_psychonauts_2.0.0.4.sh'
+ARCHIVE_GOG_MD5='7fc85f71494ff5d37940e9971c0b0c55'
 ARCHIVE_GOG_SIZE='52000000'
-ARCHIVE_GOG_VERSION='1.04-gog2.0.0.3'
+ARCHIVE_GOG_VERSION='1.04-gog2.0.0.4'
 ARCHIVE_GOG_TYPE='mojosetup_unzip'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
