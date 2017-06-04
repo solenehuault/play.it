@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170604.1
 
 # Set game-specific variables
 
@@ -108,9 +108,7 @@ fi
 # Extract game data
 
 extract_data_from "$SOURCE_ARCHIVE"
-if [ "$ARCHIVE_TYPE" = 'tar.gz' ]; then
-	set_standard_permissions "$PLAYIT_WORKDIR/gamedata"
-fi
+set_standard_permissions "$PLAYIT_WORKDIR/gamedata"
 
 PKG='PKG_BIN'
 organize_data 'GAME_BIN' "$PATH_GAME"
