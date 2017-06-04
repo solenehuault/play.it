@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170604.1
+script_version=20170604.2
 
 # Set game-specific variables
 
@@ -54,19 +54,31 @@ ARCHIVE_GOG_PART2_TYPE='rar'
 
 DATA_FILES='./oride_data/output_log.txt'
 
-ARCHIVE_GAME_PATH='game'
-ARCHIVE_GAME_FILES='./oride_data ./oride.exe'
+ARCHIVE_GAME_ASSETS_PATH='game'
+ARCHIVE_GAME_ASSETS_FILES='./oride_data/*.assets ./oride_data/*.assets.ress'
+
+ARCHIVE_GAME_DATA_PATH='game'
+ARCHIVE_GAME_DATA_FILES='./oride_data'
+
+ARCHIVE_GAME_BIN_PATH='game'
+ARCHIVE_GAME_BIN_FILES='./oride.exe ./oride_data/managed ./oride_data/mono ./oride_data/plugins'
 
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./oride.exe'
 APP_MAIN_ICON='./oride.exe'
 APP_MAIN_ICON_RES='16 24 32 48 64 96 128 192 256'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_ASSETS PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
-PKG_MAIN_DEPS_ARCH='wine'
+PKG_ASSETS_ID="${GAME_ID}-assets"
+PKG_ASSETS_DESCRIPTION='assets'
+
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_ASSETS_ID, $PKG_DATA_ID, wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386"
+PKG_BIN_DEPS_ARCH="$PKG_ASSETS_ID $PKG_DATA_ID wine"
 
 # Load common functions
 
@@ -99,14 +111,29 @@ ln --symbolic "$(readlink --canonicalize $ARCHIVE_PART2)"  "$PLAYIT_WORKDIR/$GAM
 extract_data_from "$PLAYIT_WORKDIR/$GAME_ID.r00"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
 
+PKG='PKG_ASSETS'
+organize_data 'GAME_ASSETS' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'GAME_DATA' "$PATH_GAME"
+
+PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'
+(
+	cd "$PKG_BIN_PATH"
+	cp --link --parents --recursive "./$PATH_ICON_BASE" "$PKG_DATA_PATH"
+	rm --recursive "./$PATH_ICON_BASE"
+	rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
+)
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
