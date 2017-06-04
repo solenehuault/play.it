@@ -15,6 +15,11 @@ write_bin_set_scummvm() {
 # USAGE: write_bin_run_scummvm
 # CALLED BY: write_bin_run
 write_bin_run_scummvm() {
+	cat >> "$file" <<- 'EOF'
+	# Run the game
+
+	EOF
+
 	if [ "$app_prerun" ]; then
 		cat >> "$file" <<- EOF
 		$app_prerun
@@ -23,6 +28,8 @@ write_bin_run_scummvm() {
 
 	cat >> "$file" <<- 'EOF'
 	scummvm -p "$PATH_GAME" $APP_OPTIONS $@ $SCUMMVM_ID
+
+	exit 0
 	EOF
 }
 
