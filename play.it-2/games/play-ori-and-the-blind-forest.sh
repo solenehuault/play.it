@@ -34,21 +34,23 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170326.1
+script_version=20170604.1
 
 # Set game-specific variables
 
 GAME_ID='ori-and-the-blind-forest'
 GAME_NAME='Ori and the Blind Forest'
 
+ARCHIVES_LIST='ARCHIVE_GOG'
+
 ARCHIVE_GOG='setup_ori_and_the_blind_forest_de_2.0.0.2-1.bin'
 ARCHIVE_GOG_MD5='d5ec4ea264c372a4fdd52b5ecbd9efe6'
-ARCHIVE_GOG_PART_2='setup_ori_and_the_blind_forest_de_2.0.0.2-2.bin'
-ARCHIVE_GOG_PART_2_MD5='94c3d33701eadca15df9520de55f6f03'
-ARCHIVE_GOG_UNCOMPRESSED_SIZE='11000000'
+ARCHIVE_GOG_SIZE='11000000'
 ARCHIVE_GOG_VERSION='1.0-gog2.0.0.2'
 ARCHIVE_GOG_TYPE='rar'
-ARCHIVE_GOG_PART_2_TYPE='rar'
+ARCHIVE_GOG_PART2='setup_ori_and_the_blind_forest_de_2.0.0.2-2.bin'
+ARCHIVE_GOG_PART2_MD5='94c3d33701eadca15df9520de55f6f03'
+ARCHIVE_GOG_PART2_TYPE='rar'
 
 DATA_FILES='./oride_data/output_log.txt'
 
@@ -58,7 +60,9 @@ ARCHIVE_GAME_FILES='./oride_data ./oride.exe'
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./oride.exe'
 APP_MAIN_ICON='./oride.exe'
-APP_MAIN_ICON_RES='16x16 24x24 32x32 48x48 64x64 96x96 128x128 192x192 256x256'
+APP_MAIN_ICON_RES='16 24 32 48 64 96 128 192 256'
+
+PACKAGES_LIST='PKG_MAIN'
 
 PKG_MAIN_ARCH='32'
 PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32 | wine-bin | wine1.6-i386 | wine1.4-i386 | wine-staging-i386'
@@ -82,69 +86,33 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
+# Check that all parts of the installer are present
 
-# Set extra variables
-
-set_common_defaults
-fetch_args "$@"
-
-# Set source archive
-
-set_source_archive 'ARCHIVE_GOG'
-MAIN_ARCHIVE="$SOURCE_ARCHIVE"
-unset SOURCE_ARCHIVE
-set_source_archive 'ARCHIVE_GOG_PART_2'
-ARCHIVE_PART_2="$SOURCE_ARCHIVE"
-SOURCE_ARCHIVE="$MAIN_ARCHIVE"
-
-check_deps
-set_common_paths
+set_archive 'ARCHIVE_PART2' 'ARCHIVE_GOG_PART2'
+[ "$ARCHIVE_PART2" ] || set_archive_error_not_found 'ARCHIVE_GOG_PART2'
 ARCHIVE='ARCHIVE_GOG'
-file_checksum "$SOURCE_ARCHIVE"
-ARCHIVE='ARCHIVE_GOG_PART_2'
-file_checksum "$ARCHIVE_PART_2"
-ARCHIVE='ARCHIVE_GOG'
-check_deps
 
 # Extract game data
 
-set_workdir 'PKG_MAIN'
-ln --symbolic "$(readlink -f $SOURCE_ARCHIVE)" "$PLAYIT_WORKDIR/$GAME_ID.r00"
-ln --symbolic "$(readlink -f $ARCHIVE_PART_2)" "$PLAYIT_WORKDIR/$GAME_ID.r01"
-
+ln --symbolic "$(readlink --canonicalize $SOURCE_ARCHIVE)" "$PLAYIT_WORKDIR/$GAME_ID.r00"
+ln --symbolic "$(readlink --canonicalize $ARCHIVE_PART2)"  "$PLAYIT_WORKDIR/$GAME_ID.r01"
 extract_data_from "$PLAYIT_WORKDIR/$GAME_ID.r00"
 tolower "$PLAYIT_WORKDIR/gamedata"
 
-PKG='PKG_MAIN'
 organize_data 'GAME' "$PATH_GAME"
 
-if [ "$NO_ICON" = '0' ]; then
-	(
-		cd "${PKG_MAIN_PATH}${PATH_GAME}"
-		extract_icon_from "$APP_MAIN_ICON"
-		extract_icon_from "$PLAYIT_WORKDIR/icons"/*.ico
-		sort_icons 'APP_MAIN'
-		rm --recursive "$PLAYIT_WORKDIR/icons"
-	)
-fi
+extract_and_sort_icons_from 'APP_MAIN'
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_bin 'APP_MAIN'
-write_desktop 'APP_MAIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata 'PKG_MAIN'
-build_pkg 'PKG_MAIN'
+write_metadata
+build_pkg
 
 # Clean up
 
@@ -152,6 +120,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions
 
 exit 0
