@@ -75,8 +75,8 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa-glx | libgl1, pulseaudio:amd64 | pulseaudio"
-PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-libgl pulseaudio"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libgl1-mesa-glx | libgl1, pulseaudio:amd64 | pulseaudio, libxcursor1, libxrandr2"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-libgl pulseaudio lib32-libxcursor lib32-libxrandr"
 
 # Load common functions
 
