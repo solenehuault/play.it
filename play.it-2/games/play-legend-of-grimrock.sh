@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170605.1
 
 # Set game-specific variables
 
@@ -75,12 +75,12 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libopenal1, libsdl2-2.0-0, libfreeimage3, libminizip1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl lib32-openal lib32-sdl2 freeimage minizip"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libopenal1, libsdl2-2.0-0, libfreeimage3, libminizip1, libvorbisfile3"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-libgl lib32-openal lib32-sdl2 freeimage minizip lib32-libvorbis"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID libgl openal sdl2 freeimage minizip"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID libgl openal sdl2 freeimage minizip libvorbis"
 
 # Load common functions
 
