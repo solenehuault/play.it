@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170531.2
+library_revision=20170604.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -1155,6 +1155,12 @@ write_bin() {
 			    for dir in $2; do
 			      rm --force --recursive "$PATH_PREFIX/$dir"
 			      mkdir --parents "$PATH_PREFIX/${dir%/*}"
+			      if [ ! -e "$dir" ]; then
+			        (
+			          cd "$PATH_GAME"
+			          cp --parents --recursive "$dir" "$1"
+			        )
+			      fi
 			      ln --symbolic "$(readlink -e "$dir")" "$PATH_PREFIX/$dir"
 			    done
 			  )
