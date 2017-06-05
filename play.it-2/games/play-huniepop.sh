@@ -71,8 +71,8 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_DATA_ARCH='32'
-PKG_DATA_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
-PKG_DATA_DEPS_ARCH="$PKG_DATA_ID lib32-glu lsb-release"
+PKG_DATA_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
+PKG_DATA_DEPS_ARCH="$PKG_DATA_ID lib32-glu lsb-release lib32-libxcursor"
 
 # Load common functions
 
