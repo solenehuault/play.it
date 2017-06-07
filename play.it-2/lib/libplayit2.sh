@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170607.1
+library_revision=20170607.2
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -653,9 +653,9 @@ help_package() {
 	printf -- '--package=arch|deb\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tarch\t%s' "$string_arch"
-	[ "$DEFAULT_PACKAGE_TYPE" = 'arch' ] && printf ' %s\n' "$string_default" || printf '\n'
+	[ "$DEFAULT_PACKAGE_TYPE" = 'arch' ] && printf ' %s\n' "$string_default" || printf '\n'
 	printf '\tdeb\t%s' "$string_deb"
-	[ "$DEFAULT_PACKAGE_TYPE" = 'deb' ] && printf ' %s\n' "$string_default" || printf '\n'
+	[ "$DEFAULT_PACKAGE_TYPE" = 'deb' ] && printf ' %s\n' "$string_default" || printf '\n'
 }
 
 # set temporary directories
