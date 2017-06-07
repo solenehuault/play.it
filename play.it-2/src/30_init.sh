@@ -54,6 +54,10 @@ unset PACKAGE_TYPE
 unset SOURCE_ARCHIVE
 for arg in "$@"; do
 	case "$arg" in
+		('--help')
+			help
+			exit 0
+		;;
 		('--checksum='*)
 			export CHECKSUM_METHOD="${arg#*=}"
 		;;
