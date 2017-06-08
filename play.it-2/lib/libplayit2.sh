@@ -33,12 +33,12 @@
 ###
 
 library_version=2.0
-library_revision=20170607.2
+library_revision=20170608.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
 # CALLS: liberror set_architecture_arch set_architecture_deb
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH)
+# NEEDED VARS: (ARCHIVE) (OPTION_PACKAGE) (PKG_ARCH)
 # CALLED BY: set_temp_directories write_metadata
 set_architecture() {
 	local architecture
@@ -48,7 +48,7 @@ set_architecture() {
 	else
 		architecture="$(eval echo \$${1}_ARCH)"
 	fi
-	case $PACKAGE_TYPE in
+	case $OPTION_PACKAGE in
 		('arch')
 			set_architecture_arch "$architecture"
 		;;
@@ -56,7 +56,7 @@ set_architecture() {
 			set_architecture_deb "$architecture"
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'set_architecture'
+			liberror 'OPTION_PACKAGE' 'set_architecture'
 		;;
 	esac
 }
@@ -339,10 +339,10 @@ set_archive_print() {
 
 # check integrity of target file
 # USAGE: file_checksum $file
-# NEEDED VARS: ARCHIVE CHECKSUM_METHOD (LANG)
+# NEEDED VARS: ARCHIVE OPTION_CHECKSUM (LANG)
 # CALLS: file_checksum_md5 liberror
 file_checksum() {
-	case "$CHECKSUM_METHOD" in
+	case "$OPTION_CHECKSUM" in
 		('md5')
 			file_checksum_md5 "$1"
 		;;
@@ -350,7 +350,7 @@ file_checksum() {
 			return 0
 		;;
 		(*)
-			liberror 'CHECKSUM_METHOD' 'file_checksum'
+			liberror 'OPTION_CHECKSUM' 'file_checksum'
 		;;
 	esac
 }
@@ -412,7 +412,7 @@ file_checksum_error() {
 
 # check script dependencies
 # USAGE: check_deps
-# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (CHECKSUM_METHOD) (LANG) (PACKAGE_TYPE) (SCRIPT_DEPS)
+# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (OPTION_CHECKSUM) (LANG) (OPTION_PACKAGE) (SCRIPT_DEPS)
 # CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
 	if [ "$ARCHIVE" ]; then
@@ -440,10 +440,10 @@ check_deps() {
 			;;
 		esac
 	fi
-	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
+	if [ "$OPTION_CHECKSUM" = 'md5sum' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
 	fi
-	if [ "$PACKAGE_TYPE" = 'deb' ]; then
+	if [ "$OPTION_PACKAGE" = 'deb' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
 	fi
 	if [ "${APP_MAIN_ICON##*.}" = 'bmp' ]; then
@@ -565,7 +565,8 @@ help_checksum() {
 			string_none='no verification'
 		;;
 	esac
-	printf -- '--checksum=md5|none\n\n'
+	printf -- '--checksum=md5|none\n'
+	printf -- '--checksum md5|none\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tmd5\t%s\n' "$string_md5"
 	printf '\tnone\t%s\n' "$string_none"
@@ -594,7 +595,8 @@ help_compression() {
 			string_xz='xz compression (slower but more efficient than gzip)'
 		;;
 	esac
-	printf -- '--compression=none|gzip|xz\n\n'
+	printf -- '--compression=none|gzip|xz\n'
+	printf -- '--compression none|gzip|xz\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tnone\t%s\n' "$string_none"
 	printf '\tgzip\t%s\n' "$string_gzip"
@@ -621,7 +623,8 @@ help_prefix() {
 			string_default='default path:'
 		;;
 	esac
-	printf -- '--prefix=$path\n\n'
+	printf -- '--prefix=$path\n'
+	printf -- '--prefix $path\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\t%s\n' "$string_absolute"
 	printf '\t%s /usr/local\n' "$string_default"
@@ -650,12 +653,13 @@ help_package() {
 			string_deb='.deb package (Debian, Ubuntu)'
 		;;
 	esac
-	printf -- '--package=arch|deb\n\n'
+	printf -- '--package=arch|deb\n'
+	printf -- '--package arch|deb\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tarch\t%s' "$string_arch"
-	[ "$DEFAULT_PACKAGE_TYPE" = 'arch' ] && printf ' %s\n' "$string_default" || printf '\n'
+	[ "$DEFAULT_OPTION_PACKAGE" = 'arch' ] && printf ' %s\n' "$string_default" || printf '\n'
 	printf '\tdeb\t%s' "$string_deb"
-	[ "$DEFAULT_PACKAGE_TYPE" = 'deb' ] && printf ' %s\n' "$string_default" || printf '\n'
+	[ "$DEFAULT_OPTION_PACKAGE" = 'deb' ] && printf ' %s\n' "$string_default" || printf '\n'
 }
 
 # set temporary directories
@@ -717,7 +721,7 @@ set_temp_directories() {
 
 # set package-secific temporary directory
 # USAGE: set_temp_directories_pkg $pkg
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) PLAYIT_WORKDIR (PKG_ARCH) PKG_ID|GAME_ID PKG_VERSION|script_version
+# NEEDED VARS: (ARCHIVE) (OPTION_PACKAGE) PLAYIT_WORKDIR (PKG_ARCH) PKG_ID|GAME_ID PKG_VERSION|script_version
 # CALLED BY: set_temp_directories
 set_temp_directories_pkg() {
 
@@ -747,7 +751,7 @@ set_temp_directories_pkg() {
 	set_architecture "$1"
 
 	# Set $PKG_PATH
-	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
+	if [ "$OPTION_PACKAGE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
 		pkg_id="lib32-$pkg_id"
 	fi
 	export ${1}_PATH="$PLAYIT_WORKDIR/${pkg_id}_${pkg_version}_${pkg_architecture}"
@@ -821,10 +825,10 @@ fi
 
 # Set default values for common vars
 
-DEFAULT_CHECKSUM_METHOD='md5'
-DEFAULT_COMPRESSION_METHOD='none'
-DEFAULT_INSTALL_PREFIX='/usr/local'
-DEFAULT_PACKAGE_TYPE='deb'
+DEFAULT_OPTION_CHECKSUM='md5'
+DEFAULT_OPTION_COMPRESSION='none'
+DEFAULT_OPTION_PREFIX='/usr/local'
+DEFAULT_OPTION_PACKAGE='deb'
 unset winecfg_desktop
 unset winecfg_launcher
 
@@ -833,61 +837,70 @@ unset winecfg_launcher
 if which lsb_release >/dev/null 2>&1; then
 	case "$(lsb_release --id --short)" in
 		('Debian'|'Ubuntu')
-			DEFAULT_PACKAGE_TYPE='deb'
+			DEFAULT_OPTION_PACKAGE='deb'
 		;;
 		('Arch')
-			DEFAULT_PACKAGE_TYPE='arch'
+			DEFAULT_OPTION_PACKAGE='arch'
 		;;
 	esac
 fi
 
 # Parse arguments given to the script
 
-unset CHECKSUM_METHOD
-unset COMPRESSION_METHOD
-unset INSTALL_PREFIX
-unset PACKAGE_TYPE
+unset OPTION_CHECKSUM
+unset OPTION_COMPRESSION
+unset OPTION_PREFIX
+unset OPTION_PACKAGE
 unset SOURCE_ARCHIVE
-for arg in "$@"; do
-	case "$arg" in
+
+while [ $# -gt 0 ]; do
+	case "$1" in
 		('--help')
 			help
 			exit 0
 		;;
-		('--checksum='*)
-			export CHECKSUM_METHOD="${arg#*=}"
-		;;
-		('--compression='*)
-			export COMPRESSION_METHOD="${arg#*=}"
-		;;
-		('--prefix='*)
-			export INSTALL_PREFIX="${arg#*=}"
-		;;
-		('--package='*)
-			export PACKAGE_TYPE="${arg#*=}"
+		('--checksum='*|\
+		'--checksum'|\
+		'--compression='*|\
+		'--compression'|\
+		'--prefix='*|\
+		'--prefix'|\
+		'--package='*|\
+		'--package')
+			if [ "${1%=*}" != "${1#*=}" ]; then
+				option="$(echo "${1%=*}" | sed 's/^--//')"
+				value="${1#*=}"
+			else
+				option="$(echo "$1" | sed 's/^--//')"
+				value="$2"
+				shift 1
+			fi
+			if [ "$value" = 'help' ]; then
+				eval help_$option
+				exit 0
+			else
+				export OPTION_$(echo $option | tr [:lower:] [:upper:])="$value"
+			fi
+			unset option
+			unset value
 		;;
 		('--'*)
 			return 1
 		;;
 		(*)
-			export SOURCE_ARCHIVE="$arg"
+			export SOURCE_ARCHIVE="$1"
 		;;
 	esac
+	shift 1
 done
 
-# Set global variables not already set by script arguments
+# Set options not already set by script arguments to default values
 
-for var in 'CHECKSUM_METHOD' 'COMPRESSION_METHOD' 'INSTALL_PREFIX' 'PACKAGE_TYPE'; do
-	value="$(eval echo \$$var)"
-	if [ -z "$value" ]; then
-		value_default="$(eval echo \$DEFAULT_$var)"
-		if [ -n "$value_default" ]; then
-			export $var="$value_default"
-		fi
+for option in 'CHECKSUM' 'COMPRESSION' 'PREFIX' 'PACKAGE'; do
+	if [ -z "$(eval echo \$OPTION_$option)" ] && [ -n "$(eval echo \$DEFAULT_OPTION_$option)" ]; then
+		export OPTION_$option="$(eval echo \$DEFAULT_OPTION_$option)"
 	fi
 done
-unset value
-unset value_default
 
 # Check script dependencies
 
@@ -895,23 +908,23 @@ check_deps
 
 # Set package paths
 
-case $PACKAGE_TYPE in
+case $OPTION_PACKAGE in
 	('arch')
-		PATH_BIN="$INSTALL_PREFIX/bin"
+		PATH_BIN="$OPTION_PREFIX/bin"
 		PATH_DESK='/usr/local/share/applications'
-		PATH_DOC="$INSTALL_PREFIX/share/doc/$GAME_ID"
-		PATH_GAME="$INSTALL_PREFIX/share/$GAME_ID"
+		PATH_DOC="$OPTION_PREFIX/share/doc/$GAME_ID"
+		PATH_GAME="$OPTION_PREFIX/share/$GAME_ID"
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	('deb')
-		PATH_BIN="$INSTALL_PREFIX/games"
+		PATH_BIN="$OPTION_PREFIX/games"
 		PATH_DESK='/usr/local/share/applications'
-		PATH_DOC="$INSTALL_PREFIX/share/doc/$GAME_ID"
-		PATH_GAME="$INSTALL_PREFIX/share/games/$GAME_ID"
+		PATH_DOC="$OPTION_PREFIX/share/doc/$GAME_ID"
+		PATH_GAME="$OPTION_PREFIX/share/games/$GAME_ID"
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	(*)
-		liberror 'PACKAGE_TYPE' "$0"
+		liberror 'OPTION_PACKAGE' "$0"
 	;;
 esac
 
@@ -1128,7 +1141,7 @@ extract_and_sort_icons_from() {
 
 # print installation instructions
 # USAGE: print_instructions $pkg[…]
-# NEEDED VARS: (GAME_NAME) (PACKAGE_TYPE) (PACKAGES_LIST)
+# NEEDED VARS: (GAME_NAME) (OPTION_PACKAGE) (PACKAGES_LIST)
 print_instructions() {
 	[ "$GAME_NAME" ] || return 1
 	if [ $# = 0 ]; then
@@ -1144,7 +1157,7 @@ print_instructions() {
 		;;
 	esac
 	printf "$string" "$GAME_NAME"
-	case $PACKAGE_TYPE in
+	case $OPTION_PACKAGE in
 		('arch')
 			printf 'pacman -U'
 			for pkg in $@; do
@@ -1161,7 +1174,7 @@ print_instructions() {
 			printf 'apt-get install -f\n'
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'print_instructions'
+			liberror 'OPTION_PACKAGE' 'print_instructions'
 		;;
 	esac
 	printf '\n'
@@ -1701,7 +1714,7 @@ write_desktop_winecfg() {
 
 # write package meta-data
 # USAGE: write_metadata [$pkg…]
-# NEEDED VARS: (ARCHIVE) GAME_NAME (PACKAGE_TYPE) PACKAGES_LIST (PKG_ARCH) PKG_DEPS_ARCH PKG_DEPS_DEB PKG_DESCRIPTION PKG_ID PKG_PATH PKG_PROVIDE PKG_VERSION
+# NEEDED VARS: (ARCHIVE) GAME_NAME (OPTION_PACKAGE) PACKAGES_LIST (PKG_ARCH) PKG_DEPS_ARCH PKG_DEPS_DEB PKG_DESCRIPTION PKG_ID PKG_PATH PKG_PROVIDE PKG_VERSION
 # CALLS: liberror pkg_write_arch pkg_write_deb set_architecture testvar
 write_metadata() {
 	if [ $# = 0 ]; then
@@ -1731,7 +1744,7 @@ write_metadata() {
 			pkg_version="$PKG_VERSION"
 		fi
 
-		case $PACKAGE_TYPE in
+		case $OPTION_PACKAGE in
 			('arch')
 				pkg_write_arch
 			;;
@@ -1739,7 +1752,7 @@ write_metadata() {
 				pkg_write_deb
 			;;
 			(*)
-				liberror 'PACKAGE_TYPE' 'write_metadata'
+				liberror 'OPTION_PACKAGE' 'write_metadata'
 			;;
 		esac
 	done
@@ -1747,7 +1760,7 @@ write_metadata() {
 
 # build .pkg.tar or .deb package
 # USAGE: build_pkg [$pkg…]
-# NEEDED VARS: (COMPRESSION_METHOD) (LANG) (PACKAGE_TYPE) PACKAGES_LIST PKG_PATH PLAYIT_WORKDIR
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) (OPTION_PACKAGE) PACKAGES_LIST PKG_PATH PLAYIT_WORKDIR
 # CALLS: liberror pkg_build_arch pkg_build_deb testvar
 build_pkg() {
 	if [ $# = 0 ]; then
@@ -1757,7 +1770,7 @@ build_pkg() {
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
-		case $PACKAGE_TYPE in
+		case $OPTION_PACKAGE in
 			('arch')
 				pkg_build_arch "$pkg_path"
 			;;
@@ -1765,7 +1778,7 @@ build_pkg() {
 				pkg_build_deb "$pkg_path"
 			;;
 			(*)
-				liberror 'PACKAGE_TYPE' 'build_pkg'
+				liberror 'OPTION_PACKAGE' 'build_pkg'
 			;;
 		esac
 	done
@@ -1865,14 +1878,14 @@ pkg_write_arch() {
 
 # build .pkg.tar package
 # USAGE: pkg_build_arch $pkg_path
-# NEEDED VARS: (COMPRESSION_METHOD) (LANG) PLAYIT_WORKDIR
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) PLAYIT_WORKDIR
 # CALLS: pkg_print
 # CALLED BY: build_pkg
 pkg_build_arch() {
 	local pkg_filename="$PWD/${1##*/}.pkg.tar"
 	local tar_options='--create --group=root --owner=root'
 
-	case $COMPRESSION_METHOD in
+	case $OPTION_COMPRESSION in
 		('gzip')
 			tar_options="$tar_options --gzip"
 			pkg_filename="${pkg_filename}.gz"
@@ -1883,7 +1896,7 @@ pkg_build_arch() {
 		;;
 		('none') ;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'pkg_build_arch'
+			liberror 'OPTION_PACKAGE' 'pkg_build_arch'
 		;;
 	esac
 
@@ -1983,19 +1996,19 @@ pkg_write_deb() {
 
 # build .deb package
 # USAGE: pkg_build_deb $pkg_path
-# NEEDED VARS: (COMPRESSION_METHOD) (LANG) PLAYIT_WORKDIR
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) PLAYIT_WORKDIR
 # CALLS: pkg_print
 # CALLED BY: build_pkg
 pkg_build_deb() {
 	local pkg_filename="$PWD/${1##*/}.deb"
 
 	local dpkg_options
-	case $COMPRESSION_METHOD in
+	case $OPTION_COMPRESSION in
 		('gzip'|'none'|'xz')
-			dpkg_options="-Z$COMPRESSION_METHOD"
+			dpkg_options="-Z$OPTION_COMPRESSION"
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'pkg_build_deb'
+			liberror 'OPTION_PACKAGE' 'pkg_build_deb'
 		;;
 	esac
 
