@@ -59,7 +59,14 @@ while [ $# -gt 0 ]; do
 			help
 			exit 0
 		;;
-		('--checksum='*|'--checksum'|'--compression='*|'--compression'|'--prefix='*|'--prefix'|'--package='*|'--package')
+		('--checksum='*|\
+		'--checksum'|\
+		'--compression='*|\
+		'--compression'|\
+		'--prefix='*|\
+		'--prefix'|\
+		'--package='*|\
+		'--package')
 			if [ "${1%=*}" != "${1#*=}" ]; then
 				option="$(echo "${1%=*}" | sed 's/^--//')"
 				value="${1#*=}"
