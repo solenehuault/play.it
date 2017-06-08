@@ -86,3 +86,17 @@ extract_and_sort_icons_from() {
 	done
 }
 
+# move icons to the target package
+# USAGE: move_icons_to $pkg
+# NEEDED VARS: PATH_ICON_BASE PKG
+move_icons_to() {
+	local source_path="$(eval echo \$${pkg}_PATH)"
+	local destination_path="$(eval echo \$${1}_PATH)"
+	(
+		cd "$source_path"
+		cp --link --parents --recursive "./$PATH_ICON_BASE" "$destination_path"
+		rm --recursive "./$PATH_ICON_BASE"
+		rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
+	)
+}
+
