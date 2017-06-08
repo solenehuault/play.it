@@ -94,19 +94,13 @@ while [ $# -gt 0 ]; do
 	shift 1
 done
 
-# Set global variables not already set by script arguments
+# Set options not already set by script arguments to default values
 
-for var in 'OPTION_CHECKSUM' 'OPTION_COMPRESSION' 'OPTION_PREFIX' 'OPTION_PACKAGE'; do
-	value="$(eval echo \$$var)"
-	if [ -z "$value" ]; then
-		value_default="$(eval echo \$DEFAULT_$var)"
-		if [ -n "$value_default" ]; then
-			export $var="$value_default"
-		fi
+for option in 'CHECKSUM' 'COMPRESSION' 'PREFIX' 'PACKAGE'; do
+	if [ -z "$(eval echo \$OPTION_$option)" ] && [ -n "$(eval echo \$DEFAULT_OPTION_$option)" ]; then
+		export OPTION_$option="$(eval echo \$DEFAULT_OPTION_$option)"
 	fi
 done
-unset value
-unset value_default
 
 # Check script dependencies
 
