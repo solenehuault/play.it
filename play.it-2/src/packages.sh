@@ -1,6 +1,6 @@
 # write package meta-data
 # USAGE: write_metadata [$pkg…]
-# NEEDED VARS: (ARCHIVE) GAME_NAME (PACKAGE_TYPE) PACKAGES_LIST (PKG_ARCH) PKG_DEPS_ARCH PKG_DEPS_DEB PKG_DESCRIPTION PKG_ID PKG_PATH PKG_PROVIDE PKG_VERSION
+# NEEDED VARS: (ARCHIVE) GAME_NAME (OPTION_PACKAGE) PACKAGES_LIST (PKG_ARCH) PKG_DEPS_ARCH PKG_DEPS_DEB PKG_DESCRIPTION PKG_ID PKG_PATH PKG_PROVIDE PKG_VERSION
 # CALLS: liberror pkg_write_arch pkg_write_deb set_architecture testvar
 write_metadata() {
 	if [ $# = 0 ]; then
@@ -30,7 +30,7 @@ write_metadata() {
 			pkg_version="$PKG_VERSION"
 		fi
 
-		case $PACKAGE_TYPE in
+		case $OPTION_PACKAGE in
 			('arch')
 				pkg_write_arch
 			;;
@@ -38,7 +38,7 @@ write_metadata() {
 				pkg_write_deb
 			;;
 			(*)
-				liberror 'PACKAGE_TYPE' 'write_metadata'
+				liberror 'OPTION_PACKAGE' 'write_metadata'
 			;;
 		esac
 	done
@@ -46,7 +46,7 @@ write_metadata() {
 
 # build .pkg.tar or .deb package
 # USAGE: build_pkg [$pkg…]
-# NEEDED VARS: (COMPRESSION_METHOD) (LANG) (PACKAGE_TYPE) PACKAGES_LIST PKG_PATH PLAYIT_WORKDIR
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) (OPTION_PACKAGE) PACKAGES_LIST PKG_PATH PLAYIT_WORKDIR
 # CALLS: liberror pkg_build_arch pkg_build_deb testvar
 build_pkg() {
 	if [ $# = 0 ]; then
@@ -56,7 +56,7 @@ build_pkg() {
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
 		local pkg_path="$(eval echo \$${pkg}_PATH)"
-		case $PACKAGE_TYPE in
+		case $OPTION_PACKAGE in
 			('arch')
 				pkg_build_arch "$pkg_path"
 			;;
@@ -64,7 +64,7 @@ build_pkg() {
 				pkg_build_deb "$pkg_path"
 			;;
 			(*)
-				liberror 'PACKAGE_TYPE' 'build_pkg'
+				liberror 'OPTION_PACKAGE' 'build_pkg'
 			;;
 		esac
 	done

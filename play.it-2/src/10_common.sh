@@ -1,7 +1,7 @@
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
 # CALLS: liberror set_architecture_arch set_architecture_deb
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH)
+# NEEDED VARS: (ARCHIVE) (OPTION_PACKAGE) (PKG_ARCH)
 # CALLED BY: set_temp_directories write_metadata
 set_architecture() {
 	local architecture
@@ -11,7 +11,7 @@ set_architecture() {
 	else
 		architecture="$(eval echo \$${1}_ARCH)"
 	fi
-	case $PACKAGE_TYPE in
+	case $OPTION_PACKAGE in
 		('arch')
 			set_architecture_arch "$architecture"
 		;;
@@ -19,7 +19,7 @@ set_architecture() {
 			set_architecture_deb "$architecture"
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'set_architecture'
+			liberror 'OPTION_PACKAGE' 'set_architecture'
 		;;
 	esac
 }

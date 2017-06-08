@@ -25,10 +25,10 @@ fi
 
 # Set default values for common vars
 
-DEFAULT_CHECKSUM_METHOD='md5'
-DEFAULT_COMPRESSION_METHOD='none'
-DEFAULT_INSTALL_PREFIX='/usr/local'
-DEFAULT_PACKAGE_TYPE='deb'
+DEFAULT_OPTION_CHECKSUM='md5'
+DEFAULT_OPTION_COMPRESSION='none'
+DEFAULT_OPTION_PREFIX='/usr/local'
+DEFAULT_OPTION_PACKAGE='deb'
 unset winecfg_desktop
 unset winecfg_launcher
 
@@ -37,20 +37,20 @@ unset winecfg_launcher
 if which lsb_release >/dev/null 2>&1; then
 	case "$(lsb_release --id --short)" in
 		('Debian'|'Ubuntu')
-			DEFAULT_PACKAGE_TYPE='deb'
+			DEFAULT_OPTION_PACKAGE='deb'
 		;;
 		('Arch')
-			DEFAULT_PACKAGE_TYPE='arch'
+			DEFAULT_OPTION_PACKAGE='arch'
 		;;
 	esac
 fi
 
 # Parse arguments given to the script
 
-unset CHECKSUM_METHOD
-unset COMPRESSION_METHOD
-unset INSTALL_PREFIX
-unset PACKAGE_TYPE
+unset OPTION_CHECKSUM
+unset OPTION_COMPRESSION
+unset OPTION_PREFIX
+unset OPTION_PACKAGE
 unset SOURCE_ARCHIVE
 for arg in "$@"; do
 	case "$arg" in
@@ -63,7 +63,7 @@ for arg in "$@"; do
 				help_checksum
 				exit 0
 			else
-				export CHECKSUM_METHOD="${arg#*=}"
+				export OPTION_CHECKSUM="${arg#*=}"
 			fi
 		;;
 		('--compression='*)
@@ -71,7 +71,7 @@ for arg in "$@"; do
 				help_compression
 				exit 0
 			else
-				export COMPRESSION_METHOD="${arg#*=}"
+				export OPTION_COMPRESSION="${arg#*=}"
 			fi
 		;;
 		('--prefix='*)
@@ -79,7 +79,7 @@ for arg in "$@"; do
 				help_prefix
 				exit 0
 			else
-				export INSTALL_PREFIX="${arg#*=}"
+				export OPTION_PREFIX="${arg#*=}"
 			fi
 		;;
 		('--package='*)
@@ -87,7 +87,7 @@ for arg in "$@"; do
 				help_package
 				exit 0
 			else
-				export PACKAGE_TYPE="${arg#*=}"
+				export OPTION_PACKAGE="${arg#*=}"
 			fi
 		;;
 		('--'*)
@@ -101,7 +101,7 @@ done
 
 # Set global variables not already set by script arguments
 
-for var in 'CHECKSUM_METHOD' 'COMPRESSION_METHOD' 'INSTALL_PREFIX' 'PACKAGE_TYPE'; do
+for var in 'OPTION_CHECKSUM' 'OPTION_COMPRESSION' 'OPTION_PREFIX' 'OPTION_PACKAGE'; do
 	value="$(eval echo \$$var)"
 	if [ -z "$value" ]; then
 		value_default="$(eval echo \$DEFAULT_$var)"
@@ -119,23 +119,23 @@ check_deps
 
 # Set package paths
 
-case $PACKAGE_TYPE in
+case $OPTION_PACKAGE in
 	('arch')
-		PATH_BIN="$INSTALL_PREFIX/bin"
+		PATH_BIN="$OPTION_PREFIX/bin"
 		PATH_DESK='/usr/local/share/applications'
-		PATH_DOC="$INSTALL_PREFIX/share/doc/$GAME_ID"
-		PATH_GAME="$INSTALL_PREFIX/share/$GAME_ID"
+		PATH_DOC="$OPTION_PREFIX/share/doc/$GAME_ID"
+		PATH_GAME="$OPTION_PREFIX/share/$GAME_ID"
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	('deb')
-		PATH_BIN="$INSTALL_PREFIX/games"
+		PATH_BIN="$OPTION_PREFIX/games"
 		PATH_DESK='/usr/local/share/applications'
-		PATH_DOC="$INSTALL_PREFIX/share/doc/$GAME_ID"
-		PATH_GAME="$INSTALL_PREFIX/share/games/$GAME_ID"
+		PATH_DOC="$OPTION_PREFIX/share/doc/$GAME_ID"
+		PATH_GAME="$OPTION_PREFIX/share/games/$GAME_ID"
 		PATH_ICON_BASE='/usr/local/share/icons/hicolor'
 	;;
 	(*)
-		liberror 'PACKAGE_TYPE' "$0"
+		liberror 'OPTION_PACKAGE' "$0"
 	;;
 esac
 

@@ -75,14 +75,14 @@ pkg_write_arch() {
 
 # build .pkg.tar package
 # USAGE: pkg_build_arch $pkg_path
-# NEEDED VARS: (COMPRESSION_METHOD) (LANG) PLAYIT_WORKDIR
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) PLAYIT_WORKDIR
 # CALLS: pkg_print
 # CALLED BY: build_pkg
 pkg_build_arch() {
 	local pkg_filename="$PWD/${1##*/}.pkg.tar"
 	local tar_options='--create --group=root --owner=root'
 
-	case $COMPRESSION_METHOD in
+	case $OPTION_COMPRESSION in
 		('gzip')
 			tar_options="$tar_options --gzip"
 			pkg_filename="${pkg_filename}.gz"
@@ -93,7 +93,7 @@ pkg_build_arch() {
 		;;
 		('none') ;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'pkg_build_arch'
+			liberror 'OPTION_PACKAGE' 'pkg_build_arch'
 		;;
 	esac
 
