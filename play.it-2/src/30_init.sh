@@ -52,43 +52,24 @@ unset OPTION_COMPRESSION
 unset OPTION_PREFIX
 unset OPTION_PACKAGE
 unset SOURCE_ARCHIVE
+
 for arg in "$@"; do
 	case "$arg" in
 		('--help')
 			help
 			exit 0
 		;;
-		('--checksum='*)
-			if [ "${arg#*=}" = 'help' ]; then
-				help_checksum
+		('--checksum='*|'--compression='*|'--prefix='*|'--package='*)
+			option="$(echo "${arg%=*}" | sed 's/^--//')"
+			value="${arg#*=}"
+			if [ "$value" = 'help' ]; then
+				eval help_$option
 				exit 0
 			else
-				export OPTION_CHECKSUM="${arg#*=}"
+				export OPTION_$(echo $option | tr [:lower:] [:upper:])="$value"
 			fi
-		;;
-		('--compression='*)
-			if [ "${arg#*=}" = 'help' ]; then
-				help_compression
-				exit 0
-			else
-				export OPTION_COMPRESSION="${arg#*=}"
-			fi
-		;;
-		('--prefix='*)
-			if [ "${arg#*=}" = 'help' ]; then
-				help_prefix
-				exit 0
-			else
-				export OPTION_PREFIX="${arg#*=}"
-			fi
-		;;
-		('--package='*)
-			if [ "${arg#*=}" = 'help' ]; then
-				help_package
-				exit 0
-			else
-				export OPTION_PACKAGE="${arg#*=}"
-			fi
+			unset option
+			unset value
 		;;
 		('--'*)
 			return 1
