@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170608.1
+library_revision=20170608.2
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -1137,6 +1137,20 @@ extract_and_sort_icons_from() {
 		sort_icons "$app"
 		rm --recursive "$PLAYIT_WORKDIR/icons"
 	done
+}
+
+# move icons to the target package
+# USAGE: move_icons_to $pkg
+# NEEDED VARS: PATH_ICON_BASE PKG
+move_icons_to() {
+	local source_path="$(eval echo \$${pkg}_PATH)"
+	local destination_path="$(eval echo \$${1}_PATH)"
+	(
+		cd "$source_path"
+		cp --link --parents --recursive "./$PATH_ICON_BASE" "$destination_path"
+		rm --recursive "./$PATH_ICON_BASE"
+		rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
+	)
 }
 
 # print installation instructions
