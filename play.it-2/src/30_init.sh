@@ -59,16 +59,36 @@ for arg in "$@"; do
 			exit 0
 		;;
 		('--checksum='*)
-			export CHECKSUM_METHOD="${arg#*=}"
+			if [ "${arg#*=}" = 'help' ]; then
+				help_checksum
+				exit 0
+			else
+				export CHECKSUM_METHOD="${arg#*=}"
+			fi
 		;;
 		('--compression='*)
-			export COMPRESSION_METHOD="${arg#*=}"
+			if [ "${arg#*=}" = 'help' ]; then
+				help_compression
+				exit 0
+			else
+				export COMPRESSION_METHOD="${arg#*=}"
+			fi
 		;;
 		('--prefix='*)
-			export INSTALL_PREFIX="${arg#*=}"
+			if [ "${arg#*=}" = 'help' ]; then
+				help_prefix
+				exit 0
+			else
+				export INSTALL_PREFIX="${arg#*=}"
+			fi
 		;;
 		('--package='*)
-			export PACKAGE_TYPE="${arg#*=}"
+			if [ "${arg#*=}" = 'help' ]; then
+				help_package
+				exit 0
+			else
+				export PACKAGE_TYPE="${arg#*=}"
+			fi
 		;;
 		('--'*)
 			return 1
