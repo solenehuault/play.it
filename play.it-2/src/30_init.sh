@@ -53,15 +53,21 @@ unset OPTION_PREFIX
 unset OPTION_PACKAGE
 unset SOURCE_ARCHIVE
 
-for arg in "$@"; do
-	case "$arg" in
+while [ $# -gt 0 ]; do
+	case "$1" in
 		('--help')
 			help
 			exit 0
 		;;
-		('--checksum='*|'--compression='*|'--prefix='*|'--package='*)
-			option="$(echo "${arg%=*}" | sed 's/^--//')"
-			value="${arg#*=}"
+		('--checksum='*|'--checksum'|'--compression='*|'--compression'|'--prefix='*|'--prefix'|'--package='*|'--package')
+			if [ "${1%=*}" != "${1#*=}" ]; then
+				option="$(echo "${1%=*}" | sed 's/^--//')"
+				value="${1#*=}"
+			else
+				option="$(echo "$1" | sed 's/^--//')"
+				value="$2"
+				shift 1
+			fi
 			if [ "$value" = 'help' ]; then
 				eval help_$option
 				exit 0
@@ -75,9 +81,10 @@ for arg in "$@"; do
 			return 1
 		;;
 		(*)
-			export SOURCE_ARCHIVE="$arg"
+			export SOURCE_ARCHIVE="$1"
 		;;
 	esac
+	shift 1
 done
 
 # Set global variables not already set by script arguments
