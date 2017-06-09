@@ -54,6 +54,7 @@ print_error() {
 		;;
 	esac
 	printf '\n\033[1;31m%s\033[0m\n' "$string"
+	exec 1>&2
 }
 
 # convert files name to lower case
