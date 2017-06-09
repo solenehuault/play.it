@@ -204,7 +204,7 @@ file_checksum() {
 # CALLED BY: file_checksum
 file_checksum_md5() {
 	file_checksum_print "$1"
-	FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
+	FILE_MD5="$(md5sum "$1" | awk '{print $1}')"
 	if [ "$FILE_MD5" = "$(eval echo \$${ARCHIVE}_MD5)" ]; then
 		return 0
 	else
