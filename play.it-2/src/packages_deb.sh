@@ -80,19 +80,19 @@ pkg_write_deb() {
 
 # build .deb package
 # USAGE: pkg_build_deb $pkg_path
-# NEEDED VARS: (COMPRESSION_METHOD) (LANG) PLAYIT_WORKDIR
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) PLAYIT_WORKDIR
 # CALLS: pkg_print
 # CALLED BY: build_pkg
 pkg_build_deb() {
 	local pkg_filename="$PWD/${1##*/}.deb"
 
 	local dpkg_options
-	case $COMPRESSION_METHOD in
+	case $OPTION_COMPRESSION in
 		('gzip'|'none'|'xz')
-			dpkg_options="-Z$COMPRESSION_METHOD"
+			dpkg_options="-Z$OPTION_COMPRESSION"
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'pkg_build_deb'
+			liberror 'OPTION_PACKAGE' 'pkg_build_deb'
 		;;
 	esac
 

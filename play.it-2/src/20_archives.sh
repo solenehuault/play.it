@@ -181,10 +181,10 @@ set_archive_print() {
 
 # check integrity of target file
 # USAGE: file_checksum $file
-# NEEDED VARS: ARCHIVE CHECKSUM_METHOD (LANG)
+# NEEDED VARS: ARCHIVE OPTION_CHECKSUM (LANG)
 # CALLS: file_checksum_md5 liberror
 file_checksum() {
-	case "$CHECKSUM_METHOD" in
+	case "$OPTION_CHECKSUM" in
 		('md5')
 			file_checksum_md5 "$1"
 		;;
@@ -192,7 +192,7 @@ file_checksum() {
 			return 0
 		;;
 		(*)
-			liberror 'CHECKSUM_METHOD' 'file_checksum'
+			liberror 'OPTION_CHECKSUM' 'file_checksum'
 		;;
 	esac
 }

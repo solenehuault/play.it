@@ -62,7 +62,8 @@ help_checksum() {
 			string_none='no verification'
 		;;
 	esac
-	printf -- '--checksum=md5|none\n\n'
+	printf -- '--checksum=md5|none\n'
+	printf -- '--checksum md5|none\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tmd5\t%s\n' "$string_md5"
 	printf '\tnone\t%s\n' "$string_none"
@@ -91,7 +92,8 @@ help_compression() {
 			string_xz='xz compression (slower but more efficient than gzip)'
 		;;
 	esac
-	printf -- '--compression=none|gzip|xz\n\n'
+	printf -- '--compression=none|gzip|xz\n'
+	printf -- '--compression none|gzip|xz\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tnone\t%s\n' "$string_none"
 	printf '\tgzip\t%s\n' "$string_gzip"
@@ -118,7 +120,8 @@ help_prefix() {
 			string_default='default path:'
 		;;
 	esac
-	printf -- '--prefix=$path\n\n'
+	printf -- '--prefix=$path\n'
+	printf -- '--prefix $path\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\t%s\n' "$string_absolute"
 	printf '\t%s /usr/local\n' "$string_default"
@@ -147,11 +150,12 @@ help_package() {
 			string_deb='.deb package (Debian, Ubuntu)'
 		;;
 	esac
-	printf -- '--package=arch|deb\n\n'
+	printf -- '--package=arch|deb\n'
+	printf -- '--package arch|deb\n\n'
 	printf '\t%s\n\n' "$string"
 	printf '\tarch\t%s' "$string_arch"
-	[ "$DEFAULT_PACKAGE_TYPE" = 'arch' ] && printf ' %s\n' "$string_default" || printf '\n'
+	[ "$DEFAULT_OPTION_PACKAGE" = 'arch' ] && printf ' %s\n' "$string_default" || printf '\n'
 	printf '\tdeb\t%s' "$string_deb"
-	[ "$DEFAULT_PACKAGE_TYPE" = 'deb' ] && printf ' %s\n' "$string_default" || printf '\n'
+	[ "$DEFAULT_OPTION_PACKAGE" = 'deb' ] && printf ' %s\n' "$string_default" || printf '\n'
 }
 

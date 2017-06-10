@@ -57,7 +57,7 @@ set_temp_directories() {
 
 # set package-secific temporary directory
 # USAGE: set_temp_directories_pkg $pkg
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) PLAYIT_WORKDIR (PKG_ARCH) PKG_ID|GAME_ID PKG_VERSION|script_version
+# NEEDED VARS: (ARCHIVE) (OPTION_PACKAGE) PLAYIT_WORKDIR (PKG_ARCH) PKG_ID|GAME_ID PKG_VERSION|script_version
 # CALLED BY: set_temp_directories
 set_temp_directories_pkg() {
 
@@ -87,7 +87,7 @@ set_temp_directories_pkg() {
 	set_architecture "$1"
 
 	# Set $PKG_PATH
-	if [ "$PACKAGE_TYPE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
+	if [ "$OPTION_PACKAGE" = 'arch' ] && [ "$(eval echo \$${1}_ARCH)" = '32' ]; then
 		pkg_id="lib32-$pkg_id"
 	fi
 	export ${1}_PATH="$PLAYIT_WORKDIR/${pkg_id}_${pkg_version}_${pkg_architecture}"
