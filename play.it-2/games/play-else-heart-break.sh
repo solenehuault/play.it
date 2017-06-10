@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170610.1
 
 # Set game-specific variables
 
@@ -61,7 +61,7 @@ DATA_DIRS='./logs ElseHeartbreak_Data/Saves ElseHeartbreak_Data/InitData'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='ElseHeartbreak'
-APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%%F-%%R).log'
 APP_MAIN_ICON='ElseHeartbreak_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
