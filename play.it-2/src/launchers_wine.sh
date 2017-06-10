@@ -42,14 +42,17 @@ write_bin_build_wine() {
 	  mkdir --parents "$WINEPREFIX"
 	  wineboot --init 2>/dev/null
 	  rm "$WINEPREFIX/dosdevices/z:"
-	fi
 	EOF
 
 	if [ "$APP_WINETRICKS" ]; then
 		cat >> "$file" <<- EOF
-		winetricks $APP_WINETRICKS
+		  winetricks $APP_WINETRICKS
 		EOF
 	fi
+
+	cat >> "$file" <<- 'EOF'
+	fi
+	EOF
 }
 
 # write launcher script - run the WINE game
