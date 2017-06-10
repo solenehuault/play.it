@@ -1,12 +1,12 @@
 # Check library version against script target version
 
-library_version_major=${library_version%.*}
-target_version_major=${target_version%.*}
+version_major_library=${library_version%%.*}
+version_major_target=${target_version%%.*}
 
-library_version_minor=$(echo $library_version | cut -d'.' -f2)
-target_version_minor=$(echo $target_version | cut -d'.' -f2)
+version_minor_library=$(echo $library_version | cut --delimiter='.' --fields=2)
+version_minor_target=$(echo $target_version | cut --delimiter='.' --fields=2)
 
-if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
+if [ $version_major_library -ne $version_major_target ] || [ $version_minor_library -lt $version_minor_target ]; then
 	print_error
 	case "${LANG%_*}" in
 		('fr')
@@ -97,8 +97,8 @@ done
 # Set options not already set by script arguments to default values
 
 for option in 'CHECKSUM' 'COMPRESSION' 'PREFIX' 'PACKAGE'; do
-	if [ -z "$(eval echo \$OPTION_$option)" ] && [ -n "$(eval echo \$DEFAULT_OPTION_$option)" ]; then
-		export OPTION_$option="$(eval echo \$DEFAULT_OPTION_$option)"
+	if [ -z "$(eval printf -- "%b" "\$OPTION_$option")" ] && [ -n "$(eval printf -- "%b" "\$DEFAULT_OPTION_$option")" ]; then
+		export OPTION_$option="$(eval printf -- "%b" "\$DEFAULT_OPTION_$option")"
 	fi
 done
 

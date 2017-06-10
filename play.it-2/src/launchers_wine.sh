@@ -42,14 +42,17 @@ write_bin_build_wine() {
 	  mkdir --parents "$WINEPREFIX"
 	  wineboot --init 2>/dev/null
 	  rm "$WINEPREFIX/dosdevices/z:"
-	fi
 	EOF
 
 	if [ "$APP_WINETRICKS" ]; then
 		cat >> "$file" <<- EOF
-		winetricks $APP_WINETRICKS
+		  winetricks $APP_WINETRICKS
 		EOF
 	fi
+
+	cat >> "$file" <<- 'EOF'
+	fi
+	EOF
 }
 
 # write launcher script - run the WINE game
@@ -80,7 +83,7 @@ write_bin_run_wine() {
 # CALLS: write_desktop
 # CALLED BY: write_desktop
 write_desktop_winecfg() {
-	local pkg_path="$(eval echo \$${PKG}_PATH)"
+	local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")"
 	APP_WINECFG_ID="${GAME_ID}_winecfg"
 	APP_WINECFG_NAME="$GAME_NAME - WINE configuration"
 	APP_WINECFG_CAT='Settings'

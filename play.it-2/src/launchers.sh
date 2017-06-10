@@ -13,37 +13,37 @@ write_launcher() {
 # CALLS: liberror testvar write_bin_build_wine write_bin_run_dosbox write_bin_run_native write_bin_run_scummvm write_bin_run_wine write_bin_set_scummvm write_bin_set_wine write_bin_winecfg
 # CALLED BY: write_launcher
 write_bin() {
-	local pkg_path="$(eval echo \$${PKG}_PATH)"
+	local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")"
 	local app
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_bin'
 
 		# Get app-specific variables
 		local app_id
-		if [ -n "$(eval echo \$${app}_ID)" ]; then
-			app_id="$(eval echo \$${app}_ID)"
+		if [ -n "$(eval printf -- "%b" "\$${app}_ID")" ]; then
+			app_id="$(eval printf -- "%b" "\$${app}_ID")"
 		else
 			app_id="$GAME_ID"
 		fi
 
-		local app_type="$(eval echo \$${app}_TYPE)"
+		local app_type="$(eval printf -- "%b" "\$${app}_TYPE")"
 		if [ "$app_type" != 'scummvm' ]; then
-			local app_options="$(eval echo \$${app}_OPTIONS)"
-			local app_prerun="$(eval echo \$${app}_PRERUN)"
-			local app_postrun="$(eval echo \$${app}_POSTRUN)"
+			local app_options="$(eval printf -- "%b" "\$${app}_OPTIONS")"
+			local app_prerun="$(eval printf -- "%b" "\$${app}_PRERUN")"
+			local app_postrun="$(eval printf -- "%b" "\$${app}_POSTRUN")"
 
 			local app_exe
-			if [ -n "$(eval echo \$${app}_EXE_${PKG#PKG_})" ]; then
-				app_exe="$(eval echo \$${app}_EXE_${PKG#PKG_})"
+			if [ -n "$(eval printf -- "%b" "\$${app}_EXE_${PKG#PKG_}")" ]; then
+				app_exe="$(eval printf -- "%b" "\$${app}_EXE_${PKG#PKG_}")"
 			else
-				app_exe="$(eval echo \$${app}_EXE)"
+				app_exe="$(eval printf -- "%b" "\$${app}_EXE")"
 			fi
 
 			local app_libs
-			if [ -n "$(eval echo \$${app}_LIBS_${PKG#PKG_})" ]; then
-				app_libs="$(eval echo \$${app}_LIBS_${PKG#PKG_})"
+			if [ -n "$(eval printf -- "%b" "\$${app}_LIBS_${PKG#PKG_}")" ]; then
+				app_libs="$(eval printf -- "%b" "\$${app}_LIBS_${PKG#PKG_}")"
 			else
-				app_libs="$(eval echo \$${app}_LIBS)"
+				app_libs="$(eval printf -- "%b" "\$${app}_LIBS")"
 			fi
 
 			if [ "$app_type" = 'native' ]; then
@@ -284,34 +284,34 @@ write_desktop() {
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'write_desktop'
 
-		local app_type="$(eval echo \$${app}_TYPE)"
+		local app_type="$(eval printf -- "%b" "\$${app}_TYPE")"
 		if [ "$winecfg_desktop" != 'done' ] && [ "$app_type" = 'wine' ]; then
 			winecfg_desktop='done'
 			write_desktop_winecfg
 		fi
 
 		local app_id
-		if [ -n "$(eval echo \$${app}_ID)" ]; then
-			app_id="$(eval echo \$${app}_ID)"
+		if [ -n "$(eval printf -- "%b" "\$${app}_ID")" ]; then
+			app_id="$(eval printf -- "%b" "\$${app}_ID")"
 		else
 			app_id="$GAME_ID"
 		fi
 
 		local app_name
-		if [ -n "$(eval echo \$${app}_NAME)" ]; then
-			app_name="$(eval echo \$${app}_NAME)"
+		if [ -n "$(eval printf -- "%b" "\$${app}_NAME")" ]; then
+			app_name="$(eval printf -- "%b" "\$${app}_NAME")"
 		else
 			app_name="$GAME_NAME"
 		fi
 
 		local app_cat
-		if [ -n "$(eval echo \$${app}_CAT)" ]; then
-			app_cat="$(eval echo \$${app}_CAT)"
+		if [ -n "$(eval printf -- "%b" "\$${app}_CAT")" ]; then
+			app_cat="$(eval printf -- "%b" "\$${app}_CAT")"
 		else
 			app_cat='Game'
 		fi
 
-		local pkg_path="$(eval echo \$${PKG}_PATH)"
+		local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")"
 		local target="${pkg_path}${PATH_DESK}/${app_id}.desktop"
 		mkdir --parents "${target%/*}"
 		cat > "$target" <<- EOF

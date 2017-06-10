@@ -31,13 +31,13 @@ help() {
 	printf '\n'
 
 	printf 'ARCHIVE\n\n'
-	if [ -n "$(echo $ARCHIVES_LIST | grep ' ')" ]; then
-		printf '%s\n' "$string_archives"
-	else
+	if [ ${ARCHIVE_LISTS##* *} ]; then
 		printf '%s\n' "$string_archive"
+	else
+		printf '%s\n' "$string_archives"
 	fi
 	for archive in $ARCHIVES_LIST; do
-		printf '%s\n' "$(eval echo \$$archive)"
+		printf '%s\n' "$(eval printf -- "%b" "\$$archive")"
 	done
 	printf '\n'
 }

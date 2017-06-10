@@ -20,14 +20,14 @@ print_instructions() {
 		('arch')
 			printf 'pacman -U'
 			for pkg in $@; do
-				printf ' %s' "$(eval echo \$${pkg}_PKG)"
+				printf ' %s' "$(eval printf -- "%b" "\$${pkg}_PKG")"
 			done
 			printf '\n'
 		;;
 		('deb')
 			printf 'dpkg -i'
 			for pkg in $@; do
-				printf ' %s' "$(eval echo \$${pkg}_PKG)"
+				printf ' %s' "$(eval printf -- "%b" "\$${pkg}_PKG")"
 			done
 			printf '\n'
 			printf 'apt-get install -f\n'

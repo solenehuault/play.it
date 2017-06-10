@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170610.1
 
 # Set game-specific variables
 
@@ -48,7 +48,6 @@ ARCHIVE_GOG='gog_pillars_of_eternity_white_march_part_2_dlc_2.5.0.6.sh'
 ARCHIVE_GOG_MD5='483d4b8cc046a07ec91a6306d3409e23'
 ARCHIVE_GOG_SIZE='4400000'
 ARCHIVE_GOG_VERSION='3.05.1186-gog2.3.0.4'
-ARCHIVE_GOG_TYPE='mojosetup_unzip'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'

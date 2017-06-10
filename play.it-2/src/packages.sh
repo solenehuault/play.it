@@ -13,19 +13,19 @@ write_metadata() {
 		# Set package-specific variables
 		local pkg_architecture
 		set_architecture "$pkg"
-		local pkg_id="$(eval echo \$${pkg}_ID)"
+		local pkg_id="$(eval printf -- "%b" "\$${pkg}_ID")"
 		local pkg_maint="$(whoami)@$(hostname)"
-		local pkg_path="$(eval echo \$${pkg}_PATH)"
-		local pkg_provide="$(eval echo \$${pkg}_PROVIDE)"
+		local pkg_path="$(eval printf -- "%b" "\$${pkg}_PATH")"
+		local pkg_provide="$(eval printf -- "%b" "\$${pkg}_PROVIDE")"
 
-		if [ "$(eval echo \$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_})" ]; then
-			pkg_description="$(eval echo \$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_})"
+		if [ "$(eval printf -- "%b" "\$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_}")" ]; then
+			pkg_description="$(eval printf -- "%b" "\$${pkg}_DESCRIPTION_${ARCHIVE#ARCHIVE_}")"
 		else
-			pkg_description="$(eval echo \$${pkg}_DESCRIPTION)"
+			pkg_description="$(eval printf -- "%b" "\$${pkg}_DESCRIPTION")"
 		fi
 
-		if [ "$(eval echo \$${pkg}_VERSION)" ]; then
-			pkg_version="$(eval echo \$${pkg}_VERSION)"
+		if [ "$(eval printf -- "%b" "\$${pkg}_VERSION")" ]; then
+			pkg_version="$(eval printf -- "%b" "\$${pkg}_VERSION")"
 		else
 			pkg_version="$PKG_VERSION"
 		fi
@@ -55,7 +55,7 @@ build_pkg() {
 	fi
 	for pkg in $@; do
 		testvar "$pkg" 'PKG' || liberror 'pkg' 'build_pkg'
-		local pkg_path="$(eval echo \$${pkg}_PATH)"
+		local pkg_path="$(eval printf -- "%b" "\$${pkg}_PATH")"
 		case $OPTION_PACKAGE in
 			('arch')
 				pkg_build_arch "$pkg_path"
