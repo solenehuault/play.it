@@ -10,7 +10,7 @@ extract_data_from() {
 		extract_data_from_print "$(basename "$file")"
 		local destination="$PLAYIT_WORKDIR/gamedata"
 		mkdir --parents "$destination"
-		case "$(eval printf -- "%b" "\$${ARCHIVE}_TYPE")" in
+		case "$(eval printf -- \"\$${ARCHIVE}_TYPE\")" in
 			('7z')
 				extract_7z "$file" "$destination"
 			;;

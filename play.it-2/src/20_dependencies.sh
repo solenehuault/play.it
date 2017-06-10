@@ -4,7 +4,7 @@
 # CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
 	if [ "$ARCHIVE" ]; then
-		case "$(eval printf -- "%b" "\$${ARCHIVE}_TYPE")" in
+		case "$(eval printf -- \"\$${ARCHIVE}_TYPE\")" in
 			('debian')
 				SCRIPT_DEPS="$SCRIPT_DEPS dpkg"
 			;;

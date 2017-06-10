@@ -6,7 +6,7 @@ write_bin_set_scummvm() {
 
 	GAME_ID='$GAME_ID'
 	PATH_GAME='$PATH_GAME'
-	SCUMMVM_ID='$(eval printf -- "%b" "\$${app}_SCUMMID")'
+	SCUMMVM_ID='$(eval printf -- \"\$${app}_SCUMMID\")'
 
 	EOF
 }
