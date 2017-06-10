@@ -35,14 +35,14 @@ for app in $@; do
 	testvar "$app" 'APP' || liberror 'app' 'sort_icons'
 
 	local app_id
-	if [ -n "$(eval echo \$${app}_ID)" ]; then
-		app_id="$(eval echo \$${app}_ID)"
+	if [ -n "$(eval printf -- "%b" "\$${app}_ID")" ]; then
+		app_id="$(eval printf -- "%b" "\$${app}_ID")"
 	else
 		app_id="$GAME_ID"
 	fi
 
-	local icon_res="$(eval echo \$${app}_ICON_RES)"
-	local pkg_path="$(eval echo \$${PKG}_PATH)"
+	local icon_res="$(eval printf -- "%b" "\$${app}_ICON_RES")"
+	local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")"
 	for res in $icon_res; do
 		path_icon="$PATH_ICON_BASE/${res}x${res}/apps"
 		mkdir --parents "${pkg_path}${path_icon}"
@@ -59,19 +59,19 @@ done
 # CALLS: extract_icon_from liberror sort_icons
 extract_and_sort_icons_from() {
 	local app_icon
-	local pkg_path="$(eval echo \$${PKG}_PATH)"
+	local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")"
 	for app in $@; do
 		testvar "$app" 'APP' || liberror 'app' 'sort_icons'
 
-		if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${app}_ICON_${ARCHIVE#ARCHIVE_})" ]; then
-			app_icon="$(eval echo \$${app}_ICON_${ARCHIVE#ARCHIVE_})"
+		if [ "$ARCHIVE" ] && [ -n "$(eval printf -- "%b" "\$${app}_ICON_${ARCHIVE#ARCHIVE_}")" ]; then
+			app_icon="$(eval printf -- "%b" "\$${app}_ICON_${ARCHIVE#ARCHIVE_}")"
 			export ${app}_ICON="$app_icon"
 		else
-			app_icon="$(eval echo \$${app}_ICON)"
+			app_icon="$(eval printf -- "%b" "\$${app}_ICON")"
 		fi
 
-		if [ ! "$WRESTOOL_NAME" ] && [ -n "$(eval echo \$${app}_ICON_ID)" ]; then
-			WRESTOOL_NAME="$(eval echo \$${app}_ICON_ID)"
+		if [ ! "$WRESTOOL_NAME" ] && [ -n "$(eval printf -- "%b" "\$${app}_ICON_ID")" ]; then
+			WRESTOOL_NAME="$(eval printf -- "%b" "\$${app}_ICON_ID")"
 		fi
 
 		extract_icon_from "${pkg_path}${PATH_GAME}/$app_icon"
@@ -90,8 +90,8 @@ extract_and_sort_icons_from() {
 # USAGE: move_icons_to $pkg
 # NEEDED VARS: PATH_ICON_BASE PKG
 move_icons_to() {
-	local source_path="$(eval echo \$${pkg}_PATH)"
-	local destination_path="$(eval echo \$${1}_PATH)"
+	local source_path="$(eval printf -- "%b" "\$${pkg}_PATH")"
+	local destination_path="$(eval printf -- "%b" "\$${1}_PATH")"
 	(
 		cd "$source_path"
 		cp --link --parents --recursive "./$PATH_ICON_BASE" "$destination_path"

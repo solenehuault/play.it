@@ -5,7 +5,7 @@ organize_data() {
 	[ $# = 2 ] || return 1
 	[ "$PLAYIT_WORKDIR" ] || return 1
 	[ $PKG ] || return 1
-	[ -n "$(eval echo \$${PKG}_PATH)" ] || return 1
+	[ -n "$(eval printf -- "%b" "\$${PKG}_PATH")" ] || return 1
 
 	local archive_path
 	if [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")" ]; then
@@ -26,7 +26,7 @@ organize_data() {
 	fi
 
 	if [ "$archive_path" ] && [ "$archive_files" ] && [ -d "$PLAYIT_WORKDIR/gamedata/$archive_path" ]; then
-		local pkg_path="$(eval echo \$${PKG}_PATH)${2}"
+		local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")${2}"
 		mkdir --parents "$pkg_path"
 		(
 			cd "$PLAYIT_WORKDIR/gamedata/$archive_path"

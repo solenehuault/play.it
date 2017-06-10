@@ -97,8 +97,8 @@ done
 # Set options not already set by script arguments to default values
 
 for option in 'CHECKSUM' 'COMPRESSION' 'PREFIX' 'PACKAGE'; do
-	if [ -z "$(eval echo \$OPTION_$option)" ] && [ -n "$(eval echo \$DEFAULT_OPTION_$option)" ]; then
-		export OPTION_$option="$(eval echo \$DEFAULT_OPTION_$option)"
+	if [ -z "$(eval printf -- "%b" "\$OPTION_$option")" ] && [ -n "$(eval printf -- "%b" "\$DEFAULT_OPTION_$option")" ]; then
+		export OPTION_$option="$(eval printf -- "%b" "\$DEFAULT_OPTION_$option")"
 	fi
 done
 
