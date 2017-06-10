@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170610.1
 
 # Set game-specific variables
 
@@ -47,6 +47,9 @@ ARCHIVE_GOG='gog_undertale_2.0.0.1.sh'
 ARCHIVE_GOG_MD5='e740df4e15974ad8c21f45ebe8426fb0'
 ARCHIVE_GOG_SIZE='160000'
 ARCHIVE_GOG_VERSION='1.001-gog2.0.0.1'
+
+ARCHIVE_LIBSSL='libssl_1.0.0_32-bit.tar.gz'
+ARCHIVE_LIBSSL_MD5='9443cad4a640b2512920495eaf7582c4'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -68,8 +71,8 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libopenal1, libxrandr2, libssl1.0.0"
-PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-openal lib32-libxrandr lib32-openssl"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libopenal1, libxrandr2"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-openal lib32-libxrandr"
 
 # Load common functions
 
@@ -89,6 +92,11 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
+# Use libSSL 1.0.0 32-bit archive
+
+set_archive 'LIBSSL' 'ARCHIVE_LIBSSL'
+ARCHIVE='ARCHIVE_GOG'
+
 # Extract game data
 
 extract_data_from "$SOURCE_ARCHIVE"
@@ -101,6 +109,18 @@ organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
+
+# Include libSSL into the game directory
+
+if [ "$LIBSSL" ]; then
+	dir='libs'
+	ARCHIVE='LIBSSL'
+	extract_data_from "$LIBSSL"
+	mkdir --parents "${PKG_BIN_PATH}${PATH_GAME}/$dir"
+	mv "$PLAYIT_WORKDIR/gamedata"/* "${PKG_BIN_PATH}${PATH_GAME}/$dir"
+	APP_MAIN_LIBS="$dir"
+	rm --recursive "$PLAYIT_WORKDIR/gamedata"
+fi
 
 # Write launchers
 
