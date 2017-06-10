@@ -83,7 +83,7 @@ write_bin_run_wine() {
 # CALLS: write_desktop
 # CALLED BY: write_desktop
 write_desktop_winecfg() {
-	local pkg_path="$(eval printf -- "%b" "\$${PKG}_PATH")"
+	local pkg_path="$(eval printf -- \"\$${PKG}_PATH\")"
 	APP_WINECFG_ID="${GAME_ID}_winecfg"
 	APP_WINECFG_NAME="$GAME_NAME - WINE configuration"
 	APP_WINECFG_CAT='Settings'
