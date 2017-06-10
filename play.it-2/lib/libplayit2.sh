@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170608.2
+library_revision=20170610.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -91,6 +91,7 @@ print_error() {
 		;;
 	esac
 	printf '\n\033[1;31m%s\033[0m\n' "$string"
+	exec 1>&2
 }
 
 # convert files name to lower case
@@ -362,7 +363,7 @@ file_checksum() {
 # CALLED BY: file_checksum
 file_checksum_md5() {
 	file_checksum_print "$1"
-	FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
+	FILE_MD5="$(md5sum "$1" | awk '{print $1}')"
 	if [ "$FILE_MD5" = "$(eval echo \$${ARCHIVE}_MD5)" ]; then
 		return 0
 	else
@@ -534,10 +535,10 @@ help() {
 	printf '\n'
 
 	printf 'ARCHIVE\n\n'
-	if [ -n "$(echo $ARCHIVES_LIST | grep ' ')" ]; then
-		printf '%s\n' "$string_archives"
-	else
+	if [ ${ARCHIVE_LISTS##* *} ]; then
 		printf '%s\n' "$string_archive"
+	else
+		printf '%s\n' "$string_archives"
 	fi
 	for archive in $ARCHIVES_LIST; do
 		printf '%s\n' "$(eval echo \$$archive)"
@@ -800,13 +801,13 @@ set_temp_directories_error_not_enough_space() {
 
 # Check library version against script target version
 
-library_version_major=${library_version%.*}
-target_version_major=${target_version%.*}
+version_major_library=${library_version%%.*}
+version_major_target=${target_version%%.*}
 
-library_version_minor=$(echo $library_version | cut -d'.' -f2)
-target_version_minor=$(echo $target_version | cut -d'.' -f2)
+version_minor_library=$(echo $library_version | cut --delimiter='.' --fields=2)
+version_minor_target=$(echo $target_version | cut --delimiter='.' --fields=2)
 
-if [ $library_version_major -ne $target_version_major ] || [ $library_version_minor -lt $target_version_minor ]; then
+if [ $version_major_library -ne $version_major_target ] || [ $version_minor_library -lt $version_minor_target ]; then
 	print_error
 	case "${LANG%_*}" in
 		('fr')
@@ -1680,14 +1681,17 @@ write_bin_build_wine() {
 	  mkdir --parents "$WINEPREFIX"
 	  wineboot --init 2>/dev/null
 	  rm "$WINEPREFIX/dosdevices/z:"
-	fi
 	EOF
 
 	if [ "$APP_WINETRICKS" ]; then
 		cat >> "$file" <<- EOF
-		winetricks $APP_WINETRICKS
+		  winetricks $APP_WINETRICKS
 		EOF
 	fi
+
+	cat >> "$file" <<- 'EOF'
+	fi
+	EOF
 }
 
 # write launcher script - run the WINE game
