@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170608.2
+script_version=20170610.1
 
 # Set game-specific variables
 
@@ -68,7 +68,7 @@ ARCHIVE_GAME_DATA_FILES='./data ./maps'
 DATA_DIRS='./games ./maps'
 DATA_FILES='./data/high_scores.dat ./*.log'
 
-APP_WINETRICKS='ddr=gdi vd=1280x1024'
+APP_WINETRICKS='vd=1280x1024'
 
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./heroes4.exe'
