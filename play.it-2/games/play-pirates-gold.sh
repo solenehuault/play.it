@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170610.1
+script_version=20170523.1
 
 # Set game-specific variables
 
@@ -58,7 +58,7 @@ GAME_IMAGE='data.dat'
 GAME_IMAGE_TYPE='iso'
 
 APP_MAIN_TYPE='dosbox'
-APP_MAIN_PRERUN='d:\ncd piratesg.cd\nlh cdpatch %%1'
+APP_MAIN_PRERUN='d:\ncd piratesg.cd\nlh cdpatch %1'
 APP_MAIN_EXE='piratesg.exe'
 APP_MAIN_OPTION='%2 %3 %4 %5'
 APP_MAIN_POSTRUN='cdpatch x'
