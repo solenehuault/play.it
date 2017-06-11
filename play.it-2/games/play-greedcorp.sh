@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170605.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -96,13 +96,6 @@ if [ -z "$PLAYIT_LIB2" ]; then
 	fi
 fi
 . "$PLAYIT_LIB2"
-
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
 
 # Extract game data
 
