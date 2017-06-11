@@ -5,11 +5,11 @@
 # CALLED BY: set_temp_directories write_metadata
 set_architecture() {
 	local architecture
-	if [ "$ARCHIVE" ] && [ -n "$(eval printf -- \"\$${1}_ARCH_${ARCHIVE#ARCHIVE_}\")" ]; then
-		architecture="$(eval printf -- \"\$${1}_ARCH_${ARCHIVE#ARCHIVE_}\")"
+	if [ "$ARCHIVE" ] && [ -n "$(eval printf -- '%b' \"\$${1}_ARCH_${ARCHIVE#ARCHIVE_}\")" ]; then
+		architecture="$(eval printf -- '%b' \"\$${1}_ARCH_${ARCHIVE#ARCHIVE_}\")"
 		export ${1}_ARCH="$architecture"
 	else
-		architecture="$(eval printf -- \"\$${1}_ARCH\")"
+		architecture="$(eval printf -- '%b' \"\$${1}_ARCH\")"
 	fi
 	case $OPTION_PACKAGE in
 		('arch')
@@ -63,7 +63,7 @@ tolower() {
 	for dir in "$@"; do
 		[ -d "$dir" ] || return 1
 		find "$dir" -depth -mindepth 1 | while read file; do
-			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
+			newfile="${file%/*}/$(printf '%s' "${file##*/}" | tr [:upper:] [:lower:])"
 			[ -e "$newfile" ] || mv "$file" "$newfile"
 		done
 	done
@@ -74,7 +74,7 @@ tolower() {
 # NEEDED VARS: (LANG)
 liberror() {
 	local var="$1"
-	local value="$(eval printf -- \"\$$var\")"
+	local value="$(eval printf -- '%b' \"\$$var\")"
 	local func="$2"
 	print_error
 	case "${LANG%_*}" in

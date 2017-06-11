@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170610.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -62,7 +62,7 @@ DATA_DIRS='./logs'
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_BIN32='GreedCorp.x86'
 APP_MAIN_EXE_BIN64='./GreedCorp.x86_64'
-APP_MAIN_OPTIONS='-logFile ./logs/$(date +%%F-%%R).log'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
@@ -96,13 +96,6 @@ if [ -z "$PLAYIT_LIB2" ]; then
 	fi
 fi
 . "$PLAYIT_LIB2"
-
-if [ ${library_version%.*} -ne ${target_version%.*} ] || [ ${library_version#*.} -lt ${target_version#*.} ]; then
-	printf '\n\033[1;31mError:\033[0m\n'
-	printf 'wrong version of libplayit2.sh\n'
-	printf 'target version is: %s\n' "$target_version"
-	return 1
-fi
 
 # Extract game data
 

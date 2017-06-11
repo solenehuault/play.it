@@ -3,8 +3,8 @@
 version_major_library=${library_version%%.*}
 version_major_target=${target_version%%.*}
 
-version_minor_library=$(echo $library_version | cut --delimiter='.' --fields=2)
-version_minor_target=$(echo $target_version | cut --delimiter='.' --fields=2)
+version_minor_library=$(printf '%s' $library_version | cut --delimiter='.' --fields=2)
+version_minor_target=$(printf '%s' $target_version | cut --delimiter='.' --fields=2)
 
 if [ $version_major_library -ne $version_major_target ] || [ $version_minor_library -lt $version_minor_target ]; then
 	print_error
@@ -68,10 +68,10 @@ while [ $# -gt 0 ]; do
 		'--package='*|\
 		'--package')
 			if [ "${1%=*}" != "${1#*=}" ]; then
-				option="$(echo "${1%=*}" | sed 's/^--//')"
+				option="$(printf '%s' "${1%=*}" | sed 's/^--//')"
 				value="${1#*=}"
 			else
-				option="$(echo "$1" | sed 's/^--//')"
+				option="$(printf '%s' "$1" | sed 's/^--//')"
 				value="$2"
 				shift 1
 			fi
@@ -79,7 +79,7 @@ while [ $# -gt 0 ]; do
 				eval help_$option
 				exit 0
 			else
-				export OPTION_$(echo $option | tr [:lower:] [:upper:])="$value"
+				export OPTION_$(printf '%s' $option | tr [:lower:] [:upper:])="$value"
 			fi
 			unset option
 			unset value
@@ -97,8 +97,8 @@ done
 # Set options not already set by script arguments to default values
 
 for option in 'CHECKSUM' 'COMPRESSION' 'PREFIX' 'PACKAGE'; do
-	if [ -z "$(eval printf -- \"\$OPTION_$option\")" ] && [ -n "$(eval printf -- \"\$DEFAULT_OPTION_$option\")" ]; then
-		export OPTION_$option="$(eval printf -- \"\$DEFAULT_OPTION_$option\")"
+	if [ -z "$(eval printf -- '%b' \"\$OPTION_$option\")" ] && [ -n "$(eval printf -- \"\$DEFAULT_OPTION_$option\")" ]; then
+		export OPTION_$option="$(eval printf -- '%b' \"\$DEFAULT_OPTION_$option\")"
 	fi
 done
 

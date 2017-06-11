@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -70,8 +70,11 @@ ARCHIVE_GAME_AREA_FILES='./PillarsOfEternity_Data/assetbundles/st_ar_*'
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./PillarsOfEternity_Data ./PillarsOfEternity.png'
 
+DATA_DIRS='./logs'
+
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='PillarsOfEternity'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON1='./PillarsOfEternity.png'
 APP_MAIN_ICON1_RES='512'
 APP_MAIN_ICON2='./PillarsOfEternity_Data/Resources/UnityPlayer.png'

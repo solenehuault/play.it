@@ -37,7 +37,7 @@ help() {
 		printf '%s\n' "$string_archives"
 	fi
 	for archive in $ARCHIVES_LIST; do
-		printf '%s\n' "$(eval printf -- \"\$$archive\")"
+		printf '%s\n' "$(eval printf -- '%b' \"\$$archive\")"
 	done
 	printf '\n'
 }
