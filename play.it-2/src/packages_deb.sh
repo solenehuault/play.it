@@ -4,10 +4,10 @@
 # CALLED BY: write_metadata
 pkg_write_deb() {
 	local pkg_deps
-	if [ "$(eval printf -- \"\$${pkg}_DEPS_DEB_${ARCHIVE#ARCHIVE_}\")" ]; then
-		pkg_deps="$(eval printf -- \"\$${pkg}_DEPS_DEB_${ARCHIVE#ARCHIVE_}\")"
+	if [ "$(eval printf -- '%b' \"\$${pkg}_DEPS_DEB_${ARCHIVE#ARCHIVE_}\")" ]; then
+		pkg_deps="$(eval printf -- '%b' \"\$${pkg}_DEPS_DEB_${ARCHIVE#ARCHIVE_}\")"
 	else
-		pkg_deps="$(eval printf -- \"\$${pkg}_DEPS_DEB\")"
+		pkg_deps="$(eval printf -- '%b' \"\$${pkg}_DEPS_DEB\")"
 	fi
 	local pkg_size=$(du --total --block-size=1K --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 	local target="$pkg_path/DEBIAN/control"

@@ -39,7 +39,7 @@ set_archive_error_not_found() {
 	fi
 	printf "$string"
 	for archive in "$@"; do
-		printf '%s\n' "$(eval printf -- \"\$$archive\")"
+		printf '%s\n' "$(eval printf -- '%b' \"\$$archive\")"
 	done
 	return 1
 }
@@ -51,17 +51,17 @@ set_archive_error_not_found() {
 set_archive() {
 	local name=$1
 	shift 1
-	if [ -n "$(eval printf -- \"\$$name\")" ]; then
+	if [ -n "$(eval printf -- '%b' \"\$$name\")" ]; then
 		for archive in "$@"; do
-			local file="$(eval printf -- \"\$$archive\")"
-			if [ "$(basename "$(eval printf -- \"\$$name\")")" = "$file" ]; then
-				set_archive_vars "$archive" "$name" "$(eval printf -- \"\$$name\")"
+			local file="$(eval printf -- '%b' \"\$$archive\")"
+			if [ "$(basename "$(eval printf -- '%b' \"\$$name\")")" = "$file" ]; then
+				set_archive_vars "$archive" "$name" "$(eval printf -- '%b' \"\$$name\")"
 				return 0
 			fi
 		done
 	else
 		for archive in "$@"; do
-			local file="$(eval printf -- \"\$$archive\")"
+			local file="$(eval printf -- '%b' \"\$$archive\")"
 			if [ -f "$file" ]; then
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
@@ -92,25 +92,25 @@ set_archive_vars() {
 	export $name="$file"
 
 	# set archive type + check dependencies
-	if [ -z "$(eval printf -- \"\$${ARCHIVE}_TYPE\")" ]; then
+	if [ -z "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" ]; then
 		archive_guess_type "$file"
 	fi
-	export ${name}_TYPE="$(eval printf -- \"\$${ARCHIVE}_TYPE\")"
+	export ${name}_TYPE="$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")"
 	check_deps
 
 	# compute total size of all archives
-	if [ -n "$(eval printf -- \"\$${ARCHIVE}_SIZE\")" ]; then
+	if [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_SIZE\")" ]; then
 		[ "$ARCHIVE_SIZE" ] || export ARCHIVE_SIZE='0'
-		export ARCHIVE_SIZE="$(($ARCHIVE_SIZE + $(eval printf -- \"\$${ARCHIVE}_SIZE\")))"
+		export ARCHIVE_SIZE="$(($ARCHIVE_SIZE + $(eval printf -- '%b' \"\$${ARCHIVE}_SIZE\")))"
 	fi
 
 	# set package version
-	if [ -n "$(eval printf -- \"\$${ARCHIVE}_VERSION\")" ]; then
-		PKG_VERSION="$(eval printf -- \"\$${ARCHIVE}_VERSION\")+${script_version}"
+	if [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_VERSION\")" ]; then
+		PKG_VERSION="$(eval printf -- '%b' \"\$${ARCHIVE}_VERSION\")+${script_version}"
 	fi
 
 	# check file integrity
-	if [ -n "$(eval printf -- \"\$${ARCHIVE}_MD5\")" ]; then
+	if [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_MD5\")" ]; then
 		file_checksum "$file"
 	fi
 }
@@ -205,7 +205,7 @@ file_checksum() {
 file_checksum_md5() {
 	file_checksum_print "$1"
 	FILE_MD5="$(md5sum "$1" | awk '{print $1}')"
-	if [ "$FILE_MD5" = "$(eval printf -- \"\$${ARCHIVE}_MD5\")" ]; then
+	if [ "$FILE_MD5" = "$(eval printf -- '%b' \"\$${ARCHIVE}_MD5\")" ]; then
 		return 0
 	else
 		file_checksum_error "$1"
