@@ -8,19 +8,19 @@ organize_data() {
 	[ -n "$(eval printf -- '%b' \"\$${PKG}_PATH\")" ] || return 1
 
 	local archive_path
-	if [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")" ]; then
-		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")"
-	elif [ -n "$(eval echo \"\$ARCHIVE_${1}_PATH\")" ]; then
-		archive_path="$(eval echo \"\$ARCHIVE_${1}_PATH\")"
+	if [ -n "$(eval printf -- '%b' \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")" ]; then
+		archive_path="$(eval printf -- '%b' \"\$ARCHIVE_${1}_PATH_${ARCHIVE#ARCHIVE_}\")"
+	elif [ -n "$(eval printf -- '%b' \"\$ARCHIVE_${1}_PATH\")" ]; then
+		archive_path="$(eval printf -- '%b' \"\$ARCHIVE_${1}_PATH\")"
 	else
 		unset archive_path
 	fi
 
 	local archive_files
-	if [ -n "$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")" ]; then
-		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")"
-	elif [ -n "$(eval echo \"\$ARCHIVE_${1}_FILES\")" ]; then
-		archive_files="$(eval echo \"\$ARCHIVE_${1}_FILES\")"
+	if [ -n "$(eval printf -- '%b' \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")" ]; then
+		archive_files="$(eval printf -- '%b' \"\$ARCHIVE_${1}_FILES_${ARCHIVE#ARCHIVE_}\")"
+	elif [ -n "$(eval printf -- '%b' \"\$ARCHIVE_${1}_FILES\")" ]; then
+		archive_files="$(eval printf -- '%b' \"\$ARCHIVE_${1}_FILES\")"
 	else
 		unset archive_files
 	fi

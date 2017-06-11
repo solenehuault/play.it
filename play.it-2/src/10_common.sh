@@ -63,7 +63,7 @@ tolower() {
 	for dir in "$@"; do
 		[ -d "$dir" ] || return 1
 		find "$dir" -depth -mindepth 1 | while read file; do
-			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
+			newfile="${file%/*}/$(printf '%s' "${file##*/}" | tr [:upper:] [:lower:])"
 			[ -e "$newfile" ] || mv "$file" "$newfile"
 		done
 	done
