@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -65,10 +65,13 @@ ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
 ARCHIVE_GAME_DATA_PATH_HUMBLE='.'
 ARCHIVE_GAME_DATA_FILES='./140_Data'
 
+DATA_DIRS='./logs'
+
 APP_MAIN_TYPE='native'
 APP_MAIN_PRERUN='pulseaudio --start'
 APP_MAIN_EXE_BIN32='140.x86'
 APP_MAIN_EXE_BIN64='140.x86_64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='140_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 

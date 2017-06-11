@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -57,8 +57,11 @@ ARCHIVE_GAME_VIDEOS_FILES='./Never_Alone_Data/StreamingAssets/Videos'
 ARCHIVE_GAME_DATA_PATH='NeverAlone_ArcticCollection_Linux.1.04'
 ARCHIVE_GAME_DATA_FILES='./Never_Alone_Data'
 
+DATA_DIRS='./logs'
+
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='Never_Alone.x64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='Never_Alone_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
