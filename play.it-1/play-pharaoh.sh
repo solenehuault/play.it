@@ -34,7 +34,7 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20160428.1
+script_version=20170612.1
 
 # Set game-specific variables
 
@@ -45,10 +45,10 @@ GAME_ID='pharaoh'
 GAME_ID_SHORT='pharaoh'
 GAME_NAME='Pharaoh'
 
-GAME_ARCHIVE1='setup_pharaoh_gold_2.0.0.12.exe'
-GAME_ARCHIVE1_MD5='04631d3942f7e16fd5d96bf2238c0528'
+GAME_ARCHIVE1='setup_pharaoh_gold_2.1.0.15.exe'
+GAME_ARCHIVE1_MD5='62298f00f1f2268c8d5004f5b2e9fc93'
 GAME_ARCHIVE_FULLSIZE='810000'
-PKG_REVISION='gog2.0.0.12'
+PKG_REVISION='gog2.1.0.15'
 
 GAME_TRADFR_ARCHIVE1='pharaonfr-textes.7z'
 GAME_TRADFR_ARCHIVE1_MD5='609fd40b7cb7202583698478deb320c8'
