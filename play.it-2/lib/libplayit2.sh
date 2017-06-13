@@ -33,7 +33,7 @@
 ###
 
 library_version=2.0
-library_revision=20170611.1
+library_revision=20170613.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -289,6 +289,9 @@ archive_guess_type() {
 		;;
 		(gog_*.sh)
 			export ${ARCHIVE}_TYPE='mojosetup'
+		;;
+		(*.tar)
+			export ${ARCHIVE}_TYPE='tar'
 		;;
 		(*.tar.gz|*.tgz)
 			export ${ARCHIVE}_TYPE='tar.gz'
@@ -948,6 +951,8 @@ extract_data_from() {
 
 	for file in "$@"; do
 		extract_data_from_print "$(basename "$file")"
+
+
 		local destination="$PLAYIT_WORKDIR/gamedata"
 		mkdir --parents "$destination"
 		case "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" in
@@ -976,6 +981,10 @@ extract_data_from() {
 				tar --extract --xz --file "$file" --directory "$destination"
 			;;
 			('rar')
+				# compute archive password from GOG id
+				if [ -z "$ARCHIVE_PASSWD" ] && [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" ]; then
+					ARCHIVE_PASSWD="$(printf '%s' "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" | md5sum | cut -d' ' -f1)"
+				fi
 				if [ -n "$ARCHIVE_PASSWD" ]; then
 					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
 				fi
@@ -1174,25 +1183,37 @@ print_instructions() {
 	printf "$string" "$GAME_NAME"
 	case $OPTION_PACKAGE in
 		('arch')
-			printf 'pacman -U'
-			for pkg in $@; do
-				printf ' %s' "$(eval printf -- '%b' \"\$${pkg}_PKG\")"
-			done
-			printf '\n'
+			print_instructions_arch "$@"
 		;;
 		('deb')
-			printf 'dpkg -i'
-			for pkg in $@; do
-				printf ' %s' "$(eval printf -- '%b' \"\$${pkg}_PKG\")"
-			done
-			printf '\n'
-			printf 'apt-get install -f\n'
+			print_instructions_deb "$@"
 		;;
 		(*)
 			liberror 'OPTION_PACKAGE' 'print_instructions'
 		;;
 	esac
 	printf '\n'
+}
+
+# print installation instructions for Arch Linux
+# USAGE: print_instructions_arch $pkg[…]
+print_instructions_arch() {
+	printf 'pacman -U'
+	for pkg in $@; do
+		printf ' %s' "$(eval printf -- '%b' \"\$${pkg}_PKG\")"
+	done
+	printf '\n'
+}
+
+# print installation instructions for Debian
+# USAGE: print_instructions_deb $pkg[…]
+print_instructions_deb() {
+	printf 'dpkg -i'
+	for pkg in $@; do
+		printf ' %s' "$(eval printf -- '%b' \"\$${pkg}_PKG\")"
+	done
+	printf '\n'
+	printf 'apt-get install -f\n'
 }
 
 # alias calling write_bin() and write_desktop()
