@@ -18,19 +18,10 @@ print_instructions() {
 	printf "$string" "$GAME_NAME"
 	case $OPTION_PACKAGE in
 		('arch')
-			printf 'pacman -U'
-			for pkg in $@; do
-				printf ' %s' "$(eval printf -- '%b' \"\$${pkg}_PKG\")"
-			done
-			printf '\n'
+			print_instructions_arch "$@"
 		;;
 		('deb')
-			printf 'dpkg -i'
-			for pkg in $@; do
-				printf ' %s' "$(eval printf -- '%b' \"\$${pkg}_PKG\")"
-			done
-			printf '\n'
-			printf 'apt-get install -f\n'
+			print_instructions_deb "$@"
 		;;
 		(*)
 			liberror 'OPTION_PACKAGE' 'print_instructions'

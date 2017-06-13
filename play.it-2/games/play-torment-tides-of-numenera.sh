@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170530.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -66,7 +66,8 @@ ARCHIVE_GAME_DATA_FILES='./TidesOfNumenera_Data'
 DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_PRERUN='pulseaudio --start\nexport LANG="en_US.UTF-8"'
+APP_MAIN_PRERUN='pulseaudio --start
+export LANG="en_US.UTF-8"'
 APP_MAIN_EXE='TidesOfNumenera'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='TidesOfNumenera_Data/Resources/UnityPlayer.png'

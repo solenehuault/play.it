@@ -8,6 +8,8 @@ extract_data_from() {
 
 	for file in "$@"; do
 		extract_data_from_print "$(basename "$file")"
+
+
 		local destination="$PLAYIT_WORKDIR/gamedata"
 		mkdir --parents "$destination"
 		case "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" in
@@ -36,6 +38,10 @@ extract_data_from() {
 				tar --extract --xz --file "$file" --directory "$destination"
 			;;
 			('rar')
+				# compute archive password from GOG id
+				if [ -z "$ARCHIVE_PASSWD" ] && [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" ]; then
+					ARCHIVE_PASSWD="$(printf '%s' "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" | md5sum | cut -d' ' -f1)"
+				fi
 				if [ -n "$ARCHIVE_PASSWD" ]; then
 					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
 				fi
