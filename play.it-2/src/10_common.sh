@@ -1,17 +1,17 @@
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
 # CALLS: liberror set_architecture_arch set_architecture_deb
-# NEEDED VARS: (ARCHIVE) (PACKAGE_TYPE) (PKG_ARCH)
+# NEEDED VARS: (ARCHIVE) (OPTION_PACKAGE) (PKG_ARCH)
 # CALLED BY: set_temp_directories write_metadata
 set_architecture() {
 	local architecture
-	if [ "$ARCHIVE" ] && [ -n "$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
-		architecture="$(eval echo \$${1}_ARCH_${ARCHIVE#ARCHIVE_})"
+	if [ "$ARCHIVE" ] && [ -n "$(eval printf -- '%b' \"\$${1}_ARCH_${ARCHIVE#ARCHIVE_}\")" ]; then
+		architecture="$(eval printf -- '%b' \"\$${1}_ARCH_${ARCHIVE#ARCHIVE_}\")"
 		export ${1}_ARCH="$architecture"
 	else
-		architecture="$(eval echo \$${1}_ARCH)"
+		architecture="$(eval printf -- '%b' \"\$${1}_ARCH\")"
 	fi
-	case $PACKAGE_TYPE in
+	case $OPTION_PACKAGE in
 		('arch')
 			set_architecture_arch "$architecture"
 		;;
@@ -19,7 +19,7 @@ set_architecture() {
 			set_architecture_deb "$architecture"
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'set_architecture'
+			liberror 'OPTION_PACKAGE' 'set_architecture'
 		;;
 	esac
 }
@@ -54,6 +54,7 @@ print_error() {
 		;;
 	esac
 	printf '\n\033[1;31m%s\033[0m\n' "$string"
+	exec 1>&2
 }
 
 # convert files name to lower case
@@ -62,7 +63,7 @@ tolower() {
 	for dir in "$@"; do
 		[ -d "$dir" ] || return 1
 		find "$dir" -depth -mindepth 1 | while read file; do
-			newfile="${file%/*}/$(echo "${file##*/}" | tr [:upper:] [:lower:])"
+			newfile="${file%/*}/$(printf '%s' "${file##*/}" | tr [:upper:] [:lower:])"
 			[ -e "$newfile" ] || mv "$file" "$newfile"
 		done
 	done
@@ -73,7 +74,7 @@ tolower() {
 # NEEDED VARS: (LANG)
 liberror() {
 	local var="$1"
-	local value="$(eval echo \$$var)"
+	local value="$(eval printf -- '%b' \"\$$var\")"
 	local func="$2"
 	print_error
 	case "${LANG%_*}" in

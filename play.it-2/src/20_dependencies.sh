@@ -1,10 +1,13 @@
 # check script dependencies
 # USAGE: check_deps
-# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (CHECKSUM_METHOD) (LANG) (PACKAGE_TYPE) (SCRIPT_DEPS)
+# NEEDED VARS: (ARCHIVE) (ARCHIVE_TYPE) (OPTION_CHECKSUM) (LANG) (OPTION_PACKAGE) (SCRIPT_DEPS)
 # CALLS: check_deps_7z check_deps_error_not_found
 check_deps() {
-	if [ $ARCHIVE ]; then
-		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+	if [ "$ARCHIVE" ]; then
+		case "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" in
+			('debian')
+				SCRIPT_DEPS="$SCRIPT_DEPS dpkg"
+			;;
 			('innosetup')
 				SCRIPT_DEPS="$SCRIPT_DEPS innoextract"
 			;;
@@ -25,10 +28,10 @@ check_deps() {
 			;;
 		esac
 	fi
-	if [ "$CHECKSUM_METHOD" = 'md5sum' ]; then
+	if [ "$OPTION_CHECKSUM" = 'md5sum' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS md5sum"
 	fi
-	if [ "$PACKAGE_TYPE" = 'deb' ]; then
+	if [ "$OPTION_PACKAGE" = 'deb' ]; then
 		SCRIPT_DEPS="$SCRIPT_DEPS fakeroot dpkg"
 	fi
 	if [ "${APP_MAIN_ICON##*.}" = 'bmp' ]; then

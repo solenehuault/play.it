@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170519.1
+script_version=20170608.1
 
 # Set game-specific variables
 
@@ -160,15 +160,8 @@ organize_data 'DOC2'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
 PKG='PKG_BIN'
-extract_and_sort_icons_from 'APP_MAIN'
-extract_and_sort_icons_from 'APP_EDITOR_MAP'
-extract_and_sort_icons_from 'APP_EDITOR_CAMPAIGN'
-(
-        cd "$PKG_BIN_PATH"
-        cp --link --parents --recursive "./$PATH_ICON_BASE" "$PKG_DATA_PATH"
-        rm --recursive "./$PATH_ICON_BASE"
-        rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
-)
+extract_and_sort_icons_from 'APP_MAIN' 'APP_EDITOR_MAP' 'APP_EDITOR_CAMPAIGN'
+move_icons_to 'PKG_DATA'
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -188,6 +181,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MUSIC_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions
 
 exit 0

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170517.1
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -57,10 +57,12 @@ ARCHIVE_GAME_BIN_FILES='./*.x86 ./*_Data/Mono/x86 ./*_Data/Plugins/x86'
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./*'
 
+DATA_DIRS='./logs'
 DATA_FILES='./slot*.data'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='./Kingdom Rush.x86'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='./Kingdom Rush_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
@@ -135,6 +137,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions
 
 exit 0

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170516.1
+script_version=20170610.1
 
 # Set game-specific variables
 
@@ -47,6 +47,9 @@ ARCHIVE_GOG='gog_baldur_s_gate_2_enhanced_edition_2.6.0.11.sh'
 ARCHIVE_GOG_MD5='b9ee856a29238d4aec65367377d88ac4'
 ARCHIVE_GOG_SIZE='2700000'
 ARCHIVE_GOG_VERSION='2.3.67.3-gog2.6.0.11'
+
+ARCHIVE_LIBSSL='libssl_1.0.0_32-bit.tar.gz'
+ARCHIVE_LIBSSL_MD5='9443cad4a640b2512920495eaf7582c4'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -86,8 +89,8 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_AREAS_ID, $PKG_MOVIES_ID, $PKG_MUSIC_ID, $PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1, libssl1.0.0"
-PKG_BIN_DEPS_ARCH="$PKG_AREAS_ID $PKG_MOVIES_ID $PKG_MUSIC_ID $PKG_DATA_ID lib32-libgl lib32-openal lib32-json-c lib32-openssl"
+PKG_BIN_DEPS_DEB="$PKG_AREAS_ID, $PKG_MOVIES_ID, $PKG_MUSIC_ID, $PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libjson0, libopenal1"
+PKG_BIN_DEPS_ARCH="$PKG_AREAS_ID $PKG_MOVIES_ID $PKG_MUSIC_ID $PKG_DATA_ID lib32-libgl lib32-openal lib32-json-c"
 
 # Load common functions
 
@@ -106,6 +109,11 @@ if [ -z "$PLAYIT_LIB2" ]; then
 	fi
 fi
 . "$PLAYIT_LIB2"
+
+# Use libSSL 1.0.0 32-bit archive
+
+set_archive 'LIBSSL' 'ARCHIVE_LIBSSL'
+ARCHIVE='ARCHIVE_GOG'
 
 # Extract game data
 
@@ -134,6 +142,18 @@ mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
+# Include libSSL into the game directory
+
+if [ "$LIBSSL" ]; then
+	dir='libs'
+	ARCHIVE='LIBSSL'
+	extract_data_from "$LIBSSL"
+	mkdir --parents "${PKG_BIN_PATH}${PATH_GAME}/$dir"
+	mv "$PLAYIT_WORKDIR/gamedata"/* "${PKG_BIN_PATH}${PATH_GAME}/$dir"
+	APP_MAIN_LIBS="$dir"
+	rm --recursive "$PLAYIT_WORKDIR/gamedata"
+fi
+
 # Write launchers
 
 PKG='PKG_BIN'
@@ -158,6 +178,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_AREAS_PKG" "$PKG_MOVIES_PKG" "$PKG_MUSIC_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions
 
 exit 0

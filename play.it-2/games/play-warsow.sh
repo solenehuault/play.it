@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.1
+script_version=20170610.1
 
 # Set game-specific variables
 
@@ -75,12 +75,12 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID glu"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libsdl2-2.0-0"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-sdl2"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN64_DEPS_ARCH="$PKG_BIN32_DEPS_ARCH"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glu sdl2"
 
 # Load common functions
 
@@ -140,8 +140,8 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 printf '\n'
 printf '32-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+print_instructions 'PKG_DATA' 'PKG_BIN32'
 printf '64-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
+print_instructions 'PKG_DATA' 'PKG_BIN64'
 
 exit 0

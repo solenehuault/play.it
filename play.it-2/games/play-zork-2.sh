@@ -34,12 +34,12 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170519.1
+script_version=20170608.1
 
 # Set game-specific variables
 
 GAME_ID='zork-2'
-GAME_NAME='Zork I: The Great Underground Empire'
+GAME_NAME='Zork II: The Wizard of Frobozz'
 
 ARCHIVES_LIST='ARCHIVE_GOG'
 
@@ -115,6 +115,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_MAIN_PKG"
+print_instructions
 
 exit 0

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.3
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -43,10 +43,10 @@ GAME_NAME='Torment: Tides of Numenera'
 
 ARCHIVES_LIST='ARCHIVE_GOG'
 
-ARCHIVE_GOG='gog_torment_tides_of_numenera_2.2.0.3.sh'
-ARCHIVE_GOG_MD5='e63c62f4453d0fef40a1c930db9574e8'
+ARCHIVE_GOG='gog_torment_tides_of_numenera_2.3.0.4.sh'
+ARCHIVE_GOG_MD5='839337b42a1618f3b445f363eca210d3'
 ARCHIVE_GOG_SIZE='9300000'
-ARCHIVE_GOG_VERSION='1.1.0-gog2.2.0.3'
+ARCHIVE_GOG_VERSION='1.1.0-gog2.3.0.4'
 
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
@@ -66,7 +66,8 @@ ARCHIVE_GAME_DATA_FILES='./TidesOfNumenera_Data'
 DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_PRERUN='pulseaudio --start\nexport LANG="en_US.UTF-8"'
+APP_MAIN_PRERUN='pulseaudio --start
+export LANG="en_US.UTF-8"'
 APP_MAIN_EXE='TidesOfNumenera'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='TidesOfNumenera_Data/Resources/UnityPlayer.png'
@@ -154,6 +155,6 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 # Print instructions
 
-print_instructions "$PKG_AUDIO_PKG" "$PKG_RESOURCES_PKG" "$PKG_DATA_PKG" "$PKG_BIN_PKG"
+print_instructions
 
 exit 0

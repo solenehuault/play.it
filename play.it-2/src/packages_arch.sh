@@ -1,12 +1,13 @@
 # write .pkg.tar package meta-data
 # USAGE: pkg_write_arch
+# NEEDED VARS: GAME_NAME PKG_DEPS_ARCH
 # CALLED BY: write_metadata
 pkg_write_arch() {
 	local pkg_deps
-	if [ "$(eval echo \$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_})" ]; then
-		pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_})"
+	if [ "$(eval printf -- '%b' \"\$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_}\")" ]; then
+		pkg_deps="$(eval printf -- '%b' \"\$${pkg}_DEPS_ARCH_${ARCHIVE#ARCHIVE_}\")"
 	else
-		pkg_deps="$(eval echo \$${pkg}_DEPS_ARCH)"
+		pkg_deps="$(eval printf -- '%b' \"\$${pkg}_DEPS_ARCH\")"
 	fi
 	local pkg_size=$(du --total --block-size=1 --summarize "$pkg_path" | tail --lines=1 | cut --fields=1)
 	local target="$pkg_path/.PKGINFO"
@@ -73,14 +74,15 @@ pkg_write_arch() {
 }
 
 # build .pkg.tar package
-# USAGE: pkg_build_arch
-# NEEDED VARS: $PLAYIT_WORKDIR $COMPRESSION_METHOD
+# USAGE: pkg_build_arch $pkg_path
+# NEEDED VARS: (OPTION_COMPRESSION) (LANG) PLAYIT_WORKDIR
 # CALLS: pkg_print
 # CALLED BY: build_pkg
 pkg_build_arch() {
-	local pkg_filename="$PWD/${pkg_path##*/}.pkg.tar"
+	local pkg_filename="$PWD/${1##*/}.pkg.tar"
 	local tar_options='--create --group=root --owner=root'
-	case $COMPRESSION_METHOD in
+
+	case $OPTION_COMPRESSION in
 		('gzip')
 			tar_options="$tar_options --gzip"
 			pkg_filename="${pkg_filename}.gz"
@@ -91,18 +93,21 @@ pkg_build_arch() {
 		;;
 		('none') ;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'build_pkg'
+			liberror 'OPTION_PACKAGE' 'pkg_build_arch'
 		;;
 	esac
-	pkg_print
+
+	pkg_print "${pkg_filename##*/}"
+
 	(
-		cd "$pkg_path"
+		cd "$1"
 		local files='.PKGINFO *'
 		if [ -e '.INSTALL' ]; then
 			files=".INSTALL $files"
 		fi
 		tar $tar_options --file "$pkg_filename" $files
 	)
+
 	export ${pkg}_PKG="$pkg_filename"
 }
 

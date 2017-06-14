@@ -1,8 +1,8 @@
 # print installation instructions
 # USAGE: print_instructions $pkg[…]
-# NEEDED VARS: (GAME_NAME) (PACKAGE_TYPE) (PACKAGES_LIST)
+# NEEDED VARS: (GAME_NAME) (OPTION_PACKAGE) (PACKAGES_LIST)
 print_instructions() {
-	[ $GAME_NAME ] || return 1
+	[ "$GAME_NAME" ] || return 1
 	if [ $# = 0 ]; then
 		print_instructions $PACKAGES_LIST
 		return 0
@@ -16,24 +16,15 @@ print_instructions() {
 		;;
 	esac
 	printf "$string" "$GAME_NAME"
-	case $PACKAGE_TYPE in
+	case $OPTION_PACKAGE in
 		('arch')
-			printf 'pacman -U'
-			for pkg in $@; do
-				printf ' %s' "$(eval echo ${pkg}_PATH)"
-			done
-			printf '\n'
+			print_instructions_arch "$@"
 		;;
 		('deb')
-			printf 'dpkg -i'
-			for pkg in $@; do
-				printf ' %s' "$(eval echo ${pkg}_PATH)"
-			done
-			printf '\n'
-			printf 'apt-get install -f\n'
+			print_instructions_deb "$@"
 		;;
 		(*)
-			liberror 'PACKAGE_TYPE' 'print_instructions'
+			liberror 'OPTION_PACKAGE' 'print_instructions'
 		;;
 	esac
 	printf '\n'

@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170518.2
+script_version=20170611.1
 
 # Set game-specific variables
 
@@ -87,9 +87,12 @@ ARCHIVE_GAME_DATA_PATH_GOG='data/noarch/game'
 ARCHIVE_GAME_DATA_PATH_HUMBLE='data/noarch'
 ARCHIVE_GAME_DATA_FILES='./*'
 
+DATA_DIRS='./logs'
+
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_BIN32='./Sunless Sea.x86'
 APP_MAIN_EXE_BIN64='./Sunless Sea.x86_64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON1='Sunless Sea_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON1_RES='128'
 APP_MAIN_ICON2='./Icon.png'
@@ -191,8 +194,8 @@ rm --recursive "$PLAYIT_WORKDIR"
 
 printf '\n'
 printf '32-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+print_instructions 'PKG_DATA' 'PKG_BIN32'
 printf '64-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
+print_instructions 'PKG_DATA' 'PKG_BIN64'
 
 exit 0

@@ -1,10 +1,21 @@
 # set source archive for data extraction
 # USAGE: set_source_archive $archive[…]
 # NEEDED VARS: (LANG)
-# CALLS: set_archive
+# CALLS: set_archive_error_not_found
 set_source_archive() {
 	set_archive 'SOURCE_ARCHIVE' "$@"
-	[ $SOURCE_ARCHIVE ] && return 0
+	if [ "$SOURCE_ARCHIVE" ]; then
+		return 0
+	else
+		set_archive_error_not_found "$@"
+	fi
+}
+
+# display an error message if a mandatory archive is not found
+# USAGE: set_archive_error_not_found $archive[…]
+# NEEDED VARS: (LANG)
+# CALLED BY: set_source_archive
+set_archive_error_not_found() {
 	print_error
 	local string
 	if [ "$#" = 1 ]; then
@@ -28,7 +39,7 @@ set_source_archive() {
 	fi
 	printf "$string"
 	for archive in "$@"; do
-		printf '%s\n' "$(eval echo \$$archive)"
+		printf '%s\n' "$(eval printf -- '%b' \"\$$archive\")"
 	done
 	return 1
 }
@@ -40,21 +51,21 @@ set_source_archive() {
 set_archive() {
 	local name=$1
 	shift 1
-	if [ -n "$(eval echo \$$name)" ]; then
+	if [ -n "$(eval printf -- '%b' \"\$$name\")" ]; then
 		for archive in "$@"; do
-			local file="$(eval echo \$$archive)"
-			if [ "$(basename "$(eval echo \$$name)")" = "$file" ]; then
-				set_archive_vars "$archive" "$name" "$(eval echo \$$name)"
+			local file="$(eval printf -- '%b' \"\$$archive\")"
+			if [ "$(basename "$(eval printf -- '%b' \"\$$name\")")" = "$file" ]; then
+				set_archive_vars "$archive" "$name" "$(eval printf -- '%b' \"\$$name\")"
 				return 0
 			fi
 		done
 	else
 		for archive in "$@"; do
-			local file="$(eval echo \$$archive)"
+			local file="$(eval printf -- '%b' \"\$$archive\")"
 			if [ -f "$file" ]; then
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
-			elif [ $SOURCE_ARCHIVE ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
+			elif [ "$SOURCE_ARCHIVE" ] && [ -f "${SOURCE_ARCHIVE%/*}/$file" ]; then
 				file="${SOURCE_ARCHIVE%/*}/$file"
 				set_archive_vars "$archive" "$name" "$file"
 				return 0
@@ -81,25 +92,25 @@ set_archive_vars() {
 	export $name="$file"
 
 	# set archive type + check dependencies
-	if [ -z "$(eval echo \$${ARCHIVE}_TYPE)" ]; then
+	if [ -z "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" ]; then
 		archive_guess_type "$file"
 	fi
-	export ${name}_TYPE="$(eval echo \$${ARCHIVE}_TYPE)"
+	export ${name}_TYPE="$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")"
 	check_deps
 
 	# compute total size of all archives
-	if [ -n "$(eval echo \$${ARCHIVE}_SIZE)" ]; then
+	if [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_SIZE\")" ]; then
 		[ "$ARCHIVE_SIZE" ] || export ARCHIVE_SIZE='0'
-		export ARCHIVE_SIZE="$(($ARCHIVE_SIZE + $(eval echo \$${ARCHIVE}_SIZE)))"
+		export ARCHIVE_SIZE="$(($ARCHIVE_SIZE + $(eval printf -- '%b' \"\$${ARCHIVE}_SIZE\")))"
 	fi
 
 	# set package version
-	if [ -n "$(eval echo \$${ARCHIVE}_VERSION)" ]; then
-		PKG_VERSION="$(eval echo \$${ARCHIVE}_VERSION)+${script_version}"
+	if [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_VERSION\")" ]; then
+		PKG_VERSION="$(eval printf -- '%b' \"\$${ARCHIVE}_VERSION\")+${script_version}"
 	fi
 
 	# check file integrity
-	if [ -n "$(eval echo \$${ARCHIVE}_MD5)" ]; then
+	if [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_MD5\")" ]; then
 		file_checksum "$file"
 	fi
 }
@@ -111,17 +122,23 @@ set_archive_vars() {
 # CALLED BY: set_archive_vars
 archive_guess_type() {
 	case "${1##*/}" in
-		(gog_*.sh)
-			export ${ARCHIVE}_TYPE='mojosetup'
+		(*.deb)
+			export ${ARCHIVE}_TYPE='debian'
 		;;
 		(setup_*.exe|patch_*.exe)
 			export ${ARCHIVE}_TYPE='innosetup'
 		;;
-		(*.zip)
-			export ${ARCHIVE}_TYPE='zip'
+		(gog_*.sh)
+			export ${ARCHIVE}_TYPE='mojosetup'
+		;;
+		(*.tar)
+			export ${ARCHIVE}_TYPE='tar'
 		;;
 		(*.tar.gz|*.tgz)
 			export ${ARCHIVE}_TYPE='tar.gz'
+		;;
+		(*.zip)
+			export ${ARCHIVE}_TYPE='zip'
 		;;
 		(*)
 			archive_guess_type_error
@@ -167,10 +184,10 @@ set_archive_print() {
 
 # check integrity of target file
 # USAGE: file_checksum $file
-# NEEDED VARS: ARCHIVE CHECKSUM_METHOD (LANG)
+# NEEDED VARS: ARCHIVE OPTION_CHECKSUM (LANG)
 # CALLS: file_checksum_md5 liberror
 file_checksum() {
-	case "$CHECKSUM_METHOD" in
+	case "$OPTION_CHECKSUM" in
 		('md5')
 			file_checksum_md5 "$1"
 		;;
@@ -178,7 +195,7 @@ file_checksum() {
 			return 0
 		;;
 		(*)
-			liberror 'CHECKSUM_METHOD' 'file_checksum'
+			liberror 'OPTION_CHECKSUM' 'file_checksum'
 		;;
 	esac
 }
@@ -190,8 +207,8 @@ file_checksum() {
 # CALLED BY: file_checksum
 file_checksum_md5() {
 	file_checksum_print "$1"
-	FILE_MD5="$(md5sum "$1" | cut --delimiter=' ' --fields=1)"
-	if [ "$FILE_MD5" = "$(eval echo \$${ARCHIVE}_MD5)" ]; then
+	FILE_MD5="$(md5sum "$1" | awk '{print $1}')"
+	if [ "$FILE_MD5" = "$(eval printf -- '%b' \"\$${ARCHIVE}_MD5\")" ]; then
 		return 0
 	else
 		file_checksum_error "$1"

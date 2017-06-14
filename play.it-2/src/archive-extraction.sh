@@ -1,15 +1,23 @@
 # extract data from given archive
-# USAGE: extract_data $archive[…]
-# NEEDED_VARS: $PLAYIT_WORKDIR $ARCHIVE $ARCHIVE_TYPE $ARCHIVE_PASSWD
-# CALLS: liberror extract_7z (declared by check_deps_7z)
+# USAGE: extract_data_from $archive[…]
+# NEEDED_VARS: (ARCHIVE) (ARCHIVE_PASSWD) (ARCHIVE_TYPE) (LANG) (PLAYIT_WORKDIR)
+# CALLS: liberror extract_7z extract_data_from_print
 extract_data_from() {
+	[ "$PLAYIT_WORKDIR" ] || return 1
+	[ "$ARCHIVE" ] || return 1
+
 	for file in "$@"; do
-		extract_data_from_print
-		local destination="${PLAYIT_WORKDIR}/gamedata"
+		extract_data_from_print "$(basename "$file")"
+
+
+		local destination="$PLAYIT_WORKDIR/gamedata"
 		mkdir --parents "$destination"
-		case "$(eval echo \$${ARCHIVE}_TYPE)" in
+		case "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" in
 			('7z')
 				extract_7z "$file" "$destination"
+			;;
+			('debian')
+				dpkg-deb --extract "$file" "$destination"
 			;;
 			('innosetup')
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
@@ -30,8 +38,12 @@ extract_data_from() {
 				tar --extract --xz --file "$file" --directory "$destination"
 			;;
 			('rar')
+				# compute archive password from GOG id
+				if [ -z "$ARCHIVE_PASSWD" ] && [ -n "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" ]; then
+					ARCHIVE_PASSWD="$(printf '%s' "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" | md5sum | cut -d' ' -f1)"
+				fi
 				if [ -n "$ARCHIVE_PASSWD" ]; then
-					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
+					UNAR_OPTIONS="-password $ARCHIVE_PASSWD"
 				fi
 				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file" 1>/dev/null
 			;;
@@ -49,17 +61,18 @@ extract_data_from() {
 }
 
 # print data extraction message
-# USAGE: extract_data_from_print
+# USAGE: extract_data_from_print $file
+# NEEDED VARS: (LANG)
 # CALLED BY: extract_data_from
 extract_data_from_print() {
-	local file="$(basename "$file")"
-	case ${LANG%_*} in
+	case "${LANG%_*}" in
 		('fr')
-			printf 'Extraction des données de %s\n' "$file"
+			string='Extraction des données de %s\n'
 		;;
 		('en'|*)
-			printf 'Extracting data from %s \n' "$file"
+			string='Extracting data from %s \n'
 		;;
 	esac
+	printf "$string" "$1"
 }
 
