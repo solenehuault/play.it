@@ -32,8 +32,8 @@
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-library_version=2.0
-library_revision=20170613.1
+library_version=2.0.0
+library_revision=20170614.1
 
 # set package distribution-specific architecture
 # USAGE: set_architecture $pkg
@@ -986,7 +986,7 @@ extract_data_from() {
 					ARCHIVE_PASSWD="$(printf '%s' "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" | md5sum | cut -d' ' -f1)"
 				fi
 				if [ -n "$ARCHIVE_PASSWD" ]; then
-					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
+					UNAR_OPTIONS="-password $ARCHIVE_PASSWD"
 				fi
 				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file" 1>/dev/null
 			;;
