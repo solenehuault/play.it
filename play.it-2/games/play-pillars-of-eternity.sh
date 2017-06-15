@@ -34,20 +34,26 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170611.1
+script_version=20170615.1
 
 # Set game-specific variables
 
 GAME_ID='pillars-of-eternity'
 GAME_NAME='Pillars of Eternity'
 
-ARCHIVES_LIST='ARCHIVE_GOG'
+ARCHIVES_LIST='ARCHIVE_GOG ARCHIVE_GOG_OLD'
 
-ARCHIVE_GOG='gog_pillars_of_eternity_2.15.0.19.sh'
-ARCHIVE_GOG_MD5='2000052541abb1ef8a644049734e8526'
+ARCHIVE_GOG='gog_pillars_of_eternity_2.16.0.20.sh'
+ARCHIVE_GOG_MD5='0d21cf95bda070bdbfbe3e79f8fc32d6'
 ARCHIVE_GOG_SIZE='15000000'
-ARCHIVE_GOG_VERSION='3.05.1186-gog2.15.0.19'
+ARCHIVE_GOG_VERSION='3.06-gog2.16.0.20'
 ARCHIVE_GOG_TYPE='mojosetup_unzip'
+
+ARCHIVE_GOG_OLD='gog_pillars_of_eternity_2.15.0.19.sh'
+ARCHIVE_GOG_OLD_MD5='2000052541abb1ef8a644049734e8526'
+ARCHIVE_GOG_OLD_SIZE='15000000'
+ARCHIVE_GOG_OLD_VERSION='3.05.1186-gog2.15.0.19'
+ARCHIVE_GOG_OLD_TYPE='mojosetup_unzip'
 
 ARCHIVE_GOG_DLC1='gog_pillars_of_eternity_kickstarter_item_dlc_2.0.0.2.sh'
 ARCHIVE_GOG_DLC1_MD5='b4c29ae17c87956471f2d76d8931a4e5'
