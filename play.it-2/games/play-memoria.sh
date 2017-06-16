@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170616.1
+script_version=20170616.2
 
 # Set game-specific variables
 
@@ -83,7 +83,7 @@ APP_MAIN_ICON_RES='16 32 48 256'
 PACKAGES_LIST='PKG_MAIN'
 
 PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='wine:amd64 | wine, wine32-development | wine32 | wine-bin | wine-i386 | wine-staging-i386'
+PKG_MAIN_DEPS_DEB='wine32-development | wine32 | wine-bin | wine-i386 | wine-staging-i386, wine:amd64 | wine'
 PKG_MAIN_DEPS_ARCH='wine'
 
 # Load common functions
