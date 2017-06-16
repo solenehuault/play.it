@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170603.1
+script_version=20170616.1
 
 # Set game-specific variables
 
@@ -51,20 +51,26 @@ ARCHIVE_GOG_VERSION='20160421-gog2.1.0.2'
 ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 
-ARCHIVE_GAME_PATH='data/noarch/game'
-ARCHIVE_GAME_FILES='./Blob ./content ./libfmod.so.7 ./libGLEW.so.1.10 ./libSDL2-2.0.so.0'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game'
+ARCHIVE_GAME_BIN_FILES='./Blob ./lib*.so.*'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game'
+ARCHIVE_GAME_DATA_FILES='./content'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='./Blob'
-APP_MAIN_ICON='./data/noarch/support/icon.png'
+APP_MAIN_EXE='Blob'
+APP_MAIN_ICON='data/noarch/support/icon.png'
 APP_MAIN_ICON_RES='256'
 APP_MAIN_LIBS='.'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
-PKG_MAIN_ARCH='64'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl-2.0-0'
-PKG_MAIN_DEPS_ARCH='sdl2 mesa-libgl glew1.10 gcc-libs glibc libglvnd libx11 libxext libglvnd libxcb libxau libxdmcp'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libsdl2-2.0-0, libgl1 | libgl1-mesa-glx"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID sdl2 libgl glew1.10"
 
 # Load common functions
 
@@ -88,19 +94,24 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC'  "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC'       "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 res="$APP_MAIN_ICON_RES"
 PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
-mkdir --parents "$PKG_MAIN_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_MAIN_PATH/$PATH_ICON/$GAME_ID.png"
+mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
+mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-write_launcher'APP_MAIN'
+PKG='PKG_BIN'
+write_launcher 'APP_MAIN'
 
 # Build package
 
