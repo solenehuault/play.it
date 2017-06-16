@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170616.2
+script_version=20170616.3
 
 # Set game-specific variables
 
@@ -68,6 +68,8 @@ ARCHIVE_GAME_DATA_FILES='./555 ./*.555 ./*.emp ./*.eng ./*.map ./*.sg2 ./c3_mode
 
 CONFIG_FILES='./caesar3.ini'
 DATA_FILES='./c3_model.txt ./status.txt ./*.sav'
+
+APP_WINETRICKS='vd=1024x768'
 
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./c3.exe'
