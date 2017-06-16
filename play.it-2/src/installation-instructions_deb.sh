@@ -2,7 +2,7 @@
 # USAGE: print_instructions_deb $pkg[…]
 # CALLS: print_instructions_deb_apt print_instructions_deb_dpkg
 print_instructions_deb() {
-	if [ -e /etc/debian_version ] && [ $(cut -d'.' -f1 /etc/debian_version) -ge 9 ]; then
+	if [ -e /etc/debian_version ] && cat /etc/debian_version | grep --invert-match '[^0-9.]' 1>/dev/null && [ $(cut -d'.' -f1 /etc/debian_version) -ge 9 ]; then
 		print_instructions_deb_apt "$@"
 	else
 		print_instructions_deb_dpkg "$@"
