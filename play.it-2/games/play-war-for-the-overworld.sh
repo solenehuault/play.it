@@ -29,56 +29,47 @@ set -o errexit
 ###
 
 ###
-# Ori and the Blind Forest
+# Windward
 # build native Linux packages from the original installers
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170614.1
+script_version=20170525.1
 
 # Set game-specific variables
 
-GAME_ID='ori-and-the-blind-forest'
-GAME_NAME='Ori and the Blind Forest'
+GAME_ID='war-for-the-overworld'
+GAME_NAME='War for the Overworld'
 
-ARCHIVES_LIST='ARCHIVE_GOG'
+ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
-ARCHIVE_GOG='setup_ori_and_the_blind_forest_de_2.0.0.2-1.bin'
-ARCHIVE_GOG_MD5='d5ec4ea264c372a4fdd52b5ecbd9efe6'
-ARCHIVE_GOG_SIZE='11000000'
-ARCHIVE_GOG_VERSION='1.0-gog2.0.0.2'
-ARCHIVE_GOG_TYPE='rar'
-ARCHIVE_GOG_PART2='setup_ori_and_the_blind_forest_de_2.0.0.2-2.bin'
-ARCHIVE_GOG_PART2_MD5='94c3d33701eadca15df9520de55f6f03'
-ARCHIVE_GOG_PART2_TYPE='rar'
+ARCHIVE_HUMBLE='War_for_the_Overworld_v1.5.2_-_Linux_x64.zip'
+ARCHIVE_HUMBLE_MD5='bedee8b966767cf42c55c6b883e3127c'
+ARCHIVE_HUMBLE_SIZE='2500000'
+ARCHIVE_HUMBLE_VERSION='1.5.2-humble170202'
 
-DATA_FILES='./oride_data/output_log.txt'
+ARCHIVE_GAME_BIN_PATH='Linux'
+ARCHIVE_GAME_BIN_FILES='./WFTO.x86_64 ./WFTO_Data/Plugins ./WFTO_Data/Mono ./WFTO_Data/CoherentUI_Host/linux/CoherentUI_Host* ./WFTO_Data/CoherentUI_Host/linux/lib*'
 
-ARCHIVE_GAME_ASSETS_PATH='game'
-ARCHIVE_GAME_ASSETS_FILES='./oride_data/*.assets ./oride_data/*.assets.ress'
+ARCHIVE_GAME_DATA_PATH='Linux'
+ARCHIVE_GAME_DATA_FILES='./WFTO_Data'
 
-ARCHIVE_GAME_DATA_PATH='game'
-ARCHIVE_GAME_DATA_FILES='./oride_data'
+DATA_DIRS='./logs ./WFTO_Data/GameData'
 
-ARCHIVE_GAME_BIN_PATH='game'
-ARCHIVE_GAME_BIN_FILES='./oride.exe ./oride_data/managed ./oride_data/mono ./oride_data/plugins'
+APP_MAIN_TYPE='native'
+APP_MAIN_EXE='WFTO.x86_64'
+APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
+APP_MAIN_ICON='WFTO_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON_RES='128'
 
-APP_MAIN_TYPE='wine'
-APP_MAIN_EXE='./oride.exe'
-APP_MAIN_ICON='./oride.exe'
-APP_MAIN_ICON_RES='16 24 32 48 64 96 128 192 256'
-
-PACKAGES_LIST='PKG_ASSETS PKG_DATA PKG_BIN'
-
-PKG_ASSETS_ID="${GAME_ID}-assets"
-PKG_ASSETS_DESCRIPTION='assets'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_ASSETS_ID, $PKG_DATA_ID, wine:amd64 | wine, wine32 | wine-bin | wine-i386 | wine-staging-i386"
-PKG_BIN_DEPS_ARCH="$PKG_ASSETS_ID $PKG_DATA_ID wine"
+PKG_BIN_ARCH='64'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libgl1-mesa-glx | libgl1, libxcursor1"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID glibc gcc-libs libgl libxcursor"
 
 # Load common functions
 
@@ -98,31 +89,23 @@ if [ -z "$PLAYIT_LIB2" ]; then
 fi
 . "$PLAYIT_LIB2"
 
-# Check that all parts of the installer are present
-
-set_archive 'ARCHIVE_PART2' 'ARCHIVE_GOG_PART2'
-[ "$ARCHIVE_PART2" ] || set_archive_error_not_found 'ARCHIVE_GOG_PART2'
-ARCHIVE='ARCHIVE_GOG'
-
 # Extract game data
 
-ln --symbolic "$(readlink --canonicalize $SOURCE_ARCHIVE)" "$PLAYIT_WORKDIR/$GAME_ID.r00"
-ln --symbolic "$(readlink --canonicalize $ARCHIVE_PART2)"  "$PLAYIT_WORKDIR/$GAME_ID.r01"
-extract_data_from "$PLAYIT_WORKDIR/$GAME_ID.r00"
-tolower "$PLAYIT_WORKDIR/gamedata"
+extract_data_from "$SOURCE_ARCHIVE"
 
 PKG='PKG_BIN'
 organize_data 'GAME_BIN' "$PATH_GAME"
 
-PKG='PKG_ASSETS'
-organize_data 'GAME_ASSETS' "$PATH_GAME"
+chmod +x "${PKG_BIN_PATH}${PATH_GAME}/WFTO_Data/CoherentUI_Host/linux/CoherentUI_Host"
+chmod +x "${PKG_BIN_PATH}${PATH_GAME}/WFTO_Data/CoherentUI_Host/linux/CoherentUI_Host.bin"
 
 PKG='PKG_DATA'
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-PKG='PKG_BIN'
-extract_and_sort_icons_from 'APP_MAIN'
-move_icons_to 'PKG_DATA'
+(
+	cd "${PKG_DATA_PATH}${PATH_GAME}/WFTO_Data/uiresources/maps"
+	mv 'Stonegate.unity.png' 'stonegate.unity.png'
+)
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
@@ -133,7 +116,22 @@ write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
 build_pkg
 
 # Clean up

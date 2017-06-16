@@ -43,7 +43,7 @@ extract_data_from() {
 					ARCHIVE_PASSWD="$(printf '%s' "$(eval printf -- '%b' \"\$${ARCHIVE}_GOGID\")" | md5sum | cut -d' ' -f1)"
 				fi
 				if [ -n "$ARCHIVE_PASSWD" ]; then
-					UNAR_OPTIONS="-password \"$ARCHIVE_PASSWD\""
+					UNAR_OPTIONS="-password $ARCHIVE_PASSWD"
 				fi
 				unar -no-directory -output-directory "$destination" $UNAR_OPTIONS "$file" 1>/dev/null
 			;;
