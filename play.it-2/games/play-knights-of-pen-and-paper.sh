@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170620.2
+script_version=20170620.3
 
 # Set game-specific variables
 
@@ -60,8 +60,8 @@ ARCHIVE_GAME_BIN_FILES='./*.x86 ./*_Data/*/x86'
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./*_Data'
 
-ARCHIVE_GAME_DLC_PATH='data/noarch/game/knightspp_Data/Managed'
-ARCHIVE_GAME_DLC_FILES='./Assembly-CSharp.dll'
+ARCHIVE_GAME_DLC_PATH='data/noarch/game'
+ARCHIVE_GAME_DLC_FILES='knightspp_Data/Managed/Assembly-CSharp.dll'
 
 DATA_DIRS='./logs'
 
