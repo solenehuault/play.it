@@ -1,0 +1,2 @@
+2.0.1
+  * On Debian >= 9 (Stretch), installation instructions show apt usage instead of dpkg + apt-get

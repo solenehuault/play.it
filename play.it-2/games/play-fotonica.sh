@@ -34,12 +34,12 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170525.1
+script_version=20170618.1
 
 # Set game-specific variables
 
 GAME_ID='fotonica'
-GAME_NAME='FOTONICA'
+GAME_NAME='Fotonica'
 
 ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
@@ -72,12 +72,12 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libx11-6, libxcursor1, libxrandr2, libxau6, libglu1-mesa | libglu1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glibc lib32-glu lib32-libgl lib32-libx11 lib32-libxcursor lib32-libxrandr lib32-gcc-libs lib32-libxext lib32-libxcb lib32-libxrender lib32-libxfixes lib32-libxau lib32-libxdmcp"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libxcursor1, libxrandr2, libglu1-mesa | libglu1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glibc lib32-glu lib32-libxcursor lib32-libxrandr"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
-PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glibc glu libgl libx11 libxcursor libxrandr gcc-libs libxext libxcb libxrender libxfixes libxau libxdmcp"
+PKG_BIN64_DEPS_ARCH="$PKG_DATA_ID glibc glu libxcursor libxrandr"
 
 # Load common functions
 

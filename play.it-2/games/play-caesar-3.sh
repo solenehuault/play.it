@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170614.1
+script_version=20170616.3
 
 # Set game-specific variables
 
@@ -69,6 +69,8 @@ ARCHIVE_GAME_DATA_FILES='./555 ./*.555 ./*.emp ./*.eng ./*.map ./*.sg2 ./c3_mode
 CONFIG_FILES='./caesar3.ini'
 DATA_FILES='./c3_model.txt ./status.txt ./*.sav'
 
+APP_WINETRICKS='vd=1024x768'
+
 APP_MAIN_TYPE='wine'
 APP_MAIN_EXE='./c3.exe'
 APP_MAIN_ICON='./c3.exe'
@@ -86,7 +88,7 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_MOVIES_ID, $PKG_SOUNDS_ID, $PKG_DATA_ID, wine:amd64 | wine, wine32 | wine-bin | wine-i386 | wine-staging-i386"
+PKG_BIN_DEPS_DEB="$PKG_MOVIES_ID, $PKG_SOUNDS_ID, $PKG_DATA_ID, wine32-development | wine32 | wine-bin | wine-i386 | wine-staging-i386, wine:amd64 | wine"
 PKG_BIN_DEPS_ARCH="$PKG_MOVIES_ID $PKG_SOUNDS_ID $PKG_DATA_ID wine"
 
 # Load common functions

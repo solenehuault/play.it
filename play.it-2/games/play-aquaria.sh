@@ -34,19 +34,24 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170523.1
+script_version=20170616.1
 
 # Set game-specific variables
 
 GAME_ID='aquaria'
 GAME_NAME='Aquaria'
 
-ARCHIVES_LIST='ARCHIVE_GOG'
+ARCHIVES_LIST='ARCHIVE_GOG ARCHIVE_GOG_OLD'
 
-ARCHIVE_GOG='gog_aquaria_2.0.0.4.sh'
-ARCHIVE_GOG_MD5='1810de0d68028c6ec01d33181086180d'
-ARCHIVE_GOG_SIZE='280000'
-ARCHIVE_GOG_VERSION='1.1.3-gog2.0.0.4'
+ARCHIVE_GOG='gog_aquaria_2.0.0.5.sh'
+ARCHIVE_GOG_MD5='4235398debdf268f233881fade9e0530'
+ARCHIVE_GOG_SIZE='240000'
+ARCHIVE_GOG_VERSION='1.1.3-gog2.0.0.5'
+
+ARCHIVE_GOG_OLD='gog_aquaria_2.0.0.4.sh'
+ARCHIVE_GOG_OLD_MD5='1810de0d68028c6ec01d33181086180d'
+ARCHIVE_GOG_OLD_SIZE='280000'
+ARCHIVE_GOG_OLD_VERSION='1.1.3-gog2.0.0.4'
 
 ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'

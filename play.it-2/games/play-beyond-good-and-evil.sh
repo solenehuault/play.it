@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170614.1
+script_version=20170617.1
 
 # Set game-specific variables
 
@@ -66,12 +66,14 @@ ARCHIVE_GAME2_DATA_FILES='./eax.dll'
 DATA_FILES='./sally.idx ./*.sav'
 
 APP_MAIN_TYPE='wine'
+APP_MAIN_PRERUN='regedit install-path.reg'
 APP_MAIN_EXE='./run.exe'
 APP_MAIN_ICON='./bge.exe'
 APP_MAIN_ICON_RES='16 32 48'
 
 APP_SETTINGS_TYPE='wine'
 APP_SETTINGS_ID="${GAME_ID}_settings"
+APP_SETTINGS_PRERUN='regedit install-path.reg'
 APP_SETTINGS_EXE='./settingsapplication.exe'
 APP_SETTINGS_ICON='./settingsapplication.exe'
 APP_SETTINGS_ICON_RES='16 32 48'
@@ -84,7 +86,7 @@ PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN_ARCH='32'
-PKG_BIN_DEPS_DEB="$PKG_DATA_ID, wine:amd64 | wine, wine32 | wine-bin | wine-i386 | wine-staging-i386"
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, wine32-development | wine32 | wine-bin | wine-i386 | wine-staging-i386, wine:amd64 | wine"
 PKG_BIN_DEPS_ARCH="$PKG_DATA_ID wine"
 
 # Load common functions
@@ -129,16 +131,12 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 PKG='PKG_BIN'
 write_launcher 'APP_MAIN' 'APP_SETTINGS'
 
-cat > "${PKG_BIN_PATH}${PATH_GAME}/bge.reg" << EOF
+cat > "${PKG_BIN_PATH}${PATH_GAME}/install-path.reg" << EOF
 REGEDIT4
 
 [HKEY_LOCAL_MACHINE\Software\Ubisoft\Beyond Good & Evil]
 "Install path"="C:\\\beyond-good-and-evil"
 EOF
-
-sed --in-place 's#cp --force --recursive --symbolic-link --update "$PATH_GAME"/\* "$PATH_PREFIX"#&\n\tregedit "$PATH_PREFIX/bge.reg" 2>/dev/null#' "${PKG_BIN_PATH}${PATH_BIN}/$GAME_ID"
-sed --in-place 's#cp --force --recursive --symbolic-link --update "$PATH_GAME"/\* "$PATH_PREFIX"#&\n\tregedit "$PATH_PREFIX/bge.reg" 2>/dev/null#' "${PKG_BIN_PATH}${PATH_BIN}/$APP_SETTINGS_ID"
-sed --in-place 's#cp --force --recursive --symbolic-link --update "$PATH_GAME"/\* "$PATH_PREFIX"#&\n\tregedit "$PATH_PREFIX/bge.reg" 2>/dev/null#' "${PKG_BIN_PATH}${PATH_BIN}/$APP_WINECFG_ID"
 
 # Build package
 
