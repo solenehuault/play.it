@@ -57,6 +57,22 @@ print_error() {
 	exec 1>&2
 }
 
+# print a localized warning message
+# USAGE: print_warning
+# NEEDED VARS: (LANG)
+print_warning() {
+	local string
+	case "${LANG%_*}" in
+		('fr')
+			string='Avertissement :'
+		;;
+		('en'|*)
+			string='Warning:'
+		;;
+	esac
+	printf '\n\033[1;33m%s\033[0m\n' "$string"
+}
+
 # convert files name to lower case
 # USAGE: tolower $dir[…]
 tolower() {
