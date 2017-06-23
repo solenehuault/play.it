@@ -40,6 +40,12 @@ set_standard_permissions() {
 	done
 }
 
+# print OK
+# USAGE: print_ok
+print_ok() {
+	printf '\t\033[1;32mOK\033[0m\n'
+}
+
 # print a localized error message
 # USAGE: print_error
 # NEEDED VARS: (LANG)

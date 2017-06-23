@@ -190,6 +190,7 @@ file_checksum() {
 	case "$OPTION_CHECKSUM" in
 		('md5')
 			file_checksum_md5 "$1"
+			print_ok
 		;;
 		('none')
 			return 0
@@ -224,10 +225,10 @@ file_checksum_print() {
 	local string
 	case "${LANG%_*}" in
 		('fr')
-			string='Contrôle de l’intégrité de %s\n'
+			string='Contrôle de l’intégrité de %s'
 		;;
 		('en'|*)
-			string='Checking integrity of %s\n'
+			string='Checking integrity of %s'
 		;;
 	esac
 	printf "$string" "$(basename "$1")"
