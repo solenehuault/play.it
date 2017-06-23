@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170623.1
+script_version=20170623.2
 
 # Set game-specific variables
 
@@ -62,8 +62,8 @@ ARCHIVE_GAME_DATA_FILES='./assets'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE='runner'
-APP_MAIN_ICON='data/noarch/support/icon.png'
-APP_MAIN_ICON_RES='256'
+APP_MAIN_ICON='assets/icon.png'
+APP_MAIN_ICON_RES='64'
 
 PACKAGES_LIST='PKG_DATA PKG_BIN'
 
@@ -108,11 +108,6 @@ PKG='PKG_DATA'
 organize_data 'DOC'      "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-res="$APP_MAIN_ICON_RES"
-PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
-mkdir --parents "$PKG_DATA_PATH/$PATH_ICON"
-mv "$PLAYIT_WORKDIR/gamedata/$APP_MAIN_ICON" "$PKG_DATA_PATH/$PATH_ICON/$GAME_ID.png"
-
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Include libSSL into the game directory
@@ -134,7 +129,22 @@ write_launcher 'APP_MAIN'
 
 # Build package
 
-write_metadata
+res="$APP_MAIN_ICON_RES"
+PATH_ICON="$PATH_ICON_BASE/${res}x${res}/apps"
+
+cat > "$postinst" << EOF
+mkdir --parents "$PATH_ICON"
+ln --symbolic "$PATH_GAME"/$APP_MAIN_ICON "$PATH_ICON/$GAME_ID.png"
+EOF
+
+cat > "$prerm" << EOF
+rm "$PATH_ICON/$GAME_ID.png"
+rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
+EOF
+
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN'
 build_pkg
 
 # Clean up
