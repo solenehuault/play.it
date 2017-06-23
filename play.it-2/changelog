@@ -1,2 +1,5 @@
 2.0.1
-  * On Debian >= 9 (Stretch), installation instructions show apt usage instead of dpkg + apt-get
+  * If lsb_release is not available and no package format has been explictly
+  set, display a warning before falling back on 'deb' format
+  * On Debian >= 9 (Stretch), installation instructions show apt usage instead
+  of dpkg + apt-get

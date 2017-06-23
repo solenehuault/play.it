@@ -32,19 +32,6 @@ DEFAULT_OPTION_PACKAGE='deb'
 unset winecfg_desktop
 unset winecfg_launcher
 
-# Try to detect the host distribution through lsb_release
-
-if which lsb_release >/dev/null 2>&1; then
-	case "$(lsb_release --id --short)" in
-		('Debian'|'Ubuntu')
-			DEFAULT_OPTION_PACKAGE='deb'
-		;;
-		('Arch')
-			DEFAULT_OPTION_PACKAGE='arch'
-		;;
-	esac
-fi
-
 # Parse arguments given to the script
 
 unset OPTION_CHECKSUM
@@ -93,6 +80,34 @@ while [ $# -gt 0 ]; do
 	esac
 	shift 1
 done
+
+# Try to detect the host distribution through lsb_release
+
+if [ ! "$OPTION_PACKAGE" ] && which lsb_release >/dev/null 2>&1; then
+	case "$(lsb_release --id --short)" in
+		('Debian'|'Ubuntu')
+			DEFAULT_OPTION_PACKAGE='deb'
+		;;
+		('Arch')
+			DEFAULT_OPTION_PACKAGE='arch'
+		;;
+	esac
+elif [ ! "$OPTION_PACKAGE" ]; then
+	print_warning
+	case "${LANG%_*}" in
+		('fr')
+			string1='%s est introuvable.\n'
+			string2='Le format de paquet %s sera utilisé par défaut.\n'
+		;;
+		('en'|*)
+			string1='%s could not be found.\n'
+			string2='%s package format will be used by default.\n'
+		;;
+	esac
+	printf "$string1" 'lsb_release'
+	printf "$string2" "$DEFAULT_OPTION_PACKAGE"
+	printf '\n'
+fi
 
 # Set options not already set by script arguments to default values
 
