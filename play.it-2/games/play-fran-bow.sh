@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170614.1
+script_version=20170623.1
 
 # Set game-specific variables
 
@@ -133,12 +133,6 @@ PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
-
-cat > "$postinst" << EOF
-if [ ! -e /usr/lib32/libjson.so.0 ] && [ -e /usr/lib32/libjson-c.so ] ; then
-	ln --symbolic libjson-c.so /usr/lib32/libjson.so.0
-fi
-EOF
 
 write_metadata
 build_pkg
