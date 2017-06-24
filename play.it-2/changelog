@@ -1,4 +1,6 @@
 2.0.1
+  * Test the validity of options values early in the script execution to throw
+  an error before any potentially long task
   * Fix some debug messages
   * Print 'OK' on potentially long tasks completion without a visual
   progression indicator

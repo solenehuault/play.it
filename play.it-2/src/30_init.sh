@@ -23,7 +23,13 @@ if [ $version_major_library -ne $version_major_target ] || [ $version_minor_libr
 	exit 1
 fi
 
-# Set default values for common vars
+# Set allowed values for common options
+
+ALLOWED_VALUES_CHECKSUM='none md5'
+ALLOWED_VALUES_COMPRESSION='none gzip xz'
+ALLOWED_VALUES_PACKAGE='arch deb'
+
+# Set default values for common options
 
 DEFAULT_OPTION_CHECKSUM='md5'
 DEFAULT_OPTION_COMPRESSION='none'
@@ -115,6 +121,40 @@ for option in 'CHECKSUM' 'COMPRESSION' 'PREFIX' 'PACKAGE'; do
 	if [ -z "$(eval printf -- '%b' \"\$OPTION_$option\")" ] && [ -n "$(eval printf -- \"\$DEFAULT_OPTION_$option\")" ]; then
 		export OPTION_$option="$(eval printf -- '%b' \"\$DEFAULT_OPTION_$option\")"
 	fi
+done
+
+# Check options values validity
+
+check_option_validity() {
+	local name="$1"
+	local value="$(eval printf -- '%b' \"\$OPTION_$option\")"
+	local allowed_values="$(eval printf -- '%b' \"\$ALLOWED_VALUES_$option\")"
+	for allowed_value in $allowed_values; do
+		if [ "$value" = "$allowed_value" ]; then
+			return 0
+		fi
+	done
+	print_error
+	local string1
+	local string2
+	case "${LANG%_*}" in
+		('fr')
+			string1='%s n’est pas une valeur valide pour --%s.\n'
+			string2='Lancez le script avec l’option --%s=help pour une liste des valeurs acceptés.\n'
+		;;
+		('en'|*)
+			string1='%s is not a valid value for --%s.\n'
+			string2='Run the script with the option --%s=help to get a list of supported values.\n'
+		;;
+	esac
+	printf "$string1" "$value" "$(printf '%s' $option | tr [:upper:] [:lower:])"
+	printf "$string2" "$(printf '%s' $option | tr [:upper:] [:lower:])"
+	printf '\n'
+	exit 1
+}
+
+for option in 'CHECKSUM' 'COMPRESSION' 'PACKAGE'; do
+	check_option_validity "$option"
 done
 
 # Check script dependencies
