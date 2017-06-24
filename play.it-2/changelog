@@ -1,4 +1,5 @@
 2.0.1
+  * Fix some debug messages
   * Print 'OK' on potentially long tasks completion without a visual
   progression indicator
   * If lsb_release is not available and no package format has been explictly

@@ -93,7 +93,7 @@ pkg_build_arch() {
 		;;
 		('none') ;;
 		(*)
-			liberror 'OPTION_PACKAGE' 'pkg_build_arch'
+			liberror 'OPTION_COMPRESSION' 'pkg_build_arch'
 		;;
 	esac
 
