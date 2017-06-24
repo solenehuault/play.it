@@ -1,10 +1,15 @@
 2.0.1
+
   * Test the validity of options values early in the script execution to throw
   an error before any potentially long task
+
   * Fix some debug messages
+
   * Print 'OK' on potentially long tasks completion without a visual
   progression indicator
+
   * If lsb_release is not available and no package format has been explictly
   set, display a warning before falling back on 'deb' format
+
   * On Debian >= 9 (Stretch), installation instructions show apt usage instead
   of dpkg + apt-get
