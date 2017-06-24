@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170607.1
+script_version=20170624.1
 
 # Set game-specific variables
 
@@ -46,7 +46,7 @@ ARCHIVES_LIST='ARCHIVE_HUMBLE'
 ARCHIVE_HUMBLE='Jazzpunk-July6-2014-Linux.zip'
 ARCHIVE_HUMBLE_MD5='50ad5722cafe16dc384e83a4a4e19480'
 ARCHIVE_HUMBLE_SIZE='1600000'
-ARCHIVE_HUMBLE_VERSION='1.0-humble'
+ARCHIVE_HUMBLE_VERSION='140706-humble140708'
 
 ARCHIVE_GAME_BIN32_PATH='./'
 ARCHIVE_GAME_BIN32_FILES='./*.x86 ./*_Data/*/x86'
@@ -58,17 +58,17 @@ ARCHIVE_GAME_DATA_PATH='./'
 ARCHIVE_GAME_DATA_FILES='./*_Data'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_32='./Jazzpunk.x86'
-APP_MAIN_EXE_64='./Jazzpunk.x86_64'
+APP_MAIN_EXE_BIN32='./Jazzpunk.x86'
+APP_MAIN_EXE_BIN64='./Jazzpunk.x86_64'
 
 PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
 
 PKG_DATA_ID="${GAME_ID}-data"
-PKG_DATA_DESCRIPTION='arch-independant data'
+PKG_DATA_DESCRIPTION='data'
 
 PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu"
+PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libxcursor1"
+PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glu lib32-libxcursor"
 
 PKG_BIN64_ARCH='64'
 PKG_BIN64_DEPS_DEB="$PKG_BIN32_DEPS_DEB"
@@ -103,7 +103,6 @@ PKG='PKG_BIN64'
 organize_data 'GAME_BIN64' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
@@ -127,8 +126,8 @@ rm --recursive "${PLAYIT_WORKDIR}"
 
 printf '\n'
 printf '32-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN32_PKG"
+print_instructions 'PKG_DATA' 'PKG_BIN32'
 printf '64-bit:'
-print_instructions "$PKG_DATA_PKG" "$PKG_BIN64_PKG"
+print_instructions 'PKG_DATA' 'PKG_BIN64'
 
 exit 0
