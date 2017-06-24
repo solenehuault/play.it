@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170614.1
+script_version=20170624.1
 
 # Set game-specific variables
 
@@ -52,20 +52,18 @@ ARCHIVE_DOC_PATH='data/noarch/docs'
 ARCHIVE_DOC_FILES='./*'
 
 ARCHIVE_GAME_BIN32_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN32_FILES='./lib32 ./hatoful.x86 **/*/x86'
+ARCHIVE_GAME_BIN32_FILES='./hatoful.x86 ./hatoful_Data/*/x86'
 
 ARCHIVE_GAME_BIN64_PATH='data/noarch/game'
-ARCHIVE_GAME_BIN64_FILES='./lib64 hatoful.x86_64 **/*/x86_64'
+ARCHIVE_GAME_BIN64_FILES='./hatoful.x86_64 ./hatoful_Data/*/x86_64'
 
 ARCHIVE_GAME_DATA_PATH='data/noarch/game'
 ARCHIVE_GAME_DATA_FILES='./hatoful_Data'
 
 APP_MAIN_TYPE='native'
 APP_MAIN_EXE_BIN32='hatoful.x86'
-APP_MAIN_LIBS_BIN32='./lib32'
 APP_MAIN_EXE_BIN64='hatoful.x86_64'
-APP_MAIN_LIBS_BIN64='./lib64'
-APP_MAIN_ICON='data/noarch/game/hatoful_Data/Resources/UnityPlayer.png'
+APP_MAIN_ICON='hatoful_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
 PACKAGES_LIST='PKG_DATA PKG_BIN32 PKG_BIN64'
@@ -110,7 +108,7 @@ PKG='PKG_BIN64'
 organize_data 'GAME_BIN64' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data 'DOC'      "$PATH_DOC"
+organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
@@ -136,7 +134,9 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_BIN32' 'PKG_BIN64'
 build_pkg
 
 # Clean up
