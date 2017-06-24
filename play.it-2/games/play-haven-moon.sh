@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170525.1
+script_version=20170624.1
 
 # Set game-specific variables
 
@@ -48,8 +48,8 @@ ARCHIVE_HUMBLE_MD5='2698639eaad59d4d01c10694bf63188e'
 ARCHIVE_HUMBLE_SIZE='1200000'
 ARCHIVE_HUMBLE_VERSION='1.0-humble161213'
 
-ARCHIVE_GAME_BIN32_PATH='HavenMoon_LINUX'
-ARCHIVE_GAME_BIN32_FILES='./*.x86 ./*_Data/*/x86'
+ARCHIVE_GAME_BIN_PATH='HavenMoon_LINUX'
+ARCHIVE_GAME_BIN_FILES='./*.x86 ./*_Data/Mono ./*_Data/Plugins'
 
 ARCHIVE_GAME_DATA_PATH='HavenMoon_LINUX'
 ARCHIVE_GAME_DATA_FILES='./*_Data'
@@ -57,19 +57,19 @@ ARCHIVE_GAME_DATA_FILES='./*_Data'
 DATA_DIRS='./logs'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE_BIN32='./HavenMoon.x86'
+APP_MAIN_EXE='./HavenMoon.x86'
 APP_MAIN_OPTIONS='-logFile ./logs/$(date +%F-%R).log'
 APP_MAIN_ICON='*_Data/Resources/UnityPlayer.png'
 APP_MAIN_ICON_RES='128'
 
-PACKAGES_LIST='PKG_DATA PKG_BIN32'
+PACKAGES_LIST='PKG_DATA PKG_BIN'
 
 PKG_DATA_ID="${GAME_ID}-data"
 PKG_DATA_DESCRIPTION='data'
 
-PKG_BIN32_ARCH='32'
-PKG_BIN32_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libx11-6, libxcursor1, libxrandr2, libxau6"
-PKG_BIN32_DEPS_ARCH="$PKG_DATA_ID lib32-glibc lib32-libgl lib32-libx11 lib32-libxcursor lib32-libxrandr lib32-gcc-libs lib32-libxext lib32-libxcb lib32-libxrender lib32-libxfixes lib32-libxau lib32-libxdmcp"
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_DATA_ID, libc6, libgl1-mesa-glx | libgl1, libxcursor1, libxrandr2"
+PKG_BIN_DEPS_ARCH="$PKG_DATA_ID lib32-glibc lib32-libgl lib32-libxcursor lib32-libxrandr"
 
 # Load common functions
 
@@ -93,8 +93,8 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-PKG='PKG_BIN32'
-organize_data 'GAME_BIN32' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_DATA'
 organize_data 'GAME_DATA' "$PATH_GAME"
@@ -103,7 +103,7 @@ rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
-PKG='PKG_BIN32'
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -123,7 +123,7 @@ EOF
 
 write_metadata 'PKG_DATA'
 rm "$postinst" "$prerm"
-write_metadata 'PKG_BIN32'
+write_metadata 'PKG_BIN'
 build_pkg
 
 # Clean up
