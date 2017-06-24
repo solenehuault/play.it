@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170616.2
+script_version=20170625.1
 
 # Set game-specific variables
 
@@ -45,7 +45,7 @@ ARCHIVES_LIST='ARCHIVE_HUMBLE'
 
 ARCHIVE_HUMBLE='JoaR_1.3_PC_Full_Multi_Daedalic_ESD.exe'
 ARCHIVE_HUMBLE_MD5='e349a84f7b8ac095b06edea521cade8f'
-ARCHIVE_HUMBLE_VERSION='1.3-humble160915'
+ARCHIVE_HUMBLE_VERSION='1.30.011-humble160915'
 ARCHIVE_HUMBLE_SIZE='1600000'
 ARCHIVE_HUMBLE_TYPE='innosetup'
 
@@ -53,14 +53,14 @@ ARCHIVE_DOC_PATH='app/documents'
 ARCHIVE_DOC_FILES='./*'
 
 ARCHIVE_GAME_BIN_PATH='app'
-ARCHIVE_GAME_BIN_FILES='./joar.exe ./launcher.exe'
+ARCHIVE_GAME_BIN_FILES='./joar.exe'
 
 ARCHIVE_GAME_DATA_PATH='app'
-ARCHIVE_GAME_DATA_FILES='./joar_data'
+ARCHIVE_GAME_DATA_FILES='./joar_data ./launcher.exe'
 
 APP_MAIN_TYPE='wine'
-APP_MAIN_EXE='./joar.exe'
-APP_MAIN_ICON='./launcher.exe'
+APP_MAIN_EXE='joar.exe'
+APP_MAIN_ICON='launcher.exe'
 APP_MAIN_ICON_RES='16 32 48 128'
 
 PACKAGES_LIST='PKG_DATA PKG_BIN'
@@ -98,22 +98,17 @@ PKG='PKG_BIN'
 organize_data 'GAME_BIN' "$PATH_GAME"
 
 PKG='PKG_DATA'
-organize_data 'DOC'      "$PATH_DOC"
+organize_data 'DOC'       "$PATH_DOC"
 organize_data 'GAME_DATA' "$PATH_GAME"
 
-PKG='PKG_BIN'
 extract_and_sort_icons_from 'APP_MAIN'
-(
-        cd "$PKG_BIN_PATH"
-        cp --link --parents --recursive "./$PATH_ICON_BASE" "$PKG_DATA_PATH"
-        rm --recursive "./$PATH_ICON_BASE"
-        rmdir --ignore-fail-on-non-empty --parents "./${PATH_ICON_BASE%/*}"
-)
+rm "${PKG_DATA_PATH}${PATH_GAME}/$APP_MAIN_ICON"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
