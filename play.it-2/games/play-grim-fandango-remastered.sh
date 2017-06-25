@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170625.1
+script_version=20170625.2
 
 # Set game-specific variables
 
@@ -65,9 +65,9 @@ ARCHIVE_GAME_DATA_PATH='data/noarch/game/bin'
 ARCHIVE_GAME_DATA_FILES='./*.lab ./*.LAB ./controllerdef.txt ./en_gagl088.lip ./FontsHD ./*.tab ./icon.png ./patch_v2_or_v3_to_v4.bin ./patch_v4_to_v5.bin'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='./GrimFandango'
-APP_MAIN_ICON='./icon.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_EXE='GrimFandango'
+APP_MAIN_ICON='icon.png'
+APP_MAIN_ICON_RES='128'
 
 PACKAGES_LIST='PKG_DATA PKG_MOVIES PKG_BIN'
 
