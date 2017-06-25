@@ -89,30 +89,39 @@ done
 
 # Try to detect the host distribution through lsb_release
 
-if [ ! "$OPTION_PACKAGE" ] && which lsb_release >/dev/null 2>&1; then
-	case "$(lsb_release --id --short)" in
-		('Debian'|'Ubuntu')
+if [ ! "$OPTION_PACKAGE" ]; then
+	unset GUESSED_HOST_OS
+	if [ -e '/etc/os-release' ]; then
+		GUESSED_HOST_OS="$(grep '^ID=' '/etc/os-release' | cut --delimiter='=' --fields=2)"
+	elif [ -e '/etc/issue' ]; then
+		GUESSED_HOST_OS="$(head --lines=1 '/etc/issue' | cut --delimiter=' ' --fields=1 | tr [:upper:] [:lower:])"
+	elif which lsb_release >/dev/null 2>&1; then
+		GUESSED_HOST_OS="$(lsb_release --id --short | tr [:upper:] [:lower:])"
+	fi
+	case "$GUESSED_HOST_OS" in
+		('debian'|'ubuntu')
 			DEFAULT_OPTION_PACKAGE='deb'
 		;;
-		('Arch')
+		('arch')
 			DEFAULT_OPTION_PACKAGE='arch'
 		;;
-	esac
-elif [ ! "$OPTION_PACKAGE" ]; then
-	print_warning
-	case "${LANG%_*}" in
-		('fr')
-			string1='%s est introuvable.\n'
-			string2='Le format de paquet %s sera utilisé par défaut.\n'
+		(*)
+			print_warning
+			case "${LANG%_*}" in
+				('fr')
+					string1='L’auto-détection du format de paquet le plus adapté a échoué.\n'
+					string2='Le format de paquet %s sera utilisé par défaut.\n'
+				;;
+				('en'|*)
+					string1='Most pertinent package format auto-detection failed.\n'
+					string2='%s package format will be used by default.\n'
+				;;
+			esac
+			printf "$string1"
+			printf "$string2" "$DEFAULT_OPTION_PACKAGE"
+			printf '\n'
 		;;
-		('en'|*)
-			string1='%s could not be found.\n'
-			string2='%s package format will be used by default.\n'
-		;;
 	esac
-	printf "$string1" 'lsb_release'
-	printf "$string2" "$DEFAULT_OPTION_PACKAGE"
-	printf '\n'
 fi
 
 # Set options not already set by script arguments to default values
