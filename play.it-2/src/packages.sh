@@ -67,6 +67,8 @@ build_pkg() {
 				liberror 'OPTION_PACKAGE' 'build_pkg'
 			;;
 		esac
+
+		print_ok
 	done
 }
 
@@ -78,10 +80,10 @@ pkg_print() {
 	local string
 	case "${LANG%_*}" in
 		('fr')
-			string='Construction de %s\n'
+			string='Construction de %s'
 		;;
 		('en'|*)
-			string='Building %s\n'
+			string='Building %s'
 		;;
 	esac
 	printf "$string" "$1"

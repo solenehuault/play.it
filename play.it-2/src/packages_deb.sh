@@ -92,7 +92,7 @@ pkg_build_deb() {
 			dpkg_options="-Z$OPTION_COMPRESSION"
 		;;
 		(*)
-			liberror 'OPTION_PACKAGE' 'pkg_build_deb'
+			liberror 'OPTION_COMPRESSION' 'pkg_build_deb'
 		;;
 	esac
 

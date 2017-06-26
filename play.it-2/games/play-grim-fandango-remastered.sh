@@ -34,7 +34,7 @@ set -o errexit
 # send your bug reports to vv221@dotslashplay.it
 ###
 
-script_version=20170601.1
+script_version=20170625.2
 
 # Set game-specific variables
 
@@ -53,21 +53,33 @@ ARCHIVE_DOC1_PATH='data/noarch/docs'
 ARCHIVE_DOC1_FILES='./*'
 
 ARCHIVE_DOC2_PATH='data/noarch/game/bin'
-ARCHIVE_DOC2_FILES='./runtime-README.txt ./*License.txt'
+ARCHIVE_DOC2_FILES='./*License.txt ./common-licenses'
 
-ARCHIVE_GAME_PATH='data/noarch/game/bin'
-ARCHIVE_GAME_FILES='./commentary.lab ./common-licenses ./controllerdef.txt ./CREDITS.LAB ./DATA000.LAB ./DATA001.LAB ./DATA002.LAB ./DATA003.LAB ./DATA004.LAB ./DATA006.LAB ./DATA007.LAB ./en_gagl088.lip ./FontsHD ./grim.de.tab ./grim.en.tab ./grim.es.tab ./GrimFandango ./grim.fr.tab ./grim.it.tab ./grim.pt.tab ./icon.png ./IMAGES.LAB ./IMAGESPATCH001.LAB ./libchore.so ./libLua.so ./libSDL2-2.0.so.1 ./MATERIALS.lab ./MATERIALSPATCH001.LAB ./MOVIE00.LAB ./MOVIE01.LAB ./MOVIE02.LAB ./MOVIE03.LAB ./MOVIE04.LAB ./MoviesHD ./patch_v2_or_v3_to_v4.bin ./patch_v4_to_v5.bin ./runtime-README.txt ./scripts ./TheoraPlaybackLibraryLicense.txt ./TheroaLicense.txt ./VOX0000.LAB ./VOX0001.LAB ./VOX0002.LAB ./VOX0003.LAB ./VOX0004.LAB ./x86 ./YEAR0MUS.LAB ./YEAR1MUS.LAB ./YEAR2MUS.LAB ./YEAR3MUS.LAB ./YEAR4MUS.LAB ./YEAR5MUS.LAB'
+ARCHIVE_GAME_BIN_PATH='data/noarch/game/bin'
+ARCHIVE_GAME_BIN_FILES='./GrimFandango ./*.so ./libSDL2-2.0.so.1 ./x86'
+
+ARCHIVE_GAME_MOVIES_PATH='data/noarch/game/bin'
+ARCHIVE_GAME_MOVIES_FILES='./MoviesHD'
+
+ARCHIVE_GAME_DATA_PATH='data/noarch/game/bin'
+ARCHIVE_GAME_DATA_FILES='./*.lab ./*.LAB ./controllerdef.txt ./en_gagl088.lip ./FontsHD ./*.tab ./icon.png ./patch_v2_or_v3_to_v4.bin ./patch_v4_to_v5.bin'
 
 APP_MAIN_TYPE='native'
-APP_MAIN_EXE='./GrimFandango'
-APP_MAIN_ICON='./icon.png'
-APP_MAIN_ICON_RES='128x128'
+APP_MAIN_EXE='GrimFandango'
+APP_MAIN_ICON='icon.png'
+APP_MAIN_ICON_RES='128'
 
-PACKAGES_LIST='PKG_MAIN'
+PACKAGES_LIST='PKG_DATA PKG_MOVIES PKG_BIN'
 
-PKG_MAIN_ARCH='32'
-PKG_MAIN_DEPS_DEB='libc6, libstdc++6, libsdl2-2.0-0'
-PKG_MAIN_DEPS_ARCH='lib32-sdl2'
+PKG_DATA_ID="${GAME_ID}-data"
+PKG_DATA_DESCRIPTION='data'
+
+PKG_MOVIES_ID="${GAME_ID}-movies"
+PKG_MOVIES_DESCRIPTION='movies'
+
+PKG_BIN_ARCH='32'
+PKG_BIN_DEPS_DEB="$PKG_MOVIES_ID, $PKG_DATA_ID, libc6, libstdc++6, libglu1-mesa | libglu1, libsdl2-2.0-0"
+PKG_BIN_DEPS_ARCH="$PKG_MOVIES_ID $PKG_DATA_ID lib32-glu lib32-sdl2"
 
 # Load common functions
 
@@ -91,14 +103,22 @@ fi
 
 extract_data_from "$SOURCE_ARCHIVE"
 
-organize_data 'DOC1' "$PATH_DOC"
-organize_data 'DOC2' "$PATH_DOC"
-organize_data 'GAME' "$PATH_GAME"
+PKG='PKG_BIN'
+organize_data 'GAME_BIN' "$PATH_GAME"
+
+PKG='PKG_MOVIES'
+organize_data 'GAME_MOVIES' "$PATH_GAME"
+
+PKG='PKG_DATA'
+organize_data 'DOC1'      "$PATH_DOC"
+organize_data 'DOC2'      "$PATH_DOC"
+organize_data 'GAME_DATA' "$PATH_GAME"
 
 rm --recursive "$PLAYIT_WORKDIR/gamedata"
 
 # Write launchers
 
+PKG='PKG_BIN'
 write_launcher 'APP_MAIN'
 
 # Build package
@@ -116,7 +136,9 @@ rm "$PATH_ICON/$GAME_ID.png"
 rmdir --parents --ignore-fail-on-non-empty "$PATH_ICON"
 EOF
 
-write_metadata
+write_metadata 'PKG_DATA'
+rm "$postinst" "$prerm"
+write_metadata 'PKG_MOVIES' 'PKG_BIN'
 build_pkg
 
 # Clean up

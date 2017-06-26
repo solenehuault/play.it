@@ -9,10 +9,10 @@ extract_data_from() {
 	for file in "$@"; do
 		extract_data_from_print "$(basename "$file")"
 
-
 		local destination="$PLAYIT_WORKDIR/gamedata"
 		mkdir --parents "$destination"
-		case "$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")" in
+		local archive_type="$(eval printf -- '%b' \"\$${ARCHIVE}_TYPE\")"
+		case "$archive_type" in
 			('7z')
 				extract_7z "$file" "$destination"
 			;;
@@ -20,6 +20,7 @@ extract_data_from() {
 				dpkg-deb --extract "$file" "$destination"
 			;;
 			('innosetup')
+				printf '\n'
 				innoextract --extract --lowercase --output-dir "$destination" --progress=1 --silent "$file"
 			;;
 			('mojosetup')
@@ -57,6 +58,10 @@ extract_data_from() {
 				liberror 'ARCHIVE_TYPE' 'extract_data_from'
 			;;
 		esac
+
+		if [ "$archive_type" != 'innosetup' ]; then
+			print_ok
+		fi
 	done
 }
 
@@ -67,10 +72,10 @@ extract_data_from() {
 extract_data_from_print() {
 	case "${LANG%_*}" in
 		('fr')
-			string='Extraction des données de %s\n'
+			string='Extraction des données de %s'
 		;;
 		('en'|*)
-			string='Extracting data from %s \n'
+			string='Extracting data from %s'
 		;;
 	esac
 	printf "$string" "$1"

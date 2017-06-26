@@ -1,2 +1,15 @@
 2.0.1
-  * On Debian >= 9 (Stretch), installation instructions show apt usage instead of dpkg + apt-get
+
+  * Test the validity of options values early in the script execution to throw
+  an error before any potentially long task
+
+  * Fix some debug messages
+
+  * Print 'OK' on potentially long tasks completion without a visual
+  progression indicator
+
+  * If host OS auto-detections failed, display a warning before falling back
+  on 'deb' format
+
+  * On Debian >= 9 (Stretch), installation instructions show apt usage instead
+  of dpkg + apt-get

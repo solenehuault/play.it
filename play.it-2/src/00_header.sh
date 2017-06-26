@@ -33,5 +33,5 @@
 ###
 
 library_version=2.0.1~dev
-library_revision=20170616.1
+library_revision=20170625.1
 
